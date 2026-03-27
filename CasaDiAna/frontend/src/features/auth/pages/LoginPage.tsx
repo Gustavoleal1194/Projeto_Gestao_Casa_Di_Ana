@@ -32,7 +32,7 @@ export function LoginPage() {
     try {
       const dados = await authService.login({ email, senha })
       login(dados.token, { nome: dados.nome, papel: dados.papel })
-      navigate('/estoque/ingredientes', { replace: true })
+      navigate('/', { replace: true })
     } catch (e: unknown) {
       setErro((e as Error)?.message ?? 'Erro ao fazer login.')
     } finally {

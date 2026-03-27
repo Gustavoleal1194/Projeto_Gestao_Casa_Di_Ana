@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 export interface UsuarioLogado {
   nome: string
@@ -14,18 +15,23 @@ interface AuthStore {
   temPapel: (...papeis: string[]) => boolean
 }
 
-export const useAuthStore = create<AuthStore>((set, get) => ({
-  token: null,
-  usuario: null,
+export const useAuthStore = create<AuthStore>()(
+  persist(
+    (set, get) => ({
+      token: null,
+      usuario: null,
 
-  login: (token, usuario) => set({ token, usuario }),
+      login: (token, usuario) => set({ token, usuario }),
 
-  logout: () => set({ token: null, usuario: null }),
+      logout: () => set({ token: null, usuario: null }),
 
-  estaAutenticado: () => get().token !== null,
+      estaAutenticado: () => get().token !== null,
 
-  temPapel: (...papeis) => {
-    const papel = get().usuario?.papel
-    return papel ? papeis.includes(papel) : false
-  },
-}))
+      temPapel: (...papeis) => {
+        const papel = get().usuario?.papel
+        return papel ? papeis.includes(papel) : false
+      },
+    }),
+    { name: 'casa-di-ana-auth' }
+  )
+)

@@ -1,0 +1,35 @@
+# ─── .NET ────────────────────────────────────────────────────────────────────
+**/bin/
+**/obj/
+*.user
+*.suo
+.vs/
+*.DotSettings.user
+
+# Secrets e configs locais com credenciais
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/secrets.json
+
+# ─── Node / Frontend ─────────────────────────────────────────────────────────
+**/node_modules/
+**/dist/
+**/.vite/
+**/.env
+**/.env.local
+**/.env.*.local
+
+# ─── Ferramentas de agentes (uso interno) ────────────────────────────────────
+.claude/
+.agents/
+.junie/
+skills-lock.json
+
+# ─── Sistema operacional ─────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── IDEs ────────────────────────────────────────────────────────────────────
+.idea/
+*.swp

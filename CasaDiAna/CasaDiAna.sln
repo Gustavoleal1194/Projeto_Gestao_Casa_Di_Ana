@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{CF2E9D1B-4BC7-43DD-AE92-D35FD4DB75CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CasaDiAna.Domain", "src\CasaDiAna.Domain\CasaDiAna.Domain.csproj", "{5AA61A82-9FB7-4AEA-9143-C123A4F01DDD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CasaDiAna.Application", "src\CasaDiAna.Application\CasaDiAna.Application.csproj", "{AA4F8525-0483-47DC-8431-96A76E7BEFC8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CasaDiAna.Infrastructure", "src\CasaDiAna.Infrastructure\CasaDiAna.Infrastructure.csproj", "{B4BA88AF-CE1F-4944-A16D-D724B6D094EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CasaDiAna.API", "src\CasaDiAna.API\CasaDiAna.API.csproj", "{7A6D79F4-6C63-42EA-9FBD-5950873091D9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{6FF04529-DC17-4C51-86D9-1FB823E91997}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CasaDiAna.Application.Tests", "tests\CasaDiAna.Application.Tests\CasaDiAna.Application.Tests.csproj", "{4A9655C7-EF4B-42D4-9F0B-286338C0420A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5AA61A82-9FB7-4AEA-9143-C123A4F01DDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AA61A82-9FB7-4AEA-9143-C123A4F01DDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AA61A82-9FB7-4AEA-9143-C123A4F01DDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AA61A82-9FB7-4AEA-9143-C123A4F01DDD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA4F8525-0483-47DC-8431-96A76E7BEFC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA4F8525-0483-47DC-8431-96A76E7BEFC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA4F8525-0483-47DC-8431-96A76E7BEFC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA4F8525-0483-47DC-8431-96A76E7BEFC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4BA88AF-CE1F-4944-A16D-D724B6D094EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4BA88AF-CE1F-4944-A16D-D724B6D094EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4BA88AF-CE1F-4944-A16D-D724B6D094EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4BA88AF-CE1F-4944-A16D-D724B6D094EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A6D79F4-6C63-42EA-9FBD-5950873091D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A6D79F4-6C63-42EA-9FBD-5950873091D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A6D79F4-6C63-42EA-9FBD-5950873091D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A6D79F4-6C63-42EA-9FBD-5950873091D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A9655C7-EF4B-42D4-9F0B-286338C0420A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A9655C7-EF4B-42D4-9F0B-286338C0420A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A9655C7-EF4B-42D4-9F0B-286338C0420A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A9655C7-EF4B-42D4-9F0B-286338C0420A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5AA61A82-9FB7-4AEA-9143-C123A4F01DDD} = {CF2E9D1B-4BC7-43DD-AE92-D35FD4DB75CA}
+		{AA4F8525-0483-47DC-8431-96A76E7BEFC8} = {CF2E9D1B-4BC7-43DD-AE92-D35FD4DB75CA}
+		{B4BA88AF-CE1F-4944-A16D-D724B6D094EC} = {CF2E9D1B-4BC7-43DD-AE92-D35FD4DB75CA}
+		{7A6D79F4-6C63-42EA-9FBD-5950873091D9} = {CF2E9D1B-4BC7-43DD-AE92-D35FD4DB75CA}
+		{4A9655C7-EF4B-42D4-9F0B-286338C0420A} = {6FF04529-DC17-4C51-86D9-1FB823E91997}
+	EndGlobalSection
+EndGlobal

@@ -17,6 +17,11 @@ public class AppDbContext : DbContext
     public DbSet<Inventario> Inventarios => Set<Inventario>();
     public DbSet<ItemInventario> ItensInventario => Set<ItemInventario>();
     public DbSet<Movimentacao> Movimentacoes => Set<Movimentacao>();
+    public DbSet<CategoriaProduto> CategoriasProduto => Set<CategoriaProduto>();
+    public DbSet<Produto> Produtos => Set<Produto>();
+    public DbSet<ItemFichaTecnica> ItensFichaTecnica => Set<ItemFichaTecnica>();
+    public DbSet<ProducaoDiaria> ProducoesDiarias => Set<ProducaoDiaria>();
+    public DbSet<VendaDiaria> VendasDiarias => Set<VendaDiaria>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

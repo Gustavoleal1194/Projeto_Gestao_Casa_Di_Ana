@@ -30,6 +30,10 @@ public static class DependencyInjection
         services.AddScoped<IEntradaMercadoriaRepository, EntradaMercadoriaRepository>();
         services.AddScoped<IMovimentacaoRepository, MovimentacaoRepository>();
         services.AddScoped<IInventarioRepository, InventarioRepository>();
+        services.AddScoped<ICategoriaProdutoRepository, CategoriaProdutoRepository>();
+        services.AddScoped<IProdutoRepository, ProdutoRepository>();
+        services.AddScoped<IProducaoDiariaRepository, ProducaoDiariaRepository>();
+        services.AddScoped<IVendaDiariaRepository, VendaDiariaRepository>();
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddHttpContextAccessor();

@@ -13,6 +13,7 @@ public class Ingrediente
     public decimal EstoqueMinimo { get; private set; }
     public decimal? EstoqueMaximo { get; private set; }
     public string? Observacoes { get; private set; }
+    public decimal? CustoUnitario { get; private set; }
     public bool Ativo { get; private set; }
     public DateTime CriadoEm { get; private set; }
     public DateTime AtualizadoEm { get; private set; }
@@ -96,6 +97,15 @@ public class Ingrediente
         if (novoSaldo < 0)
             throw new DomainException("Estoque não pode ser negativo.");
         EstoqueAtual = novoSaldo;
+        AtualizadoEm = DateTime.UtcNow;
+        AtualizadoPor = atualizadoPor;
+    }
+
+    public void AtualizarCusto(decimal? custoUnitario, Guid atualizadoPor)
+    {
+        if (custoUnitario.HasValue && custoUnitario < 0)
+            throw new DomainException("Custo unitário não pode ser negativo.");
+        CustoUnitario = custoUnitario;
         AtualizadoEm = DateTime.UtcNow;
         AtualizadoPor = atualizadoPor;
     }

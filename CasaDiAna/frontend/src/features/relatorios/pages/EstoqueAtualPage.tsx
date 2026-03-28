@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
+import { ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import { relatoriosService } from '../services/relatoriosService'
+import { gerarPdfEstoqueAtual } from '@/lib/pdf'
 import type { EstoqueAtualItem } from '@/types/estoque'
 
 export function EstoqueAtualPage() {
@@ -33,7 +35,17 @@ export function EstoqueAtualPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-stone-800">Estoque Atual</h1>
-        <label className="flex items-center gap-2 cursor-pointer">
+        <div className="flex items-center gap-4">
+          {itens.length > 0 && (
+            <button
+              onClick={() => gerarPdfEstoqueAtual(itens, apenasAbaixo)}
+              className="flex items-center gap-2 px-3 py-2 border border-stone-200 rounded-lg text-sm text-stone-600 hover:bg-stone-50 font-medium"
+            >
+              <ArrowDownTrayIcon className="h-4 w-4" />
+              Baixar PDF
+            </button>
+          )}
+          <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"
             checked={apenasAbaixo}
@@ -42,6 +54,7 @@ export function EstoqueAtualPage() {
           />
           <span className="text-sm text-stone-600">Apenas abaixo do mínimo</span>
         </label>
+        </div>
       </div>
 
       {loading && (

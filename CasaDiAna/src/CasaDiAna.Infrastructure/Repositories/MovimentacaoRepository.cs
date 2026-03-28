@@ -30,8 +30,9 @@ public class MovimentacaoRepository : IMovimentacaoRepository
     public async Task<IReadOnlyList<Movimentacao>> ListarAsync(
         DateTime de, DateTime ate, TipoMovimentacao? tipo = null, CancellationToken ct = default)
     {
+        var ateFimDoDia = ate.Date.AddDays(1);
         var query = _db.Movimentacoes
-            .Where(m => m.CriadoEm >= de && m.CriadoEm <= ate)
+            .Where(m => m.CriadoEm >= de && m.CriadoEm < ateFimDoDia)
             .AsQueryable();
 
         if (tipo.HasValue)

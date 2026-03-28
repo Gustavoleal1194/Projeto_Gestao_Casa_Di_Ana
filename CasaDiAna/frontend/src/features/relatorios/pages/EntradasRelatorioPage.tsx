@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import { relatoriosService } from '../services/relatoriosService'
+import { gerarPdfEntradas } from '@/lib/pdf'
 import type { EntradaRelatorioResumo } from '@/types/estoque'
 
 function hoje(): string { return new Date().toISOString().split('T')[0] }
@@ -41,7 +43,18 @@ export function EntradasRelatorioPage() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold text-stone-800 mb-6">Relatório de Entradas</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-semibold text-stone-800">Relatório de Entradas</h1>
+        {resumo && resumo.entradas.length > 0 && (
+          <button
+            onClick={() => gerarPdfEntradas(resumo, de, ate)}
+            className="flex items-center gap-2 px-3 py-2 border border-stone-200 rounded-lg text-sm text-stone-600 hover:bg-stone-50 font-medium"
+          >
+            <ArrowDownTrayIcon className="h-4 w-4" />
+            Baixar PDF
+          </button>
+        )}
+      </div>
 
       <form onSubmit={handleFiltrar} className="bg-white rounded-xl shadow-sm border border-stone-100 p-4 mb-4 flex flex-wrap gap-3 items-end">
         <div>

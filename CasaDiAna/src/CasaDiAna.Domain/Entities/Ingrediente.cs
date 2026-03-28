@@ -94,8 +94,6 @@ public class Ingrediente
 
     public void AtualizarEstoque(decimal novoSaldo, Guid atualizadoPor)
     {
-        if (novoSaldo < 0)
-            throw new DomainException("Estoque não pode ser negativo.");
         EstoqueAtual = novoSaldo;
         AtualizadoEm = DateTime.UtcNow;
         AtualizadoPor = atualizadoPor;

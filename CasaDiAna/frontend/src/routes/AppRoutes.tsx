@@ -16,6 +16,19 @@ import { InventarioDetalhePage } from '@/features/inventarios/pages/InventarioDe
 import { EstoqueAtualPage } from '@/features/relatorios/pages/EstoqueAtualPage'
 import { MovimentacoesPage } from '@/features/relatorios/pages/MovimentacoesPage'
 import { EntradasRelatorioPage } from '@/features/relatorios/pages/EntradasRelatorioPage'
+import { ProducaoVendasRelatorioPage } from '@/features/relatorios/pages/ProducaoVendasRelatorioPage'
+import { InsumosProducaoPage } from '@/features/relatorios/pages/InsumosProducaoPage'
+import { UsuariosPage } from '@/features/usuarios/pages/UsuariosPage'
+import { CorrecaoEstoquePage } from '@/features/estoque/correcao/pages/CorrecaoEstoquePage'
+import { CategoriasProdutoPage } from '@/features/producao/categorias-produto/pages/CategoriasProdutoPage'
+import { ProdutosPage } from '@/features/producao/produtos/pages/ProdutosPage'
+import { ProdutoFormPage } from '@/features/producao/produtos/pages/ProdutoFormPage'
+import { FichaTecnicaPage } from '@/features/producao/produtos/pages/FichaTecnicaPage'
+import { ProducaoDiariaPage } from '@/features/producao/producao-diaria/pages/ProducaoDiariaPage'
+import { RegistrarProducaoPage } from '@/features/producao/producao-diaria/pages/RegistrarProducaoPage'
+import { VendasDiariasPage } from '@/features/producao/vendas-diarias/pages/VendasDiariasPage'
+import { RegistrarVendaPage } from '@/features/producao/vendas-diarias/pages/RegistrarVendaPage'
+import { PerdasPage } from '@/features/producao/perdas/pages/PerdasPage'
 
 export function AppRoutes() {
   return (
@@ -47,10 +60,30 @@ export function AppRoutes() {
           <Route path="/inventarios/novo" element={<InventarioFormPage />} />
           <Route path="/inventarios/:id" element={<InventarioDetalhePage />} />
 
+          {/* Produção */}
+          <Route path="/producao/categorias-produto" element={<CategoriasProdutoPage />} />
+          <Route path="/producao/produtos" element={<ProdutosPage />} />
+          <Route path="/producao/produtos/novo" element={<ProdutoFormPage />} />
+          <Route path="/producao/produtos/:id/editar" element={<ProdutoFormPage />} />
+          <Route path="/producao/produtos/:id/ficha-tecnica" element={<FichaTecnicaPage />} />
+          <Route path="/producao/diaria" element={<ProducaoDiariaPage />} />
+          <Route path="/producao/diaria/nova" element={<RegistrarProducaoPage />} />
+          <Route path="/producao/vendas" element={<VendasDiariasPage />} />
+          <Route path="/producao/vendas/nova" element={<RegistrarVendaPage />} />
+          <Route path="/producao/perdas" element={<PerdasPage />} />
+
           {/* Relatórios */}
           <Route path="/relatorios/estoque-atual" element={<EstoqueAtualPage />} />
           <Route path="/relatorios/movimentacoes" element={<MovimentacoesPage />} />
           <Route path="/relatorios/entradas" element={<EntradasRelatorioPage />} />
+          <Route path="/relatorios/producao-vendas" element={<ProducaoVendasRelatorioPage />} />
+          <Route path="/relatorios/insumos-producao" element={<InsumosProducaoPage />} />
+
+          {/* Estoque — Correção */}
+          <Route path="/estoque/correcao" element={<CorrecaoEstoquePage />} />
+
+          {/* Configurações */}
+          <Route path="/usuarios" element={<UsuariosPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

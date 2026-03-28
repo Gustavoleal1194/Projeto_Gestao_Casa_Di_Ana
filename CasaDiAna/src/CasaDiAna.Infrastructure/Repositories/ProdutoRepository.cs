@@ -35,7 +35,7 @@ public class ProdutoRepository : IProdutoRepository
 
     public Task<bool> NomeExisteAsync(string nome, Guid? ignorarId = null, CancellationToken ct = default) =>
         _db.Produtos.AnyAsync(p =>
-            p.Nome == nome && (ignorarId == null || p.Id != ignorarId), ct);
+            p.Ativo && p.Nome == nome && (ignorarId == null || p.Id != ignorarId), ct);
 
     public async Task AdicionarAsync(Produto produto, CancellationToken ct = default) =>
         await _db.Produtos.AddAsync(produto, ct);

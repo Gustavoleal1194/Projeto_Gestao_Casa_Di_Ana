@@ -46,20 +46,12 @@ public class RegistrarProducaoCommandHandler
                 $"O produto '{produto.Nome}' não possui ficha técnica cadastrada. " +
                 "Cadastre a ficha técnica antes de registrar a produção.");
 
-        // 2. Carrega ingredientes e verifica estoque suficiente para todos antes de alterar qualquer um
+        // 2. Carrega ingredientes da ficha técnica
         var ingredientesMap = new Dictionary<Guid, Ingrediente>();
         foreach (var item in produto.ItensFicha)
         {
             var ingrediente = await _ingredientes.ObterPorIdAsync(item.IngredienteId, cancellationToken)
                 ?? throw new DomainException($"Ingrediente '{item.IngredienteId}' não encontrado.");
-
-            var quantidadeNecessaria = item.QuantidadePorUnidade * request.QuantidadeProduzida;
-
-            if (ingrediente.EstoqueAtual < quantidadeNecessaria)
-                throw new DomainException(
-                    $"Estoque insuficiente para '{ingrediente.Nome}'. " +
-                    $"Necessário: {quantidadeNecessaria} {ingrediente.UnidadeMedida?.Codigo}. " +
-                    $"Disponível: {ingrediente.EstoqueAtual} {ingrediente.UnidadeMedida?.Codigo}.");
 
             ingredientesMap[item.IngredienteId] = ingrediente;
         }

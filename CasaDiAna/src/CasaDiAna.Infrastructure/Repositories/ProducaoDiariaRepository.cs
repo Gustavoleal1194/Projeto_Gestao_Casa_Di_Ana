@@ -36,6 +36,15 @@ public class ProducaoDiariaRepository : IProducaoDiariaRepository
         return await query.OrderByDescending(p => p.Data).ThenBy(p => p.Produto!.Nome).ToListAsync(ct);
     }
 
+    public async Task<IReadOnlyList<ProducaoDiaria>> ListarPorIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default)
+    {
+        var idList = ids.ToList();
+        return await _db.ProducoesDiarias
+            .Include(p => p.Produto)
+            .Where(p => idList.Contains(p.Id))
+            .ToListAsync(ct);
+    }
+
     public async Task AdicionarAsync(ProducaoDiaria producao, CancellationToken ct = default) =>
         await _db.ProducoesDiarias.AddAsync(producao, ct);
 

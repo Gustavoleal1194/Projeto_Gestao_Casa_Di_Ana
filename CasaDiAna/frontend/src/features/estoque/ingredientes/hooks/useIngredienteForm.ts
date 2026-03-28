@@ -75,7 +75,8 @@ interface UseIngredienteFormOptions {
 
 export function useIngredienteForm({ ingredienteExistente }: UseIngredienteFormOptions = {}) {
   const form = useForm<IngredienteFormValues>({
-    resolver: zodResolver(ingredienteSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(ingredienteSchema) as any,
     defaultValues: ingredienteExistente
       ? ingredienteParaForm(ingredienteExistente)
       : defaultValues,

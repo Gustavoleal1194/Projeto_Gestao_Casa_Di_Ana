@@ -8,6 +8,9 @@ import {
   ChartBarIcon,
   ArrowRightStartOnRectangleIcon,
   UserCircleIcon,
+  CubeIcon,
+  UsersIcon,
+  AdjustmentsHorizontalIcon,
 } from '@heroicons/react/24/outline'
 import { useAuthStore } from '@/store/authStore'
 
@@ -33,10 +36,21 @@ const grupos: NavGroup[] = [
     ],
   },
   {
+    titulo: 'Produção',
+    itens: [
+      { label: 'Categorias de Produto', href: '/producao/categorias-produto', icon: TagIcon, disponivel: true },
+      { label: 'Produtos', href: '/producao/produtos', icon: CubeIcon, disponivel: true },
+      { label: 'Produção Diária', href: '/producao/diaria', icon: CubeIcon, disponivel: true },
+      { label: 'Vendas Diárias', href: '/producao/vendas', icon: CubeIcon, disponivel: true },
+      { label: 'Perdas', href: '/producao/perdas', icon: CubeIcon, disponivel: true },
+    ],
+  },
+  {
     titulo: 'Movimentações',
     itens: [
       { label: 'Entradas', href: '/entradas', icon: ArrowDownTrayIcon, disponivel: true },
       { label: 'Inventário', href: '/inventarios', icon: ClipboardDocumentCheckIcon, disponivel: true },
+      { label: 'Correção de Estoque', href: '/estoque/correcao', icon: AdjustmentsHorizontalIcon, disponivel: true },
     ],
   },
   {
@@ -45,13 +59,16 @@ const grupos: NavGroup[] = [
       { label: 'Estoque Atual', href: '/relatorios/estoque-atual', icon: ChartBarIcon, disponivel: true },
       { label: 'Movimentações', href: '/relatorios/movimentacoes', icon: ChartBarIcon, disponivel: true },
       { label: 'Entradas', href: '/relatorios/entradas', icon: ChartBarIcon, disponivel: true },
+      { label: 'Produção/Vendas', href: '/relatorios/producao-vendas', icon: ChartBarIcon, disponivel: true },
+      { label: 'Insumos por Produção', href: '/relatorios/insumos-producao', icon: ChartBarIcon, disponivel: true },
     ],
   },
 ]
 
 export function Sidebar() {
-  const { usuario, logout } = useAuthStore()
+  const { usuario, logout, temPapel } = useAuthStore()
   const navigate = useNavigate()
+  const isAdmin = temPapel('Admin')
 
   const handleLogout = () => {
     logout()
@@ -61,7 +78,11 @@ export function Sidebar() {
   return (
     <aside className="w-64 min-h-screen bg-stone-900 flex flex-col shrink-0">
       {/* Logo */}
-      <div className="px-6 py-5 border-b border-stone-800">
+      <div
+        className="px-6 py-5 border-b border-stone-800 cursor-pointer hover:bg-stone-800 transition-colors"
+        onClick={() => navigate('/')}
+        title="Ir para o início"
+      >
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-amber-700 flex items-center justify-center text-lg shrink-0">
             ☕
@@ -116,6 +137,32 @@ export function Sidebar() {
           </div>
         ))}
       </nav>
+
+      {/* Configurações — Admin only */}
+      {isAdmin && (
+        <div className="px-3 pb-4 border-b border-stone-800">
+          <p className="px-3 mb-1 text-xs font-semibold text-stone-500 uppercase tracking-widest">
+            Configurações
+          </p>
+          <ul className="space-y-0.5">
+            <li>
+              <NavLink
+                to="/usuarios"
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                    isActive
+                      ? 'bg-amber-700 text-white'
+                      : 'text-stone-400 hover:bg-stone-800 hover:text-white'
+                  }`
+                }
+              >
+                <UsersIcon className="h-4 w-4 shrink-0" />
+                Usuários
+              </NavLink>
+            </li>
+          </ul>
+        </div>
+      )}
 
       {/* Rodapé — usuário */}
       <div className="px-3 py-4 border-t border-stone-800">

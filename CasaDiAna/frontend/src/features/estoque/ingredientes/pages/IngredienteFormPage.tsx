@@ -8,7 +8,7 @@ import { useUnidadesMedida } from '@/features/estoque/unidades/hooks/useUnidades
 import { CampoTexto } from '../components/CampoTexto'
 import { SelectCampo } from '../components/SelectCampo'
 import { Toast } from '../components/Toast'
-import type { Ingrediente, IngredienteFormValues } from '@/types/estoque'
+import type { Ingrediente } from '@/types/estoque'
 
 function Spinner({ className = '' }: { className?: string }) {
   return (
@@ -74,7 +74,8 @@ export function IngredienteFormPage() {
     setUnidadeAtual(unidade?.codigo ?? '')
   }, [unidadeSelecionadaId, unidades])
 
-  const onSubmit = handleSubmit(async (values: IngredienteFormValues) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onSubmit = handleSubmit(async (values: any) => {
     setSalvando(true)
     try {
       await salvar(values)

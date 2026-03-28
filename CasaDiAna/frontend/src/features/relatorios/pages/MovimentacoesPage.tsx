@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
+import { ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import { relatoriosService } from '../services/relatoriosService'
 import { ingredientesService } from '@/features/estoque/ingredientes/services/ingredientesService'
+import { gerarPdfMovimentacoes } from '@/lib/pdf'
 import type { MovimentacaoRelatorio, IngredienteResumo } from '@/types/estoque'
 
 const TIPOS = ['', 'Entrada', 'AjustePositivo', 'AjusteNegativo', 'SaidaProducao']
@@ -48,7 +50,18 @@ export function MovimentacoesPage() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold text-stone-800 mb-6">Movimentações de Estoque</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-semibold text-stone-800">Movimentações de Estoque</h1>
+        {movimentacoes.length > 0 && (
+          <button
+            onClick={() => gerarPdfMovimentacoes(movimentacoes, de, ate)}
+            className="flex items-center gap-2 px-3 py-2 border border-stone-200 rounded-lg text-sm text-stone-600 hover:bg-stone-50 font-medium"
+          >
+            <ArrowDownTrayIcon className="h-4 w-4" />
+            Baixar PDF
+          </button>
+        )}
+      </div>
 
       <form onSubmit={handleFiltrar} className="bg-white rounded-xl shadow-sm border border-stone-100 p-4 mb-4 flex flex-wrap gap-3 items-end">
         <div>

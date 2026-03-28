@@ -25,7 +25,7 @@ public class CategoriaProdutoRepository : ICategoriaProdutoRepository
 
     public Task<bool> NomeExisteAsync(string nome, Guid? ignorarId = null, CancellationToken ct = default) =>
         _db.CategoriasProduto.AnyAsync(c =>
-            c.Nome == nome && (ignorarId == null || c.Id != ignorarId), ct);
+            c.Ativo && c.Nome == nome && (ignorarId == null || c.Id != ignorarId), ct);
 
     public async Task AdicionarAsync(CategoriaProduto categoria, CancellationToken ct = default) =>
         await _db.CategoriasProduto.AddAsync(categoria, ct);

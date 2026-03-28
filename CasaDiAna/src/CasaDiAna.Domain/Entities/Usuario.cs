@@ -32,4 +32,19 @@ public class Usuario
 
     public bool SenhaCorreta(string senha) =>
         BCrypt.Net.BCrypt.Verify(senha, SenhaHash);
+
+    public static string HashSenha(string senha) =>
+        BCrypt.Net.BCrypt.HashPassword(senha);
+
+    public void Desativar()
+    {
+        Ativo = false;
+        AtualizadoEm = DateTime.UtcNow;
+    }
+
+    public void RedefinirSenha(string novaSenhaHash)
+    {
+        SenhaHash = novaSenhaHash;
+        AtualizadoEm = DateTime.UtcNow;
+    }
 }

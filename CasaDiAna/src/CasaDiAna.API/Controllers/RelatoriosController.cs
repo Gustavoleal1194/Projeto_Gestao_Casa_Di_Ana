@@ -2,6 +2,7 @@ using CasaDiAna.Application.Common;
 using CasaDiAna.Application.Relatorios.Dtos;
 using CasaDiAna.Application.Relatorios.Queries.Entradas;
 using CasaDiAna.Application.Relatorios.Queries.EstoqueAtual;
+using CasaDiAna.Application.Relatorios.Queries.InsumosProducao;
 using CasaDiAna.Application.Relatorios.Queries.Movimentacoes;
 using CasaDiAna.Application.VendasDiarias.Dtos;
 using CasaDiAna.Application.VendasDiarias.Queries.RelatorioProducaoVendas;
@@ -65,5 +66,19 @@ public class RelatoriosController : ControllerBase
         var resultado = await _mediator.Send(
             new RelatorioProducaoVendasQuery(de, ate, produtoId), ct);
         return Ok(ApiResponse<RelatorioProducaoVendasDto>.Ok(resultado));
+    }
+
+    [HttpGet("insumos-producao")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<InsumoProducaoDiaDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> InsumosProducao(
+        [FromQuery] DateTime de,
+        [FromQuery] DateTime ate,
+        [FromQuery] Guid? ingredienteId = null,
+        [FromQuery] Guid? produtoId = null,
+        CancellationToken ct = default)
+    {
+        var resultado = await _mediator.Send(
+            new InsumosProducaoQuery(de, ate, ingredienteId, produtoId), ct);
+        return Ok(ApiResponse<IReadOnlyList<InsumoProducaoDiaDto>>.Ok(resultado));
     }
 }

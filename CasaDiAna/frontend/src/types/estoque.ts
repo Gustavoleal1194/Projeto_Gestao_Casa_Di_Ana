@@ -267,3 +267,14 @@ export interface EntradaRelatorioResumo {
   custoTotalConfirmadas: number
   entradas: EntradaRelatorioItem[]
 }
+
+export interface InsumoProducaoDia {
+  data: string          // DateOnly serialized as "YYYY-MM-DD"
+  producaoDiariaId: string
+  produtoId: string
+  produtoNome: string
+  ingredienteId: string
+  ingredienteNome: string
+  unidadeMedidaCodigo: string
+  quantidade: number
+}

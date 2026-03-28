@@ -110,7 +110,7 @@ export function CategoriasPage() {
           onCancelar={() => setParaDesativar(null)}
         />
       )}
-      {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onClose={() => setToast(null)} />}
+      {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
     </div>
   )
 }

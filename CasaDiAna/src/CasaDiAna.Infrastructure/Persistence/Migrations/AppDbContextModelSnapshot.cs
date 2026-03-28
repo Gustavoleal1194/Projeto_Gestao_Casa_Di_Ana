@@ -34,7 +34,7 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnName("ativo");
 
                     b.Property<DateTime>("AtualizadoEm")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("atualizado_em");
 
                     b.Property<Guid>("AtualizadoPor")
@@ -42,7 +42,7 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnName("atualizado_por");
 
                     b.Property<DateTime>("CriadoEm")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("criado_em");
 
                     b.Property<Guid>("CriadoPor")
@@ -63,6 +63,47 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                     b.ToTable("categorias_ingrediente", "estoque");
                 });
 
+            modelBuilder.Entity("CasaDiAna.Domain.Entities.CategoriaProduto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime>("AtualizadoEm")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<Guid>("AtualizadoPor")
+                        .HasColumnType("uuid")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<Guid>("CriadoPor")
+                        .HasColumnType("uuid")
+                        .HasColumnName("criado_por");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("nome");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nome")
+                        .IsUnique();
+
+                    b.ToTable("categorias_produto", "producao");
+                });
+
             modelBuilder.Entity("CasaDiAna.Domain.Entities.EntradaMercadoria", b =>
                 {
                     b.Property<Guid>("Id")
@@ -71,7 +112,7 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnName("id");
 
                     b.Property<DateTime>("AtualizadoEm")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("atualizado_em");
 
                     b.Property<Guid>("AtualizadoPor")
@@ -79,7 +120,7 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnName("atualizado_por");
 
                     b.Property<DateTime>("CriadoEm")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("criado_em");
 
                     b.Property<Guid>("CriadoPor")
@@ -87,7 +128,7 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnName("criado_por");
 
                     b.Property<DateTime>("DataEntrada")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("data_entrada");
 
                     b.Property<Guid>("FornecedorId")
@@ -133,7 +174,7 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnName("ativo");
 
                     b.Property<DateTime>("AtualizadoEm")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("atualizado_em");
 
                     b.Property<Guid>("AtualizadoPor")
@@ -152,7 +193,7 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnName("contato_nome");
 
                     b.Property<DateTime>("CriadoEm")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("criado_em");
 
                     b.Property<Guid>("CriadoPor")
@@ -212,7 +253,7 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnName("ativo");
 
                     b.Property<DateTime>("AtualizadoEm")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("atualizado_em");
 
                     b.Property<Guid>("AtualizadoPor")
@@ -229,12 +270,17 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnName("codigo_interno");
 
                     b.Property<DateTime>("CriadoEm")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("criado_em");
 
                     b.Property<Guid>("CriadoPor")
                         .HasColumnType("uuid")
                         .HasColumnName("criado_por");
+
+                    b.Property<decimal?>("CustoUnitario")
+                        .HasPrecision(15, 4)
+                        .HasColumnType("numeric(15,4)")
+                        .HasColumnName("custo_unitario");
 
                     b.Property<decimal>("EstoqueAtual")
                         .HasPrecision(15, 4)
@@ -294,7 +340,7 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnName("id");
 
                     b.Property<DateTime>("AtualizadoEm")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("atualizado_em");
 
                     b.Property<Guid>("AtualizadoPor")
@@ -302,7 +348,7 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnName("atualizado_por");
 
                     b.Property<DateTime>("CriadoEm")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("criado_em");
 
                     b.Property<Guid>("CriadoPor")
@@ -310,7 +356,7 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnName("criado_por");
 
                     b.Property<DateTime>("DataRealizacao")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("data_realizacao");
 
                     b.Property<string>("Descricao")
@@ -319,7 +365,7 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnName("descricao");
 
                     b.Property<DateTime?>("FinalizadoEm")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("finalizado_em");
 
                     b.Property<string>("Observacoes")
@@ -381,6 +427,36 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("CasaDiAna.Domain.Entities.ItemFichaTecnica", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("IngredienteId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ingrediente_id");
+
+                    b.Property<Guid>("ProdutoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("produto_id");
+
+                    b.Property<decimal>("QuantidadePorUnidade")
+                        .HasPrecision(15, 4)
+                        .HasColumnType("numeric(15,4)")
+                        .HasColumnName("quantidade_por_unidade");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IngredienteId");
+
+                    b.HasIndex("ProdutoId", "IngredienteId")
+                        .IsUnique();
+
+                    b.ToTable("itens_ficha_tecnica", "producao");
+                });
+
             modelBuilder.Entity("CasaDiAna.Domain.Entities.ItemInventario", b =>
                 {
                     b.Property<Guid>("Id")
@@ -433,7 +509,7 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnName("id");
 
                     b.Property<DateTime>("CriadoEm")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("criado_em");
 
                     b.Property<Guid>("CriadoPor")
@@ -490,6 +566,151 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
 
                             t.HasCheckConstraint("chk_mov_saldo_nao_negativo", "saldo_apos >= 0");
                         });
+                });
+
+            modelBuilder.Entity("CasaDiAna.Domain.Entities.PerdaProduto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<Guid>("CriadoPor")
+                        .HasColumnType("uuid")
+                        .HasColumnName("criado_por");
+
+                    b.Property<DateTime>("Data")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("data");
+
+                    b.Property<string>("Justificativa")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("justificativa");
+
+                    b.Property<Guid>("ProdutoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("produto_id");
+
+                    b.Property<decimal>("Quantidade")
+                        .HasPrecision(15, 4)
+                        .HasColumnType("numeric(15,4)")
+                        .HasColumnName("quantidade");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Data");
+
+                    b.HasIndex("ProdutoId", "Data");
+
+                    b.ToTable("perdas_produto", "producao");
+                });
+
+            modelBuilder.Entity("CasaDiAna.Domain.Entities.ProducaoDiaria", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<Guid>("CriadoPor")
+                        .HasColumnType("uuid")
+                        .HasColumnName("criado_por");
+
+                    b.Property<decimal>("CustoTotal")
+                        .HasPrecision(15, 2)
+                        .HasColumnType("numeric(15,2)")
+                        .HasColumnName("custo_total");
+
+                    b.Property<DateTime>("Data")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("data");
+
+                    b.Property<string>("Observacoes")
+                        .HasColumnType("text")
+                        .HasColumnName("observacoes");
+
+                    b.Property<Guid>("ProdutoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("produto_id");
+
+                    b.Property<decimal>("QuantidadeProduzida")
+                        .HasPrecision(15, 4)
+                        .HasColumnType("numeric(15,4)")
+                        .HasColumnName("quantidade_produzida");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Data");
+
+                    b.HasIndex("ProdutoId", "Data");
+
+                    b.ToTable("producoes_diarias", "producao");
+                });
+
+            modelBuilder.Entity("CasaDiAna.Domain.Entities.Produto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime>("AtualizadoEm")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<Guid>("AtualizadoPor")
+                        .HasColumnType("uuid")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<Guid?>("CategoriaProdutoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("categoria_produto_id");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<Guid>("CriadoPor")
+                        .HasColumnType("uuid")
+                        .HasColumnName("criado_por");
+
+                    b.Property<string>("Descricao")
+                        .HasColumnType("text")
+                        .HasColumnName("descricao");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("nome");
+
+                    b.Property<decimal>("PrecoVenda")
+                        .HasPrecision(15, 2)
+                        .HasColumnType("numeric(15,2)")
+                        .HasColumnName("preco_venda");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoriaProdutoId");
+
+                    b.HasIndex("Nome")
+                        .IsUnique();
+
+                    b.ToTable("produtos", "producao");
                 });
 
             modelBuilder.Entity("CasaDiAna.Domain.Entities.UnidadeMedida", b =>
@@ -583,11 +804,11 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnName("ativo");
 
                     b.Property<DateTime>("AtualizadoEm")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("atualizado_em");
 
                     b.Property<DateTime>("CriadoEm")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("criado_em");
 
                     b.Property<string>("Email")
@@ -619,6 +840,43 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("usuarios", "auth");
+                });
+
+            modelBuilder.Entity("CasaDiAna.Domain.Entities.VendaDiaria", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<Guid>("CriadoPor")
+                        .HasColumnType("uuid")
+                        .HasColumnName("criado_por");
+
+                    b.Property<DateTime>("Data")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("data");
+
+                    b.Property<Guid>("ProdutoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("produto_id");
+
+                    b.Property<decimal>("QuantidadeVendida")
+                        .HasPrecision(15, 4)
+                        .HasColumnType("numeric(15,4)")
+                        .HasColumnName("quantidade_vendida");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Data");
+
+                    b.HasIndex("ProdutoId", "Data");
+
+                    b.ToTable("vendas_diarias", "producao");
                 });
 
             modelBuilder.Entity("CasaDiAna.Domain.Entities.EntradaMercadoria", b =>
@@ -667,6 +925,23 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                     b.Navigation("Ingrediente");
                 });
 
+            modelBuilder.Entity("CasaDiAna.Domain.Entities.ItemFichaTecnica", b =>
+                {
+                    b.HasOne("CasaDiAna.Domain.Entities.Ingrediente", "Ingrediente")
+                        .WithMany()
+                        .HasForeignKey("IngredienteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CasaDiAna.Domain.Entities.Produto", null)
+                        .WithMany("ItensFicha")
+                        .HasForeignKey("ProdutoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ingrediente");
+                });
+
             modelBuilder.Entity("CasaDiAna.Domain.Entities.ItemInventario", b =>
                 {
                     b.HasOne("CasaDiAna.Domain.Entities.Ingrediente", "Ingrediente")
@@ -695,6 +970,49 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                     b.Navigation("Ingrediente");
                 });
 
+            modelBuilder.Entity("CasaDiAna.Domain.Entities.PerdaProduto", b =>
+                {
+                    b.HasOne("CasaDiAna.Domain.Entities.Produto", "Produto")
+                        .WithMany()
+                        .HasForeignKey("ProdutoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Produto");
+                });
+
+            modelBuilder.Entity("CasaDiAna.Domain.Entities.ProducaoDiaria", b =>
+                {
+                    b.HasOne("CasaDiAna.Domain.Entities.Produto", "Produto")
+                        .WithMany()
+                        .HasForeignKey("ProdutoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Produto");
+                });
+
+            modelBuilder.Entity("CasaDiAna.Domain.Entities.Produto", b =>
+                {
+                    b.HasOne("CasaDiAna.Domain.Entities.CategoriaProduto", "Categoria")
+                        .WithMany()
+                        .HasForeignKey("CategoriaProdutoId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Categoria");
+                });
+
+            modelBuilder.Entity("CasaDiAna.Domain.Entities.VendaDiaria", b =>
+                {
+                    b.HasOne("CasaDiAna.Domain.Entities.Produto", "Produto")
+                        .WithMany()
+                        .HasForeignKey("ProdutoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Produto");
+                });
+
             modelBuilder.Entity("CasaDiAna.Domain.Entities.EntradaMercadoria", b =>
                 {
                     b.Navigation("Itens");
@@ -703,6 +1021,11 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("CasaDiAna.Domain.Entities.Inventario", b =>
                 {
                     b.Navigation("Itens");
+                });
+
+            modelBuilder.Entity("CasaDiAna.Domain.Entities.Produto", b =>
+                {
+                    b.Navigation("ItensFicha");
                 });
 #pragma warning restore 612, 618
         }

@@ -66,6 +66,7 @@ public class RegistrarEntradaCommandHandler : IRequestHandler<RegistrarEntradaCo
             var ingrediente = ingredientesMap[item.IngredienteId];
             var novoSaldo = ingrediente.EstoqueAtual + item.Quantidade;
             ingrediente.AtualizarEstoque(novoSaldo, _currentUser.UsuarioId);
+            ingrediente.AtualizarCusto(item.CustoUnitario, _currentUser.UsuarioId);
             _ingredientes.Atualizar(ingrediente);
 
             var movimentacao = Movimentacao.Criar(

@@ -7,10 +7,6 @@ RUN npm ci
 
 COPY . .
 
-# URL da API injetada em build time
-ARG VITE_API_URL
-ENV VITE_API_URL=$VITE_API_URL
-
 RUN npm run build
 
 # Stage 2: servir com nginx

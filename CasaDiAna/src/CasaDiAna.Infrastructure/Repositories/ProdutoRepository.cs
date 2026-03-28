@@ -43,6 +43,17 @@ public class ProdutoRepository : IProdutoRepository
     public void Atualizar(Produto produto) =>
         _db.Produtos.Update(produto);
 
+    public async Task SubstituirItensFichaAsync(Produto produto, CancellationToken ct = default)
+    {
+        var itensExistentes = await _db.ItensFichaTecnica
+            .Where(i => i.ProdutoId == produto.Id)
+            .ToListAsync(ct);
+
+        _db.ItensFichaTecnica.RemoveRange(itensExistentes);
+        await _db.ItensFichaTecnica.AddRangeAsync(produto.ItensFicha, ct);
+        _db.Produtos.Update(produto);
+    }
+
     public Task<int> SalvarAsync(CancellationToken ct = default) =>
         _db.SaveChangesAsync(ct);
 }

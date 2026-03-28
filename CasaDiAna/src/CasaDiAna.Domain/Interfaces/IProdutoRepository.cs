@@ -10,5 +10,6 @@ public interface IProdutoRepository
     Task<bool> NomeExisteAsync(string nome, Guid? ignorarId = null, CancellationToken ct = default);
     Task AdicionarAsync(Produto produto, CancellationToken ct = default);
     void Atualizar(Produto produto);
+    Task SubstituirItensFichaAsync(Produto produto, CancellationToken ct = default);
     Task<int> SalvarAsync(CancellationToken ct = default);
 }

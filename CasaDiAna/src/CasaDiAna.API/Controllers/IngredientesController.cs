@@ -1,4 +1,5 @@
 using CasaDiAna.Application.Common;
+using CasaDiAna.Application.Ingredientes.Commands.AtualizarCustoIngrediente;
 using CasaDiAna.Application.Ingredientes.Commands.AtualizarIngrediente;
 using CasaDiAna.Application.Ingredientes.Commands.CriarIngrediente;
 using CasaDiAna.Application.Ingredientes.Commands.DesativarIngrediente;
@@ -66,6 +67,17 @@ public class IngredientesController : ControllerBase
     public async Task<IActionResult> Desativar(Guid id, CancellationToken ct)
     {
         await _mediator.Send(new DesativarIngredienteCommand(id), ct);
+        return NoContent();
+    }
+
+    [HttpPatch("{id:guid}/custo")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> AtualizarCusto(
+        Guid id, [FromBody] AtualizarCustoIngredienteCommand command, CancellationToken ct)
+    {
+        await _mediator.Send(command with { Id = id }, ct);
         return NoContent();
     }
 }

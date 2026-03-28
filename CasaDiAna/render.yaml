@@ -9,8 +9,8 @@ services:
   - type: web
     name: casadiana-api
     runtime: docker
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
+    dockerfilePath: ./CasaDiAna/Dockerfile
+    dockerContext: ./CasaDiAna
     plan: free
     healthCheckPath: /swagger/v1/swagger.json
     envVars:
@@ -21,19 +21,19 @@ services:
           name: casadiana-db
           property: connectionString
       - key: Jwt__Chave
-        generateValue: true   # Render gera uma chave aleatória segura
+        generateValue: true
       - key: Jwt__Emissor
         value: CasaDiAna
       - key: CorsOrigins
-        value: https://casadiana-frontend.onrender.com   # ajustar após 1º deploy
+        value: https://casadiana-frontend.onrender.com
 
   # ── Frontend ───────────────────────────────────────────────────────────────
   - type: web
     name: casadiana-frontend
     runtime: docker
-    dockerfilePath: ./frontend/Dockerfile
-    dockerContext: ./frontend
+    dockerfilePath: ./CasaDiAna/frontend/Dockerfile
+    dockerContext: ./CasaDiAna/frontend
     plan: free
     envVars:
       - key: VITE_API_URL
-        value: https://casadiana-api.onrender.com/api   # ajustar após 1º deploy do backend
+        value: https://casadiana-api.onrender.com/api

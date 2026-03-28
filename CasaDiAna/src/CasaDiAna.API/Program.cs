@@ -1,5 +1,7 @@
 using System.Text;
 using CasaDiAna.API.Middleware;
+using CasaDiAna.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 using CasaDiAna.Application.Common;
 using CasaDiAna.Infrastructure;
 using FluentValidation;
@@ -93,23 +95,30 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// CORS — permite chamadas do frontend em desenvolvimento
+// CORS — origens configuráveis via env var CORS_ORIGINS (vírgula separada)
+var corsOrigins = (builder.Configuration["CorsOrigins"] ?? "http://localhost:5173")
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
 builder.Services.AddCors(opt =>
     opt.AddDefaultPolicy(p =>
-        p.WithOrigins("http://localhost:5173")
+        p.WithOrigins(corsOrigins)
          .AllowAnyHeader()
          .AllowAnyMethod()));
 
 var app = builder.Build();
 
+// Aplica migrations automaticamente na inicialização (necessário em containers)
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Casa di Ana v1"));
-}
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Casa di Ana v1"));
 
 app.UseCors();
 app.UseAuthentication();

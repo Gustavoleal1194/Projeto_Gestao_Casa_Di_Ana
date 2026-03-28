@@ -1,0 +1,8 @@
+**/bin/
+**/obj/
+frontend/
+docs/
+tests/
+**/.git/
+**/.vs/
+**/*.user

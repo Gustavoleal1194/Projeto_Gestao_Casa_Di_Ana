@@ -15,9 +15,13 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        // Suporta DATABASE_URL no formato postgres:// (Render, Railway, Heroku)
+        // ou ConnectionStrings__Default no formato Npgsql
+        var connectionString = ResolverConnectionString(configuration);
+
         services.AddDbContext<AppDbContext>(opt =>
             opt.UseNpgsql(
-                configuration.GetConnectionString("Default"),
+                connectionString,
                 npgsql => npgsql.MigrationsAssembly(
                     typeof(AppDbContext).Assembly.FullName))
         );
@@ -40,5 +44,24 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
 
         return services;
+    }
+
+    /// <summary>
+    /// Converte DATABASE_URL (postgres://user:pass@host:port/db) para formato Npgsql,
+    /// ou devolve ConnectionStrings:Default diretamente.
+    /// </summary>
+    private static string ResolverConnectionString(IConfiguration configuration)
+    {
+        var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+        if (!string.IsNullOrWhiteSpace(databaseUrl))
+        {
+            // postgres://user:password@host:port/database
+            var uri = new Uri(databaseUrl);
+            var userInfo = uri.UserInfo.Split(':');
+            return $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
+        }
+
+        return configuration.GetConnectionString("Default")
+            ?? throw new InvalidOperationException("Connection string não configurada. Defina DATABASE_URL ou ConnectionStrings__Default.");
     }
 }

@@ -61,6 +61,10 @@ curl -s http://localhost:5130/api/auth/login -X POST \
 
 No Swagger: colar **apenas o token** (sem `Bearer `), pois o scheme `SecuritySchemeType.Http` adiciona o prefixo.
 
+**Usuário seed:** `admin@casadiana.com` / `Admin@123` criado automaticamente na inicialização se o banco estiver vazio (`Program.cs`).
+
+**Swagger em produção:** desabilitado por padrão. Para habilitar no Render, adicionar env var `Swagger__Habilitado=true` no serviço `casadiana-api`.
+
 ---
 
 ## Arquitetura Backend
@@ -147,6 +151,14 @@ Ao registrar uma entrada de mercadoria, chamar **tanto** `ingrediente.AtualizarE
 
 Produção diária **não valida estoque suficiente** — é registrada após o fato. Estoque pode ficar negativo.
 
+### Segurança implementada
+
+- **Rate limiting:** `[EnableRateLimiting("login")]` no `AuthController` — máx. 10 tentativas/min por IP (HTTP 429)
+- **Security headers:** `X-Content-Type-Options`, `X-Frame-Options`, `X-XSS-Protection`, `Referrer-Policy` adicionados via middleware em `Program.cs`
+- **CORS:** restrito a `Authorization`, `Content-Type`, `Accept` e métodos `GET/POST/PUT/DELETE/PATCH/OPTIONS`
+- **Senha:** mínimo 8 chars + maiúscula + minúscula + número + especial (validator em `CriarUsuarioCommandValidator`)
+- **JWT:** expiração configurável via `Jwt:ExpiracaoMinutos` (padrão: 60 min)
+
 ### Filtros de data em relatórios
 
 `MovimentacaoRepository.ListarAsync` usa `m.CriadoEm < ate.Date.AddDays(1)` (exclusivo). Todos os novos filtros por data devem seguir o mesmo padrão para incluir registros do dia inteiro.
@@ -170,6 +182,38 @@ Produção diária **não valida estoque suficiente** — é registrada após o 
 | Estoque (Correção) | `POST /api/estoque/correcoes` |
 | Usuários | `GET/POST /api/usuarios`, `DELETE /api/usuarios/{id}`, `PATCH /api/usuarios/{id}/senha` (Admin only) |
 | Relatórios | `GET /api/relatorios/estoque-atual\|movimentacoes\|entradas\|producao-vendas\|insumos-producao` |
+
+---
+
+## Deploy (Docker + Render)
+
+### Estrutura Docker
+
+- **Backend:** `CasaDiAna/Dockerfile` — multi-stage `dotnet/sdk:8.0` → `dotnet/aspnet:8.0`, porta 8080
+- **Frontend:** `CasaDiAna/frontend/Dockerfile` — multi-stage `node:20-alpine` → `nginx:alpine`, porta 80
+- **Local:** `CasaDiAna/docker-compose.yml` — postgres:5433, api:8080, frontend:3000
+
+### render.yaml
+
+O repositório git tem raiz em `ProjetoGestao/`. Os caminhos no `render.yaml` são relativos à raiz do repo:
+```yaml
+dockerfilePath: ./CasaDiAna/Dockerfile          # backend
+dockerContext:  ./CasaDiAna                      # backend
+dockerfilePath: ./CasaDiAna/frontend/Dockerfile  # frontend
+dockerContext:  ./CasaDiAna/frontend             # frontend
+```
+
+**Armadilhas já resolvidas:**
+- `.dockerignore` na raiz (`CasaDiAna/.dockerignore`) é o que o Render usa para o build do frontend — `frontend/` estava excluindo tudo inclusive `.env.production`
+- `dotnet restore` deve apontar para o `.csproj` da API, não para a `.sln` (que referencia projeto de testes não copiado)
+- `DATABASE_URL` do Render não tem porta explícita → `uri.Port == -1` → usar `5432` como fallback em `DependencyInjection.cs`
+
+### Variável VITE_API_URL
+
+Vite substitui `import.meta.env.VITE_*` em **tempo de build**, não em runtime. A URL de produção é injetada via:
+1. `frontend/.env.production` → `VITE_API_URL=https://casadiana-api.onrender.com/api`
+2. `ARG/ENV VITE_API_URL` no `frontend/Dockerfile` como fallback
+3. `define` no `vite.config.ts` lê `process.env.VITE_API_URL`
 
 ---
 
@@ -220,6 +264,29 @@ frontend/src/
 - **Autenticação:** `useAuthStore()` expõe `usuario`, `logout`, `temPapel(...papeis)`. Papéis: `Admin`, `Coordenador`, `Compras`, `Operador` (somente leitura)
 - **Design:** tema "Café Rústico Refinado" — `amber-700` primário, `stone-900` sidebar, `stone-50` fundo
 - **Datas da API:** o backend retorna datas como `"2026-03-28T00:00:00"`. Usar `new Date(valor)` diretamente — **não concatenar** `'T12:00:00'` (gera Invalid Date)
+
+### Responsividade mobile
+
+`MainLayout.tsx` gerencia estado `sidebarAberta`. Em mobile (`< md`):
+- Barra de topo `stone-900` com botão ☰ (sticky, dentro do fluxo — não fixed)
+- Overlay escuro + `Sidebar` com `fixed` e `translate-x` condicional
+- Sidebar recebe props `aberta` e `onFechar`; cada `NavLink` chama `onFechar` ao navegar
+
+Ao adicionar novas tabelas, sempre envolver com `<div className="overflow-x-auto">`. Cabeçalhos de página com título + botões devem usar `flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`.
+
+### Dashboard
+
+`DashboardPage.tsx` contém dois componentes reutilizáveis internos:
+- `DashboardCard` — KPI card com 4 variantes (`default`, `positivo`, `negativo`, `alerta`)
+- `ChartContainer` — wrapper de gráfico com título, subtítulo, rodapé de legenda e estado vazio
+
+Paleta semântica dos gráficos (aplicar consistentemente em novos gráficos):
+- `#22c55e` verde → vendido / positivo
+- `#ef4444` vermelho → perda / negativo
+- `#f97316` laranja → produção
+- `#3b82f6` azul → neutro / estoque
+
+O gráfico de Produção vs Vendas é stacked bar: **Vendido + Perda + Restante = total produzido**. `LabelList.formatter` deve ser tipado como `(v: unknown) => string` para compatibilidade com Recharts.
 
 ### Testes (backend)
 

@@ -63,7 +63,7 @@ function DashboardCard({ titulo, valor, subtexto, variante = 'default', icone }:
 interface ChartContainerProps {
   titulo: string
   subtitulo?: string
-  children: React.ReactNode
+  children?: React.ReactNode
   rodape?: React.ReactNode
   vazio?: boolean
 }
@@ -386,7 +386,7 @@ export function DashboardPage() {
                       <LabelList
                         dataKey="margem"
                         position="right"
-                        formatter={(v: number) => pct(v)}
+                        formatter={(v: unknown) => pct(Number(v))}
                         style={{ fontSize: 11, fill: '#78716c', fontWeight: 600 }}
                       />
                       {chartMargem.map((entry, i) => (

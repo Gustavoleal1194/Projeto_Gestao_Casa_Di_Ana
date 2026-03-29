@@ -12,7 +12,7 @@ services:
     dockerfilePath: ./CasaDiAna/Dockerfile
     dockerContext: ./CasaDiAna
     plan: free
-    healthCheckPath: /health
+    healthCheckPath: /swagger/v1/swagger.json
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production

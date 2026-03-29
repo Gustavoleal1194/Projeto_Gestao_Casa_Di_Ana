@@ -115,6 +115,7 @@ export function EntradaDetalhePage() {
       )}
 
       <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-4">
+        <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-stone-50 border-b border-stone-200">
             <tr>
@@ -144,6 +145,7 @@ export function EntradaDetalhePage() {
             </tr>
           </tfoot>
         </table>
+        </div>
       </div>
 
       {confirmando && (

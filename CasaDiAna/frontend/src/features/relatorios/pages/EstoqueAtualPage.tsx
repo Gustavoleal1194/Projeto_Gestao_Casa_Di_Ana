@@ -33,7 +33,7 @@ export function EstoqueAtualPage() {
 
   return (
     <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <h1 className="text-2xl font-semibold text-stone-800">Estoque Atual</h1>
         <div className="flex items-center gap-4">
           {itens.length > 0 && (
@@ -73,6 +73,7 @@ export function EstoqueAtualPage() {
               <p className="text-stone-500 text-sm">Nenhum ingrediente encontrado.</p>
             </div>
           ) : (
+            <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-stone-50 border-b border-stone-200">
                 <tr>
@@ -109,6 +110,7 @@ export function EstoqueAtualPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       )}

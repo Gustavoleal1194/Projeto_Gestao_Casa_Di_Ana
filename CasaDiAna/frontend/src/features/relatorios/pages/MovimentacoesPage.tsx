@@ -50,7 +50,7 @@ export function MovimentacoesPage() {
 
   return (
     <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <h1 className="text-2xl font-semibold text-stone-800">Movimentações de Estoque</h1>
         {movimentacoes.length > 0 && (
           <button
@@ -102,6 +102,7 @@ export function MovimentacoesPage() {
           {movimentacoes.length === 0 ? (
             <div className="py-16 text-center"><p className="text-stone-500 text-sm">Nenhuma movimentação no período.</p></div>
           ) : (
+            <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-stone-50 border-b border-stone-200">
                 <tr>
@@ -133,6 +134,7 @@ export function MovimentacoesPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       )}

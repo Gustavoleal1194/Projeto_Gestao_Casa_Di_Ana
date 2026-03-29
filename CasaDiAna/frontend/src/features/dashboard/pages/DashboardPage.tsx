@@ -93,7 +93,7 @@ export function DashboardPage() {
       {/* Título + filtro */}
       <div className="flex flex-wrap items-end gap-4 justify-between">
         <h1 className="text-2xl font-semibold text-stone-800">Dashboard</h1>
-        <div className="flex flex-wrap gap-3 items-end">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
           <div>
             <label className="block text-xs font-medium text-stone-500 mb-1">De</label>
             <input type="date" value={de} onChange={e => setDe(e.target.value)} className={inputClass} />

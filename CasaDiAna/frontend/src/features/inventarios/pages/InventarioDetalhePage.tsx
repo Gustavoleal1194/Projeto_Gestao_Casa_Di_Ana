@@ -246,6 +246,7 @@ export function InventarioDetalhePage() {
             <p className="text-stone-500 text-sm">Nenhum item lançado ainda.</p>
           </div>
         ) : (
+          <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-stone-50 border-b border-stone-200">
               <tr>
@@ -277,6 +278,7 @@ export function InventarioDetalhePage() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
 

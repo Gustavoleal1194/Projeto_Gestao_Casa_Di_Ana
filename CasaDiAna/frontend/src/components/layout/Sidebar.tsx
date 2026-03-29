@@ -65,7 +65,7 @@ const grupos: NavGroup[] = [
   },
 ]
 
-export function Sidebar() {
+export function Sidebar({ aberta, onFechar }: { aberta: boolean; onFechar: () => void }) {
   const { usuario, logout, temPapel } = useAuthStore()
   const navigate = useNavigate()
   const isAdmin = temPapel('Admin')
@@ -76,7 +76,7 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="w-64 min-h-screen bg-stone-900 flex flex-col shrink-0">
+    <aside className={`w-64 min-h-screen bg-stone-900 flex flex-col shrink-0 fixed md:static inset-y-0 left-0 z-30 transition-transform duration-300 ${aberta ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
       {/* Logo */}
       <div
         className="px-6 py-5 border-b border-stone-800 cursor-pointer hover:bg-stone-800 transition-colors"
@@ -119,6 +119,7 @@ export function Sidebar() {
                   <li key={item.href}>
                     <NavLink
                       to={item.href}
+                      onClick={onFechar}
                       className={({ isActive }) =>
                         `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                           isActive
@@ -148,6 +149,7 @@ export function Sidebar() {
             <li>
               <NavLink
                 to="/usuarios"
+                onClick={onFechar}
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                     isActive

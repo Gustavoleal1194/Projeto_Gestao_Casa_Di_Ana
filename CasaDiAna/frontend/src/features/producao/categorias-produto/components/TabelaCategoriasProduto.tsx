@@ -19,6 +19,7 @@ export function TabelaCategoriasProduto({ categorias, podeEditar, onEditar, onDe
 
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div className="overflow-x-auto">
       <table className="w-full">
         <thead className="bg-stone-50 border-b border-stone-200">
           <tr>
@@ -62,6 +63,7 @@ export function TabelaCategoriasProduto({ categorias, podeEditar, onEditar, onDe
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   )
 }

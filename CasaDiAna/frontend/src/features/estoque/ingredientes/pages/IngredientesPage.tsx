@@ -67,7 +67,7 @@ export function IngredientesPage() {
   return (
     <div className="p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <h1 className="text-2xl font-semibold text-stone-800">Ingredientes</h1>
         {podeEditar && (
           <button

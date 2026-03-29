@@ -100,7 +100,7 @@ export function PerdasPage() {
   return (
     <div className="p-6">
       {/* Cabeçalho */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
           <h1 className="text-2xl font-semibold text-stone-800">Registro de Perdas</h1>
           <p className="text-sm text-stone-500 mt-1">
@@ -157,6 +157,7 @@ export function PerdasPage() {
       )}
       {!loading && !erro && perdas.length > 0 && (
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-stone-50 border-b border-stone-200">
               <tr>
@@ -183,6 +184,7 @@ export function PerdasPage() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 

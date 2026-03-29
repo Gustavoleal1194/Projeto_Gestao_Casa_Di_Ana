@@ -71,7 +71,7 @@ export function InsumosProducaoPage() {
 
   return (
     <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
           <h1 className="text-2xl font-semibold text-stone-800">Insumos por Produção</h1>
           <p className="text-sm text-stone-500 mt-1">
@@ -150,6 +150,7 @@ export function InsumosProducaoPage() {
                   <span className="text-sm font-semibold text-stone-700 capitalize">{dataFormatada}</span>
                   <span className="text-xs text-stone-500">{linhas.length} lançamento(s)</span>
                 </div>
+                <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-stone-50 border-b border-stone-100">
                     <tr>
@@ -181,6 +182,7 @@ export function InsumosProducaoPage() {
                     </tr>
                   </tfoot>
                 </table>
+                </div>
               </div>
             )
           })}

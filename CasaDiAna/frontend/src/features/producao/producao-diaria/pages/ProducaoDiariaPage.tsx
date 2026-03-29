@@ -29,7 +29,7 @@ export function ProducaoDiariaPage() {
 
   return (
     <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <h1 className="text-2xl font-semibold text-stone-800">Produção Diária</h1>
         {podeEditar && (
           <button
@@ -83,6 +83,7 @@ export function ProducaoDiariaPage() {
               <p className="text-stone-500 text-sm">Nenhuma produção registrada no período.</p>
             </div>
           ) : (
+            <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-stone-50 border-b border-stone-200">
                 <tr>
@@ -109,6 +110,7 @@ export function ProducaoDiariaPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       )}

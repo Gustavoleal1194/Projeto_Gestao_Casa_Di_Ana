@@ -1,5 +1,7 @@
 using System.Text;
 using CasaDiAna.API.Middleware;
+using CasaDiAna.Domain.Entities;
+using CasaDiAna.Domain.Enums;
 using CasaDiAna.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using CasaDiAna.Application.Common;
@@ -107,11 +109,22 @@ builder.Services.AddCors(opt =>
 
 var app = builder.Build();
 
-// Aplica migrations automaticamente na inicialização (necessário em containers)
+// Aplica migrations e seed na inicialização
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
+
+    if (!db.Usuarios.Any())
+    {
+        var admin = Usuario.Criar(
+            "Admin",
+            "admin@casadiana.com",
+            Usuario.HashSenha("Admin@123"),
+            PapelUsuario.Admin);
+        db.Usuarios.Add(admin);
+        db.SaveChanges();
+    }
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();

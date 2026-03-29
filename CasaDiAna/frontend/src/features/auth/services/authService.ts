@@ -1,4 +1,4 @@
-import axios from 'axios'
+import api from '@/lib/api'
 import type { ApiResponse } from '@/types/estoque'
 
 interface LoginInput {
@@ -16,10 +16,7 @@ interface TokenDto {
 export const authService = {
   login: async (input: LoginInput): Promise<TokenDto> => {
     try {
-      const resp = await axios.post<ApiResponse<TokenDto>>(
-        'http://localhost:5130/api/auth/login',
-        input
-      )
+      const resp = await api.post<ApiResponse<TokenDto>>('/auth/login', input)
       if (!resp.data.sucesso) {
         throw new Error(resp.data.erros?.[0] ?? 'Credenciais inválidas.')
       }

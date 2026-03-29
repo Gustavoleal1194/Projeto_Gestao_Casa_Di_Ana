@@ -1,4 +1,5 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using CasaDiAna.API.Middleware;
 using CasaDiAna.Domain.Entities;
 using CasaDiAna.Domain.Enums;
@@ -10,6 +11,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -60,6 +62,20 @@ builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(opt =>
         opt.SuppressModelStateInvalidFilter = true);
 
+// Rate limiting — protege o endpoint de login contra brute force
+// Máximo de 10 tentativas por minuto por IP
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("login", opt =>
+    {
+        opt.PermitLimit = 10;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0;
+    });
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
 // Swagger com autenticação JWT
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -97,15 +113,16 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// CORS — origens configuráveis via env var CORS_ORIGINS (vírgula separada)
+// CORS — origens configuráveis via env var CorsOrigins (vírgula separada)
+// Headers e métodos restritos ao necessário para o frontend
 var corsOrigins = (builder.Configuration["CorsOrigins"] ?? "http://localhost:5173")
     .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
 builder.Services.AddCors(opt =>
     opt.AddDefaultPolicy(p =>
         p.WithOrigins(corsOrigins)
-         .AllowAnyHeader()
-         .AllowAnyMethod()));
+         .WithHeaders("Authorization", "Content-Type", "Accept")
+         .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")));
 
 var app = builder.Build();
 
@@ -129,10 +146,29 @@ using (var scope = app.Services.CreateScope())
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-app.UseSwagger();
-app.UseSwaggerUI(c =>
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Casa di Ana v1"));
+// Swagger: habilitado em desenvolvimento ou se Swagger:Habilitado=true nas env vars
+// Para habilitar em produção no Render: adicione Swagger__Habilitado=true nas env vars
+var swaggerHabilitado = !app.Environment.IsProduction()
+    || builder.Configuration.GetValue<bool>("Swagger:Habilitado");
 
+if (swaggerHabilitado)
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Casa di Ana v1"));
+}
+
+// Security headers — proteção contra ataques comuns de browser
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
+    context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
+    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+    await next();
+});
+
+app.UseRateLimiter();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();

@@ -13,4 +13,9 @@ export default defineConfig({
   server: {
     port: 5173,
   },
+  define: {
+    'import.meta.env.VITE_API_URL': JSON.stringify(
+      process.env.VITE_API_URL ?? 'https://casadiana-api.onrender.com/api'
+    ),
+  },
 })

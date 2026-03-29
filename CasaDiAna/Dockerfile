@@ -8,7 +8,6 @@ COPY src/CasaDiAna.Domain/CasaDiAna.Domain.csproj             src/CasaDiAna.Doma
 COPY src/CasaDiAna.Application/CasaDiAna.Application.csproj   src/CasaDiAna.Application/
 COPY src/CasaDiAna.Infrastructure/CasaDiAna.Infrastructure.csproj src/CasaDiAna.Infrastructure/
 COPY src/CasaDiAna.API/CasaDiAna.API.csproj                   src/CasaDiAna.API/
-COPY tests/CasaDiAna.Application.Tests/CasaDiAna.Application.Tests.csproj tests/CasaDiAna.Application.Tests/
 RUN dotnet restore
 
 COPY src/ src/

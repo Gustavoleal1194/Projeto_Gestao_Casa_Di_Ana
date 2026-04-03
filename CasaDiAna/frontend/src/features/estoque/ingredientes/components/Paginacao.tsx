@@ -8,7 +8,13 @@ interface Props {
   onPaginaChange: (pagina: number) => void
 }
 
-export function Paginacao({ paginaAtual, totalPaginas, totalItens, itensPorPagina, onPaginaChange }: Props) {
+export function Paginacao({
+  paginaAtual,
+  totalPaginas,
+  totalItens,
+  itensPorPagina,
+  onPaginaChange,
+}: Props) {
   if (totalPaginas <= 1) return null
 
   const inicio = (paginaAtual - 1) * itensPorPagina + 1
@@ -18,34 +24,67 @@ export function Paginacao({ paginaAtual, totalPaginas, totalItens, itensPorPagin
     p => p === 1 || p === totalPaginas || Math.abs(p - paginaAtual) <= 1
   )
 
+  const btnBase = [
+    'min-w-[32px] h-8 rounded-lg text-[13px] font-medium px-2',
+    'transition-all duration-150 outline-none',
+    'focus-visible:ring-2 focus-visible:ring-[#C4870A]/40',
+  ].join(' ')
+
   return (
-    <div className="flex items-center justify-between px-4 py-3 border-t border-stone-100 bg-white rounded-b-xl">
-      <span className="text-sm text-stone-500">
-        Mostrando {inicio}–{fim} de {totalItens} ingredientes
-      </span>
+    <nav
+      aria-label="Paginação"
+      className="flex items-center justify-between px-5 py-3 rounded-b-xl border-t"
+      style={{
+        background: '#FAFAF8',
+        borderColor: '#EEEBE5',
+      }}
+    >
+      <p className="text-[12.5px]" style={{ color: '#8B7E73' }}>
+        Exibindo{' '}
+        <span className="font-semibold" style={{ color: '#4B4039' }}>
+          {inicio}–{fim}
+        </span>{' '}
+        de{' '}
+        <span className="font-semibold" style={{ color: '#4B4039' }}>
+          {totalItens}
+        </span>{' '}
+        itens
+      </p>
 
       <div className="flex items-center gap-1">
         <button
           onClick={() => onPaginaChange(paginaAtual - 1)}
           disabled={paginaAtual === 1}
-          className="p-1.5 rounded hover:bg-stone-100 disabled:opacity-40 disabled:cursor-not-allowed"
+          className={`${btnBase} p-1.5`}
+          style={{ color: '#8B7E73' }}
+          aria-label="Página anterior"
         >
-          <ChevronLeftIcon className="h-4 w-4 text-stone-600" />
+          <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
         </button>
 
         {paginas.map((p, idx) => {
           const anterior = paginas[idx - 1]
-          const mostraReticencias = anterior !== undefined && p - anterior > 1
+          const mostraElipsis = anterior !== undefined && p - anterior > 1
+          const isActive = p === paginaAtual
+
           return (
             <span key={p} className="flex items-center gap-1">
-              {mostraReticencias && <span className="text-stone-400 text-sm px-1">…</span>}
+              {mostraElipsis && (
+                <span className="text-[13px] px-1" style={{ color: '#8B7E73' }} aria-hidden="true">
+                  …
+                </span>
+              )}
               <button
                 onClick={() => onPaginaChange(p)}
-                className={`min-w-[32px] h-8 rounded text-sm px-2
-                  ${p === paginaAtual
-                    ? 'bg-amber-700 text-white font-medium'
-                    : 'hover:bg-stone-100 text-stone-600'
-                  }`}
+                className={btnBase}
+                aria-label={`Página ${p}`}
+                aria-current={isActive ? 'page' : undefined}
+                style={isActive
+                  ? { background: '#C4870A', color: '#FFFFFF', boxShadow: '0 2px 6px rgba(196,135,10,0.30)' }
+                  : { color: '#4B4039' }
+                }
+                onMouseEnter={e => !isActive && ((e.currentTarget as HTMLElement).style.background = '#F0EBE3')}
+                onMouseLeave={e => !isActive && ((e.currentTarget as HTMLElement).style.background = 'transparent')}
               >
                 {p}
               </button>
@@ -56,11 +95,13 @@ export function Paginacao({ paginaAtual, totalPaginas, totalItens, itensPorPagin
         <button
           onClick={() => onPaginaChange(paginaAtual + 1)}
           disabled={paginaAtual === totalPaginas}
-          className="p-1.5 rounded hover:bg-stone-100 disabled:opacity-40 disabled:cursor-not-allowed"
+          className={`${btnBase} p-1.5`}
+          style={{ color: '#8B7E73' }}
+          aria-label="Próxima página"
         >
-          <ChevronRightIcon className="h-4 w-4 text-stone-600" />
+          <ChevronRightIcon className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
-    </div>
+    </nav>
   )
 }

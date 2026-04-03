@@ -5,20 +5,35 @@ import {
   TruckIcon,
   ArrowDownTrayIcon,
   ClipboardDocumentCheckIcon,
-  ChartBarIcon,
+  ChartBarSquareIcon,
   ArrowRightStartOnRectangleIcon,
-  UserCircleIcon,
   CubeIcon,
   UsersIcon,
   AdjustmentsHorizontalIcon,
+  FireIcon,
+  BanknotesIcon,
+  ExclamationCircleIcon,
+  SquaresPlusIcon,
+  ChartBarIcon,
 } from '@heroicons/react/24/outline'
 import { useAuthStore } from '@/store/authStore'
 
+// ─── Logo mark SVG ─────────────────────────────────────────────────────────
+function CoffeeIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M7.5 4c0 0 .4-1.5 1.5-1.5s1.5 1.5 1.5 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M4 8.5h12v8.5a2.5 2.5 0 01-2.5 2.5h-7A2.5 2.5 0 014 17V8.5z" stroke="currentColor" strokeWidth="1.5"/>
+      <path d="M16 11h2a1.5 1.5 0 010 3h-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+// ─── Nav structure ──────────────────────────────────────────────────────────
 interface NavItem {
   label: string
   href: string
-  icon: React.ComponentType<{ className?: string }>
-  disponivel: boolean
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
 }
 
 interface NavGroup {
@@ -30,41 +45,42 @@ const grupos: NavGroup[] = [
   {
     titulo: 'Cadastros',
     itens: [
-      { label: 'Ingredientes', href: '/estoque/ingredientes', icon: BeakerIcon, disponivel: true },
-      { label: 'Categorias', href: '/estoque/categorias', icon: TagIcon, disponivel: true },
-      { label: 'Fornecedores', href: '/fornecedores', icon: TruckIcon, disponivel: true },
+      { label: 'Ingredientes',  href: '/estoque/ingredientes', icon: BeakerIcon  },
+      { label: 'Categorias',    href: '/estoque/categorias',   icon: TagIcon     },
+      { label: 'Fornecedores',  href: '/fornecedores',         icon: TruckIcon   },
     ],
   },
   {
     titulo: 'Produção',
     itens: [
-      { label: 'Categorias de Produto', href: '/producao/categorias-produto', icon: TagIcon, disponivel: true },
-      { label: 'Produtos', href: '/producao/produtos', icon: CubeIcon, disponivel: true },
-      { label: 'Produção Diária', href: '/producao/diaria', icon: CubeIcon, disponivel: true },
-      { label: 'Vendas Diárias', href: '/producao/vendas', icon: CubeIcon, disponivel: true },
-      { label: 'Perdas', href: '/producao/perdas', icon: CubeIcon, disponivel: true },
+      { label: 'Categorias de Produto', href: '/producao/categorias-produto', icon: SquaresPlusIcon  },
+      { label: 'Produtos',              href: '/producao/produtos',            icon: CubeIcon         },
+      { label: 'Produção Diária',       href: '/producao/diaria',              icon: FireIcon         },
+      { label: 'Vendas Diárias',        href: '/producao/vendas',              icon: BanknotesIcon    },
+      { label: 'Perdas',                href: '/producao/perdas',              icon: ExclamationCircleIcon },
     ],
   },
   {
     titulo: 'Movimentações',
     itens: [
-      { label: 'Entradas', href: '/entradas', icon: ArrowDownTrayIcon, disponivel: true },
-      { label: 'Inventário', href: '/inventarios', icon: ClipboardDocumentCheckIcon, disponivel: true },
-      { label: 'Correção de Estoque', href: '/estoque/correcao', icon: AdjustmentsHorizontalIcon, disponivel: true },
+      { label: 'Entradas',           href: '/entradas',        icon: ArrowDownTrayIcon           },
+      { label: 'Inventário',         href: '/inventarios',     icon: ClipboardDocumentCheckIcon  },
+      { label: 'Correção de Estoque',href: '/estoque/correcao',icon: AdjustmentsHorizontalIcon   },
     ],
   },
   {
     titulo: 'Relatórios',
     itens: [
-      { label: 'Estoque Atual', href: '/relatorios/estoque-atual', icon: ChartBarIcon, disponivel: true },
-      { label: 'Movimentações', href: '/relatorios/movimentacoes', icon: ChartBarIcon, disponivel: true },
-      { label: 'Entradas', href: '/relatorios/entradas', icon: ChartBarIcon, disponivel: true },
-      { label: 'Produção/Vendas', href: '/relatorios/producao-vendas', icon: ChartBarIcon, disponivel: true },
-      { label: 'Insumos por Produção', href: '/relatorios/insumos-producao', icon: ChartBarIcon, disponivel: true },
+      { label: 'Estoque Atual',        href: '/relatorios/estoque-atual',     icon: ChartBarIcon        },
+      { label: 'Movimentações',        href: '/relatorios/movimentacoes',     icon: ChartBarSquareIcon  },
+      { label: 'Entradas',             href: '/relatorios/entradas',          icon: ArrowDownTrayIcon   },
+      { label: 'Produção/Vendas',      href: '/relatorios/producao-vendas',   icon: ChartBarIcon        },
+      { label: 'Insumos por Produção', href: '/relatorios/insumos-producao',  icon: ChartBarSquareIcon  },
     ],
   },
 ]
 
+// ─── Component ─────────────────────────────────────────────────────────────
 export function Sidebar({ aberta, onFechar }: { aberta: boolean; onFechar: () => void }) {
   const { usuario, logout, temPapel } = useAuthStore()
   const navigate = useNavigate()
@@ -75,61 +91,100 @@ export function Sidebar({ aberta, onFechar }: { aberta: boolean; onFechar: () =>
     navigate('/login', { replace: true })
   }
 
+  // Avatar inicial do usuário
+  const inicial = (usuario?.nome ?? 'U').charAt(0).toUpperCase()
+
   return (
-    <aside className={`w-64 min-h-screen bg-stone-900 flex flex-col shrink-0 fixed md:static inset-y-0 left-0 z-30 transition-transform duration-300 ${aberta ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
-      {/* Logo */}
+    <aside
+      style={{ background: 'var(--sb-bg)' }}
+      className={[
+        'w-64 min-h-screen flex flex-col shrink-0',
+        'fixed md:static inset-y-0 left-0 z-30',
+        'transition-transform duration-300 ease-out',
+        aberta ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
+      ].join(' ')}
+    >
+      {/* ── Logo ─────────────────────────────────────────────────────── */}
       <div
-        className="px-6 py-5 border-b border-stone-800 cursor-pointer hover:bg-stone-800 transition-colors"
-        onClick={() => navigate('/')}
-        title="Ir para o início"
+        className="px-5 py-5 cursor-pointer group"
+        style={{ borderBottom: '1px solid var(--sb-divider)' }}
+        onClick={() => { navigate('/'); onFechar() }}
+        title="Início"
+        role="button"
+        tabIndex={0}
+        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { navigate('/'); onFechar() } }}
       >
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-amber-700 flex items-center justify-center text-lg shrink-0">
-            ☕
+          <div
+            className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-opacity duration-200 group-hover:opacity-90"
+            style={{ background: 'var(--sb-accent)' }}
+          >
+            <CoffeeIcon className="w-5 h-5 text-white" />
           </div>
           <div>
-            <p className="text-white text-sm font-semibold leading-tight">Casa di Ana</p>
-            <p className="text-stone-500 text-xs">Sistema de Gestão</p>
+            <p className="text-white text-[13.5px] font-semibold leading-tight tracking-[-0.01em]"
+               style={{ fontFamily: 'Sora, system-ui, sans-serif' }}>
+              Casa di Ana
+            </p>
+            <p className="text-[11px] mt-0.5 leading-none"
+               style={{ color: 'var(--sb-text)' }}>
+              Sistema de Gestão
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Navegação */}
-      <nav className="flex-1 px-3 py-4 space-y-6 overflow-y-auto">
+      {/* ── Navegação ────────────────────────────────────────────────── */}
+      <nav
+        className="flex-1 px-3 py-4 overflow-y-auto sidebar-scroll space-y-5"
+        aria-label="Navegação principal"
+      >
         {grupos.map(grupo => (
           <div key={grupo.titulo}>
-            <p className="px-3 mb-1 text-xs font-semibold text-stone-500 uppercase tracking-widest">
+            <p
+              className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-[0.12em]"
+              style={{ color: 'var(--sb-group)', fontFamily: 'Sora, system-ui, sans-serif' }}
+            >
               {grupo.titulo}
             </p>
-            <ul className="space-y-0.5">
+            <ul className="space-y-0.5" role="list">
               {grupo.itens.map(item => {
                 const Icon = item.icon
-                if (!item.disponivel) {
-                  return (
-                    <li key={item.href}>
-                      <span className="flex items-center gap-3 px-3 py-2 rounded-lg text-stone-600 text-sm cursor-not-allowed select-none">
-                        <Icon className="h-4 w-4 shrink-0" />
-                        <span className="flex-1">{item.label}</span>
-                        <span className="text-xs text-stone-700 font-medium">em breve</span>
-                      </span>
-                    </li>
-                  )
-                }
                 return (
                   <li key={item.href}>
                     <NavLink
                       to={item.href}
                       onClick={onFechar}
-                      className={({ isActive }) =>
-                        `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                          isActive
-                            ? 'bg-amber-700 text-white'
-                            : 'text-stone-400 hover:bg-stone-800 hover:text-white'
-                        }`
+                      className={({ isActive }) => [
+                        'flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium',
+                        'transition-colors duration-150',
+                        isActive
+                          ? 'text-white'
+                          : 'hover:text-white',
+                      ].join(' ')}
+                      style={({ isActive }) => isActive
+                        ? {
+                            color: 'var(--sb-text-active)',
+                            background: 'var(--sb-active-bg)',
+                            borderLeft: '2px solid var(--sb-active-bd)',
+                            paddingLeft: '10px',
+                          }
+                        : {
+                            color: 'var(--sb-text)',
+                            borderLeft: '2px solid transparent',
+                          }
                       }
                     >
-                      <Icon className="h-4 w-4 shrink-0" />
-                      {item.label}
+                      {({ isActive }) => (
+                        <>
+                          <Icon
+                            className="h-4 w-4 shrink-0 transition-colors duration-150"
+                            aria-hidden="true"
+                            style={{ color: isActive ? 'var(--sb-accent)' : 'var(--sb-text)' }}
+                          />
+                          <span className="flex-1 leading-none">{item.label}</span>
+                        </>
+                      )}
                     </NavLink>
                   </li>
                 )
@@ -139,48 +194,93 @@ export function Sidebar({ aberta, onFechar }: { aberta: boolean; onFechar: () =>
         ))}
       </nav>
 
-      {/* Configurações — Admin only */}
+      {/* ── Configurações — Admin only ─────────────────────────────── */}
       {isAdmin && (
-        <div className="px-3 pb-4 border-b border-stone-800">
-          <p className="px-3 mb-1 text-xs font-semibold text-stone-500 uppercase tracking-widest">
+        <div
+          className="px-3 pb-3"
+          style={{ borderBottom: '1px solid var(--sb-divider)' }}
+        >
+          <p
+            className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-[0.12em]"
+            style={{ color: 'var(--sb-group)', fontFamily: 'Sora, system-ui, sans-serif' }}
+          >
             Configurações
           </p>
-          <ul className="space-y-0.5">
+          <ul className="space-y-0.5" role="list">
             <li>
               <NavLink
                 to="/usuarios"
                 onClick={onFechar}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                    isActive
-                      ? 'bg-amber-700 text-white'
-                      : 'text-stone-400 hover:bg-stone-800 hover:text-white'
-                  }`
+                className={({ isActive }) => [
+                  'flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium',
+                  'transition-colors duration-150',
+                  isActive ? 'text-white' : 'hover:text-white',
+                ].join(' ')}
+                style={({ isActive }) => isActive
+                  ? {
+                      color: 'var(--sb-text-active)',
+                      background: 'var(--sb-active-bg)',
+                      borderLeft: '2px solid var(--sb-active-bd)',
+                      paddingLeft: '10px',
+                    }
+                  : {
+                      color: 'var(--sb-text)',
+                      borderLeft: '2px solid transparent',
+                    }
                 }
               >
-                <UsersIcon className="h-4 w-4 shrink-0" />
-                Usuários
+                {({ isActive }) => (
+                  <>
+                    <UsersIcon
+                      className="h-4 w-4 shrink-0"
+                      aria-hidden="true"
+                      style={{ color: isActive ? 'var(--sb-accent)' : 'var(--sb-text)' }}
+                    />
+                    <span className="flex-1 leading-none">Usuários</span>
+                  </>
+                )}
               </NavLink>
             </li>
           </ul>
         </div>
       )}
 
-      {/* Rodapé — usuário */}
-      <div className="px-3 py-4 border-t border-stone-800">
-        <div className="flex items-center gap-3 px-3 py-2 mb-1">
-          <UserCircleIcon className="h-8 w-8 text-stone-500 shrink-0" />
-          <div className="min-w-0">
-            <p className="text-sm text-stone-300 font-medium truncate">{usuario?.nome ?? '—'}</p>
-            <p className="text-xs text-stone-500 truncate">{usuario?.papel ?? ''}</p>
+      {/* ── Rodapé — usuário ─────────────────────────────────────────── */}
+      <div
+        className="px-3 py-4"
+        style={{ borderTop: '1px solid var(--sb-divider)' }}
+      >
+        {/* Perfil */}
+        <div className="flex items-center gap-2.5 px-3 py-2 mb-1">
+          <div
+            className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold text-white"
+            style={{ background: 'var(--sb-accent)' }}
+            aria-hidden="true"
+          >
+            {inicial}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p
+              className="text-[13px] font-medium leading-none truncate"
+              style={{ color: 'var(--sb-text-hover)' }}
+            >
+              {usuario?.nome ?? '—'}
+            </p>
+            <p className="text-[11px] mt-0.5 leading-none truncate" style={{ color: 'var(--sb-group)' }}>
+              {usuario?.papel ?? ''}
+            </p>
           </div>
         </div>
+
+        {/* Logout */}
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm
-                     text-stone-400 hover:bg-stone-800 hover:text-white transition-colors"
+          className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-[13px] font-medium transition-colors duration-150"
+          style={{ color: 'var(--sb-text)' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#E57373'; (e.currentTarget as HTMLElement).style.background = 'rgba(220,38,38,0.08)' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--sb-text)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}
         >
-          <ArrowRightStartOnRectangleIcon className="h-4 w-4 shrink-0" />
+          <ArrowRightStartOnRectangleIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
           Sair
         </button>
       </div>

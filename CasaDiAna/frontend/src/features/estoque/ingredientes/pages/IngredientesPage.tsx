@@ -65,23 +65,45 @@ export function IngredientesPage() {
   }, [paraDesativar, desativar])
 
   return (
-    <div className="p-6">
-      {/* Header */}
+    <div className="p-6 max-w-[1280px] mx-auto">
+
+      {/* ── Cabeçalho da página ──────────────────────────────────────── */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-stone-800">Ingredientes</h1>
+        <div>
+          <h1
+            className="text-xl font-bold tracking-tight"
+            style={{ color: '#18150E', fontFamily: 'Sora, system-ui, sans-serif' }}
+          >
+            Ingredientes
+          </h1>
+          <p className="text-sm mt-0.5" style={{ color: '#8B7E73' }}>
+            {loading
+              ? 'Carregando…'
+              : `${ingredientes.length} ingrediente${ingredientes.length !== 1 ? 's' : ''} cadastrado${ingredientes.length !== 1 ? 's' : ''}`
+            }
+          </p>
+        </div>
         {podeEditar && (
           <button
             onClick={() => navigate('/estoque/ingredientes/novo')}
-            className="flex items-center gap-2 bg-amber-700 hover:bg-amber-800 text-white
-                       px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white
+                       transition-all duration-200 outline-none whitespace-nowrap
+                       focus-visible:ring-2 focus-visible:ring-[#C4870A]/40"
+            style={{
+              background: 'linear-gradient(135deg, #D4960C 0%, #B87D0A 100%)',
+              boxShadow: '0 3px 10px rgba(196,135,10,0.28)',
+              fontFamily: 'Sora, system-ui, sans-serif',
+            }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.boxShadow = '0 5px 16px rgba(196,135,10,0.38)'}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.boxShadow = '0 3px 10px rgba(196,135,10,0.28)'}
           >
-            <PlusIcon className="h-4 w-4" />
+            <PlusIcon className="h-4 w-4" aria-hidden="true" />
             Novo Ingrediente
           </button>
         )}
       </div>
 
-      {/* Filtros */}
+      {/* ── Filtros ──────────────────────────────────────────────────── */}
       <FiltrosIngredientes
         busca={busca}
         onBuscaChange={handleBusca}
@@ -92,25 +114,36 @@ export function IngredientesPage() {
         categorias={categorias}
       />
 
-      {/* Carregando */}
+      {/* ── Carregando ───────────────────────────────────────────────── */}
       {loading && (
-        <div className="bg-white rounded-xl shadow-sm py-16 text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4
-                          border-stone-200 border-t-amber-700" />
-          <p className="text-stone-500 mt-3 text-sm">Carregando ingredientes...</p>
+        <div
+          className="rounded-xl py-20 text-center"
+          style={{ background: '#FFFFFF', border: '1px solid #E4DDD3', boxShadow: 'var(--shadow-sm)' }}
+        >
+          <div
+            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
+            style={{ border: '3px solid #EEEBE5', borderTopColor: '#C4870A' }}
+            role="status"
+            aria-label="Carregando ingredientes…"
+          />
+          <p className="text-sm" style={{ color: '#8B7E73' }}>Carregando ingredientes…</p>
         </div>
       )}
 
-      {/* Erro */}
+      {/* ── Erro ─────────────────────────────────────────────────────── */}
       {!loading && erro && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+        <div
+          className="rounded-xl px-5 py-4 text-sm"
+          style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}
+          role="alert"
+        >
           {erro}
         </div>
       )}
 
-      {/* Tabela + paginação */}
+      {/* ── Tabela + paginação ───────────────────────────────────────── */}
       {!loading && !erro && (
-        <>
+        <div>
           <TabelaIngredientes
             ingredientes={paginados}
             podeEditar={podeEditar}
@@ -125,10 +158,10 @@ export function IngredientesPage() {
             itensPorPagina={ITENS_POR_PAGINA}
             onPaginaChange={setPaginaAtual}
           />
-        </>
+        </div>
       )}
 
-      {/* Modal desativar */}
+      {/* ── Modal ────────────────────────────────────────────────────── */}
       {paraDesativar && (
         <ModalDesativar
           nomeIngrediente={paraDesativar.nome}

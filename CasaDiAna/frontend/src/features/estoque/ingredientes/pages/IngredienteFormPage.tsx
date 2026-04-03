@@ -21,11 +21,14 @@ function Spinner({ className = '' }: { className?: string }) {
 
 function SecaoFormulario({ titulo }: { titulo: string }) {
   return (
-    <div className="flex items-center gap-3 mt-6 mb-4">
-      <span className="text-xs font-semibold text-stone-400 uppercase tracking-widest whitespace-nowrap">
+    <div className="flex items-center gap-3 mt-7 mb-4">
+      <span
+        className="text-[10.5px] font-semibold uppercase tracking-[0.10em] whitespace-nowrap"
+        style={{ color: '#C4B8AD', fontFamily: 'Sora, system-ui, sans-serif' }}
+      >
         {titulo}
       </span>
-      <div className="flex-1 border-t border-stone-100" />
+      <div className="flex-1" style={{ borderTop: '1px solid #EEEBE5' }} aria-hidden="true" />
     </div>
   )
 }
@@ -124,17 +127,32 @@ export function IngredienteFormPage() {
       {/* Breadcrumb */}
       <Link
         to="/estoque/ingredientes"
-        className="inline-flex items-center gap-1 text-sm text-stone-500 hover:text-amber-700 mb-6 transition-colors"
+        className="inline-flex items-center gap-1.5 text-sm font-medium mb-5 transition-colors duration-150 outline-none
+                   focus-visible:ring-2 focus-visible:ring-[#C4870A]/40 rounded"
+        style={{ color: '#8B7E73' }}
+        onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#C4870A'}
+        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = '#8B7E73'}
       >
-        <ChevronLeftIcon className="h-4 w-4" />
+        <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
         Ingredientes
       </Link>
 
-      <h1 className="text-2xl font-semibold text-stone-800 mb-6">
+      <h1
+        className="text-xl font-bold tracking-tight mb-6"
+        style={{ color: '#18150E', fontFamily: 'Sora, system-ui, sans-serif' }}
+      >
         {modoEdicao ? `Editar: ${ingrediente?.nome ?? ''}` : 'Novo Ingrediente'}
       </h1>
 
-      <form onSubmit={onSubmit} className="bg-white rounded-xl shadow-sm p-6">
+      <form
+        onSubmit={onSubmit}
+        className="rounded-xl p-6"
+        style={{
+          background: '#FFFFFF',
+          border: '1px solid #E4DDD3',
+          boxShadow: 'var(--shadow-sm)',
+        }}
+      >
 
         <SecaoFormulario titulo="Identificação" />
         <div className="grid grid-cols-3 gap-4">
@@ -203,39 +221,64 @@ export function IngredienteFormPage() {
 
         <SecaoFormulario titulo="Observações" />
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1">Observações</label>
+          <label
+            htmlFor="observacoes"
+            className="block text-[13px] font-medium mb-1.5"
+            style={{ color: '#4B4039', fontFamily: 'DM Sans, system-ui, sans-serif' }}
+          >
+            Observações
+          </label>
           <textarea
+            id="observacoes"
             rows={3}
-            placeholder="Informações adicionais sobre este ingrediente..."
+            placeholder="Informações adicionais sobre este ingrediente…"
             {...register('observacoes')}
-            className={`w-full border rounded-lg px-3 py-2.5 text-sm resize-none
-                        focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent
-                        ${errors.observacoes ? 'border-red-300 bg-red-50' : 'border-stone-200'}`}
+            className="w-full rounded-lg px-3.5 py-2.5 text-sm resize-none outline-none transition-all duration-200
+                       focus-visible:ring-2 focus-visible:ring-[#C4870A]/25 focus-visible:border-[#C4870A]"
+            style={{
+              border: errors.observacoes ? '1px solid #FCA5A5' : '1px solid #E4DDD3',
+              background: errors.observacoes ? '#FEF2F2' : '#FFFFFF',
+              color: '#18150E',
+              boxShadow: 'var(--shadow-xs)',
+            }}
           />
           {errors.observacoes && (
-            <p className="mt-1 text-xs text-red-600">{errors.observacoes.message}</p>
+            <p className="mt-1.5 text-xs text-red-600">{String(errors.observacoes.message)}</p>
           )}
         </div>
 
         {/* Rodapé */}
-        <div className="flex justify-end gap-3 pt-4 mt-6 border-t border-stone-100">
+        <div
+          className="flex justify-end gap-2.5 pt-5 mt-6"
+          style={{ borderTop: '1px solid #EEEBE5' }}
+        >
           <button
             type="button"
             onClick={() => navigate('/estoque/ingredientes')}
             disabled={salvando}
-            className="px-4 py-2.5 border border-stone-200 rounded-lg text-sm text-stone-600
-                       hover:bg-stone-50 disabled:opacity-50 font-medium"
+            className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 outline-none
+                       focus-visible:ring-2 focus-visible:ring-[#C4870A]/40 disabled:opacity-50"
+            style={{ border: '1px solid #E4DDD3', color: '#4B4039', background: '#FFFFFF' }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#F5F3EF'}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = '#FFFFFF'}
           >
             Cancelar
           </button>
           <button
             type="submit"
             disabled={salvando}
-            className="flex items-center gap-2 px-6 py-2.5 bg-amber-700 hover:bg-amber-800
-                       text-white rounded-lg text-sm font-medium disabled:opacity-50 transition-colors"
+            className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold text-white
+                       transition-all duration-200 outline-none
+                       focus-visible:ring-2 focus-visible:ring-[#C4870A]/40
+                       disabled:opacity-60 disabled:cursor-not-allowed"
+            style={{
+              background: 'linear-gradient(135deg, #D4960C 0%, #B87D0A 100%)',
+              boxShadow: '0 3px 10px rgba(196,135,10,0.28)',
+              fontFamily: 'Sora, system-ui, sans-serif',
+            }}
           >
             {salvando && <Spinner />}
-            {salvando ? 'Salvando...' : 'Salvar Ingrediente'}
+            {salvando ? 'Salvando…' : 'Salvar Ingrediente'}
           </button>
         </div>
       </form>

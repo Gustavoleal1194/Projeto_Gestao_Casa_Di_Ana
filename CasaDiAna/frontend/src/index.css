@@ -1,26 +1,127 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
 @import "tailwindcss";
 
+/* ─── Tailwind Theme Tokens ─────────────────────────────────────────────── */
 @theme {
-  --color-brand-50:  #fffbeb;
+  /* Brand accent (âmbar dourado) */
+  --color-brand-50:  #fefce8;
   --color-brand-100: #fef3c7;
-  --color-brand-500: #f59e0b;
-  --color-brand-600: #d97706;
-  --color-brand-700: #b45309;
-  --color-brand-800: #92400e;
-  --color-brand-900: #78350f;
+  --color-brand-200: #fde68a;
+  --color-brand-500: #c4870a;
+  --color-brand-600: #b07708;
+  --color-brand-700: #926308;
+  --color-brand-800: #7a5206;
 
-  --font-family-sans: 'Inter', system-ui, sans-serif;
+  /* Semantic surface tokens */
+  --color-ada-bg:           #F5F3EF;
+  --color-ada-surface:      #FFFFFF;
+  --color-ada-surface-2:    #FAFAF8;
+  --color-ada-sidebar:      #0D1117;
+  --color-ada-accent:       #C4870A;
+  --color-ada-accent-light: #FEF3C7;
+  --color-ada-border:       #E4DDD3;
+  --color-ada-border-sub:   #EEEBE5;
+  --color-ada-heading:      #18150E;
+  --color-ada-body:         #4B4039;
+  --color-ada-muted:        #8B7E73;
+
+  /* Typography */
+  --font-family-display: 'Sora', system-ui, sans-serif;
+  --font-family-sans:    'DM Sans', system-ui, sans-serif;
 }
 
+/* ─── Global CSS Custom Properties ─────────────────────────────────────── */
+:root {
+  /* Sidebar */
+  --sb-bg:          #0D1117;
+  --sb-hover:       rgba(255,255,255,0.04);
+  --sb-divider:     rgba(255,255,255,0.07);
+  --sb-group:       #4A5068;
+  --sb-text:        #7A8499;
+  --sb-text-hover:  #C8D0E0;
+  --sb-text-active: #FFFFFF;
+  --sb-accent:      #D4960C;
+  --sb-active-bg:   rgba(212, 150, 12, 0.13);
+  --sb-active-bd:   #D4960C;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(24,21,14,0.04);
+  --shadow-sm: 0 1px 3px rgba(24,21,14,0.06), 0 1px 2px rgba(24,21,14,0.04);
+  --shadow-md: 0 4px 8px  rgba(24,21,14,0.06), 0 2px 4px  rgba(24,21,14,0.04);
+  --shadow-lg: 0 12px 24px rgba(24,21,14,0.08), 0 4px 8px  rgba(24,21,14,0.05);
+  --shadow-xl: 0 24px 48px rgba(24,21,14,0.12), 0 8px 16px rgba(24,21,14,0.07);
+}
+
+/* ─── Base ──────────────────────────────────────────────────────────────── */
 @layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: 15px;
+  }
+
   body {
-    @apply bg-stone-50 text-stone-800 antialiased;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background-color: #F5F3EF;
+    color: #4B4039;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     margin: 0;
+    line-height: 1.55;
   }
 
   #root {
     width: 100%;
     min-height: 100vh;
   }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Sora', system-ui, sans-serif;
+    color: #18150E;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  /* Tabular numbers for data columns */
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+
+  button {
+    touch-action: manipulation;
+  }
+
+  a {
+    touch-action: manipulation;
+  }
+
+  /* Respect prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────────────────── */
+::-webkit-scrollbar         { width: 5px; height: 5px; }
+::-webkit-scrollbar-track   { background: transparent; }
+::-webkit-scrollbar-thumb   { background: #D0C8BE; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #B8B0A4; }
+
+.sidebar-scroll::-webkit-scrollbar-thumb       { background: rgba(255,255,255,0.10); }
+.sidebar-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+
+/* ─── Focus Ring Global ─────────────────────────────────────────────────── */
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid #C4870A;
+  outline-offset: 2px;
 }

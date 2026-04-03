@@ -18,30 +18,71 @@ export function SelectCampo({
   erro,
   obrigatorio,
   opcoes,
-  placeholderOpcao = 'Selecione...',
+  placeholderOpcao = 'Selecione…',
+  id,
   ...props
 }: Props) {
+  const selectId = id ?? `select-${label.toLowerCase().replace(/\s+/g, '-')}`
+
   return (
     <div>
-      <label className="block text-sm font-medium text-stone-700 mb-1">
-        {label}
-        {obrigatorio && <span className="text-red-500 ml-0.5">*</span>}
-      </label>
-      <select
-        {...props}
-        className={`w-full border rounded-lg px-3 py-2.5 text-sm bg-white
-                    focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent
-                    ${erro ? 'border-red-300 bg-red-50' : 'border-stone-200'}
-                    ${props.disabled ? 'bg-stone-50 cursor-not-allowed text-stone-400' : ''}`}
+      <label
+        htmlFor={selectId}
+        className="block text-[13px] font-medium mb-1.5"
+        style={{ color: '#4B4039', fontFamily: 'DM Sans, system-ui, sans-serif' }}
       >
-        <option value="">{placeholderOpcao}</option>
-        {opcoes.map(op => (
-          <option key={op.valor} value={op.valor}>
-            {op.rotulo}
-          </option>
-        ))}
-      </select>
-      {erro && <p className="mt-1 text-xs text-red-600">{erro}</p>}
+        {label}
+        {obrigatorio && (
+          <span className="text-red-500 ml-0.5" aria-hidden="true">*</span>
+        )}
+        {obrigatorio && <span className="sr-only">(obrigatório)</span>}
+      </label>
+      <div className="relative">
+        <select
+          id={selectId}
+          {...props}
+          aria-invalid={!!erro}
+          aria-describedby={erro ? `${selectId}-erro` : undefined}
+          className={[
+            'w-full rounded-lg px-3.5 py-2.5 text-sm outline-none',
+            'border appearance-none cursor-pointer transition-all duration-200',
+            'focus-visible:ring-2 focus-visible:ring-[#C4870A]/25',
+            'pr-10', // space for chevron
+            erro
+              ? 'border-red-300 bg-red-50/50 text-[#18150E] focus-visible:border-red-400'
+              : 'border-[#E4DDD3] bg-white text-[#18150E] focus-visible:border-[#C4870A]',
+            props.disabled
+              ? 'bg-[#F9F8F6] cursor-not-allowed text-[#8B7E73] border-[#EEEBE5]'
+              : '',
+          ].join(' ')}
+          style={{ boxShadow: 'var(--shadow-xs, 0 1px 2px rgba(0,0,0,0.04))' }}
+        >
+          <option value="" style={{ color: '#8B7E73' }}>{placeholderOpcao}</option>
+          {opcoes.map(op => (
+            <option key={op.valor} value={op.valor}>
+              {op.rotulo}
+            </option>
+          ))}
+        </select>
+        {/* Chevron */}
+        <svg
+          className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none w-4 h-4"
+          style={{ color: '#8B7E73' }}
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 011.06 0L10 11.94l3.72-3.72a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.22 9.28a.75.75 0 010-1.06z" clipRule="evenodd"/>
+        </svg>
+      </div>
+      {erro && (
+        <p id={`${selectId}-erro`} className="mt-1.5 text-xs text-red-600 flex items-center gap-1">
+          <svg className="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd"/>
+          </svg>
+          {erro}
+        </p>
+      )}
     </div>
   )
 }

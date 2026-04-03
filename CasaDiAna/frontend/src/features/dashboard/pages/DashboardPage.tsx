@@ -1,8 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Cell, LabelList,
-} from 'recharts'
+import ReactECharts from 'echarts-for-react'
+import type { EChartsOption } from 'echarts'
 import { relatoriosService } from '@/features/relatorios/services/relatoriosService'
 import type { EstoqueAtualItem } from '@/types/estoque'
 import type { RelatorioProducaoVendasItem } from '@/types/producao'
@@ -25,10 +23,61 @@ function hoje() { return new Date().toISOString().split('T')[0] }
 function brl(v: number) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }
 function pct(v: number) { return `${v.toFixed(1)}%` }
 function nomeCurto(s: string) { return s.length > 16 ? s.slice(0, 14) + '…' : s }
+function formatarDataBr(iso: string) {
+  const [, m, d] = iso.split('-').map(Number)
+  return `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}`
+}
+function listarDiasNoIntervalo(de: string, ate: string, limite = 62) {
+  const [y1, m1, d1] = de.split('-').map(Number)
+  const [y2, m2, d2] = ate.split('-').map(Number)
+  const inicio = new Date(y1, m1 - 1, d1)
+  const fim = new Date(y2, m2 - 1, d2)
+  const dias: string[] = []
+  for (const dt = new Date(inicio); dt <= fim && dias.length < limite; dt.setDate(dt.getDate() + 1)) {
+    const y = dt.getFullYear()
+    const m = String(dt.getMonth() + 1).padStart(2, '0')
+    const d = String(dt.getDate()).padStart(2, '0')
+    dias.push(`${y}-${m}-${d}`)
+  }
+  return dias
+}
 
-const inputCls =
-  'border border-stone-200 rounded-lg px-3 py-2 text-sm bg-white ' +
-  'focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent'
+const inputCls = [
+  'border rounded-lg px-3 py-2 text-sm outline-none',
+  'transition-all duration-200',
+  'border-[#E4DDD3] bg-white text-[#18150E]',
+  'focus-visible:border-[#C4870A] focus-visible:ring-2 focus-visible:ring-[#C4870A]/20',
+].join(' ')
+
+// SVG icons para os KPI cards
+const IcReceita = () => (
+  <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.798 7.45c.512-.67 1.135-.95 1.702-.95.567 0 1.19.28 1.702.95.27.352.568.504.865.451a.75.75 0 10-.254-1.478c-.41.071-.776-.056-1.09-.46C11.04 5.48 10.121 5 9.5 5c-.621 0-1.54.48-2.223 1.363-.683.882-.927 2.075-.51 3.225.42 1.156 1.474 1.912 2.733 1.912h.75v1.75a.75.75 0 001.5 0V11.5h.25a.75.75 0 000-1.5h-3a.75.75 0 00-.702 1.013c-.23-.636-.1-1.38.25-1.563z" clipRule="evenodd"/>
+  </svg>
+)
+const IcLucro = (up: boolean) => (
+  <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+    {up
+      ? <path fillRule="evenodd" d="M12.577 4.878a.75.75 0 01.919-.53l4.78 1.281a.75.75 0 01.53.919l-1.281 4.78a.75.75 0 01-1.449-.387l.81-3.022a19.407 19.407 0 00-5.594 5.203.75.75 0 01-1.139.093L7 10.06l-4.72 4.72a.75.75 0 01-1.06-1.061l5.25-5.25a.75.75 0 011.06 0l3.074 3.073a20.923 20.923 0 015.545-4.931l-3.042-.815a.75.75 0 01-.53-.918z" clipRule="evenodd"/>
+      : <path fillRule="evenodd" d="M1.22 5.222a.75.75 0 011.06 0L7 9.942l3.768-3.769a.75.75 0 011.113.058 20.908 20.908 0 013.813 7.254l1.574-2.727a.75.75 0 011.3.75l-2.475 4.286a.75.75 0 01-1.025.275l-4.287-2.475a.75.75 0 01.75-1.3l2.71 1.565a19.422 19.422 0 00-3.013-6.024L7.53 11.533a.75.75 0 01-1.06 0l-5.25-5.25a.75.75 0 010-1.06z" clipRule="evenodd"/>
+    }
+  </svg>
+)
+const IcPerda = () => (
+  <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+    <path fillRule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clipRule="evenodd"/>
+  </svg>
+)
+const IcAlerta = () => (
+  <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+    <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd"/>
+  </svg>
+)
+const IcEficiência = () => (
+  <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+    <path fillRule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zm3.78 5.47a.75.75 0 10-1.06-1.06L9.25 9.88 7.78 8.41a.75.75 0 00-1.06 1.06l2 2a.75.75 0 001.06 0l3.999-4z" clipRule="evenodd"/>
+  </svg>
+)
 
 // ─── DashboardCard ──────────────────────────────────────────────────────────
 interface DashboardCardProps {
@@ -36,25 +85,53 @@ interface DashboardCardProps {
   valor: string
   subtexto: string
   variante?: 'default' | 'positivo' | 'negativo' | 'alerta'
-  icone?: string
+  icone?: React.ReactNode
 }
 
 function DashboardCard({ titulo, valor, subtexto, variante = 'default', icone }: DashboardCardProps) {
-  const v = {
-    default:  { wrap: 'bg-white border-stone-200', txt: 'text-stone-800' },
-    positivo: { wrap: 'bg-green-50 border-green-200', txt: 'text-green-700' },
-    negativo: { wrap: 'bg-red-50 border-red-200',   txt: 'text-red-700'   },
-    alerta:   { wrap: 'bg-amber-50 border-amber-300', txt: 'text-amber-700' },
-  }[variante]
+  const vByVariant = {
+    default:  { border: '#E4DDD3', iconBg: '#F5F3EF',  iconColor: '#8B7E73',  valorColor: '#18150E' },
+    positivo: { border: '#BBF7D0', iconBg: '#F0FDF4',  iconColor: '#16A34A',  valorColor: '#15803D' },
+    negativo: { border: '#FECACA', iconBg: '#FEF2F2',  iconColor: '#DC2626',  valorColor: '#DC2626' },
+    alerta:   { border: '#FDE68A', iconBg: '#FFFBEB',  iconColor: '#D97706',  valorColor: '#B45309' },
+  } as const
+  const v = vByVariant[variante]
 
   return (
-    <div className={`${v.wrap} border rounded-2xl p-5 shadow-md hover:shadow-lg transition-shadow duration-200`}>
-      <div className="flex items-start justify-between mb-3">
-        <p className="text-xs font-semibold text-stone-500 uppercase tracking-widest leading-tight">{titulo}</p>
-        {icone && <span className="text-lg leading-none">{icone}</span>}
+    <div
+      className="rounded-2xl p-5 transition-all duration-200"
+      style={{
+        background: '#FFFFFF',
+        border: `1px solid ${v.border}`,
+        boxShadow: 'var(--shadow-sm)',
+      }}
+      onMouseEnter={e => (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-md)'}
+      onMouseLeave={e => (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-sm)'}
+    >
+      <div className="flex items-start justify-between mb-4">
+        <p
+          className="text-[10.5px] font-semibold uppercase tracking-[0.08em] leading-tight"
+          style={{ color: '#8B7E73', fontFamily: 'Sora, system-ui, sans-serif' }}
+        >
+          {titulo}
+        </p>
+        {icone && (
+          <div
+            className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+            style={{ background: v.iconBg, border: `1px solid ${v.border}` }}
+            aria-hidden="true"
+          >
+            <span style={{ color: v.iconColor }}>{icone}</span>
+          </div>
+        )}
       </div>
-      <p className={`text-2xl font-bold leading-none mb-2 ${v.txt}`}>{valor}</p>
-      <p className="text-xs text-stone-400">{subtexto}</p>
+      <p
+        className="text-[26px] font-bold leading-none mb-2 tracking-tight"
+        style={{ color: v.valorColor, fontFamily: 'Sora, system-ui, sans-serif' }}
+      >
+        {valor}
+      </p>
+      <p className="text-xs" style={{ color: '#8B7E73' }}>{subtexto}</p>
     </div>
   )
 }
@@ -70,63 +147,45 @@ interface ChartContainerProps {
 
 function ChartContainer({ titulo, subtitulo, children, rodape, vazio }: ChartContainerProps) {
   return (
-    <div className="bg-white border border-stone-200 rounded-2xl shadow-md overflow-hidden">
-      <div className="px-6 py-4 border-b border-stone-100">
-        <h2 className="text-sm font-semibold text-stone-800">{titulo}</h2>
-        {subtitulo && <p className="text-xs text-stone-400 mt-0.5">{subtitulo}</p>}
+    <div
+      className="rounded-2xl overflow-hidden"
+      style={{
+        background: '#FFFFFF',
+        border: '1px solid #E4DDD3',
+        boxShadow: 'var(--shadow-sm)',
+      }}
+    >
+      <div
+        className="px-6 py-4"
+        style={{ borderBottom: '1px solid #F0EBE3' }}
+      >
+        <h2
+          className="text-[13.5px] font-semibold"
+          style={{ color: '#18150E', fontFamily: 'Sora, system-ui, sans-serif' }}
+        >
+          {titulo}
+        </h2>
+        {subtitulo && (
+          <p className="text-[12px] mt-0.5" style={{ color: '#8B7E73' }}>
+            {subtitulo}
+          </p>
+        )}
       </div>
-      <div className="px-6 pb-5 pt-5">
-        {vazio
-          ? <div className="flex items-center justify-center h-52 text-stone-400 text-sm">Sem dados no período.</div>
-          : children}
+      <div className="px-6 py-5">
+        {vazio ? (
+          <div
+            className="flex flex-col items-center justify-center h-52 gap-3"
+            style={{ color: '#C4B8AD' }}
+          >
+            <svg className="w-10 h-10 opacity-50" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M9 17H5a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M14 17l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <p className="text-sm" style={{ color: '#C4B8AD' }}>Sem dados no período selecionado.</p>
+          </div>
+        ) : children}
         {rodape && <div className="mt-4">{rodape}</div>}
       </div>
-    </div>
-  )
-}
-
-// ─── Tooltip: Produção vs Vendas ─────────────────────────────────────────────
-function TooltipProdVendas({ active, payload, label }: any) {
-  if (!active || !payload?.length) return null
-  const row = payload[0]?.payload ?? {}
-  return (
-    <div className="bg-white border border-stone-200 rounded-xl shadow-xl p-4 text-xs min-w-[180px]">
-      <p className="font-semibold text-stone-800 text-sm mb-3 pb-2 border-b border-stone-100">{label}</p>
-      {payload.map((p: any) => (
-        <div key={p.dataKey} className="flex items-center justify-between gap-6 py-0.5">
-          <span className="flex items-center gap-2 text-stone-500">
-            <span className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ background: p.fill }} />
-            {p.dataKey}
-          </span>
-          <span className="font-semibold text-stone-800">{Number(p.value).toFixed(0)} un.</span>
-        </div>
-      ))}
-      {row.totalProduzido != null && (
-        <div className="mt-2 pt-2 border-t border-stone-100 flex justify-between text-stone-500">
-          <span>Total produzido</span>
-          <span className="font-semibold text-stone-700">{Number(row.totalProduzido).toFixed(0)} un.</span>
-        </div>
-      )}
-      {row.receitaEstimada != null && (
-        <div className="mt-1 flex justify-between text-stone-500">
-          <span>Receita est.</span>
-          <span className="font-semibold text-green-700">{brl(row.receitaEstimada)}</span>
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ─── Tooltip: Margem ────────────────────────────────────────────────────────
-function TooltipMargem({ active, payload }: any) {
-  if (!active || !payload?.length) return null
-  const v = Number(payload[0]?.value ?? 0)
-  const cor = v >= 30 ? COR.verde : v >= 0 ? COR.laranja : COR.vermelho
-  return (
-    <div className="bg-white border border-stone-200 rounded-xl shadow-xl p-4 text-xs">
-      <p className="font-semibold text-stone-700 mb-2">{payload[0]?.payload?.nome}</p>
-      <p className="text-3xl font-bold leading-none" style={{ color: cor }}>{pct(v)}</p>
-      <p className="text-stone-400 mt-1">margem de lucro</p>
     </div>
   )
 }
@@ -135,6 +194,7 @@ function TooltipMargem({ active, payload }: any) {
 interface DashboardData {
   prodVendas: RelatorioProducaoVendasItem[]
   estoqueAlerta: EstoqueAtualItem[]
+  tendenciaDiaria: Array<{ data: string; receita: number; custo: number; lucro: number }>
 }
 
 // ─── Página ─────────────────────────────────────────────────────────────────
@@ -149,11 +209,20 @@ export function DashboardPage() {
     setLoading(true)
     setErro(null)
     try {
-      const [pvResp, estoqueResp] = await Promise.all([
+      const dias = listarDiasNoIntervalo(filtroDe, filtroAte)
+      const [pvResp, estoqueResp, tendenciaResp] = await Promise.all([
         relatoriosService.producaoVendas(filtroDe, filtroAte),
         relatoriosService.estoqueAtual(true),
+        Promise.all(
+          dias.map(async dia => {
+            const r = await relatoriosService.producaoVendas(dia, dia)
+            const receita = r.itens.reduce((acc, i) => acc + i.receitaEstimada, 0)
+            const custo = r.itens.reduce((acc, i) => acc + i.custoTotalProducao + i.custoPerda, 0)
+            return { data: dia, receita, custo, lucro: receita - custo }
+          })
+        ),
       ])
-      setData({ prodVendas: pvResp.itens, estoqueAlerta: estoqueResp })
+      setData({ prodVendas: pvResp.itens, estoqueAlerta: estoqueResp, tendenciaDiaria: tendenciaResp })
     } catch {
       setErro('Erro ao carregar dados do dashboard.')
     } finally {
@@ -177,6 +246,9 @@ export function DashboardPage() {
 
   const lucroEstimado = (totais?.receita ?? 0) - (totais?.custoProducao ?? 0) - (totais?.custoPerda ?? 0)
   const margemGeral   = totais?.receita ? (lucroEstimado / totais.receita) * 100 : 0
+  const totalProduzidoGeral = data?.prodVendas.reduce((acc, i) => acc + i.totalProduzido, 0) ?? 0
+  const totalVendidoGeral = data?.prodVendas.reduce((acc, i) => acc + i.totalVendido, 0) ?? 0
+  const sellThrough = totalProduzidoGeral > 0 ? (totalVendidoGeral / totalProduzidoGeral) * 100 : 0
 
   // ── Chart: Produção vs Vendas (stacked: Vendido + Perda + Restante = Produzido) ──
   const chartProdVendas = data?.prodVendas.map(i => ({
@@ -196,27 +268,317 @@ export function DashboardPage() {
 
   const margemCor = (v: number) => v >= 30 ? COR.verde : v >= 0 ? COR.laranja : COR.vermelho
 
+  const chartPerdaProduto = data?.prodVendas
+    .filter(i => i.totalProduzido > 0)
+    .map(i => ({
+      nome: nomeCurto(i.produtoNome),
+      perdaPct: Number(((i.perda / i.totalProduzido) * 100).toFixed(1)),
+    }))
+    .sort((a, b) => b.perdaPct - a.perdaPct)
+    .slice(0, 8) ?? []
+
+  const receitasOrdenadas = [...(data?.prodVendas ?? [])]
+    .map(i => ({ nome: i.produtoNome, receita: i.receitaEstimada }))
+    .filter(i => i.receita > 0)
+    .sort((a, b) => b.receita - a.receita)
+  const topReceitas = receitasOrdenadas.slice(0, 6)
+  const outrasReceitas = receitasOrdenadas.slice(6).reduce((acc, i) => acc + i.receita, 0)
+  const chartMixReceita = outrasReceitas > 0
+    ? [...topReceitas, { nome: 'Outros', receita: outrasReceitas }]
+    : topReceitas
+
+  const optionProdVendas: EChartsOption = {
+    color: [COR.verde, COR.vermelho, COR.pedra],
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      backgroundColor: '#ffffff',
+      borderColor: '#e7e5e4',
+      borderWidth: 1,
+      textStyle: { color: '#292524' },
+      formatter: (params: any) => {
+        const linhas = Array.isArray(params) ? params : [params]
+        const row = linhas[0]?.data ?? {}
+        return `
+          <div style="min-width:220px;padding:2px 0;">
+            <div style="font-weight:700;margin-bottom:8px;">${linhas[0]?.axisValue ?? ''}</div>
+            ${linhas.map((p: any) => `
+              <div style="display:flex;justify-content:space-between;gap:20px;margin:2px 0;">
+                <span>${p.marker}${p.seriesName}</span>
+                <strong>${Number(p.value).toFixed(0)} un.</strong>
+              </div>
+            `).join('')}
+            <div style="border-top:1px solid #f5f5f4;margin-top:8px;padding-top:8px;display:flex;justify-content:space-between;">
+              <span>Total produzido</span>
+              <strong>${Number(row.totalProduzido ?? 0).toFixed(0)} un.</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:4px;">
+              <span>Receita est.</span>
+              <strong style="color:#15803d;">${brl(Number(row.receitaEstimada ?? 0))}</strong>
+            </div>
+          </div>
+        `
+      },
+    },
+    legend: {
+      bottom: 0,
+      icon: 'roundRect',
+      itemWidth: 12,
+      itemHeight: 8,
+      textStyle: { color: '#78716c', fontSize: 11 },
+    },
+    grid: { left: 24, right: 12, top: 20, bottom: 64, containLabel: true },
+    xAxis: {
+      type: 'category',
+      data: chartProdVendas.map(i => i.nome),
+      axisLabel: { rotate: 30, color: '#a8a29e', fontSize: 11 },
+      axisLine: { show: false },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: { color: '#a8a29e', fontSize: 11 },
+      splitLine: { lineStyle: { color: '#f5f5f4' } },
+    },
+    series: [
+      { name: 'Vendido', type: 'bar', stack: 'total', data: chartProdVendas.map(i => i.Vendido), barMaxWidth: 34, emphasis: { focus: 'series' } },
+      { name: 'Perda', type: 'bar', stack: 'total', data: chartProdVendas.map(i => i.Perda), barMaxWidth: 34, emphasis: { focus: 'series' } },
+      {
+        name: 'Restante',
+        type: 'bar',
+        stack: 'total',
+        data: chartProdVendas.map(i => ({ value: i.Restante, totalProduzido: i.totalProduzido, receitaEstimada: i.receitaEstimada })),
+        barMaxWidth: 34,
+        itemStyle: { borderRadius: [6, 6, 0, 0] },
+      },
+    ],
+  }
+
+  const optionMargem: EChartsOption = {
+    tooltip: {
+      trigger: 'item',
+      backgroundColor: '#ffffff',
+      borderColor: '#e7e5e4',
+      borderWidth: 1,
+      textStyle: { color: '#292524' },
+      formatter: (p: any) => `${p.name}<br/><strong style="color:${margemCor(Number(p.value))}">${pct(Number(p.value))}</strong>`,
+    },
+    grid: { left: 20, right: 56, top: 8, bottom: 8, containLabel: true },
+    xAxis: {
+      type: 'value',
+      axisLabel: { color: '#a8a29e', formatter: (v: number) => `${v}%` },
+      splitLine: { lineStyle: { color: '#f5f5f4' } },
+    },
+    yAxis: {
+      type: 'category',
+      inverse: true,
+      data: chartMargem.map(i => i.nome),
+      axisLabel: { color: '#78716c', fontSize: 11 },
+      axisLine: { show: false },
+      axisTick: { show: false },
+    },
+    series: [
+      {
+        name: 'Margem',
+        type: 'bar',
+        data: chartMargem.map(i => ({
+          value: i.margem,
+          itemStyle: { color: margemCor(i.margem), borderRadius: [0, 6, 6, 0] },
+          label: { show: true, position: 'right', formatter: `${pct(i.margem)}`, color: '#57534e', fontWeight: 600, fontSize: 11 },
+        })),
+        barMaxWidth: 26,
+      },
+    ],
+  }
+
+  const optionPerdaProduto: EChartsOption = {
+    tooltip: {
+      trigger: 'item',
+      backgroundColor: '#ffffff',
+      borderColor: '#e7e5e4',
+      borderWidth: 1,
+      formatter: (p: any) => `${p.name}<br/><strong>${Number(p.value).toFixed(1)}%</strong> de perda`,
+    },
+    grid: { left: 20, right: 24, top: 8, bottom: 8, containLabel: true },
+    xAxis: {
+      type: 'value',
+      axisLabel: { color: '#a8a29e', formatter: (v: number) => `${v}%` },
+      splitLine: { lineStyle: { color: '#f5f5f4' } },
+    },
+    yAxis: {
+      type: 'category',
+      inverse: true,
+      data: chartPerdaProduto.map(i => i.nome),
+      axisLabel: { color: '#78716c', fontSize: 11 },
+      axisLine: { show: false },
+      axisTick: { show: false },
+    },
+    series: [
+      {
+        type: 'bar',
+        data: chartPerdaProduto.map(i => ({
+          value: i.perdaPct,
+          itemStyle: { color: '#ef4444', borderRadius: [0, 6, 6, 0] },
+          label: { show: true, position: 'right', formatter: `${i.perdaPct}%`, color: '#7f1d1d', fontWeight: 600, fontSize: 11 },
+        })),
+        barMaxWidth: 24,
+      },
+    ],
+  }
+
+  const optionMixReceita: EChartsOption = {
+    tooltip: {
+      trigger: 'item',
+      backgroundColor: '#ffffff',
+      borderColor: '#e7e5e4',
+      borderWidth: 1,
+      formatter: (p: any) => `${p.name}<br/><strong>${brl(Number(p.value))}</strong> (${Number(p.percent).toFixed(1)}%)`,
+    },
+    legend: {
+      bottom: 0,
+      type: 'scroll',
+      textStyle: { color: '#78716c', fontSize: 11 },
+    },
+    series: [
+      {
+        type: 'pie',
+        radius: ['48%', '72%'],
+        center: ['50%', '44%'],
+        itemStyle: { borderColor: '#fff', borderWidth: 2 },
+        label: { color: '#57534e', fontSize: 11, formatter: '{d}%' },
+        data: chartMixReceita.map(i => ({ name: nomeCurto(i.nome), value: i.receita })),
+      },
+    ],
+    color: ['#22c55e', '#16a34a', '#65a30d', '#0ea5e9', '#6366f1', '#8b5cf6', '#a8a29e'],
+  }
+
+  const optionTendenciaDiaria: EChartsOption = {
+    color: [COR.verde, COR.vermelho, COR.azul],
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: '#ffffff',
+      borderColor: '#e7e5e4',
+      borderWidth: 1,
+      formatter: (params: any) => {
+        const linhas = Array.isArray(params) ? params : [params]
+        return `
+          <div style="min-width:200px;">
+            <div style="font-weight:700;margin-bottom:8px;">${linhas[0]?.axisValue ?? ''}</div>
+            ${linhas.map((p: any) => `
+              <div style="display:flex;justify-content:space-between;gap:20px;margin:2px 0;">
+                <span>${p.marker}${p.seriesName}</span>
+                <strong>${brl(Number(p.value))}</strong>
+              </div>
+            `).join('')}
+          </div>
+        `
+      },
+    },
+    legend: {
+      top: 0,
+      right: 0,
+      textStyle: { color: '#78716c', fontSize: 11 },
+    },
+    grid: { left: 20, right: 20, top: 44, bottom: 12, containLabel: true },
+    xAxis: {
+      type: 'category',
+      data: (data?.tendenciaDiaria ?? []).map(i => formatarDataBr(i.data)),
+      axisLabel: { color: '#a8a29e', fontSize: 11 },
+      axisLine: { show: false },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: { color: '#a8a29e', formatter: (v: number) => brl(v).replace('R$', 'R$ ') },
+      splitLine: { lineStyle: { color: '#f5f5f4' } },
+    },
+    series: [
+      {
+        name: 'Receita',
+        type: 'line',
+        smooth: true,
+        symbolSize: 6,
+        data: (data?.tendenciaDiaria ?? []).map(i => Number(i.receita.toFixed(2))),
+      },
+      {
+        name: 'Custo',
+        type: 'line',
+        smooth: true,
+        symbolSize: 6,
+        data: (data?.tendenciaDiaria ?? []).map(i => Number(i.custo.toFixed(2))),
+      },
+      {
+        name: 'Lucro',
+        type: 'line',
+        smooth: true,
+        symbolSize: 6,
+        data: (data?.tendenciaDiaria ?? []).map(i => Number(i.lucro.toFixed(2))),
+        areaStyle: { opacity: 0.08 },
+      },
+    ],
+  }
+
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 max-w-[1280px] mx-auto">
 
       {/* ── Cabeçalho ─────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-stone-800">Dashboard</h1>
-          <p className="text-sm text-stone-400 mt-0.5">Visão geral do período selecionado</p>
+          <h1
+            className="text-xl font-bold tracking-tight"
+            style={{ color: '#18150E', fontFamily: 'Sora, system-ui, sans-serif' }}
+          >
+            Dashboard
+          </h1>
+          <p className="text-sm mt-0.5" style={{ color: '#8B7E73' }}>Visão geral do período selecionado</p>
         </div>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-3">
+        <div
+          className="flex flex-col gap-2.5 sm:flex-row sm:items-end sm:gap-3 p-3 rounded-xl"
+          style={{ background: '#FFFFFF', border: '1px solid #E4DDD3', boxShadow: 'var(--shadow-xs)' }}
+        >
           <div>
-            <label className="block text-xs font-medium text-stone-500 mb-1">De</label>
-            <input type="date" value={de} onChange={e => setDe(e.target.value)} className={inputCls} />
+            <label
+              htmlFor="dash-de"
+              className="block text-[11px] font-semibold uppercase tracking-[0.06em] mb-1"
+              style={{ color: '#8B7E73' }}
+            >
+              De
+            </label>
+            <input
+              id="dash-de"
+              type="date"
+              value={de}
+              onChange={e => setDe(e.target.value)}
+              className={inputCls}
+              name="de"
+            />
           </div>
           <div>
-            <label className="block text-xs font-medium text-stone-500 mb-1">Até</label>
-            <input type="date" value={ate} onChange={e => setAte(e.target.value)} className={inputCls} />
+            <label
+              htmlFor="dash-ate"
+              className="block text-[11px] font-semibold uppercase tracking-[0.06em] mb-1"
+              style={{ color: '#8B7E73' }}
+            >
+              Até
+            </label>
+            <input
+              id="dash-ate"
+              type="date"
+              value={ate}
+              onChange={e => setAte(e.target.value)}
+              className={inputCls}
+              name="ate"
+            />
           </div>
           <button
             onClick={handleFiltrar}
-            className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-white rounded-lg text-sm font-medium transition-colors"
+            className="px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all duration-200 outline-none
+                       focus-visible:ring-2 focus-visible:ring-[#C4870A]/40 whitespace-nowrap"
+            style={{
+              background: 'linear-gradient(135deg, #D4960C 0%, #B87D0A 100%)',
+              boxShadow: '0 2px 8px rgba(196,135,10,0.25)',
+              fontFamily: 'Sora, system-ui, sans-serif',
+            }}
           >
             Atualizar
           </button>
@@ -226,46 +588,64 @@ export function DashboardPage() {
       {/* ── Loading ───────────────────────────────────────────────────── */}
       {loading && (
         <div className="flex justify-center py-24">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-stone-200 border-t-amber-700" />
+          <div
+            className="h-10 w-10 animate-spin rounded-full"
+            style={{ border: '3px solid #EEEBE5', borderTopColor: '#C4870A' }}
+            role="status"
+            aria-label="Carregando dados do dashboard…"
+          />
         </div>
       )}
 
       {/* ── Erro ──────────────────────────────────────────────────────── */}
       {!loading && erro && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">{erro}</div>
+        <div
+          className="rounded-xl px-5 py-4 text-sm"
+          style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}
+          role="alert"
+        >
+          {erro}
+        </div>
       )}
 
       {!loading && !erro && data && (
         <>
           {/* ── KPI Cards ─────────────────────────────────────────────── */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
             <DashboardCard
               titulo="Receita Estimada"
               valor={brl(totais?.receita ?? 0)}
-              subtexto="no período"
+              subtexto="total no período"
               variante="positivo"
-              icone="💰"
+              icone={<IcReceita />}
             />
             <DashboardCard
               titulo="Lucro Estimado"
               valor={brl(lucroEstimado)}
-              subtexto={`margem geral: ${pct(margemGeral)}`}
+              subtexto={`Margem geral: ${pct(margemGeral)}`}
               variante={lucroEstimado >= 0 ? 'positivo' : 'negativo'}
-              icone={lucroEstimado >= 0 ? '📈' : '📉'}
+              icone={IcLucro(lucroEstimado >= 0)}
             />
             <DashboardCard
-              titulo="Custo das Perdas"
+              titulo="Custo de Perdas"
               valor={brl(totais?.custoPerda ?? 0)}
               subtexto={`${totais?.perda.toFixed(0) ?? 0} unidades perdidas`}
               variante={(totais?.custoPerda ?? 0) > 0 ? 'negativo' : 'default'}
-              icone="🗑️"
+              icone={<IcPerda />}
             />
             <DashboardCard
               titulo="Estoque Baixo"
               valor={String(data.estoqueAlerta.length)}
               subtexto={`ingrediente${data.estoqueAlerta.length !== 1 ? 's' : ''} abaixo do mínimo`}
               variante={data.estoqueAlerta.length > 0 ? 'alerta' : 'default'}
-              icone={data.estoqueAlerta.length > 0 ? '⚠️' : '✅'}
+              icone={<IcAlerta />}
+            />
+            <DashboardCard
+              titulo="Taxa de Venda da Produção"
+              valor={pct(sellThrough)}
+              subtexto={`${totalVendidoGeral.toFixed(0)} vendidos de ${totalProduzidoGeral.toFixed(0)} produzidos`}
+              variante={sellThrough >= 80 ? 'positivo' : sellThrough >= 60 ? 'alerta' : 'negativo'}
+              icone={<IcEficiência />}
             />
           </div>
 
@@ -292,29 +672,7 @@ export function DashboardPage() {
                 </div>
               }
             >
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart
-                  data={chartProdVendas}
-                  margin={{ top: 8, right: 8, left: 0, bottom: 48 }}
-                  barCategoryGap="35%"
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f0ef" vertical={false} />
-                  <XAxis
-                    dataKey="nome"
-                    tick={{ fontSize: 11, fill: '#a8a29e' }}
-                    angle={-35}
-                    textAnchor="end"
-                    interval={0}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis tick={{ fontSize: 11, fill: '#a8a29e' }} axisLine={false} tickLine={false} />
-                  <Tooltip content={<TooltipProdVendas />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
-                  <Bar dataKey="Vendido"  stackId="a" fill={COR.verde}    isAnimationActive />
-                  <Bar dataKey="Perda"    stackId="a" fill={COR.vermelho} isAnimationActive />
-                  <Bar dataKey="Restante" stackId="a" fill={COR.pedra}    isAnimationActive radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <ReactECharts option={optionProdVendas} style={{ height: 320 }} notMerge lazyUpdate />
             </ChartContainer>
 
             {/* Margem de lucro */}
@@ -357,87 +715,123 @@ export function DashboardPage() {
                   </div>
                 }
               >
-                <ResponsiveContainer width="100%" height={Math.max(200, chartMargem.length * 46)}>
-                  <BarChart
-                    data={chartMargem}
-                    layout="vertical"
-                    margin={{ top: 4, right: 52, left: 8, bottom: 4 }}
-                    barCategoryGap="28%"
-                  >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f0ef" horizontal={false} />
-                    <XAxis
-                      type="number"
-                      tick={{ fontSize: 11, fill: '#a8a29e' }}
-                      tickFormatter={v => `${v}%`}
-                      domain={['auto', 'auto']}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <YAxis
-                      type="category"
-                      dataKey="nome"
-                      tick={{ fontSize: 11, fill: '#78716c' }}
-                      width={100}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <Tooltip content={<TooltipMargem />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
-                    <Bar dataKey="margem" radius={[0, 4, 4, 0]} maxBarSize={30} isAnimationActive>
-                      <LabelList
-                        dataKey="margem"
-                        position="right"
-                        formatter={(v: unknown) => pct(Number(v))}
-                        style={{ fontSize: 11, fill: '#78716c', fontWeight: 600 }}
-                      />
-                      {chartMargem.map((entry, i) => (
-                        <Cell key={i} fill={margemCor(entry.margem)} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+                <ReactECharts
+                  option={optionMargem}
+                  style={{ height: Math.max(240, chartMargem.length * 52) }}
+                  notMerge
+                  lazyUpdate
+                />
               </ChartContainer>
             )}
           </div>
 
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <ChartContainer
+              titulo="Tendência Diária Financeira"
+              subtitulo="Receita, custo e lucro por dia no período selecionado"
+              vazio={(data.tendenciaDiaria?.length ?? 0) === 0}
+            >
+              <ReactECharts option={optionTendenciaDiaria} style={{ height: 320 }} notMerge lazyUpdate />
+            </ChartContainer>
+
+            <ChartContainer
+              titulo="Taxa de Perda por Produto"
+              subtitulo="Top produtos com maior percentual de perda no período"
+              vazio={chartPerdaProduto.length === 0}
+            >
+              <ReactECharts
+                option={optionPerdaProduto}
+                style={{ height: Math.max(240, chartPerdaProduto.length * 48) }}
+                notMerge
+                lazyUpdate
+              />
+            </ChartContainer>
+
+            <ChartContainer
+              titulo="Mix de Receita por Produto"
+              subtitulo="Participação de cada produto na receita estimada"
+              vazio={chartMixReceita.length === 0}
+            >
+              <ReactECharts option={optionMixReceita} style={{ height: 320 }} notMerge lazyUpdate />
+            </ChartContainer>
+          </div>
+
           {/* ── Alertas de estoque ────────────────────────────────────── */}
           {data.estoqueAlerta.length > 0 && (
-            <div className="bg-white border border-stone-200 rounded-2xl shadow-md overflow-hidden">
-              <div className="px-6 py-4 border-b border-stone-100 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
-                <h2 className="text-sm font-semibold text-stone-800">
+            <div
+              className="rounded-2xl overflow-hidden"
+              style={{ background: '#FFFFFF', border: '1px solid #FDE68A', boxShadow: 'var(--shadow-sm)' }}
+            >
+              <div
+                className="px-6 py-4 flex items-center gap-3"
+                style={{ borderBottom: '1px solid #FEF3C7', background: '#FFFBEB' }}
+              >
+                <span
+                  className="w-2 h-2 rounded-full shrink-0 animate-pulse"
+                  style={{ background: '#D97706' }}
+                  aria-hidden="true"
+                />
+                <h2
+                  className="text-[13.5px] font-semibold flex-1"
+                  style={{ color: '#92400E', fontFamily: 'Sora, system-ui, sans-serif' }}
+                >
                   Ingredientes com Estoque Abaixo do Mínimo
                 </h2>
-                <span className="ml-auto bg-amber-100 text-amber-700 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                <span
+                  className="text-xs font-bold px-2.5 py-1 rounded-full"
+                  style={{ background: '#FEF3C7', color: '#B45309', border: '1px solid #FDE68A' }}
+                >
                   {data.estoqueAlerta.length}
                 </span>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-stone-50 border-b border-stone-100">
-                    <tr>
-                      {['Ingrediente', 'Categoria', 'Atual', 'Mínimo', 'Déficit'].map((h, i) => (
+                <table className="w-full" role="table">
+                  <thead>
+                    <tr style={{ background: '#FFFBEB', borderBottom: '1px solid #FEF3C7' }}>
+                      {[
+                        { label: 'Ingrediente', right: false },
+                        { label: 'Categoria',   right: false },
+                        { label: 'Atual',        right: true  },
+                        { label: 'Mínimo',       right: true  },
+                        { label: 'Déficit',      right: true  },
+                      ].map(({ label, right }) => (
                         <th
-                          key={h}
-                          className={`text-xs font-semibold text-stone-500 uppercase tracking-wide px-5 py-3 ${i >= 2 ? 'text-right' : 'text-left'}`}
+                          key={label}
+                          scope="col"
+                          className={`text-[11px] font-semibold uppercase tracking-[0.06em] px-5 py-3 ${right ? 'text-right' : 'text-left'}`}
+                          style={{ color: '#92580A' }}
                         >
-                          {h}
+                          {label}
                         </th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {data.estoqueAlerta.map(item => (
-                      <tr key={item.ingredienteId} className="border-b border-stone-100 hover:bg-amber-50 transition-colors">
-                        <td className="px-5 py-3 text-sm font-medium text-stone-800">{item.nome}</td>
-                        <td className="px-5 py-3 text-sm text-stone-400">{item.categoriaNome ?? '—'}</td>
-                        <td className="px-5 py-3 text-sm text-right font-semibold text-red-600">
+                    {data.estoqueAlerta.map((item, idx) => (
+                      <tr
+                        key={item.ingredienteId}
+                        className="transition-colors duration-100"
+                        style={{ borderBottom: idx < data.estoqueAlerta.length - 1 ? '1px solid #FEF3C7' : 'none' }}
+                        onMouseEnter={e => (e.currentTarget.style.background = '#FFFBEB')}
+                        onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                      >
+                        <td className="px-5 py-3.5 text-sm font-semibold" style={{ color: '#18150E' }}>
+                          {item.nome}
+                        </td>
+                        <td className="px-5 py-3.5 text-sm" style={{ color: '#8B7E73' }}>
+                          {item.categoriaNome ?? '—'}
+                        </td>
+                        <td className="px-5 py-3.5 text-sm text-right font-bold tabular-nums" style={{ color: '#DC2626' }}>
                           {item.estoqueAtual.toFixed(3)} {item.unidadeMedidaCodigo}
                         </td>
-                        <td className="px-5 py-3 text-sm text-right text-stone-500">
+                        <td className="px-5 py-3.5 text-sm text-right tabular-nums" style={{ color: '#8B7E73' }}>
                           {item.estoqueMinimo.toFixed(3)} {item.unidadeMedidaCodigo}
                         </td>
-                        <td className="px-5 py-3 text-right">
-                          <span className="inline-flex items-center bg-red-100 text-red-700 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                        <td className="px-5 py-3.5 text-right">
+                          <span
+                            className="inline-flex items-center text-xs font-bold px-2.5 py-1 rounded-full tabular-nums"
+                            style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}
+                          >
                             −{(item.estoqueMinimo - item.estoqueAtual).toFixed(3)}
                           </span>
                         </td>
@@ -451,10 +845,28 @@ export function DashboardPage() {
 
           {/* ── Estado vazio ──────────────────────────────────────────── */}
           {data.prodVendas.length === 0 && data.estoqueAlerta.length === 0 && (
-            <div className="bg-white border border-stone-200 rounded-2xl py-20 text-center shadow-md">
-              <p className="text-5xl mb-3">📊</p>
-              <p className="text-stone-600 text-sm font-medium">Nenhum dado encontrado no período selecionado.</p>
-              <p className="text-stone-400 text-xs mt-1">Registre produções e vendas para visualizar o dashboard.</p>
+            <div
+              className="rounded-2xl py-20 text-center"
+              style={{ background: '#FFFFFF', border: '1px solid #E4DDD3', boxShadow: 'var(--shadow-sm)' }}
+            >
+              <div
+                className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+                style={{ background: '#F5F3EF', border: '1px solid #E4DDD3' }}
+                aria-hidden="true"
+              >
+                <svg className="w-8 h-8" style={{ color: '#C4B8AD' }} viewBox="0 0 24 24" fill="none">
+                  <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <p
+                className="text-sm font-semibold"
+                style={{ color: '#4B4039', fontFamily: 'Sora, system-ui, sans-serif' }}
+              >
+                Nenhum dado no período selecionado
+              </p>
+              <p className="text-xs mt-1.5" style={{ color: '#8B7E73' }}>
+                Registre produções e vendas para visualizar o dashboard.
+              </p>
             </div>
           )}
         </>

@@ -1,4 +1,5 @@
-import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
+import { useEffect } from 'react'
+import { ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/24/outline'
 
 interface Props {
   nomeIngrediente: string
@@ -7,49 +8,143 @@ interface Props {
   onCancelar: () => void
 }
 
-export function ModalDesativar({ nomeIngrediente, loading, onConfirmar, onCancelar }: Props) {
+function Spinner() {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm mx-4">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-            <ExclamationTriangleIcon className="h-5 w-5 text-red-600" />
-          </div>
-          <div>
-            <h2 className="text-sm font-semibold text-stone-800">Desativar ingrediente</h2>
-            <p className="text-sm text-stone-500 mt-0.5">Esta ação pode ser revertida depois.</p>
-          </div>
-        </div>
+    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+      <path className="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+    </svg>
+  )
+}
 
-        <p className="text-sm text-stone-700 mb-6">
-          Deseja desativar <span className="font-semibold">"{nomeIngrediente}"</span>?
-          Ele não aparecerá mais nas listagens ativas.
-        </p>
+export function ModalDesativar({ nomeIngrediente, loading, onConfirmar, onCancelar }: Props) {
+  // Fechar com Escape
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !loading) onCancelar()
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [loading, onCancelar])
 
-        <div className="flex justify-end gap-3">
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(4px)' }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-titulo"
+      aria-describedby="modal-descricao"
+      onClick={e => { if (e.target === e.currentTarget && !loading) onCancelar() }}
+    >
+      <div
+        className="w-full max-w-[400px] rounded-2xl"
+        style={{
+          background: '#FFFFFF',
+          border: '1px solid #E4DDD3',
+          boxShadow: '0 24px 48px rgba(13,17,23,0.18), 0 8px 16px rgba(13,17,23,0.10)',
+          overscrollBehavior: 'contain',
+          animation: 'modalIn 200ms cubic-bezier(0.34,1.56,0.64,1) both',
+        }}
+      >
+        {/* Header */}
+        <div
+          className="flex items-center justify-between px-6 pt-5 pb-4"
+          style={{ borderBottom: '1px solid #EEEBE5' }}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: '#FEF2F2', border: '1px solid #FECACA' }}
+            >
+              <ExclamationTriangleIcon className="h-5 w-5" style={{ color: '#DC2626' }} aria-hidden="true" />
+            </div>
+            <h2
+              id="modal-titulo"
+              className="text-[15px] font-semibold"
+              style={{ color: '#18150E', fontFamily: 'Sora, system-ui, sans-serif' }}
+            >
+              Desativar Ingrediente
+            </h2>
+          </div>
           <button
             onClick={onCancelar}
             disabled={loading}
-            className="px-4 py-2 border border-stone-200 rounded-lg text-sm text-stone-600
-                       hover:bg-stone-50 disabled:opacity-50"
+            className="p-1.5 rounded-lg transition-colors duration-150 outline-none
+                       focus-visible:ring-2 focus-visible:ring-[#C4870A]/40
+                       disabled:opacity-40"
+            aria-label="Fechar"
+            style={{ color: '#8B7E73' }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#F5F3EF'}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+          >
+            <XMarkIcon className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="px-6 py-5">
+          <p
+            id="modal-descricao"
+            className="text-sm leading-relaxed"
+            style={{ color: '#4B4039' }}
+          >
+            Deseja desativar{' '}
+            <span className="font-semibold" style={{ color: '#18150E' }}>
+              "{nomeIngrediente}"
+            </span>
+            ? O ingrediente não aparecerá mais nas listagens ativas. Esta ação pode ser revertida.
+          </p>
+        </div>
+
+        {/* Footer */}
+        <div
+          className="flex justify-end gap-2.5 px-6 py-4"
+          style={{ borderTop: '1px solid #EEEBE5', background: '#FAFAF8', borderRadius: '0 0 16px 16px' }}
+        >
+          <button
+            onClick={onCancelar}
+            disabled={loading}
+            className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 outline-none
+                       focus-visible:ring-2 focus-visible:ring-[#C4870A]/40
+                       disabled:opacity-50"
+            style={{
+              border: '1px solid #E4DDD3',
+              color: '#4B4039',
+              background: '#FFFFFF',
+            }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#F5F3EF'}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = '#FFFFFF'}
           >
             Cancelar
           </button>
           <button
             onClick={onConfirmar}
             disabled={loading}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg
-                       text-sm font-medium disabled:opacity-50 flex items-center gap-2"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold
+                       text-white transition-all duration-150 outline-none
+                       focus-visible:ring-2 focus-visible:ring-red-400/40
+                       disabled:opacity-60 disabled:cursor-not-allowed"
+            style={{
+              background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+              boxShadow: '0 2px 8px rgba(220,38,38,0.25)',
+              fontFamily: 'Sora, system-ui, sans-serif',
+            }}
           >
-            {loading && (
-              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-              </svg>
-            )}
-            Desativar
+            {loading && <Spinner />}
+            {loading ? 'Desativando…' : 'Desativar'}
           </button>
         </div>
+
+        <style>{`
+          @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95) translateY(8px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            [role="dialog"] > div { animation: none !important; }
+          }
+        `}</style>
       </div>
     </div>
   )

@@ -32,6 +32,9 @@
 
 /* ─── Global CSS Custom Properties ─────────────────────────────────────── */
 :root {
+  /* Layout */
+  --header-h: 52px;
+
   /* ── Semantic design tokens (runtime, theme-switchable) ── */
   --ada-bg:           #F5F3EF;
   --ada-surface:      #FFFFFF;

@@ -6,7 +6,6 @@ import {
   ArrowDownTrayIcon,
   ClipboardDocumentCheckIcon,
   ChartBarSquareIcon,
-  ArrowRightStartOnRectangleIcon,
   CubeIcon,
   UsersIcon,
   AdjustmentsHorizontalIcon,
@@ -15,11 +14,8 @@ import {
   ExclamationCircleIcon,
   SquaresPlusIcon,
   ChartBarIcon,
-  MoonIcon,
-  SunIcon,
 } from '@heroicons/react/24/outline'
 import { useAuthStore } from '@/store/authStore'
-import { useTheme } from '@/hooks/useTheme'
 
 // ─── Logo mark SVG ─────────────────────────────────────────────────────────
 function CoffeeIcon({ className }: { className?: string }) {
@@ -56,54 +52,45 @@ const grupos: NavGroup[] = [
   {
     titulo: 'Produção',
     itens: [
-      { label: 'Categorias de Produto', href: '/producao/categorias-produto', icon: SquaresPlusIcon  },
-      { label: 'Produtos',              href: '/producao/produtos',            icon: CubeIcon         },
-      { label: 'Produção Diária',       href: '/producao/diaria',              icon: FireIcon         },
-      { label: 'Vendas Diárias',        href: '/producao/vendas',              icon: BanknotesIcon    },
+      { label: 'Categorias de Produto', href: '/producao/categorias-produto', icon: SquaresPlusIcon       },
+      { label: 'Produtos',              href: '/producao/produtos',            icon: CubeIcon              },
+      { label: 'Produção Diária',       href: '/producao/diaria',              icon: FireIcon              },
+      { label: 'Vendas Diárias',        href: '/producao/vendas',              icon: BanknotesIcon         },
       { label: 'Perdas',                href: '/producao/perdas',              icon: ExclamationCircleIcon },
     ],
   },
   {
     titulo: 'Movimentações',
     itens: [
-      { label: 'Entradas',           href: '/entradas',        icon: ArrowDownTrayIcon           },
-      { label: 'Inventário',         href: '/inventarios',     icon: ClipboardDocumentCheckIcon  },
-      { label: 'Correção de Estoque',href: '/estoque/correcao',icon: AdjustmentsHorizontalIcon   },
+      { label: 'Entradas',            href: '/entradas',         icon: ArrowDownTrayIcon          },
+      { label: 'Inventário',          href: '/inventarios',      icon: ClipboardDocumentCheckIcon },
+      { label: 'Correção de Estoque', href: '/estoque/correcao', icon: AdjustmentsHorizontalIcon  },
     ],
   },
   {
     titulo: 'Relatórios',
     itens: [
-      { label: 'Estoque Atual',        href: '/relatorios/estoque-atual',     icon: ChartBarIcon        },
-      { label: 'Movimentações',        href: '/relatorios/movimentacoes',     icon: ChartBarSquareIcon  },
-      { label: 'Entradas',             href: '/relatorios/entradas',          icon: ArrowDownTrayIcon   },
-      { label: 'Produção/Vendas',      href: '/relatorios/producao-vendas',   icon: ChartBarIcon        },
-      { label: 'Insumos por Produção', href: '/relatorios/insumos-producao',  icon: ChartBarSquareIcon  },
+      { label: 'Estoque Atual',        href: '/relatorios/estoque-atual',    icon: ChartBarIcon       },
+      { label: 'Movimentações',        href: '/relatorios/movimentacoes',    icon: ChartBarSquareIcon },
+      { label: 'Entradas',             href: '/relatorios/entradas',         icon: ArrowDownTrayIcon  },
+      { label: 'Produção/Vendas',      href: '/relatorios/producao-vendas',  icon: ChartBarIcon       },
+      { label: 'Insumos por Produção', href: '/relatorios/insumos-producao', icon: ChartBarSquareIcon },
     ],
   },
 ]
 
 // ─── Component ─────────────────────────────────────────────────────────────
 export function Sidebar({ aberta, onFechar }: { aberta: boolean; onFechar: () => void }) {
-  const { usuario, logout, temPapel } = useAuthStore()
+  const { temPapel } = useAuthStore()
   const navigate = useNavigate()
   const isAdmin = temPapel('Admin')
-  const { isDark, toggle: toggleTheme } = useTheme()
-
-  const handleLogout = () => {
-    logout()
-    navigate('/login', { replace: true })
-  }
-
-  // Avatar inicial do usuário
-  const inicial = (usuario?.nome ?? 'U').charAt(0).toUpperCase()
 
   return (
     <aside
-      style={{ background: 'var(--sb-bg)' }}
+      style={{ background: 'var(--sb-bg)', top: 'var(--header-h)' }}
       className={[
-        'w-64 min-h-screen flex flex-col shrink-0',
-        'fixed md:static inset-y-0 left-0 z-30',
+        'w-64 flex flex-col shrink-0',
+        'fixed md:static bottom-0 left-0 z-30',
         'transition-transform duration-300 ease-out',
         aberta ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
       ].join(' ')}
@@ -126,12 +113,13 @@ export function Sidebar({ aberta, onFechar }: { aberta: boolean; onFechar: () =>
             <CoffeeIcon className="w-5 h-5 text-white" />
           </div>
           <div>
-            <p className="text-white text-[13.5px] font-semibold leading-tight tracking-[-0.01em]"
-               style={{ fontFamily: 'Sora, system-ui, sans-serif' }}>
+            <p
+              className="text-white text-[13.5px] font-semibold leading-tight tracking-[-0.01em]"
+              style={{ fontFamily: 'Sora, system-ui, sans-serif' }}
+            >
               Casa di Ana
             </p>
-            <p className="text-[11px] mt-0.5 leading-none"
-               style={{ color: 'var(--sb-text)' }}>
+            <p className="text-[11px] mt-0.5 leading-none" style={{ color: 'var(--sb-text)' }}>
               Sistema de Gestão
             </p>
           </div>
@@ -162,9 +150,7 @@ export function Sidebar({ aberta, onFechar }: { aberta: boolean; onFechar: () =>
                       className={({ isActive }) => [
                         'flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium',
                         'transition-colors duration-150',
-                        isActive
-                          ? 'text-white'
-                          : 'hover:text-white',
+                        isActive ? 'text-white' : 'hover:text-white',
                       ].join(' ')}
                       style={({ isActive }) => isActive
                         ? {
@@ -201,8 +187,8 @@ export function Sidebar({ aberta, onFechar }: { aberta: boolean; onFechar: () =>
       {/* ── Configurações — Admin only ─────────────────────────────── */}
       {isAdmin && (
         <div
-          className="px-3 pb-3"
-          style={{ borderBottom: '1px solid var(--sb-divider)' }}
+          className="px-3 py-3"
+          style={{ borderTop: '1px solid var(--sb-divider)' }}
         >
           <p
             className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-[0.12em]"
@@ -248,62 +234,6 @@ export function Sidebar({ aberta, onFechar }: { aberta: boolean; onFechar: () =>
           </ul>
         </div>
       )}
-
-      {/* ── Rodapé — usuário ─────────────────────────────────────────── */}
-      <div
-        className="px-3 py-4"
-        style={{ borderTop: '1px solid var(--sb-divider)' }}
-      >
-        {/* Perfil */}
-        <div className="flex items-center gap-2.5 px-3 py-2 mb-1">
-          <div
-            className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold text-white"
-            style={{ background: 'var(--sb-accent)' }}
-            aria-hidden="true"
-          >
-            {inicial}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p
-              className="text-[13px] font-medium leading-none truncate"
-              style={{ color: 'var(--sb-text-hover)' }}
-            >
-              {usuario?.nome ?? '—'}
-            </p>
-            <p className="text-[11px] mt-0.5 leading-none truncate" style={{ color: 'var(--sb-group)' }}>
-              {usuario?.papel ?? ''}
-            </p>
-          </div>
-        </div>
-
-        {/* Toggle tema claro/escuro */}
-        <button
-          onClick={toggleTheme}
-          className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-[13px] font-medium transition-colors duration-150"
-          style={{ color: 'var(--sb-text)' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--sb-text-hover)'; (e.currentTarget as HTMLElement).style.background = 'var(--sb-hover)' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--sb-text)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}
-          aria-label={isDark ? 'Mudar para tema claro' : 'Mudar para tema escuro'}
-        >
-          {isDark
-            ? <SunIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
-            : <MoonIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
-          }
-          {isDark ? 'Tema claro' : 'Tema escuro'}
-        </button>
-
-        {/* Logout */}
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-[13px] font-medium transition-colors duration-150"
-          style={{ color: 'var(--sb-text)' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#E57373'; (e.currentTarget as HTMLElement).style.background = 'rgba(220,38,38,0.08)' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--sb-text)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}
-        >
-          <ArrowRightStartOnRectangleIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
-          Sair
-        </button>
-      </div>
     </aside>
   )
 }

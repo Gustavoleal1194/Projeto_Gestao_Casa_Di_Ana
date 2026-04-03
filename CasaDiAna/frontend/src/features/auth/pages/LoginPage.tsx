@@ -141,7 +141,7 @@ export function LoginPage() {
       {/* ── Painel direito — formulário ──────────────────────────────── */}
       <div
         className="flex-1 flex items-center justify-center px-6 py-12"
-        style={{ background: '#F5F3EF' }}
+        style={{ background: 'var(--ada-bg)' }}
       >
         <div className="w-full max-w-[380px]">
 
@@ -154,7 +154,7 @@ export function LoginPage() {
               <CoffeeIcon />
             </div>
             <h1
-              className="text-xl font-bold text-[#18150E]"
+              className="text-xl font-bold text-[var(--ada-heading)]"
               style={{ fontFamily: 'Sora, system-ui, sans-serif' }}
             >
               Casa di Ana
@@ -164,12 +164,12 @@ export function LoginPage() {
           {/* Cabeçalho */}
           <div className="mb-8">
             <h2
-              className="text-2xl font-bold text-[#18150E] tracking-tight"
+              className="text-2xl font-bold text-[var(--ada-heading)] tracking-tight"
               style={{ fontFamily: 'Sora, system-ui, sans-serif' }}
             >
               Bem-vindo de volta
             </h2>
-            <p className="mt-1.5 text-sm" style={{ color: '#8B7E73' }}>
+            <p className="mt-1.5 text-sm" style={{ color: 'var(--ada-muted)' }}>
               Acesse com suas credenciais para continuar.
             </p>
           </div>
@@ -181,7 +181,7 @@ export function LoginPage() {
               <label
                 htmlFor="email"
                 className="block text-[13px] font-medium mb-1.5"
-                style={{ color: '#4B4039', fontFamily: 'DM Sans, system-ui, sans-serif' }}
+                style={{ color: 'var(--ada-body)', fontFamily: 'DM Sans, system-ui, sans-serif' }}
               >
                 E-mail
               </label>
@@ -195,8 +195,8 @@ export function LoginPage() {
                 autoComplete="email"
                 spellCheck={false}
                 disabled={carregando}
-                className="w-full rounded-xl px-4 py-3 text-sm text-[#18150E] placeholder-[#C4B8AD]
-                           bg-white border border-[#E4DDD3] outline-none
+                className="w-full rounded-xl px-4 py-3 text-sm text-[var(--ada-heading)] placeholder-[var(--ada-placeholder)]
+                           bg-white border border-[var(--ada-border)] outline-none
                            transition-all duration-200
                            focus-visible:border-[#C4870A] focus-visible:ring-2 focus-visible:ring-[#C4870A]/20
                            disabled:opacity-50 disabled:cursor-not-allowed"
@@ -209,7 +209,7 @@ export function LoginPage() {
               <label
                 htmlFor="senha"
                 className="block text-[13px] font-medium mb-1.5"
-                style={{ color: '#4B4039', fontFamily: 'DM Sans, system-ui, sans-serif' }}
+                style={{ color: 'var(--ada-body)', fontFamily: 'DM Sans, system-ui, sans-serif' }}
               >
                 Senha
               </label>
@@ -222,8 +222,8 @@ export function LoginPage() {
                 placeholder="••••••••"
                 autoComplete="current-password"
                 disabled={carregando}
-                className="w-full rounded-xl px-4 py-3 text-sm text-[#18150E] placeholder-[#C4B8AD]
-                           bg-white border border-[#E4DDD3] outline-none
+                className="w-full rounded-xl px-4 py-3 text-sm text-[var(--ada-heading)] placeholder-[var(--ada-placeholder)]
+                           bg-white border border-[var(--ada-border)] outline-none
                            transition-all duration-200
                            focus-visible:border-[#C4870A] focus-visible:ring-2 focus-visible:ring-[#C4870A]/20
                            disabled:opacity-50 disabled:cursor-not-allowed"
@@ -235,7 +235,7 @@ export function LoginPage() {
             {erro && (
               <div
                 className="rounded-xl px-4 py-3 text-sm"
-                style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}
+                style={{ background: 'var(--ada-error-bg)', border: '1px solid var(--ada-error-border)', color: '#DC2626' }}
                 role="alert"
                 aria-live="polite"
               >

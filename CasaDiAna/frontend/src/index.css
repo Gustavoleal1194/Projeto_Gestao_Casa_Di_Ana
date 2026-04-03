@@ -32,6 +32,29 @@
 
 /* ─── Global CSS Custom Properties ─────────────────────────────────────── */
 :root {
+  /* ── Semantic design tokens (runtime, theme-switchable) ── */
+  --ada-bg:           #F5F3EF;
+  --ada-surface:      #FFFFFF;
+  --ada-surface-2:    #FAFAF8;
+  --ada-border:       #E4DDD3;
+  --ada-border-sub:   #EEEBE5;
+  --ada-heading:      #18150E;
+  --ada-body:         #4B4039;
+  --ada-muted:        #8B7E73;
+  --ada-muted-dim:    #6B6456;
+  --ada-placeholder:  #C4B8AD;
+  --ada-hover:        #F0EBE3;
+  --ada-row-alert:       #FFFBEB;
+  --ada-row-alert-hover: #FEF9E7;
+  --ada-error-bg:        #FEF2F2;
+  --ada-error-border:    #FECACA;
+  --ada-warning-bg:      #FFFBEB;
+  --ada-warning-border:  #FDE68A;
+  --ada-warning-badge:   #FEF3C7;
+  --ada-success-bg:      #F0FDF4;
+  --ada-success-border:  #BBF7D0;
+  --ada-warning-text:    #92580A;
+
   /* Sidebar */
   --sb-bg:          #0D1117;
   --sb-hover:       rgba(255,255,255,0.04);
@@ -52,6 +75,120 @@
   --shadow-xl: 0 24px 48px rgba(24,21,14,0.12), 0 8px 16px rgba(24,21,14,0.07);
 }
 
+/* ─── Tema Escuro ────────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Design tokens — noite no café */
+  --ada-bg:           #100F0C;
+  --ada-surface:      #1A1814;
+  --ada-surface-2:    #201C17;
+  --ada-border:       #2C2620;
+  --ada-border-sub:   #231F1A;
+  --ada-heading:      #EDE5D8;
+  --ada-body:         #B5ABA0;
+  --ada-muted:        #7A7068;
+  --ada-muted-dim:    #625B54;
+  --ada-placeholder:  #443E38;
+  --ada-hover:        #262117;
+  --ada-row-alert:       rgba(212, 150, 12, 0.09);
+  --ada-row-alert-hover: rgba(212, 150, 12, 0.16);
+  --ada-error-bg:        rgba(220, 38, 38, 0.12);
+  --ada-error-border:    rgba(220, 38, 38, 0.28);
+  --ada-warning-bg:      rgba(212, 150, 12, 0.12);
+  --ada-warning-border:  rgba(212, 150, 12, 0.30);
+  --ada-warning-badge:   rgba(212, 150, 12, 0.18);
+  --ada-success-bg:      rgba(22, 163, 74, 0.12);
+  --ada-success-border:  rgba(22, 163, 74, 0.28);
+  --ada-warning-text:    #FBBF24;
+
+  /* Sidebar levemente mais escura */
+  --sb-bg:      #0A0907;
+  --sb-divider: rgba(255,255,255,0.05);
+  --sb-group:   #3D4358;
+
+  /* Sombras mais intensas no escuro */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.30);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.40), 0 1px 2px rgba(0,0,0,0.30);
+  --shadow-md: 0 4px 8px  rgba(0,0,0,0.40), 0 2px 4px  rgba(0,0,0,0.30);
+  --shadow-lg: 0 12px 24px rgba(0,0,0,0.50), 0 4px 8px  rgba(0,0,0,0.40);
+  --shadow-xl: 0 24px 48px rgba(0,0,0,0.60), 0 8px 16px rgba(0,0,0,0.45);
+}
+
+/* ─── Overrides globais para tema escuro ─────────────────────────────────── */
+
+/* Superfícies brancas (cards, modais, tabelas) */
+[data-theme="dark"] .bg-white {
+  background-color: var(--ada-surface) !important;
+}
+
+/* Excepção: knob circular de toggle — mantém tom claro */
+[data-theme="dark"] .rounded-full.bg-white {
+  background-color: #cec6bc !important;
+}
+
+/* Stone surfaces */
+[data-theme="dark"] .bg-stone-50 {
+  background-color: var(--ada-surface-2) !important;
+}
+[data-theme="dark"] .bg-stone-100 {
+  background-color: var(--ada-border) !important;
+}
+
+/* Hover backgrounds */
+[data-theme="dark"] .hover\:bg-stone-50:hover,
+[data-theme="dark"] .hover\:bg-stone-100:hover {
+  background-color: var(--ada-hover) !important;
+}
+[data-theme="dark"] .hover\:bg-amber-50:hover {
+  background-color: rgba(212, 150, 12, 0.07) !important;
+}
+[data-theme="dark"] .hover\:bg-amber-50:hover td {
+  background-color: transparent !important;
+}
+
+/* Bordas stone */
+[data-theme="dark"] .border-stone-200,
+[data-theme="dark"] .border-stone-100 {
+  border-color: var(--ada-border) !important;
+}
+
+/* Textos stone */
+[data-theme="dark"] .text-stone-900,
+[data-theme="dark"] .text-stone-800 {
+  color: var(--ada-heading) !important;
+}
+[data-theme="dark"] .text-stone-700,
+[data-theme="dark"] .text-stone-600 {
+  color: var(--ada-body) !important;
+}
+[data-theme="dark"] .text-stone-500,
+[data-theme="dark"] .text-stone-400 {
+  color: var(--ada-muted) !important;
+}
+
+/* Inputs e selects */
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background-color: var(--ada-surface-2) !important;
+  color: var(--ada-heading) !important;
+  border-color: var(--ada-border) !important;
+  color-scheme: dark;
+}
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: var(--ada-placeholder) !important;
+}
+
+/* Sombras Tailwind padrão */
+[data-theme="dark"] .shadow-sm {
+  box-shadow: var(--shadow-sm) !important;
+}
+[data-theme="dark"] .shadow-xl {
+  box-shadow: var(--shadow-xl) !important;
+}
+
 /* ─── Base ──────────────────────────────────────────────────────────────── */
 @layer base {
   *, *::before, *::after {
@@ -64,12 +201,13 @@
 
   body {
     font-family: 'DM Sans', system-ui, sans-serif;
-    background-color: #F5F3EF;
-    color: #4B4039;
+    background-color: var(--ada-bg);
+    color: var(--ada-body);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     margin: 0;
     line-height: 1.55;
+    transition: background-color 0.25s ease, color 0.25s ease;
   }
 
   #root {
@@ -79,7 +217,7 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Sora', system-ui, sans-serif;
-    color: #18150E;
+    color: var(--ada-heading);
     text-wrap: balance;
     margin: 0;
   }
@@ -113,6 +251,9 @@
 ::-webkit-scrollbar-track   { background: transparent; }
 ::-webkit-scrollbar-thumb   { background: #D0C8BE; border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: #B8B0A4; }
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb       { background: #2E2820; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #3A3028; }
 
 .sidebar-scroll::-webkit-scrollbar-thumb       { background: rgba(255,255,255,0.10); }
 .sidebar-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }

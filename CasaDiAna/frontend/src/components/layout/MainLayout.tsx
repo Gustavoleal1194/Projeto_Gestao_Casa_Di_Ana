@@ -13,7 +13,7 @@ export function MainLayout() {
   }
 
   return (
-    <div className="flex min-h-screen" style={{ background: 'var(--bg-ada-bg, #F5F3EF)' }}>
+    <div className="flex min-h-screen" style={{ background: 'var(--ada-bg)' }}>
       {/* Overlay mobile */}
       {sidebarAberta && (
         <div

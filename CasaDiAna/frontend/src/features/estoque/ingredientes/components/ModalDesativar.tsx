@@ -40,8 +40,8 @@ export function ModalDesativar({ nomeIngrediente, loading, onConfirmar, onCancel
       <div
         className="w-full max-w-[400px] rounded-2xl"
         style={{
-          background: '#FFFFFF',
-          border: '1px solid #E4DDD3',
+          background: 'var(--ada-surface)',
+          border: '1px solid var(--ada-border)',
           boxShadow: '0 24px 48px rgba(13,17,23,0.18), 0 8px 16px rgba(13,17,23,0.10)',
           overscrollBehavior: 'contain',
           animation: 'modalIn 200ms cubic-bezier(0.34,1.56,0.64,1) both',
@@ -50,19 +50,19 @@ export function ModalDesativar({ nomeIngrediente, loading, onConfirmar, onCancel
         {/* Header */}
         <div
           className="flex items-center justify-between px-6 pt-5 pb-4"
-          style={{ borderBottom: '1px solid #EEEBE5' }}
+          style={{ borderBottom: '1px solid var(--ada-border-sub)' }}
         >
           <div className="flex items-center gap-3">
             <div
               className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: '#FEF2F2', border: '1px solid #FECACA' }}
+              style={{ background: 'var(--ada-error-bg)', border: '1px solid var(--ada-error-border)' }}
             >
               <ExclamationTriangleIcon className="h-5 w-5" style={{ color: '#DC2626' }} aria-hidden="true" />
             </div>
             <h2
               id="modal-titulo"
               className="text-[15px] font-semibold"
-              style={{ color: '#18150E', fontFamily: 'Sora, system-ui, sans-serif' }}
+              style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
             >
               Desativar Ingrediente
             </h2>
@@ -74,8 +74,8 @@ export function ModalDesativar({ nomeIngrediente, loading, onConfirmar, onCancel
                        focus-visible:ring-2 focus-visible:ring-[#C4870A]/40
                        disabled:opacity-40"
             aria-label="Fechar"
-            style={{ color: '#8B7E73' }}
-            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#F5F3EF'}
+            style={{ color: 'var(--ada-muted)' }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--ada-bg)'}
             onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
           >
             <XMarkIcon className="h-4 w-4" aria-hidden="true" />
@@ -87,10 +87,10 @@ export function ModalDesativar({ nomeIngrediente, loading, onConfirmar, onCancel
           <p
             id="modal-descricao"
             className="text-sm leading-relaxed"
-            style={{ color: '#4B4039' }}
+            style={{ color: 'var(--ada-body)' }}
           >
             Deseja desativar{' '}
-            <span className="font-semibold" style={{ color: '#18150E' }}>
+            <span className="font-semibold" style={{ color: 'var(--ada-heading)' }}>
               "{nomeIngrediente}"
             </span>
             ? O ingrediente não aparecerá mais nas listagens ativas. Esta ação pode ser revertida.
@@ -100,7 +100,7 @@ export function ModalDesativar({ nomeIngrediente, loading, onConfirmar, onCancel
         {/* Footer */}
         <div
           className="flex justify-end gap-2.5 px-6 py-4"
-          style={{ borderTop: '1px solid #EEEBE5', background: '#FAFAF8', borderRadius: '0 0 16px 16px' }}
+          style={{ borderTop: '1px solid var(--ada-border-sub)', background: 'var(--ada-surface-2)', borderRadius: '0 0 16px 16px' }}
         >
           <button
             onClick={onCancelar}
@@ -109,12 +109,12 @@ export function ModalDesativar({ nomeIngrediente, loading, onConfirmar, onCancel
                        focus-visible:ring-2 focus-visible:ring-[#C4870A]/40
                        disabled:opacity-50"
             style={{
-              border: '1px solid #E4DDD3',
-              color: '#4B4039',
-              background: '#FFFFFF',
+              border: '1px solid var(--ada-border)',
+              color: 'var(--ada-body)',
+              background: 'var(--ada-surface)',
             }}
-            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#F5F3EF'}
-            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = '#FFFFFF'}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--ada-bg)'}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'var(--ada-surface)'}
           >
             Cancelar
           </button>

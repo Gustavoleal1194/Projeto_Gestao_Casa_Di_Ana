@@ -24,11 +24,11 @@ function SecaoFormulario({ titulo }: { titulo: string }) {
     <div className="flex items-center gap-3 mt-7 mb-4">
       <span
         className="text-[10.5px] font-semibold uppercase tracking-[0.10em] whitespace-nowrap"
-        style={{ color: '#C4B8AD', fontFamily: 'Sora, system-ui, sans-serif' }}
+        style={{ color: 'var(--ada-placeholder)', fontFamily: 'Sora, system-ui, sans-serif' }}
       >
         {titulo}
       </span>
-      <div className="flex-1" style={{ borderTop: '1px solid #EEEBE5' }} aria-hidden="true" />
+      <div className="flex-1" style={{ borderTop: '1px solid var(--ada-border-sub)' }} aria-hidden="true" />
     </div>
   )
 }
@@ -129,9 +129,9 @@ export function IngredienteFormPage() {
         to="/estoque/ingredientes"
         className="inline-flex items-center gap-1.5 text-sm font-medium mb-5 transition-colors duration-150 outline-none
                    focus-visible:ring-2 focus-visible:ring-[#C4870A]/40 rounded"
-        style={{ color: '#8B7E73' }}
+        style={{ color: 'var(--ada-muted)' }}
         onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#C4870A'}
-        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = '#8B7E73'}
+        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--ada-muted)'}
       >
         <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
         Ingredientes
@@ -139,7 +139,7 @@ export function IngredienteFormPage() {
 
       <h1
         className="text-xl font-bold tracking-tight mb-6"
-        style={{ color: '#18150E', fontFamily: 'Sora, system-ui, sans-serif' }}
+        style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
       >
         {modoEdicao ? `Editar: ${ingrediente?.nome ?? ''}` : 'Novo Ingrediente'}
       </h1>
@@ -148,8 +148,8 @@ export function IngredienteFormPage() {
         onSubmit={onSubmit}
         className="rounded-xl p-6"
         style={{
-          background: '#FFFFFF',
-          border: '1px solid #E4DDD3',
+          background: 'var(--ada-surface)',
+          border: '1px solid var(--ada-border)',
           boxShadow: 'var(--shadow-sm)',
         }}
       >
@@ -224,7 +224,7 @@ export function IngredienteFormPage() {
           <label
             htmlFor="observacoes"
             className="block text-[13px] font-medium mb-1.5"
-            style={{ color: '#4B4039', fontFamily: 'DM Sans, system-ui, sans-serif' }}
+            style={{ color: 'var(--ada-body)', fontFamily: 'DM Sans, system-ui, sans-serif' }}
           >
             Observações
           </label>
@@ -236,9 +236,9 @@ export function IngredienteFormPage() {
             className="w-full rounded-lg px-3.5 py-2.5 text-sm resize-none outline-none transition-all duration-200
                        focus-visible:ring-2 focus-visible:ring-[#C4870A]/25 focus-visible:border-[#C4870A]"
             style={{
-              border: errors.observacoes ? '1px solid #FCA5A5' : '1px solid #E4DDD3',
-              background: errors.observacoes ? '#FEF2F2' : '#FFFFFF',
-              color: '#18150E',
+              border: errors.observacoes ? '1px solid #FCA5A5' : '1px solid var(--ada-border)',
+              background: errors.observacoes ? 'var(--ada-error-bg)' : 'var(--ada-surface)',
+              color: 'var(--ada-heading)',
               boxShadow: 'var(--shadow-xs)',
             }}
           />
@@ -250,7 +250,7 @@ export function IngredienteFormPage() {
         {/* Rodapé */}
         <div
           className="flex justify-end gap-2.5 pt-5 mt-6"
-          style={{ borderTop: '1px solid #EEEBE5' }}
+          style={{ borderTop: '1px solid var(--ada-border-sub)' }}
         >
           <button
             type="button"
@@ -258,9 +258,9 @@ export function IngredienteFormPage() {
             disabled={salvando}
             className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 outline-none
                        focus-visible:ring-2 focus-visible:ring-[#C4870A]/40 disabled:opacity-50"
-            style={{ border: '1px solid #E4DDD3', color: '#4B4039', background: '#FFFFFF' }}
-            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#F5F3EF'}
-            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = '#FFFFFF'}
+            style={{ border: '1px solid var(--ada-border)', color: 'var(--ada-body)', background: 'var(--ada-surface)' }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--ada-bg)'}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'var(--ada-surface)'}
           >
             Cancelar
           </button>

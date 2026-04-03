@@ -72,11 +72,11 @@ export function IngredientesPage() {
         <div>
           <h1
             className="text-xl font-bold tracking-tight"
-            style={{ color: '#18150E', fontFamily: 'Sora, system-ui, sans-serif' }}
+            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
           >
             Ingredientes
           </h1>
-          <p className="text-sm mt-0.5" style={{ color: '#8B7E73' }}>
+          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
             {loading
               ? 'Carregando…'
               : `${ingredientes.length} ingrediente${ingredientes.length !== 1 ? 's' : ''} cadastrado${ingredientes.length !== 1 ? 's' : ''}`
@@ -118,15 +118,15 @@ export function IngredientesPage() {
       {loading && (
         <div
           className="rounded-xl py-20 text-center"
-          style={{ background: '#FFFFFF', border: '1px solid #E4DDD3', boxShadow: 'var(--shadow-sm)' }}
+          style={{ background: 'var(--ada-surface)', border: '1px solid var(--ada-border)', boxShadow: 'var(--shadow-sm)' }}
         >
           <div
             className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
-            style={{ border: '3px solid #EEEBE5', borderTopColor: '#C4870A' }}
+            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
             role="status"
             aria-label="Carregando ingredientes…"
           />
-          <p className="text-sm" style={{ color: '#8B7E73' }}>Carregando ingredientes…</p>
+          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando ingredientes…</p>
         </div>
       )}
 
@@ -134,7 +134,7 @@ export function IngredientesPage() {
       {!loading && erro && (
         <div
           className="rounded-xl px-5 py-4 text-sm"
-          style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}
+          style={{ background: 'var(--ada-error-bg)', border: '1px solid var(--ada-error-border)', color: '#DC2626' }}
           role="alert"
         >
           {erro}

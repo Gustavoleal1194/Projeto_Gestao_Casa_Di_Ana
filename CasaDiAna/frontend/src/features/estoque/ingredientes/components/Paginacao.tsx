@@ -35,17 +35,17 @@ export function Paginacao({
       aria-label="Paginação"
       className="flex items-center justify-between px-5 py-3 rounded-b-xl border-t"
       style={{
-        background: '#FAFAF8',
-        borderColor: '#EEEBE5',
+        background: 'var(--ada-surface-2)',
+        borderColor: 'var(--ada-border-sub)',
       }}
     >
-      <p className="text-[12.5px]" style={{ color: '#8B7E73' }}>
+      <p className="text-[12.5px]" style={{ color: 'var(--ada-muted)' }}>
         Exibindo{' '}
-        <span className="font-semibold" style={{ color: '#4B4039' }}>
+        <span className="font-semibold" style={{ color: 'var(--ada-body)' }}>
           {inicio}–{fim}
         </span>{' '}
         de{' '}
-        <span className="font-semibold" style={{ color: '#4B4039' }}>
+        <span className="font-semibold" style={{ color: 'var(--ada-body)' }}>
           {totalItens}
         </span>{' '}
         itens
@@ -56,7 +56,7 @@ export function Paginacao({
           onClick={() => onPaginaChange(paginaAtual - 1)}
           disabled={paginaAtual === 1}
           className={`${btnBase} p-1.5`}
-          style={{ color: '#8B7E73' }}
+          style={{ color: 'var(--ada-muted)' }}
           aria-label="Página anterior"
         >
           <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
@@ -70,7 +70,7 @@ export function Paginacao({
           return (
             <span key={p} className="flex items-center gap-1">
               {mostraElipsis && (
-                <span className="text-[13px] px-1" style={{ color: '#8B7E73' }} aria-hidden="true">
+                <span className="text-[13px] px-1" style={{ color: 'var(--ada-muted)' }} aria-hidden="true">
                   …
                 </span>
               )}
@@ -81,9 +81,9 @@ export function Paginacao({
                 aria-current={isActive ? 'page' : undefined}
                 style={isActive
                   ? { background: '#C4870A', color: '#FFFFFF', boxShadow: '0 2px 6px rgba(196,135,10,0.30)' }
-                  : { color: '#4B4039' }
+                  : { color: 'var(--ada-body)' }
                 }
-                onMouseEnter={e => !isActive && ((e.currentTarget as HTMLElement).style.background = '#F0EBE3')}
+                onMouseEnter={e => !isActive && ((e.currentTarget as HTMLElement).style.background = 'var(--ada-hover)')}
                 onMouseLeave={e => !isActive && ((e.currentTarget as HTMLElement).style.background = 'transparent')}
               >
                 {p}
@@ -96,7 +96,7 @@ export function Paginacao({
           onClick={() => onPaginaChange(paginaAtual + 1)}
           disabled={paginaAtual === totalPaginas}
           className={`${btnBase} p-1.5`}
-          style={{ color: '#8B7E73' }}
+          style={{ color: 'var(--ada-muted)' }}
           aria-label="Próxima página"
         >
           <ChevronRightIcon className="h-4 w-4" aria-hidden="true" />

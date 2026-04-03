@@ -29,7 +29,7 @@ export function SelectCampo({
       <label
         htmlFor={selectId}
         className="block text-[13px] font-medium mb-1.5"
-        style={{ color: '#4B4039', fontFamily: 'DM Sans, system-ui, sans-serif' }}
+        style={{ color: 'var(--ada-body)', fontFamily: 'DM Sans, system-ui, sans-serif' }}
       >
         {label}
         {obrigatorio && (
@@ -49,15 +49,15 @@ export function SelectCampo({
             'focus-visible:ring-2 focus-visible:ring-[#C4870A]/25',
             'pr-10', // space for chevron
             erro
-              ? 'border-red-300 bg-red-50/50 text-[#18150E] focus-visible:border-red-400'
-              : 'border-[#E4DDD3] bg-white text-[#18150E] focus-visible:border-[#C4870A]',
+              ? 'border-red-300 bg-red-50/50 text-[var(--ada-heading)] focus-visible:border-red-400'
+              : 'border-[var(--ada-border)] bg-white text-[var(--ada-heading)] focus-visible:border-[#C4870A]',
             props.disabled
-              ? 'bg-[#F9F8F6] cursor-not-allowed text-[#8B7E73] border-[#EEEBE5]'
+              ? 'bg-[var(--ada-surface-2)] cursor-not-allowed text-[var(--ada-muted)] border-[var(--ada-border-sub)]'
               : '',
           ].join(' ')}
           style={{ boxShadow: 'var(--shadow-xs, 0 1px 2px rgba(0,0,0,0.04))' }}
         >
-          <option value="" style={{ color: '#8B7E73' }}>{placeholderOpcao}</option>
+          <option value="" style={{ color: 'var(--ada-muted)' }}>{placeholderOpcao}</option>
           {opcoes.map(op => (
             <option key={op.valor} value={op.valor}>
               {op.rotulo}
@@ -67,7 +67,7 @@ export function SelectCampo({
         {/* Chevron */}
         <svg
           className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none w-4 h-4"
-          style={{ color: '#8B7E73' }}
+          style={{ color: 'var(--ada-muted)' }}
           viewBox="0 0 20 20"
           fill="currentColor"
           aria-hidden="true"

@@ -15,8 +15,11 @@ import {
   ExclamationCircleIcon,
   SquaresPlusIcon,
   ChartBarIcon,
+  MoonIcon,
+  SunIcon,
 } from '@heroicons/react/24/outline'
 import { useAuthStore } from '@/store/authStore'
+import { useTheme } from '@/hooks/useTheme'
 
 // ─── Logo mark SVG ─────────────────────────────────────────────────────────
 function CoffeeIcon({ className }: { className?: string }) {
@@ -85,6 +88,7 @@ export function Sidebar({ aberta, onFechar }: { aberta: boolean; onFechar: () =>
   const { usuario, logout, temPapel } = useAuthStore()
   const navigate = useNavigate()
   const isAdmin = temPapel('Admin')
+  const { isDark, toggle: toggleTheme } = useTheme()
 
   const handleLogout = () => {
     logout()
@@ -271,6 +275,22 @@ export function Sidebar({ aberta, onFechar }: { aberta: boolean; onFechar: () =>
             </p>
           </div>
         </div>
+
+        {/* Toggle tema claro/escuro */}
+        <button
+          onClick={toggleTheme}
+          className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-[13px] font-medium transition-colors duration-150"
+          style={{ color: 'var(--sb-text)' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--sb-text-hover)'; (e.currentTarget as HTMLElement).style.background = 'var(--sb-hover)' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--sb-text)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+          aria-label={isDark ? 'Mudar para tema claro' : 'Mudar para tema escuro'}
+        >
+          {isDark
+            ? <SunIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
+            : <MoonIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
+          }
+          {isDark ? 'Tema claro' : 'Tema escuro'}
+        </button>
 
         {/* Logout */}
         <button

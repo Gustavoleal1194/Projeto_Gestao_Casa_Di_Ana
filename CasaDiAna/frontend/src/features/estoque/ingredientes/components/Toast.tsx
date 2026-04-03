@@ -10,22 +10,22 @@ interface Props {
 
 const config = {
   sucesso: {
-    bg:     '#F0FDF4',
-    border: '#BBF7D0',
+    bg:     'var(--ada-success-bg)',
+    border: 'var(--ada-success-border)',
     text:   '#15803D',
     accent: '#16A34A',
     icon:   CheckCircleIcon,
   },
   erro: {
-    bg:     '#FEF2F2',
-    border: '#FECACA',
+    bg:     'var(--ada-error-bg)',
+    border: 'var(--ada-error-border)',
     text:   '#DC2626',
     accent: '#DC2626',
     icon:   XCircleIcon,
   },
   aviso: {
-    bg:     '#FFFBEB',
-    border: '#FDE68A',
+    bg:     'var(--ada-warning-bg)',
+    border: 'var(--ada-warning-border)',
     text:   '#B45309',
     accent: '#D97706',
     icon:   ExclamationTriangleIcon,

@@ -26,8 +26,8 @@ export function FiltrosIngredientes({
     <div
       className="rounded-xl p-4 mb-4 flex flex-wrap gap-3 items-center"
       style={{
-        background: '#FFFFFF',
-        border: '1px solid #E4DDD3',
+        background: 'var(--ada-surface)',
+        border: '1px solid var(--ada-border)',
         boxShadow: 'var(--shadow-xs)',
       }}
     >
@@ -35,7 +35,7 @@ export function FiltrosIngredientes({
       <FunnelIcon
         className="h-4 w-4 shrink-0"
         aria-hidden="true"
-        style={{ color: temFiltroAtivo ? '#C4870A' : '#C4B8AD' }}
+        style={{ color: temFiltroAtivo ? '#C4870A' : 'var(--ada-placeholder)' }}
       />
 
       {/* Busca por nome */}
@@ -43,7 +43,7 @@ export function FiltrosIngredientes({
         <MagnifyingGlassIcon
           className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none"
           aria-hidden="true"
-          style={{ color: '#C4B8AD' }}
+          style={{ color: 'var(--ada-placeholder)' }}
         />
         <label htmlFor="busca-ingrediente" className="sr-only">Buscar ingrediente</label>
         <input
@@ -56,9 +56,9 @@ export function FiltrosIngredientes({
           className="w-full rounded-lg border pl-9 pr-3 py-2 text-sm outline-none transition-all duration-200
                      focus-visible:ring-2 focus-visible:ring-[#C4870A]/25 focus-visible:border-[#C4870A]"
           style={{
-            background: '#FAFAF8',
-            border: '1px solid #E4DDD3',
-            color: '#18150E',
+            background: 'var(--ada-surface-2)',
+            border: '1px solid var(--ada-border)',
+            color: 'var(--ada-heading)',
           }}
         />
       </div>
@@ -75,9 +75,9 @@ export function FiltrosIngredientes({
                      transition-all duration-200 cursor-pointer
                      focus-visible:ring-2 focus-visible:ring-[#C4870A]/25 focus-visible:border-[#C4870A]"
           style={{
-            background: '#FAFAF8',
-            border: '1px solid #E4DDD3',
-            color: categoriaId ? '#18150E' : '#8B7E73',
+            background: 'var(--ada-surface-2)',
+            border: '1px solid var(--ada-border)',
+            color: categoriaId ? 'var(--ada-heading)' : 'var(--ada-muted)',
           }}
         >
           <option value="">Todas as categorias</option>
@@ -87,7 +87,7 @@ export function FiltrosIngredientes({
         </select>
         <svg
           className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none w-3.5 h-3.5"
-          style={{ color: '#8B7E73' }}
+          style={{ color: 'var(--ada-muted)' }}
           viewBox="0 0 20 20"
           fill="currentColor"
           aria-hidden="true"
@@ -109,7 +109,7 @@ export function FiltrosIngredientes({
           <div
             className="w-8 h-4.5 rounded-full transition-all duration-200 flex items-center"
             style={{
-              background: apenasAbaixoMinimo ? '#C4870A' : '#E4DDD3',
+              background: apenasAbaixoMinimo ? '#C4870A' : 'var(--ada-border)',
               padding: '2px',
             }}
             aria-hidden="true"
@@ -124,7 +124,7 @@ export function FiltrosIngredientes({
         </div>
         <span
           className="text-sm transition-colors duration-150"
-          style={{ color: apenasAbaixoMinimo ? '#C4870A' : '#6B6456' }}
+          style={{ color: apenasAbaixoMinimo ? '#C4870A' : 'var(--ada-muted-dim)' }}
         >
           Abaixo do mínimo
         </span>

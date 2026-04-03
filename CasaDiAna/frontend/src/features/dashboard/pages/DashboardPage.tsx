@@ -1,9 +1,10 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import ReactECharts from 'echarts-for-react'
 import type { EChartsOption } from 'echarts'
 import { relatoriosService } from '@/features/relatorios/services/relatoriosService'
 import type { EstoqueAtualItem } from '@/types/estoque'
 import type { RelatorioProducaoVendasItem } from '@/types/producao'
+import { useTheme } from '@/hooks/useTheme'
 
 // ─── Paleta de cores ────────────────────────────────────────────────────────
 const COR = {
@@ -45,7 +46,7 @@ function listarDiasNoIntervalo(de: string, ate: string, limite = 62) {
 const inputCls = [
   'border rounded-lg px-3 py-2 text-sm outline-none',
   'transition-all duration-200',
-  'border-[#E4DDD3] bg-white text-[#18150E]',
+  'border-[var(--ada-border)] bg-white text-[var(--ada-heading)]',
   'focus-visible:border-[#C4870A] focus-visible:ring-2 focus-visible:ring-[#C4870A]/20',
 ].join(' ')
 
@@ -90,10 +91,10 @@ interface DashboardCardProps {
 
 function DashboardCard({ titulo, valor, subtexto, variante = 'default', icone }: DashboardCardProps) {
   const vByVariant = {
-    default:  { border: '#E4DDD3', iconBg: '#F5F3EF',  iconColor: '#8B7E73',  valorColor: '#18150E' },
+    default:  { border: 'var(--ada-border)', iconBg: 'var(--ada-bg)',  iconColor: 'var(--ada-muted)',  valorColor: 'var(--ada-heading)' },
     positivo: { border: '#BBF7D0', iconBg: '#F0FDF4',  iconColor: '#16A34A',  valorColor: '#15803D' },
-    negativo: { border: '#FECACA', iconBg: '#FEF2F2',  iconColor: '#DC2626',  valorColor: '#DC2626' },
-    alerta:   { border: '#FDE68A', iconBg: '#FFFBEB',  iconColor: '#D97706',  valorColor: '#B45309' },
+    negativo: { border: 'var(--ada-error-border)', iconBg: 'var(--ada-error-bg)',  iconColor: '#DC2626',  valorColor: '#DC2626' },
+    alerta:   { border: 'var(--ada-warning-border)', iconBg: 'var(--ada-warning-bg)',  iconColor: '#D97706',  valorColor: '#B45309' },
   } as const
   const v = vByVariant[variante]
 
@@ -101,7 +102,7 @@ function DashboardCard({ titulo, valor, subtexto, variante = 'default', icone }:
     <div
       className="rounded-2xl p-5 transition-all duration-200"
       style={{
-        background: '#FFFFFF',
+        background: 'var(--ada-surface)',
         border: `1px solid ${v.border}`,
         boxShadow: 'var(--shadow-sm)',
       }}
@@ -111,7 +112,7 @@ function DashboardCard({ titulo, valor, subtexto, variante = 'default', icone }:
       <div className="flex items-start justify-between mb-4">
         <p
           className="text-[10.5px] font-semibold uppercase tracking-[0.08em] leading-tight"
-          style={{ color: '#8B7E73', fontFamily: 'Sora, system-ui, sans-serif' }}
+          style={{ color: 'var(--ada-muted)', fontFamily: 'Sora, system-ui, sans-serif' }}
         >
           {titulo}
         </p>
@@ -131,7 +132,7 @@ function DashboardCard({ titulo, valor, subtexto, variante = 'default', icone }:
       >
         {valor}
       </p>
-      <p className="text-xs" style={{ color: '#8B7E73' }}>{subtexto}</p>
+      <p className="text-xs" style={{ color: 'var(--ada-muted)' }}>{subtexto}</p>
     </div>
   )
 }
@@ -150,23 +151,23 @@ function ChartContainer({ titulo, subtitulo, children, rodape, vazio }: ChartCon
     <div
       className="rounded-2xl overflow-hidden"
       style={{
-        background: '#FFFFFF',
-        border: '1px solid #E4DDD3',
+        background: 'var(--ada-surface)',
+        border: '1px solid var(--ada-border)',
         boxShadow: 'var(--shadow-sm)',
       }}
     >
       <div
         className="px-6 py-4"
-        style={{ borderBottom: '1px solid #F0EBE3' }}
+        style={{ borderBottom: '1px solid var(--ada-hover)' }}
       >
         <h2
           className="text-[13.5px] font-semibold"
-          style={{ color: '#18150E', fontFamily: 'Sora, system-ui, sans-serif' }}
+          style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
         >
           {titulo}
         </h2>
         {subtitulo && (
-          <p className="text-[12px] mt-0.5" style={{ color: '#8B7E73' }}>
+          <p className="text-[12px] mt-0.5" style={{ color: 'var(--ada-muted)' }}>
             {subtitulo}
           </p>
         )}
@@ -175,13 +176,13 @@ function ChartContainer({ titulo, subtitulo, children, rodape, vazio }: ChartCon
         {vazio ? (
           <div
             className="flex flex-col items-center justify-center h-52 gap-3"
-            style={{ color: '#C4B8AD' }}
+            style={{ color: 'var(--ada-placeholder)' }}
           >
             <svg className="w-10 h-10 opacity-50" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M9 17H5a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
               <path d="M14 17l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <p className="text-sm" style={{ color: '#C4B8AD' }}>Sem dados no período selecionado.</p>
+            <p className="text-sm" style={{ color: 'var(--ada-placeholder)' }}>Sem dados no período selecionado.</p>
           </div>
         ) : children}
         {rodape && <div className="mt-4">{rodape}</div>}
@@ -199,6 +200,19 @@ interface DashboardData {
 
 // ─── Página ─────────────────────────────────────────────────────────────────
 export function DashboardPage() {
+  const { isDark } = useTheme()
+  const chartTooltip = useMemo(() => ({
+    backgroundColor: isDark ? '#1A1814' : '#ffffff',
+    borderColor:     isDark ? '#2C2620' : '#e7e5e4',
+    textColor:       isDark ? '#EDE5D8' : '#292524',
+  }), [isDark])
+  const chartAxis = useMemo(() => ({
+    axisColor:  isDark ? '#7A7068' : '#a8a29e',
+    bodyColor:  isDark ? '#B5ABA0' : '#78716c',
+    labelColor: isDark ? '#B5ABA0' : '#57534e',
+    gridColor:  isDark ? '#2C2620' : '#f5f5f4',
+  }), [isDark])
+
   const [de, setDe] = useState(primeiroDoMes())
   const [ate, setAte] = useState(hoje())
   const [data, setData] = useState<DashboardData | null>(null)
@@ -292,10 +306,10 @@ export function DashboardPage() {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      backgroundColor: '#ffffff',
-      borderColor: '#e7e5e4',
+      backgroundColor: chartTooltip.backgroundColor,
+      borderColor: chartTooltip.borderColor,
       borderWidth: 1,
-      textStyle: { color: '#292524' },
+      textStyle: { color: chartTooltip.textColor },
       formatter: (params: any) => {
         const linhas = Array.isArray(params) ? params : [params]
         const row = linhas[0]?.data ?? {}
@@ -325,20 +339,20 @@ export function DashboardPage() {
       icon: 'roundRect',
       itemWidth: 12,
       itemHeight: 8,
-      textStyle: { color: '#78716c', fontSize: 11 },
+      textStyle: { color: chartAxis.bodyColor, fontSize: 11 },
     },
     grid: { left: 24, right: 12, top: 20, bottom: 64, containLabel: true },
     xAxis: {
       type: 'category',
       data: chartProdVendas.map(i => i.nome),
-      axisLabel: { rotate: 30, color: '#a8a29e', fontSize: 11 },
+      axisLabel: { rotate: 30, color: chartAxis.axisColor, fontSize: 11 },
       axisLine: { show: false },
       axisTick: { show: false },
     },
     yAxis: {
       type: 'value',
-      axisLabel: { color: '#a8a29e', fontSize: 11 },
-      splitLine: { lineStyle: { color: '#f5f5f4' } },
+      axisLabel: { color: chartAxis.axisColor, fontSize: 11 },
+      splitLine: { lineStyle: { color: chartAxis.gridColor } },
     },
     series: [
       { name: 'Vendido', type: 'bar', stack: 'total', data: chartProdVendas.map(i => i.Vendido), barMaxWidth: 34, emphasis: { focus: 'series' } },
@@ -357,23 +371,23 @@ export function DashboardPage() {
   const optionMargem: EChartsOption = {
     tooltip: {
       trigger: 'item',
-      backgroundColor: '#ffffff',
-      borderColor: '#e7e5e4',
+      backgroundColor: chartTooltip.backgroundColor,
+      borderColor: chartTooltip.borderColor,
       borderWidth: 1,
-      textStyle: { color: '#292524' },
+      textStyle: { color: chartTooltip.textColor },
       formatter: (p: any) => `${p.name}<br/><strong style="color:${margemCor(Number(p.value))}">${pct(Number(p.value))}</strong>`,
     },
     grid: { left: 20, right: 56, top: 8, bottom: 8, containLabel: true },
     xAxis: {
       type: 'value',
-      axisLabel: { color: '#a8a29e', formatter: (v: number) => `${v}%` },
-      splitLine: { lineStyle: { color: '#f5f5f4' } },
+      axisLabel: { color: chartAxis.axisColor, formatter: (v: number) => `${v}%` },
+      splitLine: { lineStyle: { color: chartAxis.gridColor } },
     },
     yAxis: {
       type: 'category',
       inverse: true,
       data: chartMargem.map(i => i.nome),
-      axisLabel: { color: '#78716c', fontSize: 11 },
+      axisLabel: { color: chartAxis.bodyColor, fontSize: 11 },
       axisLine: { show: false },
       axisTick: { show: false },
     },
@@ -384,7 +398,7 @@ export function DashboardPage() {
         data: chartMargem.map(i => ({
           value: i.margem,
           itemStyle: { color: margemCor(i.margem), borderRadius: [0, 6, 6, 0] },
-          label: { show: true, position: 'right', formatter: `${pct(i.margem)}`, color: '#57534e', fontWeight: 600, fontSize: 11 },
+          label: { show: true, position: 'right', formatter: `${pct(i.margem)}`, color: chartAxis.labelColor, fontWeight: 600, fontSize: 11 },
         })),
         barMaxWidth: 26,
       },
@@ -394,22 +408,22 @@ export function DashboardPage() {
   const optionPerdaProduto: EChartsOption = {
     tooltip: {
       trigger: 'item',
-      backgroundColor: '#ffffff',
-      borderColor: '#e7e5e4',
+      backgroundColor: chartTooltip.backgroundColor,
+      borderColor: chartTooltip.borderColor,
       borderWidth: 1,
       formatter: (p: any) => `${p.name}<br/><strong>${Number(p.value).toFixed(1)}%</strong> de perda`,
     },
     grid: { left: 20, right: 24, top: 8, bottom: 8, containLabel: true },
     xAxis: {
       type: 'value',
-      axisLabel: { color: '#a8a29e', formatter: (v: number) => `${v}%` },
-      splitLine: { lineStyle: { color: '#f5f5f4' } },
+      axisLabel: { color: chartAxis.axisColor, formatter: (v: number) => `${v}%` },
+      splitLine: { lineStyle: { color: chartAxis.gridColor } },
     },
     yAxis: {
       type: 'category',
       inverse: true,
       data: chartPerdaProduto.map(i => i.nome),
-      axisLabel: { color: '#78716c', fontSize: 11 },
+      axisLabel: { color: chartAxis.bodyColor, fontSize: 11 },
       axisLine: { show: false },
       axisTick: { show: false },
     },
@@ -429,15 +443,15 @@ export function DashboardPage() {
   const optionMixReceita: EChartsOption = {
     tooltip: {
       trigger: 'item',
-      backgroundColor: '#ffffff',
-      borderColor: '#e7e5e4',
+      backgroundColor: chartTooltip.backgroundColor,
+      borderColor: chartTooltip.borderColor,
       borderWidth: 1,
       formatter: (p: any) => `${p.name}<br/><strong>${brl(Number(p.value))}</strong> (${Number(p.percent).toFixed(1)}%)`,
     },
     legend: {
       bottom: 0,
       type: 'scroll',
-      textStyle: { color: '#78716c', fontSize: 11 },
+      textStyle: { color: chartAxis.bodyColor, fontSize: 11 },
     },
     series: [
       {
@@ -445,7 +459,7 @@ export function DashboardPage() {
         radius: ['48%', '72%'],
         center: ['50%', '44%'],
         itemStyle: { borderColor: '#fff', borderWidth: 2 },
-        label: { color: '#57534e', fontSize: 11, formatter: '{d}%' },
+        label: { color: chartAxis.labelColor, fontSize: 11, formatter: '{d}%' },
         data: chartMixReceita.map(i => ({ name: nomeCurto(i.nome), value: i.receita })),
       },
     ],
@@ -456,8 +470,8 @@ export function DashboardPage() {
     color: [COR.verde, COR.vermelho, COR.azul],
     tooltip: {
       trigger: 'axis',
-      backgroundColor: '#ffffff',
-      borderColor: '#e7e5e4',
+      backgroundColor: chartTooltip.backgroundColor,
+      borderColor: chartTooltip.borderColor,
       borderWidth: 1,
       formatter: (params: any) => {
         const linhas = Array.isArray(params) ? params : [params]
@@ -477,20 +491,20 @@ export function DashboardPage() {
     legend: {
       top: 0,
       right: 0,
-      textStyle: { color: '#78716c', fontSize: 11 },
+      textStyle: { color: chartAxis.bodyColor, fontSize: 11 },
     },
     grid: { left: 20, right: 20, top: 44, bottom: 12, containLabel: true },
     xAxis: {
       type: 'category',
       data: (data?.tendenciaDiaria ?? []).map(i => formatarDataBr(i.data)),
-      axisLabel: { color: '#a8a29e', fontSize: 11 },
+      axisLabel: { color: chartAxis.axisColor, fontSize: 11 },
       axisLine: { show: false },
       axisTick: { show: false },
     },
     yAxis: {
       type: 'value',
-      axisLabel: { color: '#a8a29e', formatter: (v: number) => brl(v).replace('R$', 'R$ ') },
-      splitLine: { lineStyle: { color: '#f5f5f4' } },
+      axisLabel: { color: chartAxis.axisColor, formatter: (v: number) => brl(v).replace('R$', 'R$ ') },
+      splitLine: { lineStyle: { color: chartAxis.gridColor } },
     },
     series: [
       {
@@ -526,21 +540,21 @@ export function DashboardPage() {
         <div>
           <h1
             className="text-xl font-bold tracking-tight"
-            style={{ color: '#18150E', fontFamily: 'Sora, system-ui, sans-serif' }}
+            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
           >
             Dashboard
           </h1>
-          <p className="text-sm mt-0.5" style={{ color: '#8B7E73' }}>Visão geral do período selecionado</p>
+          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>Visão geral do período selecionado</p>
         </div>
         <div
           className="flex flex-col gap-2.5 sm:flex-row sm:items-end sm:gap-3 p-3 rounded-xl"
-          style={{ background: '#FFFFFF', border: '1px solid #E4DDD3', boxShadow: 'var(--shadow-xs)' }}
+          style={{ background: 'var(--ada-surface)', border: '1px solid var(--ada-border)', boxShadow: 'var(--shadow-xs)' }}
         >
           <div>
             <label
               htmlFor="dash-de"
               className="block text-[11px] font-semibold uppercase tracking-[0.06em] mb-1"
-              style={{ color: '#8B7E73' }}
+              style={{ color: 'var(--ada-muted)' }}
             >
               De
             </label>
@@ -557,7 +571,7 @@ export function DashboardPage() {
             <label
               htmlFor="dash-ate"
               className="block text-[11px] font-semibold uppercase tracking-[0.06em] mb-1"
-              style={{ color: '#8B7E73' }}
+              style={{ color: 'var(--ada-muted)' }}
             >
               Até
             </label>
@@ -590,7 +604,7 @@ export function DashboardPage() {
         <div className="flex justify-center py-24">
           <div
             className="h-10 w-10 animate-spin rounded-full"
-            style={{ border: '3px solid #EEEBE5', borderTopColor: '#C4870A' }}
+            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
             role="status"
             aria-label="Carregando dados do dashboard…"
           />
@@ -601,7 +615,7 @@ export function DashboardPage() {
       {!loading && erro && (
         <div
           className="rounded-xl px-5 py-4 text-sm"
-          style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}
+          style={{ background: 'var(--ada-error-bg)', border: '1px solid var(--ada-error-border)', color: '#DC2626' }}
           role="alert"
         >
           {erro}
@@ -760,11 +774,11 @@ export function DashboardPage() {
           {data.estoqueAlerta.length > 0 && (
             <div
               className="rounded-2xl overflow-hidden"
-              style={{ background: '#FFFFFF', border: '1px solid #FDE68A', boxShadow: 'var(--shadow-sm)' }}
+              style={{ background: 'var(--ada-surface)', border: '1px solid var(--ada-warning-border)', boxShadow: 'var(--shadow-sm)' }}
             >
               <div
                 className="px-6 py-4 flex items-center gap-3"
-                style={{ borderBottom: '1px solid #FEF3C7', background: '#FFFBEB' }}
+                style={{ borderBottom: '1px solid var(--ada-warning-badge)', background: 'var(--ada-warning-bg)' }}
               >
                 <span
                   className="w-2 h-2 rounded-full shrink-0 animate-pulse"
@@ -779,7 +793,7 @@ export function DashboardPage() {
                 </h2>
                 <span
                   className="text-xs font-bold px-2.5 py-1 rounded-full"
-                  style={{ background: '#FEF3C7', color: '#B45309', border: '1px solid #FDE68A' }}
+                  style={{ background: 'var(--ada-warning-badge)', color: '#B45309', border: '1px solid var(--ada-warning-border)' }}
                 >
                   {data.estoqueAlerta.length}
                 </span>
@@ -787,7 +801,7 @@ export function DashboardPage() {
               <div className="overflow-x-auto">
                 <table className="w-full" role="table">
                   <thead>
-                    <tr style={{ background: '#FFFBEB', borderBottom: '1px solid #FEF3C7' }}>
+                    <tr style={{ background: 'var(--ada-warning-bg)', borderBottom: '1px solid var(--ada-warning-badge)' }}>
                       {[
                         { label: 'Ingrediente', right: false },
                         { label: 'Categoria',   right: false },
@@ -811,26 +825,26 @@ export function DashboardPage() {
                       <tr
                         key={item.ingredienteId}
                         className="transition-colors duration-100"
-                        style={{ borderBottom: idx < data.estoqueAlerta.length - 1 ? '1px solid #FEF3C7' : 'none' }}
-                        onMouseEnter={e => (e.currentTarget.style.background = '#FFFBEB')}
+                        style={{ borderBottom: idx < data.estoqueAlerta.length - 1 ? '1px solid var(--ada-warning-badge)' : 'none' }}
+                        onMouseEnter={e => (e.currentTarget.style.background = 'var(--ada-warning-bg)')}
                         onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                       >
-                        <td className="px-5 py-3.5 text-sm font-semibold" style={{ color: '#18150E' }}>
+                        <td className="px-5 py-3.5 text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>
                           {item.nome}
                         </td>
-                        <td className="px-5 py-3.5 text-sm" style={{ color: '#8B7E73' }}>
+                        <td className="px-5 py-3.5 text-sm" style={{ color: 'var(--ada-muted)' }}>
                           {item.categoriaNome ?? '—'}
                         </td>
                         <td className="px-5 py-3.5 text-sm text-right font-bold tabular-nums" style={{ color: '#DC2626' }}>
                           {item.estoqueAtual.toFixed(3)} {item.unidadeMedidaCodigo}
                         </td>
-                        <td className="px-5 py-3.5 text-sm text-right tabular-nums" style={{ color: '#8B7E73' }}>
+                        <td className="px-5 py-3.5 text-sm text-right tabular-nums" style={{ color: 'var(--ada-muted)' }}>
                           {item.estoqueMinimo.toFixed(3)} {item.unidadeMedidaCodigo}
                         </td>
                         <td className="px-5 py-3.5 text-right">
                           <span
                             className="inline-flex items-center text-xs font-bold px-2.5 py-1 rounded-full tabular-nums"
-                            style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}
+                            style={{ background: 'var(--ada-error-bg)', color: '#DC2626', border: '1px solid var(--ada-error-border)' }}
                           >
                             −{(item.estoqueMinimo - item.estoqueAtual).toFixed(3)}
                           </span>
@@ -847,24 +861,24 @@ export function DashboardPage() {
           {data.prodVendas.length === 0 && data.estoqueAlerta.length === 0 && (
             <div
               className="rounded-2xl py-20 text-center"
-              style={{ background: '#FFFFFF', border: '1px solid #E4DDD3', boxShadow: 'var(--shadow-sm)' }}
+              style={{ background: 'var(--ada-surface)', border: '1px solid var(--ada-border)', boxShadow: 'var(--shadow-sm)' }}
             >
               <div
                 className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                style={{ background: '#F5F3EF', border: '1px solid #E4DDD3' }}
+                style={{ background: 'var(--ada-bg)', border: '1px solid var(--ada-border)' }}
                 aria-hidden="true"
               >
-                <svg className="w-8 h-8" style={{ color: '#C4B8AD' }} viewBox="0 0 24 24" fill="none">
+                <svg className="w-8 h-8" style={{ color: 'var(--ada-placeholder)' }} viewBox="0 0 24 24" fill="none">
                   <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
               <p
                 className="text-sm font-semibold"
-                style={{ color: '#4B4039', fontFamily: 'Sora, system-ui, sans-serif' }}
+                style={{ color: 'var(--ada-body)', fontFamily: 'Sora, system-ui, sans-serif' }}
               >
                 Nenhum dado no período selecionado
               </p>
-              <p className="text-xs mt-1.5" style={{ color: '#8B7E73' }}>
+              <p className="text-xs mt-1.5" style={{ color: 'var(--ada-muted)' }}>
                 Registre produções e vendas para visualizar o dashboard.
               </p>
             </div>

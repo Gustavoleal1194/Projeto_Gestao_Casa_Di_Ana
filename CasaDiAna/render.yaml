@@ -12,7 +12,6 @@ services:
     dockerfilePath: ./CasaDiAna/Dockerfile
     dockerContext: ./CasaDiAna
     plan: free
-    healthCheckPath: /health
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production

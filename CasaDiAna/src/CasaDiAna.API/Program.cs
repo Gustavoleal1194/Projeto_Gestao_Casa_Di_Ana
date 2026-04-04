@@ -6,6 +6,7 @@ using CasaDiAna.Domain.Enums;
 using CasaDiAna.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using CasaDiAna.Application.Common;
+using CasaDiAna.Application.Notificacoes.Services;
 using CasaDiAna.Infrastructure;
 using FluentValidation;
 using MediatR;
@@ -142,6 +143,11 @@ using (var scope = app.Services.CreateScope())
         db.Usuarios.Add(admin);
         db.SaveChanges();
     }
+
+    // Gera notificações para ingredientes que já estão com estoque baixo
+    var notificacaoService = scope.ServiceProvider
+        .GetRequiredService<INotificacaoEstoqueService>();
+    await notificacaoService.SincronizarAsync();
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();

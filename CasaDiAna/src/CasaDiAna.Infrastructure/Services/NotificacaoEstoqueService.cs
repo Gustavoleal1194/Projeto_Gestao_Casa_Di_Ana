@@ -9,9 +9,15 @@ namespace CasaDiAna.Infrastructure.Services;
 public class NotificacaoEstoqueService : INotificacaoEstoqueService
 {
     private readonly INotificacaoEstoqueRepository _notificacoes;
+    private readonly IIngredienteRepository _ingredientes;
 
-    public NotificacaoEstoqueService(INotificacaoEstoqueRepository notificacoes)
-        => _notificacoes = notificacoes;
+    public NotificacaoEstoqueService(
+        INotificacaoEstoqueRepository notificacoes,
+        IIngredienteRepository ingredientes)
+    {
+        _notificacoes = notificacoes;
+        _ingredientes = ingredientes;
+    }
 
     public async Task VerificarECriarAsync(Ingrediente ingrediente, CancellationToken ct = default)
     {
@@ -42,6 +48,13 @@ public class NotificacaoEstoqueService : INotificacaoEstoqueService
     public async Task MarcarTodasComoLidasAsync(CancellationToken ct = default)
     {
         await _notificacoes.MarcarTodasComoLidasAsync(ct);
+    }
+
+    public async Task SincronizarAsync(CancellationToken ct = default)
+    {
+        var ingredientes = await _ingredientes.ListarAsync(apenasAtivos: true, ct);
+        foreach (var ing in ingredientes)
+            await VerificarECriarAsync(ing, ct);
     }
 
     private static TipoNotificacaoEstoque? DeterminarNivel(Ingrediente ingrediente)

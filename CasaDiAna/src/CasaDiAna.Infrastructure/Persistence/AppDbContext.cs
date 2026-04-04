@@ -23,6 +23,7 @@ public class AppDbContext : DbContext
     public DbSet<ProducaoDiaria> ProducoesDiarias => Set<ProducaoDiaria>();
     public DbSet<VendaDiaria> VendasDiarias => Set<VendaDiaria>();
     public DbSet<PerdaProduto> PerdasProduto => Set<PerdaProduto>();
+    public DbSet<NotificacaoEstoque> NotificacoesEstoque => Set<NotificacaoEstoque>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

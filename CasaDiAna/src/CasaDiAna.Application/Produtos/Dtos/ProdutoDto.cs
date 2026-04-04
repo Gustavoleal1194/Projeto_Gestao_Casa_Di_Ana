@@ -7,5 +7,6 @@ public record ProdutoDto(
     string? CategoriaNome,
     string? Descricao,
     decimal PrecoVenda,
+    int? DiasValidade,
     bool Ativo,
     DateTime AtualizadoEm);

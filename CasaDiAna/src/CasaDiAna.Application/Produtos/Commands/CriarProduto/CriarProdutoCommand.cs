@@ -7,4 +7,5 @@ public record CriarProdutoCommand(
     string Nome,
     decimal PrecoVenda,
     Guid? CategoriaProdutoId = null,
-    string? Descricao = null) : IRequest<ProdutoDto>;
+    string? Descricao = null,
+    int? DiasValidade = null) : IRequest<ProdutoDto>;

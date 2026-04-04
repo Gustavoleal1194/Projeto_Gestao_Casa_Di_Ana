@@ -1,5 +1,6 @@
 using CasaDiAna.Application.Common;
 using CasaDiAna.Application.Entradas.Commands.RegistrarEntrada;
+using CasaDiAna.Application.Notificacoes.Services;
 using CasaDiAna.Domain.Entities;
 using CasaDiAna.Domain.Exceptions;
 using CasaDiAna.Domain.Interfaces;
@@ -15,6 +16,7 @@ public class RegistrarEntradaCommandHandlerTests
     private readonly Mock<IMovimentacaoRepository> _movimentacoes = new();
     private readonly Mock<IFornecedorRepository> _fornecedores = new();
     private readonly Mock<ICurrentUserService> _currentUser = new();
+    private readonly Mock<INotificacaoEstoqueService> _notificacoes = new();
     private readonly RegistrarEntradaCommandHandler _handler;
     private readonly Guid _usuarioId = Guid.NewGuid();
 
@@ -26,7 +28,8 @@ public class RegistrarEntradaCommandHandlerTests
             _ingredientes.Object,
             _movimentacoes.Object,
             _fornecedores.Object,
-            _currentUser.Object);
+            _currentUser.Object,
+            _notificacoes.Object);
     }
 
     private static Ingrediente CriarIngrediente()

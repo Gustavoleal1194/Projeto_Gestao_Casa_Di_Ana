@@ -1,5 +1,6 @@
 using CasaDiAna.Application.Common;
 using CasaDiAna.Application.Inventarios.Commands.FinalizarInventario;
+using CasaDiAna.Application.Notificacoes.Services;
 using CasaDiAna.Domain.Entities;
 using CasaDiAna.Domain.Exceptions;
 using CasaDiAna.Domain.Interfaces;
@@ -14,6 +15,7 @@ public class FinalizarInventarioCommandHandlerTests
     private readonly Mock<IIngredienteRepository> _ingredientes = new();
     private readonly Mock<IMovimentacaoRepository> _movimentacoes = new();
     private readonly Mock<ICurrentUserService> _currentUser = new();
+    private readonly Mock<INotificacaoEstoqueService> _notificacoes = new();
     private readonly FinalizarInventarioCommandHandler _handler;
     private readonly Guid _usuarioId = Guid.NewGuid();
 
@@ -24,7 +26,8 @@ public class FinalizarInventarioCommandHandlerTests
             _inventarios.Object,
             _ingredientes.Object,
             _movimentacoes.Object,
-            _currentUser.Object);
+            _currentUser.Object,
+            _notificacoes.Object);
     }
 
     [Fact]

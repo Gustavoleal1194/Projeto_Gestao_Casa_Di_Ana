@@ -44,6 +44,7 @@ public static class DependencyInjection
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<INotificacaoEstoqueRepository, NotificacaoEstoqueRepository>();
         services.AddScoped<INotificacaoEstoqueService, NotificacaoEstoqueService>();
+        services.AddScoped<IHistoricoImpressaoRepository, HistoricoImpressaoRepository>();
         services.AddHttpContextAccessor();
 
         return services;

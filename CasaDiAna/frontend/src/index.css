@@ -100,18 +100,18 @@
   --ada-hover:        #262117;
   --ada-row-alert:       rgba(212, 150, 12, 0.09);
   --ada-row-alert-hover: rgba(212, 150, 12, 0.16);
-  --ada-error-bg:        rgba(220, 38, 38, 0.12);
-  --ada-error-border:    rgba(220, 38, 38, 0.28);
+  --ada-error-bg:        rgba(239, 68, 68, 0.10);
+  --ada-error-border:    rgba(239, 68, 68, 0.40);
   --ada-warning-bg:      rgba(212, 150, 12, 0.12);
-  --ada-warning-border:  rgba(212, 150, 12, 0.30);
-  --ada-warning-badge:   rgba(212, 150, 12, 0.18);
+  --ada-warning-border:  rgba(212, 150, 12, 0.35);
+  --ada-warning-badge:   rgba(212, 150, 12, 0.20);
   --ada-success-bg:      rgba(22, 163, 74, 0.12);
-  --ada-success-border:  rgba(22, 163, 74, 0.28);
+  --ada-success-border:  rgba(22, 163, 74, 0.35);
   --ada-warning-text:    #FBBF24;
-  --ada-error-text:      #f87171;
-  --ada-error-badge:     rgba(220, 38, 38, 0.18);
-  --ada-success-text:    #4ade80;
-  --ada-danger-text:     #f87171;
+  --ada-error-text:      #fca5a5;
+  --ada-error-badge:     rgba(239, 68, 68, 0.22);
+  --ada-success-text:    #86efac;
+  --ada-danger-text:     #fca5a5;
 
   /* Sidebar levemente mais escura */
   --sb-bg:      #0A0907;

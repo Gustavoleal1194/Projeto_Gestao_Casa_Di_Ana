@@ -158,20 +158,22 @@ export function EstoqueAtualPage() {
                       <td className="px-4 py-3">
                         {item.estaBaixoDoMinimo ? (
                           <span
-                            className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold"
+                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
                             style={{
-                              background: 'var(--ada-error-badge, rgba(220,38,38,0.12))',
-                              color: 'var(--ada-error-text, #dc2626)',
+                              background: 'var(--ada-error-badge)',
+                              color: 'var(--ada-error-text)',
+                              border: '1px solid var(--ada-error-border)',
                             }}
                           >
                             Abaixo do mínimo
                           </span>
                         ) : (
                           <span
-                            className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold"
+                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
                             style={{
                               background: 'var(--ada-success-bg)',
-                              color: 'var(--ada-success-text, #16a34a)',
+                              color: 'var(--ada-success-text)',
+                              border: '1px solid var(--ada-success-border)',
                             }}
                           >
                             OK

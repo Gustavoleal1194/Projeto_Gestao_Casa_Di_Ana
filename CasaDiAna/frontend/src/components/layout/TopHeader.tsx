@@ -5,8 +5,10 @@ import {
   SunIcon,
   ArrowRightStartOnRectangleIcon,
 } from '@heroicons/react/24/outline'
+import { BellIcon } from '@heroicons/react/24/outline'
 import { useAuthStore } from '@/store/authStore'
 import { useTheme } from '@/hooks/useTheme'
+import { useNotificacoesCount } from '@/hooks/useNotificacoesCount'
 
 interface Props {
   onMobileMenuOpen: () => void
@@ -66,6 +68,7 @@ export function TopHeader({ onMobileMenuOpen }: Props) {
   const { usuario, logout } = useAuthStore()
   const { isDark, toggle: toggleTheme } = useTheme()
   const navigate = useNavigate()
+  const { count } = useNotificacoesCount()
 
   const inicial = (usuario?.nome ?? 'U').charAt(0).toUpperCase()
 
@@ -117,6 +120,30 @@ export function TopHeader({ onMobileMenuOpen }: Props) {
 
       {/* ── Direita: controles globais ─────────────────────────────── */}
       <div className="flex items-center gap-0.5">
+
+        {/* Sino de notificações */}
+          <IconBtn
+            onClick={() => navigate('/notificacoes')}
+            ariaLabel={`Notificações${count > 0 ? ` (${count} não lidas)` : ''}`}
+            title="Notificações"
+          >
+            <div className="relative">
+              <BellIcon className="h-[18px] w-[18px]" aria-hidden="true" />
+              {count > 0 && (
+                <span
+                  className="absolute -top-2 -right-2 min-w-[16px] h-4 rounded-full
+                             text-[9px] font-bold text-white flex items-center
+                             justify-center px-1 leading-none"
+                  style={{ background: 'var(--ada-error-text)' }}
+                  aria-hidden="true"
+                >
+                  {count > 99 ? '99+' : count}
+                </span>
+              )}
+            </div>
+          </IconBtn>
+
+          <Divider />
 
         {/* Toggle tema */}
         <IconBtn

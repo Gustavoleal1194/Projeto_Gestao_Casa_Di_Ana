@@ -1,4 +1,5 @@
 using CasaDiAna.Application.Common;
+using CasaDiAna.Application.Notificacoes.Services;
 using CasaDiAna.Application.ProducaoDiaria.Dtos;
 using CasaDiAna.Domain.Entities;
 using CasaDiAna.Domain.Enums;
@@ -16,19 +17,22 @@ public class RegistrarProducaoCommandHandler
     private readonly IIngredienteRepository _ingredientes;
     private readonly IMovimentacaoRepository _movimentacoes;
     private readonly ICurrentUserService _currentUser;
+    private readonly INotificacaoEstoqueService _notificacaoService;
 
     public RegistrarProducaoCommandHandler(
         IProducaoDiariaRepository producoes,
         IProdutoRepository produtos,
         IIngredienteRepository ingredientes,
         IMovimentacaoRepository movimentacoes,
-        ICurrentUserService currentUser)
+        ICurrentUserService currentUser,
+        INotificacaoEstoqueService notificacaoService)
     {
         _producoes = producoes;
         _produtos = produtos;
         _ingredientes = ingredientes;
         _movimentacoes = movimentacoes;
         _currentUser = currentUser;
+        _notificacaoService = notificacaoService;
     }
 
     public async Task<ProducaoDiariaDto> Handle(
@@ -94,6 +98,9 @@ public class RegistrarProducaoCommandHandler
         // 5. Persiste tudo em um único SaveChanges
         await _producoes.AdicionarAsync(producao, cancellationToken);
         await _producoes.SalvarAsync(cancellationToken);
+
+        foreach (var ing in ingredientesMap.Values)
+            await _notificacaoService.VerificarECriarAsync(ing, cancellationToken);
 
         return ToDto(producao, produto.Nome);
     }

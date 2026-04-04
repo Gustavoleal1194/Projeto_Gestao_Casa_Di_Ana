@@ -1,5 +1,6 @@
 using CasaDiAna.Application.Common;
 using CasaDiAna.Application.Entradas.Dtos;
+using CasaDiAna.Application.Notificacoes.Services;
 using CasaDiAna.Domain.Entities;
 using CasaDiAna.Domain.Enums;
 using CasaDiAna.Domain.Exceptions;
@@ -15,19 +16,22 @@ public class RegistrarEntradaCommandHandler : IRequestHandler<RegistrarEntradaCo
     private readonly IMovimentacaoRepository _movimentacoes;
     private readonly IFornecedorRepository _fornecedores;
     private readonly ICurrentUserService _currentUser;
+    private readonly INotificacaoEstoqueService _notificacaoService;
 
     public RegistrarEntradaCommandHandler(
         IEntradaMercadoriaRepository entradas,
         IIngredienteRepository ingredientes,
         IMovimentacaoRepository movimentacoes,
         IFornecedorRepository fornecedores,
-        ICurrentUserService currentUser)
+        ICurrentUserService currentUser,
+        INotificacaoEstoqueService notificacaoService)
     {
         _entradas = entradas;
         _ingredientes = ingredientes;
         _movimentacoes = movimentacoes;
         _fornecedores = fornecedores;
         _currentUser = currentUser;
+        _notificacaoService = notificacaoService;
     }
 
     public async Task<EntradaMercadoriaDto> Handle(
@@ -83,6 +87,9 @@ public class RegistrarEntradaCommandHandler : IRequestHandler<RegistrarEntradaCo
 
         await _entradas.AdicionarAsync(entrada, cancellationToken);
         await _entradas.SalvarAsync(cancellationToken);
+
+        foreach (var ing in ingredientesMap.Values)
+            await _notificacaoService.VerificarECriarAsync(ing, cancellationToken);
 
         var salva = await _entradas.ObterPorIdComItensAsync(entrada.Id, cancellationToken);
         return ToDto(salva!);

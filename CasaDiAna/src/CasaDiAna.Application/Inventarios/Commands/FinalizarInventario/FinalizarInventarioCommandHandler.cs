@@ -1,6 +1,7 @@
 using CasaDiAna.Application.Common;
 using CasaDiAna.Application.Inventarios.Commands.IniciarInventario;
 using CasaDiAna.Application.Inventarios.Dtos;
+using CasaDiAna.Application.Notificacoes.Services;
 using CasaDiAna.Domain.Entities;
 using CasaDiAna.Domain.Enums;
 using CasaDiAna.Domain.Exceptions;
@@ -15,17 +16,20 @@ public class FinalizarInventarioCommandHandler : IRequestHandler<FinalizarInvent
     private readonly IIngredienteRepository _ingredientes;
     private readonly IMovimentacaoRepository _movimentacoes;
     private readonly ICurrentUserService _currentUser;
+    private readonly INotificacaoEstoqueService _notificacaoService;
 
     public FinalizarInventarioCommandHandler(
         IInventarioRepository inventarios,
         IIngredienteRepository ingredientes,
         IMovimentacaoRepository movimentacoes,
-        ICurrentUserService currentUser)
+        ICurrentUserService currentUser,
+        INotificacaoEstoqueService notificacaoService)
     {
         _inventarios = inventarios;
         _ingredientes = ingredientes;
         _movimentacoes = movimentacoes;
         _currentUser = currentUser;
+        _notificacaoService = notificacaoService;
     }
 
     public async Task<InventarioDto> Handle(
@@ -34,7 +38,8 @@ public class FinalizarInventarioCommandHandler : IRequestHandler<FinalizarInvent
         var inventario = await _inventarios.ObterPorIdComItensAsync(request.InventarioId, cancellationToken)
             ?? throw new DomainException("Inventário não encontrado.");
 
-        // Aplica ajustes de estoque para itens com diferença
+        var ingredientesAfetados = new List<Ingrediente>();
+
         foreach (var item in inventario.Itens.Where(i => i.Diferenca != 0))
         {
             var ingrediente = await _ingredientes.ObterPorIdAsync(item.IngredienteId, cancellationToken)
@@ -55,11 +60,15 @@ public class FinalizarInventarioCommandHandler : IRequestHandler<FinalizarInvent
                 referenciaId: inventario.Id);
 
             await _movimentacoes.AdicionarAsync(movimentacao, cancellationToken);
+            ingredientesAfetados.Add(ingrediente);
         }
 
         inventario.Finalizar(_currentUser.UsuarioId);
         _inventarios.Atualizar(inventario);
         await _inventarios.SalvarAsync(cancellationToken);
+
+        foreach (var ing in ingredientesAfetados)
+            await _notificacaoService.VerificarECriarAsync(ing, cancellationToken);
 
         var finalizado = await _inventarios.ObterPorIdComItensAsync(inventario.Id, cancellationToken);
         return IniciarInventarioCommandHandler.ToDto(finalizado!);

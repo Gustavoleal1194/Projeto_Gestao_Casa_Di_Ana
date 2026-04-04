@@ -1,4 +1,5 @@
 using CasaDiAna.Application.Common;
+using CasaDiAna.Application.Notificacoes.Services;
 using CasaDiAna.Domain.Entities;
 using CasaDiAna.Domain.Enums;
 using CasaDiAna.Domain.Exceptions;
@@ -12,19 +13,24 @@ public class CorrigirEstoqueCommandHandler : IRequestHandler<CorrigirEstoqueComm
     private readonly IIngredienteRepository _ingredientes;
     private readonly IMovimentacaoRepository _movimentacoes;
     private readonly ICurrentUserService _currentUser;
+    private readonly INotificacaoEstoqueService _notificacaoService;
 
     public CorrigirEstoqueCommandHandler(
         IIngredienteRepository ingredientes,
         IMovimentacaoRepository movimentacoes,
-        ICurrentUserService currentUser)
+        ICurrentUserService currentUser,
+        INotificacaoEstoqueService notificacaoService)
     {
         _ingredientes = ingredientes;
         _movimentacoes = movimentacoes;
         _currentUser = currentUser;
+        _notificacaoService = notificacaoService;
     }
 
     public async Task Handle(CorrigirEstoqueCommand request, CancellationToken ct)
     {
+        var ingredientesAfetados = new List<Ingrediente>();
+
         foreach (var itemInput in request.Itens)
         {
             var ingrediente = await _ingredientes.ObterPorIdAsync(itemInput.IngredienteId, ct)
@@ -54,8 +60,12 @@ public class CorrigirEstoqueCommandHandler : IRequestHandler<CorrigirEstoqueComm
                 observacoes: obs);
 
             await _movimentacoes.AdicionarAsync(movimentacao, ct);
+            ingredientesAfetados.Add(ingrediente);
         }
 
         await _ingredientes.SalvarAsync(ct);
+
+        foreach (var ing in ingredientesAfetados)
+            await _notificacaoService.VerificarECriarAsync(ing, ct);
     }
 }

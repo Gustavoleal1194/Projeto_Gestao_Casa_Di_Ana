@@ -1,4 +1,5 @@
 using CasaDiAna.Application.Common;
+using CasaDiAna.Application.Notificacoes.Services;
 using CasaDiAna.Domain.Interfaces;
 using CasaDiAna.Infrastructure.Persistence;
 using CasaDiAna.Infrastructure.Repositories;
@@ -41,6 +42,8 @@ public static class DependencyInjection
         services.AddScoped<IPerdaProdutoRepository, PerdaProdutoRepository>();
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<INotificacaoEstoqueRepository, NotificacaoEstoqueRepository>();
+        services.AddScoped<INotificacaoEstoqueService, NotificacaoEstoqueService>();
         services.AddHttpContextAccessor();
 
         return services;

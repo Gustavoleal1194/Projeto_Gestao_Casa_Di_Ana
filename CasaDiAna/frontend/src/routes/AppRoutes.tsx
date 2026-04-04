@@ -30,6 +30,7 @@ import { VendasDiariasPage } from '@/features/producao/vendas-diarias/pages/Vend
 import { RegistrarVendaPage } from '@/features/producao/vendas-diarias/pages/RegistrarVendaPage'
 import { PerdasPage } from '@/features/producao/perdas/pages/PerdasPage'
 import { NotificacoesPage } from '@/features/notificacoes/pages/NotificacoesPage'
+import { EtiquetasPage } from '@/features/etiquetas/pages/EtiquetasPage'
 
 export function AppRoutes() {
   return (
@@ -88,6 +89,9 @@ export function AppRoutes() {
 
           {/* Notificações */}
           <Route path="/notificacoes" element={<NotificacoesPage />} />
+
+          {/* Etiquetas */}
+          <Route path="/etiquetas" element={<EtiquetasPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -14,6 +14,7 @@ import {
   ExclamationCircleIcon,
   SquaresPlusIcon,
   ChartBarIcon,
+  QrCodeIcon,
 } from '@heroicons/react/24/outline'
 import { useAuthStore } from '@/store/authStore'
 
@@ -57,6 +58,7 @@ const grupos: NavGroup[] = [
       { label: 'Produção Diária',       href: '/producao/diaria',              icon: FireIcon              },
       { label: 'Vendas Diárias',        href: '/producao/vendas',              icon: BanknotesIcon         },
       { label: 'Perdas',                href: '/producao/perdas',              icon: ExclamationCircleIcon },
+      { label: 'Etiquetas',             href: '/etiquetas',                    icon: QrCodeIcon            },
     ],
   },
   {

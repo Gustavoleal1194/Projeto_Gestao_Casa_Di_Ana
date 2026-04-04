@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { PrinterIcon, ClockIcon } from '@heroicons/react/24/outline'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import { etiquetasService, type TipoEtiqueta, type HistoricoImpressao } from '@/lib/etiquetasService'
-import type { Produto } from '@/types/producao'
+import type { Produto, ProdutoResumo } from '@/types/producao'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -272,8 +272,9 @@ function LabelPreview({ produto, tipo, dataProducao }: PreviewProps) {
 // ─── Componente principal ────────────────────────────────────────────────────
 
 export function EtiquetasPage() {
-  const [produtos, setProdutos] = useState<Produto[]>([])
+  const [produtos, setProdutos] = useState<ProdutoResumo[]>([])
   const [produtoId, setProdutoId] = useState('')
+  const [produtoDetalhe, setProdutoDetalhe] = useState<Produto | null>(null)
   const [tipo, setTipo] = useState<TipoEtiqueta>(1)
   const [dataProducao, setDataProducao] = useState(
     new Date().toISOString().split('T')[0]
@@ -283,12 +284,17 @@ export function EtiquetasPage() {
   const [imprimindo, setImprimindo] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
 
-  const produto = produtos.find(p => p.id === produtoId) ?? null
+  const produto = produtoDetalhe
 
   useEffect(() => {
     produtosService.listar().then(setProdutos).catch(() => {})
     etiquetasService.listarHistorico().then(setHistorico).catch(() => {})
   }, [])
+
+  useEffect(() => {
+    if (!produtoId) { setProdutoDetalhe(null); return }
+    produtosService.obterPorId(produtoId).then(setProdutoDetalhe).catch(() => setProdutoDetalhe(null))
+  }, [produtoId])
 
   const handleImprimir = async () => {
     if (!produto) return
@@ -377,7 +383,7 @@ export function EtiquetasPage() {
               <option value="">Selecione um produto...</option>
               {produtos.map(p => (
                 <option key={p.id} value={p.id}>
-                  {p.nome}{p.diasValidade ? ` (${p.diasValidade} dias)` : ' (sem validade)'}
+                  {p.nome}
                 </option>
               ))}
             </select>
@@ -538,8 +544,7 @@ export function EtiquetasPage() {
               </thead>
               <tbody>
                 {historico.map((h, i) => {
-                  const prod = produtos.find(p => p.id === h.produtoId)
-                  const validade = calcularValidade(h.dataProducao, prod?.diasValidade ?? null)
+                  const validade = calcularValidade(h.dataProducao, null)
                   return (
                     <tr
                       key={h.id}

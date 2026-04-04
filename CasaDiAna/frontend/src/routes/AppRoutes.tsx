@@ -29,6 +29,7 @@ import { RegistrarProducaoPage } from '@/features/producao/producao-diaria/pages
 import { VendasDiariasPage } from '@/features/producao/vendas-diarias/pages/VendasDiariasPage'
 import { RegistrarVendaPage } from '@/features/producao/vendas-diarias/pages/RegistrarVendaPage'
 import { PerdasPage } from '@/features/producao/perdas/pages/PerdasPage'
+import { NotificacoesPage } from '@/features/notificacoes/pages/NotificacoesPage'
 
 export function AppRoutes() {
   return (
@@ -84,6 +85,9 @@ export function AppRoutes() {
 
           {/* Configurações */}
           <Route path="/usuarios" element={<UsuariosPage />} />
+
+          {/* Notificações */}
+          <Route path="/notificacoes" element={<NotificacoesPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

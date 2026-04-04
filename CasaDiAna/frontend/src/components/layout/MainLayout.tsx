@@ -13,23 +13,29 @@ export function MainLayout() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen" style={{ background: 'var(--ada-bg)' }}>
-      <TopHeader onMobileMenuOpen={() => setSidebarAberta(true)} />
+    <div className="min-h-screen" style={{ background: 'var(--ada-bg)' }}>
+      {/* Sidebar — sempre fixed, ocupa toda a altura */}
+      <Sidebar aberta={sidebarAberta} onFechar={() => setSidebarAberta(false)} />
 
-      <div className="flex flex-1 min-h-0" style={{ paddingTop: 'var(--header-h)' }}>
-        {/* Overlay mobile */}
-        {sidebarAberta && (
-          <div
-            className="fixed inset-0 z-20 md:hidden"
-            style={{ background: 'rgba(13,17,23,0.6)', backdropFilter: 'blur(2px)' }}
-            onClick={() => setSidebarAberta(false)}
-            aria-hidden="true"
-          />
-        )}
+      {/* Overlay mobile */}
+      {sidebarAberta && (
+        <div
+          className="fixed inset-0 z-20 md:hidden"
+          style={{ background: 'rgba(13,17,23,0.6)', backdropFilter: 'blur(2px)' }}
+          onClick={() => setSidebarAberta(false)}
+          aria-hidden="true"
+        />
+      )}
 
-        <Sidebar aberta={sidebarAberta} onFechar={() => setSidebarAberta(false)} />
+      {/* Coluna direita: header + conteúdo */}
+      <div className="md:ml-64 flex flex-col min-h-screen">
+        <TopHeader onMobileMenuOpen={() => setSidebarAberta(true)} />
 
-        <main className="flex-1 overflow-y-auto min-w-0" id="main-content">
+        <main
+          className="flex-1 overflow-y-auto min-w-0"
+          style={{ paddingTop: 'var(--header-h)' }}
+          id="main-content"
+        >
           <Outlet />
         </main>
       </div>

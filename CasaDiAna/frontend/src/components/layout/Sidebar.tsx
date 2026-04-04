@@ -87,10 +87,10 @@ export function Sidebar({ aberta, onFechar }: { aberta: boolean; onFechar: () =>
 
   return (
     <aside
-      style={{ background: 'var(--sb-bg)', top: 'var(--header-h)' }}
+      style={{ background: 'var(--sb-bg)', top: 0 }}
       className={[
         'w-64 flex flex-col shrink-0',
-        'fixed md:static bottom-0 left-0 z-30',
+        'fixed bottom-0 left-0 z-30',
         'transition-transform duration-300 ease-out',
         aberta ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
       ].join(' ')}

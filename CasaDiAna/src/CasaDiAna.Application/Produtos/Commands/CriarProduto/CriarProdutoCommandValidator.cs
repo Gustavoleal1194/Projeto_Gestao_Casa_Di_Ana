@@ -16,9 +16,5 @@ public class CriarProdutoCommandValidator : AbstractValidator<CriarProdutoComman
         RuleFor(x => x.Descricao)
             .MaximumLength(500).When(x => x.Descricao != null)
             .WithMessage("Descrição deve ter no máximo 500 caracteres.");
-
-        RuleFor(x => x.DiasValidade)
-            .GreaterThan(0).When(x => x.DiasValidade.HasValue)
-            .WithMessage("Dias de validade deve ser maior que zero.");
     }
 }

@@ -31,7 +31,6 @@ export interface Produto {
   categoriaNome: string | null
   descricao: string | null
   precoVenda: number
-  diasValidade: number | null
   ativo: boolean
   atualizadoEm: string
 }
@@ -41,7 +40,6 @@ export interface CriarProdutoInput {
   precoVenda: number
   categoriaProdutoId?: string | null
   descricao?: string | null
-  diasValidade?: number | null
 }
 
 export interface AtualizarProdutoInput extends CriarProdutoInput {
@@ -53,7 +51,6 @@ export interface ProdutoFormValues {
   precoVenda: string
   categoriaProdutoId: string
   descricao: string
-  diasValidade: string
 }
 
 // ─── Ficha Técnica ────────────────────────────────────────────────────────────

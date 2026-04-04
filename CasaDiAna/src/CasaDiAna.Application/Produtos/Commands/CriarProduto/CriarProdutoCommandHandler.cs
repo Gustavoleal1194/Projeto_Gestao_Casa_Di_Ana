@@ -37,8 +37,7 @@ public class CriarProdutoCommandHandler : IRequestHandler<CriarProdutoCommand, P
             request.PrecoVenda,
             _currentUser.UsuarioId,
             request.CategoriaProdutoId,
-            request.Descricao,
-            request.DiasValidade);
+            request.Descricao);
 
         await _produtos.AdicionarAsync(produto, cancellationToken);
         await _produtos.SalvarAsync(cancellationToken);
@@ -54,7 +53,6 @@ public class CriarProdutoCommandHandler : IRequestHandler<CriarProdutoCommand, P
         p.Categoria?.Nome,
         p.Descricao,
         p.PrecoVenda,
-        p.DiasValidade,
         p.Ativo,
         p.AtualizadoEm);
 }

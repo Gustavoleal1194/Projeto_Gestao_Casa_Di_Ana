@@ -29,7 +29,7 @@ public class RegistrarImpressaoCommandHandlerTests
     public async Task DeveRegistrarImpressao_QuandoProdutoExiste()
     {
         var produtoId = Guid.NewGuid();
-        var produto = Produto.Criar("Bolo", 10m, Guid.NewGuid(), null, null, 7);
+        var produto = Produto.Criar("Bolo", 10m, Guid.NewGuid());
         _produtos.Setup(r => r.ObterPorIdAsync(produtoId, default)).ReturnsAsync(produto);
         _historico.Setup(r => r.AdicionarAsync(It.IsAny<HistoricoImpressaoEtiqueta>(), default))
                   .Returns(Task.CompletedTask);

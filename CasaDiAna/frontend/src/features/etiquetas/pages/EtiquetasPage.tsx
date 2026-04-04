@@ -10,13 +10,6 @@ function formatarData(isoStr: string): string {
   return new Date(isoStr).toLocaleDateString('pt-BR')
 }
 
-function calcularValidade(dataProducao: string, diasValidade: number | null): string {
-  if (!diasValidade) return '—'
-  const d = new Date(dataProducao)
-  d.setDate(d.getDate() + diasValidade)
-  return d.toLocaleDateString('pt-BR')
-}
-
 const TIPO_LABELS: Record<TipoEtiqueta, string> = {
   1: 'Completa',
   2: 'Simples',
@@ -149,9 +142,10 @@ interface PreviewProps {
   produto: Produto | null
   tipo: TipoEtiqueta
   dataProducao: string
+  dataValidade: string
 }
 
-function LabelPreview({ produto, tipo, dataProducao }: PreviewProps) {
+function LabelPreview({ produto, tipo, dataProducao, dataValidade }: PreviewProps) {
   if (!produto) {
     return (
       <div
@@ -165,7 +159,7 @@ function LabelPreview({ produto, tipo, dataProducao }: PreviewProps) {
     )
   }
 
-  const validade = calcularValidade(dataProducao, produto.diasValidade)
+  const validade = dataValidade ? new Date(dataValidade).toLocaleDateString('pt-BR') : '—'
   const dataPtBr = new Date(dataProducao).toLocaleDateString('pt-BR')
 
   if (tipo === 1) {
@@ -279,6 +273,7 @@ export function EtiquetasPage() {
   const [dataProducao, setDataProducao] = useState(
     new Date().toISOString().split('T')[0]
   )
+  const [dataValidade, setDataValidade] = useState('')
   const [quantidade, setQuantidade] = useState(1)
   const [historico, setHistorico] = useState<HistoricoImpressao[]>([])
   const [imprimindo, setImprimindo] = useState(false)
@@ -301,14 +296,20 @@ export function EtiquetasPage() {
     setImprimindo(true)
     setErro(null)
 
+    if (!dataValidade) {
+      setErro('Informe a data de validade.')
+      setImprimindo(false)
+      return
+    }
+
     try {
-      const validade = calcularValidade(dataProducao, produto.diasValidade)
+      const validadePtBr = new Date(dataValidade).toLocaleDateString('pt-BR')
       const dataPtBr = new Date(dataProducao).toLocaleDateString('pt-BR')
 
       let html = ''
-      if (tipo === 1) html = htmlEtiquetaCompleta(produto.nome, dataPtBr, validade, quantidade)
-      else if (tipo === 2) html = htmlEtiquetaSimples(produto.nome, validade, quantidade)
-      else html = htmlEtiquetaNutricional(produto.nome, dataPtBr, validade, quantidade)
+      if (tipo === 1) html = htmlEtiquetaCompleta(produto.nome, dataPtBr, validadePtBr, quantidade)
+      else if (tipo === 2) html = htmlEtiquetaSimples(produto.nome, validadePtBr, quantidade)
+      else html = htmlEtiquetaNutricional(produto.nome, dataPtBr, validadePtBr, quantidade)
 
       const win = window.open('', '_blank', 'width=600,height=400')
       if (win) {
@@ -387,11 +388,6 @@ export function EtiquetasPage() {
                 </option>
               ))}
             </select>
-            {produto && !produto.diasValidade && (
-              <p className="text-xs mt-1" style={{ color: '#d97706' }}>
-                Este produto não tem dias de validade cadastrado. A data de validade aparecerá como —.
-              </p>
-            )}
           </div>
 
           <div>
@@ -426,6 +422,23 @@ export function EtiquetasPage() {
               type="date"
               value={dataProducao}
               onChange={e => setDataProducao(e.target.value)}
+              className="w-full rounded-lg px-3 py-2.5 text-sm border outline-none"
+              style={{
+                background: 'var(--ada-bg)',
+                borderColor: 'var(--ada-border)',
+                color: 'var(--ada-text)',
+              }}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-text)' }}>
+              Data de Validade <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="date"
+              value={dataValidade}
+              onChange={e => setDataValidade(e.target.value)}
               className="w-full rounded-lg px-3 py-2.5 text-sm border outline-none"
               style={{
                 background: 'var(--ada-bg)',
@@ -488,13 +501,11 @@ export function EtiquetasPage() {
             Prévia da Etiqueta
           </p>
           <div className="flex-1 flex items-center justify-center">
-            <LabelPreview produto={produto} tipo={tipo} dataProducao={dataProducao} />
+            <LabelPreview produto={produto} tipo={tipo} dataProducao={dataProducao} dataValidade={dataValidade} />
           </div>
           <p className="text-xs text-center mt-4" style={{ color: 'var(--ada-muted)' }}>
             {TIPO_LABELS[tipo]} · {tiposOpcoes.find(o => o.valor === tipo)?.dim}
-            {produto?.diasValidade
-              ? ` · Validade: ${calcularValidade(dataProducao, produto.diasValidade)}`
-              : ''}
+            {dataValidade ? ` · Validade: ${new Date(dataValidade).toLocaleDateString('pt-BR')}` : ''}
           </p>
         </div>
       </div>
@@ -531,7 +542,7 @@ export function EtiquetasPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--ada-border)' }}>
-                  {['Produto', 'Tipo', 'Qtd', 'Data de Produção', 'Validade', 'Impresso em'].map(h => (
+                  {['Produto', 'Tipo', 'Qtd', 'Data de Produção', 'Data de Validade', 'Impresso em'].map(h => (
                     <th
                       key={h}
                       className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide"
@@ -544,7 +555,7 @@ export function EtiquetasPage() {
               </thead>
               <tbody>
                 {historico.map((h, i) => {
-                  const validade = calcularValidade(h.dataProducao, null)
+                  const validade = '—'
                   return (
                     <tr
                       key={h.id}

@@ -11,12 +11,6 @@ export const produtoSchema = z.object({
     .refine(v => Number(v) >= 0, 'Preço deve ser ≥ 0.'),
   categoriaProdutoId: z.string(),
   descricao: z.string(),
-  diasValidade: z
-    .string()
-    .refine(
-      v => v === '' || (Number.isInteger(Number(v)) && Number(v) >= 1),
-      'Dias de validade deve ser um inteiro positivo.'
-    ),
 })
 
 export function produtoParaForm(p: Produto): ProdutoFormValues {
@@ -25,7 +19,6 @@ export function produtoParaForm(p: Produto): ProdutoFormValues {
     precoVenda: String(p.precoVenda),
     categoriaProdutoId: p.categoriaProdutoId ?? '',
     descricao: p.descricao ?? '',
-    diasValidade: p.diasValidade != null ? String(p.diasValidade) : '',
   }
 }
 
@@ -35,7 +28,6 @@ export function formParaInput(values: ProdutoFormValues): CriarProdutoInput {
     precoVenda: Number(values.precoVenda),
     categoriaProdutoId: values.categoriaProdutoId || null,
     descricao: values.descricao || null,
-    diasValidade: values.diasValidade ? parseInt(values.diasValidade, 10) : null,
   }
 }
 
@@ -48,7 +40,6 @@ export function useProdutoForm() {
       precoVenda: '',
       categoriaProdutoId: '',
       descricao: '',
-      diasValidade: '',
     },
   })
 }

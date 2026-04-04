@@ -9,7 +9,6 @@ public class Produto
     public Guid? CategoriaProdutoId { get; private set; }
     public string? Descricao { get; private set; }
     public decimal PrecoVenda { get; private set; }
-    public int? DiasValidade { get; private set; }
     public bool Ativo { get; private set; }
     public DateTime CriadoEm { get; private set; }
     public DateTime AtualizadoEm { get; private set; }
@@ -27,8 +26,7 @@ public class Produto
         decimal precoVenda,
         Guid criadoPor,
         Guid? categoriaProdutoId = null,
-        string? descricao = null,
-        int? diasValidade = null)
+        string? descricao = null)
     {
         if (precoVenda <= 0)
             throw new DomainException("Preço de venda deve ser maior que zero.");
@@ -40,7 +38,6 @@ public class Produto
             CategoriaProdutoId = categoriaProdutoId,
             Descricao = descricao,
             PrecoVenda = precoVenda,
-            DiasValidade = diasValidade,
             Ativo = true,
             CriadoEm = DateTime.UtcNow,
             AtualizadoEm = DateTime.UtcNow,
@@ -54,8 +51,7 @@ public class Produto
         decimal precoVenda,
         Guid atualizadoPor,
         Guid? categoriaProdutoId = null,
-        string? descricao = null,
-        int? diasValidade = null)
+        string? descricao = null)
     {
         if (precoVenda <= 0)
             throw new DomainException("Preço de venda deve ser maior que zero.");
@@ -64,7 +60,6 @@ public class Produto
         CategoriaProdutoId = categoriaProdutoId;
         Descricao = descricao;
         PrecoVenda = precoVenda;
-        DiasValidade = diasValidade;
         AtualizadoEm = DateTime.UtcNow;
         AtualizadoPor = atualizadoPor;
     }

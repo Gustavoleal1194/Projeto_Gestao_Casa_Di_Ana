@@ -40,8 +40,7 @@ public class AtualizarProdutoCommandHandler : IRequestHandler<AtualizarProdutoCo
             request.PrecoVenda,
             _currentUser.UsuarioId,
             request.CategoriaProdutoId,
-            request.Descricao,
-            request.DiasValidade);
+            request.Descricao);
 
         _produtos.Atualizar(produto);
         await _produtos.SalvarAsync(cancellationToken);

@@ -34,82 +34,154 @@ export function EstoqueAtualPage() {
   return (
     <div className="p-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-stone-800">Estoque Atual</h1>
+        <h1 className="text-2xl font-semibold" style={{ color: 'var(--ada-heading)' }}>
+          Estoque Atual
+        </h1>
         <div className="flex items-center gap-4">
           {itens.length > 0 && (
             <button
               onClick={() => gerarPdfEstoqueAtual(itens, apenasAbaixo)}
-              className="flex items-center gap-2 px-3 py-2 border border-stone-200 rounded-lg text-sm text-stone-600 hover:bg-stone-50 font-medium"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+              style={{
+                border: '1px solid var(--ada-border)',
+                color: 'var(--ada-body)',
+                background: 'transparent',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'var(--ada-hover)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
             >
               <ArrowDownTrayIcon className="h-4 w-4" />
               Baixar PDF
             </button>
           )}
           <label className="flex items-center gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={apenasAbaixo}
-            onChange={handleToggle}
-            className="h-4 w-4 accent-amber-700"
-          />
-          <span className="text-sm text-stone-600">Apenas abaixo do mínimo</span>
-        </label>
+            <input
+              type="checkbox"
+              checked={apenasAbaixo}
+              onChange={handleToggle}
+              className="h-4 w-4 accent-amber-700"
+            />
+            <span className="text-sm" style={{ color: 'var(--ada-body)' }}>
+              Apenas abaixo do mínimo
+            </span>
+          </label>
         </div>
       </div>
 
       {loading && (
-        <div className="bg-white rounded-xl shadow-sm py-16 text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-stone-200 border-t-amber-700" />
-          <p className="text-stone-500 mt-3 text-sm">Carregando...</p>
+        <div
+          className="rounded-xl py-16 text-center"
+          style={{ background: 'var(--ada-surface)', boxShadow: 'var(--shadow-sm)' }}
+        >
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-t-amber-700"
+            style={{ borderColor: 'var(--ada-border)', borderTopColor: '#C4870A' }}
+          />
+          <p className="mt-3 text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando...</p>
         </div>
       )}
+
       {!loading && erro && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">{erro}</div>
+        <div
+          className="rounded-xl px-4 py-3 text-sm"
+          style={{
+            background: 'var(--ada-error-bg)',
+            border: '1px solid var(--ada-error-border)',
+            color: 'var(--ada-error-text, #b91c1c)',
+          }}
+        >
+          {erro}
+        </div>
       )}
+
       {!loading && !erro && (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div
+          className="rounded-xl overflow-hidden"
+          style={{ background: 'var(--ada-surface)', boxShadow: 'var(--shadow-sm)' }}
+        >
           {itens.length === 0 ? (
             <div className="py-16 text-center">
-              <p className="text-stone-500 text-sm">Nenhum ingrediente encontrado.</p>
+              <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>
+                Nenhum ingrediente encontrado.
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-stone-50 border-b border-stone-200">
-                <tr>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Ingrediente</th>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Categoria</th>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-right">Estoque Atual</th>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-right">Mínimo</th>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-right">Máximo</th>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Situação</th>
-                </tr>
-              </thead>
-              <tbody>
-                {itens.map(item => (
-                  <tr key={item.ingredienteId} className={`border-b border-stone-100 ${item.estaBaixoDoMinimo ? 'bg-red-50' : 'hover:bg-amber-50'} transition-colors`}>
-                    <td className="px-4 py-3 text-sm font-medium text-stone-800">{item.nome}</td>
-                    <td className="px-4 py-3 text-sm text-stone-500">{item.categoriaNome ?? '—'}</td>
-                    <td className="px-4 py-3 text-sm font-semibold text-right">
-                      <span className={item.estaBaixoDoMinimo ? 'text-red-600' : 'text-stone-800'}>
-                        {item.estoqueAtual} {item.unidadeMedidaCodigo}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-stone-600 text-right">{item.estoqueMinimo} {item.unidadeMedidaCodigo}</td>
-                    <td className="px-4 py-3 text-sm text-stone-600 text-right">
-                      {item.estoqueMaximo != null ? `${item.estoqueMaximo} ${item.unidadeMedidaCodigo}` : '—'}
-                    </td>
-                    <td className="px-4 py-3">
-                      {item.estaBaixoDoMinimo ? (
-                        <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">Abaixo do mínimo</span>
-                      ) : (
-                        <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">OK</span>
-                      )}
-                    </td>
+              <table className="w-full">
+                <thead style={{ background: 'var(--ada-surface-2)', borderBottom: '1px solid var(--ada-border)' }}>
+                  <tr>
+                    {['Ingrediente', 'Categoria', 'Estoque Atual', 'Mínimo', 'Máximo', 'Situação'].map((col, i) => (
+                      <th
+                        key={col}
+                        className={`text-xs font-semibold uppercase tracking-wide px-4 py-3 ${i >= 2 && i <= 4 ? 'text-right' : 'text-left'}`}
+                        style={{ color: 'var(--ada-muted)' }}
+                      >
+                        {col}
+                      </th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {itens.map(item => (
+                    <tr
+                      key={item.ingredienteId}
+                      className="transition-colors"
+                      style={{
+                        borderBottom: '1px solid var(--ada-border-sub)',
+                        background: item.estaBaixoDoMinimo ? 'var(--ada-error-bg)' : undefined,
+                      }}
+                      onMouseEnter={e => {
+                        if (!item.estaBaixoDoMinimo)
+                          (e.currentTarget as HTMLElement).style.background = 'var(--ada-row-alert-hover)'
+                      }}
+                      onMouseLeave={e => {
+                        (e.currentTarget as HTMLElement).style.background =
+                          item.estaBaixoDoMinimo ? 'var(--ada-error-bg)' : ''
+                      }}
+                    >
+                      <td className="px-4 py-3 text-sm font-medium" style={{ color: 'var(--ada-heading)' }}>
+                        {item.nome}
+                      </td>
+                      <td className="px-4 py-3 text-sm" style={{ color: 'var(--ada-muted)' }}>
+                        {item.categoriaNome ?? '—'}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-semibold text-right">
+                        <span style={{ color: item.estaBaixoDoMinimo ? 'var(--ada-danger-text, #dc2626)' : 'var(--ada-heading)' }}>
+                          {item.estoqueAtual} {item.unidadeMedidaCodigo}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-right" style={{ color: 'var(--ada-body)' }}>
+                        {item.estoqueMinimo} {item.unidadeMedidaCodigo}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-right" style={{ color: 'var(--ada-body)' }}>
+                        {item.estoqueMaximo != null ? `${item.estoqueMaximo} ${item.unidadeMedidaCodigo}` : '—'}
+                      </td>
+                      <td className="px-4 py-3">
+                        {item.estaBaixoDoMinimo ? (
+                          <span
+                            className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold"
+                            style={{
+                              background: 'var(--ada-error-badge, rgba(220,38,38,0.12))',
+                              color: 'var(--ada-error-text, #dc2626)',
+                            }}
+                          >
+                            Abaixo do mínimo
+                          </span>
+                        ) : (
+                          <span
+                            className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold"
+                            style={{
+                              background: 'var(--ada-success-bg)',
+                              color: 'var(--ada-success-text, #16a34a)',
+                            }}
+                          >
+                            OK
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>

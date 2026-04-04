@@ -57,6 +57,10 @@
   --ada-success-bg:      #F0FDF4;
   --ada-success-border:  #BBF7D0;
   --ada-warning-text:    #92580A;
+  --ada-error-text:      #dc2626;
+  --ada-error-badge:     rgba(220, 38, 38, 0.12);
+  --ada-success-text:    #16a34a;
+  --ada-danger-text:     #dc2626;
 
   /* Sidebar */
   --sb-bg:          #0D1117;
@@ -104,6 +108,10 @@
   --ada-success-bg:      rgba(22, 163, 74, 0.12);
   --ada-success-border:  rgba(22, 163, 74, 0.28);
   --ada-warning-text:    #FBBF24;
+  --ada-error-text:      #f87171;
+  --ada-error-badge:     rgba(220, 38, 38, 0.18);
+  --ada-success-text:    #4ade80;
+  --ada-danger-text:     #f87171;
 
   /* Sidebar levemente mais escura */
   --sb-bg:      #0A0907;

@@ -19,6 +19,34 @@ export interface RegistrarImpressaoInput {
   dataProducao: string
 }
 
+export interface ModeloNutricional {
+  id: string
+  produtoId: string
+  porcao: string
+  valorEnergeticoKcal: number
+  valorEnergeticoKJ: number
+  carboidratos: number
+  acucaresTotais: number
+  proteinas: number
+  gordurasTotais: number
+  gordurasSaturadas: number
+  fibraAlimentar: number
+  sodio: number
+}
+
+export interface SalvarModeloNutricionalInput {
+  porcao: string
+  valorEnergeticoKcal: number
+  valorEnergeticoKJ: number
+  carboidratos: number
+  acucaresTotais: number
+  proteinas: number
+  gordurasTotais: number
+  gordurasSaturadas: number
+  fibraAlimentar: number
+  sodio: number
+}
+
 interface ApiResponse<T> {
   sucesso: boolean
   dados: T
@@ -34,6 +62,16 @@ export const etiquetasService = {
 
   async registrarImpressao(input: RegistrarImpressaoInput): Promise<HistoricoImpressao> {
     const res = await api.post<ApiResponse<HistoricoImpressao>>('/etiquetas/historico', input)
+    return res.data.dados
+  },
+
+  async obterModeloNutricional(produtoId: string): Promise<ModeloNutricional | null> {
+    const res = await api.get<ApiResponse<ModeloNutricional | null>>(`/etiquetas/modelos-nutricionais/${produtoId}`)
+    return res.data.dados
+  },
+
+  async salvarModeloNutricional(produtoId: string, input: SalvarModeloNutricionalInput): Promise<ModeloNutricional> {
+    const res = await api.put<ApiResponse<ModeloNutricional>>(`/etiquetas/modelos-nutricionais/${produtoId}`, input)
     return res.data.dados
   },
 }

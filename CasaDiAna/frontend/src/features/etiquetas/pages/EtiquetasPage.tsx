@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { PrinterIcon, ClockIcon } from '@heroicons/react/24/outline'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
-import { etiquetasService, type TipoEtiqueta, type HistoricoImpressao } from '@/lib/etiquetasService'
+import { etiquetasService, type TipoEtiqueta, type HistoricoImpressao, type ModeloNutricional } from '@/lib/etiquetasService'
 import type { Produto, ProdutoResumo } from '@/types/producao'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -88,22 +88,27 @@ function htmlEtiquetaNutricional(
   dataProducao: string,
   validade: string,
   quantidade: number,
+  dados: {
+    porcao: string; kcal: string; kj: string; carbo: string; acucares: string;
+    proteinas: string; gorduras: string; gordSat: string; fibra: string; sodio: string;
+  } = { porcao: '100g', kcal: '—', kj: '—', carbo: '—', acucares: '—', proteinas: '—', gorduras: '—', gordSat: '—', fibra: '—', sodio: '—' },
 ): string {
   const etiqueta = `
     <div class="etiqueta">
       <div class="titulo">INFORMAÇÃO NUTRICIONAL</div>
       <div class="sep-thick"></div>
       <div class="produto">${produtoNome}</div>
+      <div class="porcao">Porção: ${dados.porcao}</div>
       <div class="sep"></div>
       <table>
-        <tr><td class="desc">Valor Energético</td><td class="val">___kcal / ___kJ</td></tr>
-        <tr><td class="desc">Carboidratos</td><td class="val">___g</td></tr>
-        <tr><td class="desc">Açúcares totais</td><td class="val">___g</td></tr>
-        <tr><td class="desc">Proteínas</td><td class="val">___g</td></tr>
-        <tr><td class="desc">Gorduras totais</td><td class="val">___g</td></tr>
-        <tr><td class="desc">Gorduras saturadas</td><td class="val">___g</td></tr>
-        <tr><td class="desc">Fibra alimentar</td><td class="val">___g</td></tr>
-        <tr><td class="desc">Sódio</td><td class="val">___mg</td></tr>
+        <tr><td class="desc">Valor Energético</td><td class="val">${dados.kcal}kcal / ${dados.kj}kJ</td></tr>
+        <tr><td class="desc">Carboidratos</td><td class="val">${dados.carbo}g</td></tr>
+        <tr><td class="desc">Açúcares totais</td><td class="val">${dados.acucares}g</td></tr>
+        <tr><td class="desc">Proteínas</td><td class="val">${dados.proteinas}g</td></tr>
+        <tr><td class="desc">Gorduras totais</td><td class="val">${dados.gorduras}g</td></tr>
+        <tr><td class="desc">Gorduras saturadas</td><td class="val">${dados.gordSat}g</td></tr>
+        <tr><td class="desc">Fibra alimentar</td><td class="val">${dados.fibra}g</td></tr>
+        <tr><td class="desc">Sódio</td><td class="val">${dados.sodio}mg</td></tr>
       </table>
       <div class="sep-thick"></div>
       <div class="footer">
@@ -126,9 +131,10 @@ function htmlEtiquetaNutricional(
     }
     .titulo { font-size: 9pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
     .sep-thick { height: 0.8mm; background: #000; margin: 1.5mm 0; }
-    .sep { height: 0.3mm; background: #666; margin: 1.5mm 0; }
+    .sep { height: 0.3mm; background: #666; margin: 1mm 0; }
     .produto { font-size: 10pt; font-weight: bold; }
-    table { width: 100%; border-collapse: collapse; flex: 1; }
+    .porcao { font-size: 7.5pt; color: #444; margin-top: 0.5mm; }
+    table { width: 100%; border-collapse: collapse; }
     td { font-size: 7.5pt; padding: 0.8mm 0; border-bottom: 0.2mm solid #ccc; }
     .desc { color: #222; }
     .val { text-align: right; color: #444; }
@@ -143,9 +149,14 @@ interface PreviewProps {
   tipo: TipoEtiqueta
   dataProducao: string
   dataValidade: string
+  nutri: {
+    porcao: string; valorEnergeticoKcal: string; valorEnergeticoKJ: string;
+    carboidratos: string; acucaresTotais: string; proteinas: string;
+    gordurasTotais: string; gordurasSaturadas: string; fibraAlimentar: string; sodio: string;
+  }
 }
 
-function LabelPreview({ produto, tipo, dataProducao, dataValidade }: PreviewProps) {
+function LabelPreview({ produto, tipo, dataProducao, dataValidade, nutri }: PreviewProps) {
   if (!produto) {
     return (
       <div
@@ -218,6 +229,7 @@ function LabelPreview({ produto, tipo, dataProducao, dataValidade }: PreviewProp
     )
   }
 
+  // Nutricional
   return (
     <div
       style={{
@@ -238,16 +250,17 @@ function LabelPreview({ produto, tipo, dataProducao, dataValidade }: PreviewProp
       </div>
       <div style={{ height: 2, background: '#000', margin: '4px 0' }} />
       <div style={{ fontSize: 11, fontWeight: 700 }}>{produto.nome}</div>
+      <div style={{ fontSize: 8, color: '#555', marginTop: 2 }}>Porção: {nutri.porcao || '100g'}</div>
       <div style={{ height: 1, background: '#666', margin: '4px 0' }} />
       {[
-        ['Valor Energético', '___kcal'],
-        ['Carboidratos', '___g'],
-        ['Açúcares', '___g'],
-        ['Proteínas', '___g'],
-        ['Gorduras totais', '___g'],
-        ['Gord. saturadas', '___g'],
-        ['Fibra alimentar', '___g'],
-        ['Sódio', '___mg'],
+        ['Valor Energético', `${nutri.valorEnergeticoKcal || '—'}kcal / ${nutri.valorEnergeticoKJ || '—'}kJ`],
+        ['Carboidratos', `${nutri.carboidratos || '—'}g`],
+        ['Açúcares', `${nutri.acucaresTotais || '—'}g`],
+        ['Proteínas', `${nutri.proteinas || '—'}g`],
+        ['Gorduras totais', `${nutri.gordurasTotais || '—'}g`],
+        ['Gord. saturadas', `${nutri.gordurasSaturadas || '—'}g`],
+        ['Fibra alimentar', `${nutri.fibraAlimentar || '—'}g`],
+        ['Sódio', `${nutri.sodio || '—'}mg`],
       ].map(([desc, val]) => (
         <div key={desc} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, borderBottom: '0.5px solid #ccc', padding: '2px 0' }}>
           <span>{desc}</span><span style={{ color: '#555' }}>{val}</span>
@@ -278,6 +291,21 @@ export function EtiquetasPage() {
   const [historico, setHistorico] = useState<HistoricoImpressao[]>([])
   const [imprimindo, setImprimindo] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
+  const [modeloNutricional, setModeloNutricional] = useState<ModeloNutricional | null>(null)
+  const [salvandoModelo, setSalvandoModelo] = useState(false)
+  const [modeloSalvo, setModeloSalvo] = useState(false)
+  const [nutri, setNutri] = useState({
+    porcao: '100g',
+    valorEnergeticoKcal: '',
+    valorEnergeticoKJ: '',
+    carboidratos: '',
+    acucaresTotais: '',
+    proteinas: '',
+    gordurasTotais: '',
+    gordurasSaturadas: '',
+    fibraAlimentar: '',
+    sodio: '',
+  })
 
   const produto = produtoDetalhe
 
@@ -290,6 +318,31 @@ export function EtiquetasPage() {
     if (!produtoId) { setProdutoDetalhe(null); return }
     produtosService.obterPorId(produtoId).then(setProdutoDetalhe).catch(() => setProdutoDetalhe(null))
   }, [produtoId])
+
+  useEffect(() => {
+    if (!produtoId || tipo !== 3) return
+    etiquetasService.obterModeloNutricional(produtoId)
+      .then(modelo => {
+        setModeloNutricional(modelo)
+        if (modelo) {
+          setNutri({
+            porcao: modelo.porcao,
+            valorEnergeticoKcal: String(modelo.valorEnergeticoKcal),
+            valorEnergeticoKJ: String(modelo.valorEnergeticoKJ),
+            carboidratos: String(modelo.carboidratos),
+            acucaresTotais: String(modelo.acucaresTotais),
+            proteinas: String(modelo.proteinas),
+            gordurasTotais: String(modelo.gordurasTotais),
+            gordurasSaturadas: String(modelo.gordurasSaturadas),
+            fibraAlimentar: String(modelo.fibraAlimentar),
+            sodio: String(modelo.sodio),
+          })
+        } else {
+          setNutri({ porcao: '100g', valorEnergeticoKcal: '', valorEnergeticoKJ: '', carboidratos: '', acucaresTotais: '', proteinas: '', gordurasTotais: '', gordurasSaturadas: '', fibraAlimentar: '', sodio: '' })
+        }
+      })
+      .catch(() => {})
+  }, [produtoId, tipo])
 
   const handleImprimir = async () => {
     if (!produto) return
@@ -309,7 +362,24 @@ export function EtiquetasPage() {
       let html = ''
       if (tipo === 1) html = htmlEtiquetaCompleta(produto.nome, dataPtBr, validadePtBr, quantidade)
       else if (tipo === 2) html = htmlEtiquetaSimples(produto.nome, validadePtBr, quantidade)
-      else html = htmlEtiquetaNutricional(produto.nome, dataPtBr, validadePtBr, quantidade)
+      else html = htmlEtiquetaNutricional(
+        produto.nome,
+        dataPtBr,
+        validadePtBr,
+        quantidade,
+        {
+          porcao: nutri.porcao || '100g',
+          kcal: nutri.valorEnergeticoKcal || '—',
+          kj: nutri.valorEnergeticoKJ || '—',
+          carbo: nutri.carboidratos || '—',
+          acucares: nutri.acucaresTotais || '—',
+          proteinas: nutri.proteinas || '—',
+          gorduras: nutri.gordurasTotais || '—',
+          gordSat: nutri.gordurasSaturadas || '—',
+          fibra: nutri.fibraAlimentar || '—',
+          sodio: nutri.sodio || '—',
+        }
+      )
 
       const win = window.open('', '_blank', 'width=600,height=400')
       if (win) {
@@ -331,6 +401,32 @@ export function EtiquetasPage() {
       setErro('Erro ao registrar impressão. A etiqueta pode ter sido impressa mesmo assim.')
     } finally {
       setImprimindo(false)
+    }
+  }
+
+  const handleSalvarModelo = async () => {
+    if (!produto) return
+    setSalvandoModelo(true)
+    setModeloSalvo(false)
+    try {
+      await etiquetasService.salvarModeloNutricional(produto.id, {
+        porcao: nutri.porcao || '100g',
+        valorEnergeticoKcal: Number(nutri.valorEnergeticoKcal) || 0,
+        valorEnergeticoKJ: Number(nutri.valorEnergeticoKJ) || 0,
+        carboidratos: Number(nutri.carboidratos) || 0,
+        acucaresTotais: Number(nutri.acucaresTotais) || 0,
+        proteinas: Number(nutri.proteinas) || 0,
+        gordurasTotais: Number(nutri.gordurasTotais) || 0,
+        gordurasSaturadas: Number(nutri.gordurasSaturadas) || 0,
+        fibraAlimentar: Number(nutri.fibraAlimentar) || 0,
+        sodio: Number(nutri.sodio) || 0,
+      })
+      setModeloSalvo(true)
+      setTimeout(() => setModeloSalvo(false), 3000)
+    } catch {
+      setErro('Erro ao salvar modelo nutricional.')
+    } finally {
+      setSalvandoModelo(false)
     }
   }
 
@@ -413,6 +509,82 @@ export function EtiquetasPage() {
               ))}
             </div>
           </div>
+
+          {/* Dados nutricionais — só aparece quando tipo = Nutricional */}
+          {tipo === 3 && (
+            <div
+              className="rounded-lg border p-4 space-y-3"
+              style={{ borderColor: 'var(--ada-border)', background: 'var(--ada-bg)' }}
+            >
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--ada-muted)' }}>
+                  Tabela Nutricional
+                </p>
+                {modeloNutricional && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'var(--ada-hover)', color: 'var(--ada-muted)' }}>
+                    Modelo salvo
+                  </span>
+                )}
+              </div>
+
+              {/* Porção */}
+              <div>
+                <label className="block text-xs font-medium mb-1" style={{ color: 'var(--ada-text)' }}>Porção</label>
+                <input
+                  type="text"
+                  placeholder="Ex: 100g"
+                  value={nutri.porcao}
+                  onChange={e => setNutri(n => ({ ...n, porcao: e.target.value }))}
+                  className="w-full rounded-lg px-3 py-2 text-sm border outline-none"
+                  style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)', color: 'var(--ada-text)' }}
+                />
+              </div>
+
+              {/* Grid 2 colunas para os campos numéricos */}
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { key: 'valorEnergeticoKcal', label: 'Calorias (kcal)', unit: 'kcal' },
+                  { key: 'valorEnergeticoKJ', label: 'Calorias (kJ)', unit: 'kJ' },
+                  { key: 'carboidratos', label: 'Carboidratos', unit: 'g' },
+                  { key: 'acucaresTotais', label: 'Açúcares totais', unit: 'g' },
+                  { key: 'proteinas', label: 'Proteínas', unit: 'g' },
+                  { key: 'gordurasTotais', label: 'Gorduras totais', unit: 'g' },
+                  { key: 'gordurasSaturadas', label: 'Gord. saturadas', unit: 'g' },
+                  { key: 'fibraAlimentar', label: 'Fibra alimentar', unit: 'g' },
+                  { key: 'sodio', label: 'Sódio', unit: 'mg' },
+                ].map(({ key, label, unit }) => (
+                  <div key={key}>
+                    <label className="block text-xs font-medium mb-1" style={{ color: 'var(--ada-text)' }}>
+                      {label} <span className="font-normal" style={{ color: 'var(--ada-muted)' }}>({unit})</span>
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="0"
+                      value={nutri[key as keyof typeof nutri]}
+                      onChange={e => setNutri(n => ({ ...n, [key]: e.target.value }))}
+                      className="w-full rounded-lg px-3 py-2 text-sm border outline-none"
+                      style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)', color: 'var(--ada-text)' }}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={handleSalvarModelo}
+                disabled={!produto || salvandoModelo}
+                className="w-full rounded-lg px-3 py-2 text-xs font-semibold transition-opacity disabled:opacity-40"
+                style={{
+                  background: modeloSalvo ? 'var(--ada-success-text, #16a34a)' : 'var(--ada-hover)',
+                  color: modeloSalvo ? '#fff' : 'var(--ada-text)',
+                  border: '1px solid var(--ada-border)',
+                }}
+              >
+                {salvandoModelo ? 'Salvando...' : modeloSalvo ? 'Modelo salvo!' : 'Salvar modelo nutricional'}
+              </button>
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-text)' }}>
@@ -501,7 +673,7 @@ export function EtiquetasPage() {
             Prévia da Etiqueta
           </p>
           <div className="flex-1 flex items-center justify-center">
-            <LabelPreview produto={produto} tipo={tipo} dataProducao={dataProducao} dataValidade={dataValidade} />
+            <LabelPreview produto={produto} tipo={tipo} dataProducao={dataProducao} dataValidade={dataValidade} nutri={nutri} />
           </div>
           <p className="text-xs text-center mt-4" style={{ color: 'var(--ada-muted)' }}>
             {TIPO_LABELS[tipo]} · {tiposOpcoes.find(o => o.valor === tipo)?.dim}

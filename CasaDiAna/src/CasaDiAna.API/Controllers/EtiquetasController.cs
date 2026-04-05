@@ -1,7 +1,9 @@
 using CasaDiAna.Application.Common;
 using CasaDiAna.Application.Etiquetas.Commands.RegistrarImpressao;
+using CasaDiAna.Application.Etiquetas.Commands.SalvarModeloNutricional;
 using CasaDiAna.Application.Etiquetas.Dtos;
 using CasaDiAna.Application.Etiquetas.Queries.ListarHistorico;
+using CasaDiAna.Application.Etiquetas.Queries.ObterModeloNutricional;
 using CasaDiAna.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -48,6 +50,36 @@ public class EtiquetasController : ControllerBase
         var resultado = await _mediator.Send(new ListarHistoricoQuery(produtoId), ct);
         return Ok(ApiResponse<IReadOnlyList<HistoricoImpressaoDto>>.Ok(resultado));
     }
+
+    [HttpGet("modelos-nutricionais/{produtoId:guid}")]
+    public async Task<IActionResult> ObterModeloNutricional(Guid produtoId, CancellationToken ct = default)
+    {
+        var resultado = await _mediator.Send(new ObterModeloNutricionalQuery(produtoId), ct);
+        return Ok(ApiResponse<ModeloEtiquetaNutricionalDto?>.Ok(resultado));
+    }
+
+    [HttpPut("modelos-nutricionais/{produtoId:guid}")]
+    public async Task<IActionResult> SalvarModeloNutricional(
+        Guid produtoId,
+        [FromBody] SalvarModeloNutricionalRequest body,
+        CancellationToken ct = default)
+    {
+        var command = new SalvarModeloNutricionalCommand(
+            produtoId,
+            body.Porcao,
+            body.ValorEnergeticoKcal,
+            body.ValorEnergeticoKJ,
+            body.Carboidratos,
+            body.AcucaresTotais,
+            body.Proteinas,
+            body.GordurasTotais,
+            body.GordurasSaturadas,
+            body.FibraAlimentar,
+            body.Sodio);
+
+        var resultado = await _mediator.Send(command, ct);
+        return Ok(ApiResponse<ModeloEtiquetaNutricionalDto>.Ok(resultado));
+    }
 }
 
 public record RegistrarImpressaoRequest(
@@ -55,3 +87,15 @@ public record RegistrarImpressaoRequest(
     TipoEtiqueta TipoEtiqueta,
     int Quantidade,
     DateTime DataProducao);
+
+public record SalvarModeloNutricionalRequest(
+    string Porcao,
+    decimal ValorEnergeticoKcal,
+    decimal ValorEnergeticoKJ,
+    decimal Carboidratos,
+    decimal AcucaresTotais,
+    decimal Proteinas,
+    decimal GordurasTotais,
+    decimal GordurasSaturadas,
+    decimal FibraAlimentar,
+    decimal Sodio);

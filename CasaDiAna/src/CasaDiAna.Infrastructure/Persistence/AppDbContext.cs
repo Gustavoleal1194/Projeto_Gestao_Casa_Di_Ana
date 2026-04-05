@@ -25,6 +25,7 @@ public class AppDbContext : DbContext
     public DbSet<PerdaProduto> PerdasProduto => Set<PerdaProduto>();
     public DbSet<NotificacaoEstoque> NotificacoesEstoque => Set<NotificacaoEstoque>();
     public DbSet<HistoricoImpressaoEtiqueta> HistoricoImpressaoEtiquetas => Set<HistoricoImpressaoEtiqueta>();
+    public DbSet<ModeloEtiquetaNutricional> ModelosEtiquetaNutricional => Set<ModeloEtiquetaNutricional>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

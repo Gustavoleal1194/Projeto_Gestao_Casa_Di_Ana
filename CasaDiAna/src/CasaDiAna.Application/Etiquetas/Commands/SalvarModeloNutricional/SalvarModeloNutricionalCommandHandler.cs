@@ -1,0 +1,82 @@
+using CasaDiAna.Application.Etiquetas.Dtos;
+using CasaDiAna.Domain.Entities;
+using CasaDiAna.Domain.Exceptions;
+using CasaDiAna.Domain.Interfaces;
+using MediatR;
+
+namespace CasaDiAna.Application.Etiquetas.Commands.SalvarModeloNutricional;
+
+public class SalvarModeloNutricionalCommandHandler
+    : IRequestHandler<SalvarModeloNutricionalCommand, ModeloEtiquetaNutricionalDto>
+{
+    private readonly IModeloEtiquetaNutricionalRepository _modelos;
+    private readonly IProdutoRepository _produtos;
+
+    public SalvarModeloNutricionalCommandHandler(
+        IModeloEtiquetaNutricionalRepository modelos,
+        IProdutoRepository produtos)
+    {
+        _modelos = modelos;
+        _produtos = produtos;
+    }
+
+    public async Task<ModeloEtiquetaNutricionalDto> Handle(
+        SalvarModeloNutricionalCommand request,
+        CancellationToken cancellationToken)
+    {
+        if (await _produtos.ObterPorIdAsync(request.ProdutoId, cancellationToken) is null)
+            throw new DomainException("Produto não encontrado.");
+
+        var existente = await _modelos.ObterPorProdutoIdAsync(request.ProdutoId, cancellationToken);
+
+        if (existente is null)
+        {
+            var novo = ModeloEtiquetaNutricional.Criar(
+                request.ProdutoId,
+                request.Porcao,
+                request.ValorEnergeticoKcal,
+                request.ValorEnergeticoKJ,
+                request.Carboidratos,
+                request.AcucaresTotais,
+                request.Proteinas,
+                request.GordurasTotais,
+                request.GordurasSaturadas,
+                request.FibraAlimentar,
+                request.Sodio);
+
+            await _modelos.AdicionarAsync(novo, cancellationToken);
+            await _modelos.SalvarAsync(cancellationToken);
+            return ToDto(novo);
+        }
+
+        existente.Atualizar(
+            request.Porcao,
+            request.ValorEnergeticoKcal,
+            request.ValorEnergeticoKJ,
+            request.Carboidratos,
+            request.AcucaresTotais,
+            request.Proteinas,
+            request.GordurasTotais,
+            request.GordurasSaturadas,
+            request.FibraAlimentar,
+            request.Sodio);
+
+        _modelos.Atualizar(existente);
+        await _modelos.SalvarAsync(cancellationToken);
+        return ToDto(existente);
+    }
+
+    internal static ModeloEtiquetaNutricionalDto ToDto(ModeloEtiquetaNutricional m) => new(
+        m.Id,
+        m.ProdutoId,
+        m.Porcao,
+        m.ValorEnergeticoKcal,
+        m.ValorEnergeticoKJ,
+        m.Carboidratos,
+        m.AcucaresTotais,
+        m.Proteinas,
+        m.GordurasTotais,
+        m.GordurasSaturadas,
+        m.FibraAlimentar,
+        m.Sodio);
+}

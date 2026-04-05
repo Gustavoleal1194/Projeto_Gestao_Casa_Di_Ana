@@ -33,8 +33,6 @@ function htmlEtiquetaCompleta(
         <!-- Logo + marca -->
         <div class="top">
           <img src="${logoSrc}" class="logo" alt="Casa di Ana" />
-          <div class="marca">Casa di Ana</div>
-          <div class="submarca">Artesanal &amp; Fresco</div>
         </div>
 
         <!-- Divisor ornamental -->
@@ -104,28 +102,11 @@ function htmlEtiquetaCompleta(
     }
 
     .logo {
-      height: 14mm;
+      height: 22mm;
       width: auto;
       object-fit: contain;
     }
 
-    .marca {
-      font-family: 'Playfair Display', 'Georgia', serif;
-      font-size: 11pt;
-      font-weight: 700;
-      color: #5C3A1E;
-      letter-spacing: 1.5px;
-      text-align: center;
-    }
-
-    .submarca {
-      font-family: 'EB Garamond', 'Georgia', serif;
-      font-size: 6.5pt;
-      color: #C4870A;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      text-align: center;
-    }
 
     .ornament {
       display: flex;
@@ -382,13 +363,7 @@ function LabelPreview({ produto, tipo, dataProducao, dataValidade, nutri }: Prev
       }}>
         {/* Top content */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px 20px 10px', gap: 6 }}>
-          <img src="/images/image.png" alt="Logo" style={{ height: 44, width: 'auto', objectFit: 'contain' }} />
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#5C3A1E', letterSpacing: 1.5, textAlign: 'center' }}>
-            Casa di Ana
-          </div>
-          <div style={{ fontSize: 8, color: '#C4870A', letterSpacing: 3, textTransform: 'uppercase' }}>
-            Artesanal &amp; Fresco
-          </div>
+          <img src="/images/image.png" alt="Logo" style={{ height: 70, width: 'auto', objectFit: 'contain' }} />
 
           {/* Ornament */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', margin: '4px 0' }}>

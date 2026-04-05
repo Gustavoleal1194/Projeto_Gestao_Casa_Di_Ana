@@ -23,10 +23,14 @@ function htmlEtiquetaCompleta(
   dataProducao: string,
   validade: string,
   quantidade: number,
+  imageUrl: string,
 ): string {
   const etiqueta = `
     <div class="etiqueta">
-      <div class="marca">CASA DI ANA</div>
+      <div class="header">
+        <img src="${imageUrl}" class="logo" alt="Logo" />
+        <span class="marca">CASA DI ANA</span>
+      </div>
       <div class="sep"></div>
       <div class="nome">${produtoNome}</div>
       <div class="footer">
@@ -46,7 +50,9 @@ function htmlEtiquetaCompleta(
       display: flex; flex-direction: column;
       page-break-after: always;
     }
-    .marca { font-size: 7pt; font-weight: bold; letter-spacing: 2px; color: #555; text-transform: uppercase; }
+    .header { display: flex; align-items: center; gap: 2mm; }
+    .logo { height: 8mm; width: auto; object-fit: contain; }
+    .marca { font-size: 8pt; font-weight: bold; letter-spacing: 1.5px; color: #333; text-transform: uppercase; }
     .sep { height: 0.3mm; background: #333; margin: 2mm 0; }
     .nome { font-size: 16pt; font-weight: bold; color: #1a1a1a; flex: 1; display: flex; align-items: center; word-break: break-word; }
     .footer { margin-top: auto; }
@@ -234,8 +240,15 @@ function LabelPreview({ produto, tipo, dataProducao, dataValidade, nutri }: Prev
           fontFamily: 'Arial, sans-serif',
         }}
       >
-        <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: '#555' }}>
-          CASA DI ANA
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <img
+            src="/images/image.png"
+            alt="Logo"
+            style={{ height: 28, width: 'auto', objectFit: 'contain' }}
+          />
+          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: '#333', textTransform: 'uppercase' }}>
+            Casa di Ana
+          </div>
         </div>
         <div style={{ height: 1, background: '#333', margin: '6px 0' }} />
         <div style={{ fontSize: 18, fontWeight: 700, flex: 1, display: 'flex', alignItems: 'center' }}>
@@ -469,7 +482,13 @@ export function EtiquetasPage() {
       const dataPtBr = new Date(dataProducao).toLocaleDateString('pt-BR')
 
       let html = ''
-      if (tipo === 1) html = htmlEtiquetaCompleta(produto.nome, dataPtBr, validadePtBr, quantidade)
+      if (tipo === 1) html = htmlEtiquetaCompleta(
+        produto.nome,
+        dataPtBr,
+        validadePtBr,
+        quantidade,
+        `${window.location.origin}/images/image.png`
+      )
       else if (tipo === 2) html = htmlEtiquetaSimples(produto.nome, validadePtBr, quantidade)
       else html = htmlEtiquetaNutricional(
         produto.nome,

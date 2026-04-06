@@ -73,8 +73,8 @@ export function CorrecaoEstoquePage() {
       })
       setToast({ tipo: 'sucesso', mensagem: `${alteradas.length} ingrediente(s) corrigido(s) com sucesso.` })
       carregar()
-    } catch (err: any) {
-      const msg = err?.response?.data?.erros?.[0] ?? 'Erro ao salvar correções.'
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { erros?: string[] } } })?.response?.data?.erros?.[0] ?? 'Erro ao salvar correções.'
       setToast({ tipo: 'erro', mensagem: msg })
     } finally {
       setSalvando(false)
@@ -90,18 +90,27 @@ export function CorrecaoEstoquePage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-semibold text-stone-800">Correção de Estoque</h1>
-          <p className="text-sm text-stone-500 mt-1">
+          <h1
+            className="text-xl font-bold tracking-tight"
+            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
+          >
+            Correção de Estoque
+          </h1>
+          <p className="text-sm mt-1" style={{ color: 'var(--ada-muted)' }}>
             Informe a quantidade real de cada ingrediente. Só os campos preenchidos serão atualizados.
           </p>
         </div>
         <button
           onClick={handleSalvar}
           disabled={salvando || alteradas.length === 0}
-          className="px-5 py-2.5 bg-amber-700 hover:bg-amber-800 text-white rounded-lg text-sm font-medium
-                     disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white
+                     disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+          style={{
+            background: 'linear-gradient(135deg, #D4960C 0%, #B87D0A 100%)',
+            boxShadow: alteradas.length > 0 ? '0 3px 10px rgba(196,135,10,0.28)' : 'none',
+          }}
         >
-          {salvando ? 'Salvando...' : `Salvar${alteradas.length > 0 ? ` (${alteradas.length})` : ''}`}
+          {salvando ? 'Salvando…' : `Salvar${alteradas.length > 0 ? ` (${alteradas.length})` : ''}`}
         </button>
       </div>
 
@@ -112,101 +121,158 @@ export function CorrecaoEstoquePage() {
           placeholder="Buscar ingrediente ou categoria..."
           value={busca}
           onChange={e => setBusca(e.target.value)}
-          className="w-full max-w-sm border border-stone-200 rounded-lg px-3 py-2 text-sm
-                     focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+          className="w-full max-w-sm rounded-lg px-3 py-2 text-sm outline-none transition-all
+                     focus:ring-2 focus:ring-[#C4870A]/25 focus:border-[#C4870A]"
+          style={{
+            border: '1px solid var(--ada-border)',
+            background: 'var(--ada-surface)',
+            color: 'var(--ada-heading)',
+            boxShadow: 'var(--shadow-xs)',
+          }}
         />
       </div>
 
       {alteradas.length > 0 && (
-        <div className="mb-4 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 text-sm text-amber-800">
+        <div
+          className="mb-4 rounded-lg px-4 py-2.5 text-sm"
+          style={{
+            background: 'var(--ada-warning-bg)',
+            border: '1px solid var(--ada-warning-border)',
+            color: 'var(--ada-warning-text)',
+          }}
+        >
           {alteradas.length} ingrediente(s) com alteração pendente. Clique em "Salvar" para confirmar.
         </div>
       )}
 
       {loading && (
-        <div className="bg-white rounded-xl shadow-sm py-16 text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-stone-200 border-t-amber-700" />
-          <p className="text-stone-500 mt-3 text-sm">Carregando ingredientes...</p>
+        <div
+          className="rounded-xl py-16 text-center"
+          style={{ background: 'var(--ada-surface)', boxShadow: 'var(--shadow-sm)' }}
+        >
+          <div
+            className="inline-block h-8 w-8 animate-spin rounded-full border-4"
+            style={{ borderColor: 'var(--ada-border)', borderTopColor: '#C4870A' }}
+          />
+          <p className="mt-3 text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando ingredientes...</p>
         </div>
       )}
 
       {!loading && erro && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">{erro}</div>
+        <div
+          className="rounded-xl px-4 py-3 text-sm"
+          style={{ background: 'var(--ada-error-bg)', border: '1px solid var(--ada-error-border)', color: 'var(--ada-error-text)' }}
+        >
+          {erro}
+        </div>
       )}
 
       {!loading && !erro && (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div
+          className="rounded-xl overflow-hidden"
+          style={{ background: 'var(--ada-surface)', boxShadow: 'var(--shadow-sm)' }}
+        >
           {linhasFiltradas.length === 0 ? (
             <div className="py-16 text-center">
-              <p className="text-stone-500 text-sm">Nenhum ingrediente encontrado.</p>
+              <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Nenhum ingrediente encontrado.</p>
             </div>
           ) : (
-            <table className="w-full">
-              <thead className="bg-stone-50 border-b border-stone-200">
-                <tr>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Ingrediente</th>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Categoria</th>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-right">Estoque Atual</th>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left w-36">Nova Quantidade</th>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Observação</th>
-                </tr>
-              </thead>
-              <tbody>
-                {linhasFiltradas.map(linha => {
-                  const alterada = linha.novaQuantidade !== '' && linha.novaQuantidade !== String(linha.estoqueAtual)
-                  const novaNum = Number(linha.novaQuantidade)
-                  const diff = alterada ? novaNum - linha.estoqueAtual : null
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead style={{ background: 'var(--ada-surface-2)', borderBottom: '1px solid var(--ada-border)' }}>
+                  <tr>
+                    <th className="text-[11px] font-semibold uppercase tracking-wide px-4 py-3 text-left"
+                        style={{ color: 'var(--ada-muted)' }}>Ingrediente</th>
+                    <th className="text-[11px] font-semibold uppercase tracking-wide px-4 py-3 text-left"
+                        style={{ color: 'var(--ada-muted)' }}>Categoria</th>
+                    <th className="text-[11px] font-semibold uppercase tracking-wide px-4 py-3 text-right"
+                        style={{ color: 'var(--ada-muted)' }}>Estoque Atual</th>
+                    <th className="text-[11px] font-semibold uppercase tracking-wide px-4 py-3 text-left w-36"
+                        style={{ color: 'var(--ada-muted)' }}>Nova Quantidade</th>
+                    <th className="text-[11px] font-semibold uppercase tracking-wide px-4 py-3 text-left"
+                        style={{ color: 'var(--ada-muted)' }}>Observação</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {linhasFiltradas.map(linha => {
+                    const alterada = linha.novaQuantidade !== '' && linha.novaQuantidade !== String(linha.estoqueAtual)
+                    const novaNum = Number(linha.novaQuantidade)
+                    const diff = alterada ? novaNum - linha.estoqueAtual : null
 
-                  return (
-                    <tr
-                      key={linha.ingredienteId}
-                      className={`border-b border-stone-100 transition-colors ${alterada ? 'bg-amber-50' : 'hover:bg-stone-50'}`}
-                    >
-                      <td className="px-4 py-2.5 text-sm font-medium text-stone-800">{linha.nome}</td>
-                      <td className="px-4 py-2.5 text-sm text-stone-500">{linha.categoriaNome ?? '—'}</td>
-                      <td className="px-4 py-2.5 text-sm text-right">
-                        <span className="font-semibold text-stone-700">
-                          {linha.estoqueAtual} {linha.unidadeMedidaCodigo}
-                        </span>
-                        {diff !== null && (
-                          <span className={`ml-2 text-xs font-medium ${diff > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            ({diff > 0 ? '+' : ''}{diff.toFixed(3)})
+                    return (
+                      <tr
+                        key={linha.ingredienteId}
+                        style={{
+                          borderBottom: '1px solid var(--ada-border-sub)',
+                          background: alterada ? 'var(--ada-warning-bg)' : undefined,
+                          transition: 'background 150ms',
+                        }}
+                        onMouseEnter={e => { if (!alterada) (e.currentTarget as HTMLElement).style.background = 'var(--ada-hover)' }}
+                        onMouseLeave={e => { if (!alterada) (e.currentTarget as HTMLElement).style.background = '' }}
+                      >
+                        <td className="px-4 py-2.5 text-sm font-medium" style={{ color: 'var(--ada-heading)' }}>
+                          {linha.nome}
+                        </td>
+                        <td className="px-4 py-2.5 text-sm" style={{ color: 'var(--ada-muted)' }}>
+                          {linha.categoriaNome ?? '—'}
+                        </td>
+                        <td className="px-4 py-2.5 text-sm text-right">
+                          <span className="font-semibold" style={{ color: 'var(--ada-body)' }}>
+                            {linha.estoqueAtual} {linha.unidadeMedidaCodigo}
                           </span>
-                        )}
-                      </td>
-                      <td className="px-4 py-2.5">
-                        <div className="flex items-center gap-1">
+                          {diff !== null && (
+                            <span className={`ml-2 text-xs font-medium ${diff > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                              ({diff > 0 ? '+' : ''}{diff.toFixed(3)})
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <div className="flex items-center gap-1.5">
+                            <input
+                              type="number"
+                              step="0.001"
+                              min="0"
+                              placeholder={String(linha.estoqueAtual)}
+                              value={linha.novaQuantidade}
+                              onChange={e => handleQuantidade(linha.ingredienteId, e.target.value)}
+                              className="w-28 rounded-lg px-2.5 py-1.5 text-sm text-right outline-none transition-all
+                                         focus:ring-2 focus:ring-[#C4870A]/25"
+                              style={{
+                                border: alterada ? '1px solid #C4870A' : '1px solid var(--ada-border)',
+                                background: alterada ? 'var(--ada-warning-bg)' : 'var(--ada-surface)',
+                                color: 'var(--ada-heading)',
+                                boxShadow: 'var(--shadow-xs)',
+                              }}
+                            />
+                            <span className="text-xs" style={{ color: 'var(--ada-muted)' }}>
+                              {linha.unidadeMedidaCodigo}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-2.5">
                           <input
-                            type="number"
-                            step="0.001"
-                            min="0"
-                            placeholder={String(linha.estoqueAtual)}
-                            value={linha.novaQuantidade}
-                            onChange={e => handleQuantidade(linha.ingredienteId, e.target.value)}
-                            className={`w-28 border rounded-lg px-2.5 py-1.5 text-sm text-right
-                                        focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent
-                                        ${alterada ? 'border-amber-400 bg-amber-50' : 'border-stone-200 bg-white'}`}
+                            type="text"
+                            placeholder="Motivo (opcional)"
+                            value={linha.observacao}
+                            onChange={e => handleObservacao(linha.ingredienteId, e.target.value)}
+                            disabled={!alterada}
+                            className="w-full rounded-lg px-2.5 py-1.5 text-sm outline-none transition-all
+                                       focus:ring-2 focus:ring-[#C4870A]/25"
+                            style={{
+                              border: '1px solid var(--ada-border)',
+                              background: alterada ? 'var(--ada-surface)' : 'var(--ada-surface-2)',
+                              color: alterada ? 'var(--ada-heading)' : 'var(--ada-muted)',
+                              cursor: alterada ? 'text' : 'not-allowed',
+                              boxShadow: 'var(--shadow-xs)',
+                            }}
                           />
-                          <span className="text-xs text-stone-400">{linha.unidadeMedidaCodigo}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-2.5">
-                        <input
-                          type="text"
-                          placeholder="Motivo (opcional)"
-                          value={linha.observacao}
-                          onChange={e => handleObservacao(linha.ingredienteId, e.target.value)}
-                          disabled={!alterada}
-                          className="w-full border border-stone-200 rounded-lg px-2.5 py-1.5 text-sm
-                                     focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent
-                                     disabled:bg-stone-50 disabled:text-stone-400"
-                        />
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}

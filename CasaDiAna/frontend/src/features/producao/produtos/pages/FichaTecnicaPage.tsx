@@ -1,11 +1,17 @@
+// frontend/src/features/producao/produtos/pages/FichaTecnicaPage.tsx
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, Link } from 'react-router-dom'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ChevronLeftIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { produtosService } from '../services/produtosService'
 import { ingredientesService } from '@/features/estoque/ingredientes/services/ingredientesService'
+import { CampoTexto } from '@/features/estoque/ingredientes/components/CampoTexto'
+import { SelectCampo } from '@/features/estoque/ingredientes/components/SelectCampo'
+import { FormSection } from '@/components/form/FormSection'
+import { FormCard } from '@/components/form/FormCard'
+import { Spinner } from '@/components/form/Spinner'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
 import type { FichaTecnica } from '@/types/producao'
 import type { IngredienteResumo } from '@/types/estoque'
@@ -26,21 +32,16 @@ type FichaFormValues = {
   itens: { ingredienteId: string; quantidadePorUnidade: string }[]
 }
 
-const inputClass =
-  'w-full border border-stone-200 rounded-lg px-3 py-2.5 text-sm ' +
-  'focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent'
-
-const selectClass = inputClass + ' bg-white'
-
 export function FichaTecnicaPage() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const [ficha, setFicha] = useState<FichaTecnica | null>(null)
   const [ingredientes, setIngredientes] = useState<IngredienteResumo[]>([])
   const [carregando, setCarregando] = useState(true)
+  const [salvando, setSalvando] = useState(false)
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
 
-  const { register, control, handleSubmit, reset, formState: { errors, isSubmitting } } =
+  const { register, control, handleSubmit, reset, formState: { errors } } =
     useForm<FichaFormValues>({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       resolver: zodResolver(fichaSchema) as any,
@@ -73,6 +74,7 @@ export function FichaTecnicaPage() {
 
   const onSubmit = async (values: FichaFormValues) => {
     if (!id) return
+    setSalvando(true)
     try {
       const fichaAtualizada = await produtosService.definirFichaTecnica(id, {
         itens: values.itens.map(i => ({
@@ -84,43 +86,56 @@ export function FichaTecnicaPage() {
       setToast({ tipo: 'sucesso', mensagem: 'Ficha técnica salva com sucesso.' })
     } catch {
       setToast({ tipo: 'erro', mensagem: 'Erro ao salvar ficha técnica.' })
+    } finally {
+      setSalvando(false)
     }
   }
 
   if (carregando) {
     return (
-      <div className="p-6 flex justify-center py-32">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-stone-200 border-t-amber-700" />
+      <div className="p-6 flex items-center justify-center h-64">
+        <Spinner className="h-8 w-8 text-amber-700" />
       </div>
     )
   }
 
   return (
     <div className="p-6 max-w-3xl">
-      <button
-        onClick={() => navigate('/producao/produtos')}
-        className="flex items-center gap-1 text-sm text-stone-500 hover:text-amber-700 mb-6 transition-colors"
+      {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
+
+      <Link
+        to="/producao/produtos"
+        className="inline-flex items-center gap-1.5 text-sm font-medium mb-5 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-[#C4870A]/40 rounded"
+        style={{ color: 'var(--ada-muted)' }}
+        onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#C4870A'}
+        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--ada-muted)'}
       >
         <ChevronLeftIcon className="h-4 w-4" />
         Produtos
-      </button>
+      </Link>
 
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-semibold text-stone-800">
-            Ficha Técnica — {ficha?.produtoNome ?? 'Produto'}
+          <h1
+            className="text-xl font-bold tracking-tight"
+            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
+          >
+            Ficha Técnica
           </h1>
           {ficha && (
-            <p className="text-sm text-stone-500 mt-1">
-              Preço de venda:{' '}
+            <p className="text-sm mt-1" style={{ color: 'var(--ada-muted)' }}>
+              {ficha.produtoNome} · Preço:{' '}
               {ficha.precoVenda.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
             </p>
           )}
         </div>
         {ficha && ficha.custoTotal > 0 && (
-          <div className="bg-white rounded-xl shadow-sm border border-stone-200 px-5 py-3 text-right">
-            <p className="text-xs text-stone-500 uppercase tracking-wide">Custo Total</p>
-            <p className="text-lg font-semibold text-stone-800">
+          <div
+            className="rounded-xl px-5 py-3 text-right"
+            style={{ background: 'var(--ada-surface)', border: '1px solid var(--ada-border)', boxShadow: 'var(--shadow-sm)' }}
+          >
+            <p className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--ada-muted)' }}>Custo Total</p>
+            <p className="text-lg font-bold" style={{ color: 'var(--ada-heading)' }}>
               {ficha.custoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
             </p>
             {ficha.margemLucro != null && (
@@ -133,89 +148,98 @@ export function FichaTecnicaPage() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-6">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-semibold text-stone-400 uppercase tracking-widest">Ingredientes</p>
-            <button
-              type="button"
-              onClick={() => append({ ingredienteId: '', quantidadePorUnidade: '' })}
-              className="flex items-center gap-1 text-xs font-medium text-amber-700 hover:text-amber-800"
-            >
-              <PlusIcon className="h-3.5 w-3.5" />
-              Adicionar ingrediente
-            </button>
-          </div>
+        <FormCard>
+          <FormSection titulo="Ingredientes" />
 
           {errors.itens && !Array.isArray(errors.itens) && (
-            <p className="mb-2 text-xs text-red-600">{(errors.itens as { message?: string }).message}</p>
+            <p className="mb-3 text-xs text-red-600 flex items-center gap-1">
+              <svg className="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+              </svg>
+              {(errors.itens as { message?: string }).message}
+            </p>
           )}
 
-          <div className="space-y-3">
-            <div className="grid grid-cols-[1fr_120px_40px] gap-2 text-xs font-medium text-stone-500 px-1">
-              <span>Ingrediente</span>
-              <span>Qtd por Unidade</span>
-              <span />
-            </div>
+          <div className="grid grid-cols-[1fr_160px_36px] gap-2 px-1 mb-1.5">
+            <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--ada-muted)' }}>Ingrediente</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--ada-muted)' }}>Qtd. por unidade</span>
+            <span />
+          </div>
+
+          <div className="space-y-2">
             {fields.map((field, index) => (
-              <div key={field.id} className="grid grid-cols-[1fr_120px_40px] gap-2 items-start">
-                <div>
-                  <select className={selectClass} {...register(`itens.${index}.ingredienteId`)}>
-                    <option value="">Selecione...</option>
-                    {ingredientes.map(ing => (
-                      <option key={ing.id} value={ing.id}>
-                        {ing.nome} ({ing.unidadeMedidaCodigo})
-                      </option>
-                    ))}
-                  </select>
-                  {errors.itens?.[index]?.ingredienteId && (
-                    <p className="mt-0.5 text-xs text-red-600">{errors.itens[index]?.ingredienteId?.message}</p>
-                  )}
-                </div>
-                <div>
-                  <input
-                    type="number"
-                    step="0.001"
-                    min="0.001"
-                    placeholder="0.000"
-                    className={inputClass}
-                    {...register(`itens.${index}.quantidadePorUnidade`)}
-                  />
-                  {errors.itens?.[index]?.quantidadePorUnidade && (
-                    <p className="mt-0.5 text-xs text-red-600">{errors.itens[index]?.quantidadePorUnidade?.message}</p>
-                  )}
-                </div>
+              <div key={field.id} className="grid grid-cols-[1fr_160px_36px] gap-2 items-start">
+                <SelectCampo
+                  label=" "
+                  opcoes={ingredientes.map(ing => ({
+                    valor: ing.id,
+                    rotulo: `${ing.nome} (${ing.unidadeMedidaCodigo})`,
+                  }))}
+                  {...register(`itens.${index}.ingredienteId`)}
+                  erro={errors.itens?.[index]?.ingredienteId?.message}
+                />
+                <CampoTexto
+                  label=" "
+                  type="number"
+                  step="0.001"
+                  min="0.001"
+                  placeholder="0.000"
+                  {...register(`itens.${index}.quantidadePorUnidade`)}
+                  erro={errors.itens?.[index]?.quantidadePorUnidade?.message}
+                />
                 <button
                   type="button"
                   onClick={() => fields.length > 1 && remove(index)}
                   disabled={fields.length === 1}
-                  className="p-2 rounded hover:bg-red-50 text-stone-400 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed mt-0.5"
+                  className="mt-0.5 p-2 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  style={{ color: 'var(--ada-muted)' }}
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#DC2626'}
+                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--ada-muted)'}
+                  title="Remover ingrediente"
                 >
                   <TrashIcon className="h-4 w-4" />
                 </button>
               </div>
             ))}
           </div>
-        </div>
 
-        <div className="flex justify-end gap-3 mt-6">
           <button
             type="button"
-            onClick={() => navigate('/producao/produtos')}
-            className="px-4 py-2.5 border border-stone-200 rounded-lg text-sm text-stone-600 hover:bg-stone-50 font-medium"
+            onClick={() => append({ ingredienteId: '', quantidadePorUnidade: '' })}
+            className="mt-3 flex items-center gap-1.5 text-xs font-semibold transition-colors"
+            style={{ color: '#C4870A' }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#B87D0A'}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = '#C4870A'}
           >
-            Voltar
+            <PlusIcon className="h-3.5 w-3.5" />
+            Adicionar ingrediente
           </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="px-6 py-2.5 bg-amber-700 hover:bg-amber-800 text-white rounded-lg text-sm font-medium disabled:opacity-50"
-          >
-            {isSubmitting ? 'Salvando...' : 'Salvar Ficha Técnica'}
-          </button>
-        </div>
-      </form>
 
-      {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
+          <div
+            className="flex justify-end gap-2.5 pt-5 mt-6"
+            style={{ borderTop: '1px solid var(--ada-border-sub)' }}
+          >
+            <button
+              type="button"
+              onClick={() => navigate('/producao/produtos')}
+              disabled={salvando}
+              className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all disabled:opacity-50 hover:bg-[var(--ada-bg)]"
+              style={{ border: '1px solid var(--ada-border)', color: 'var(--ada-body)', background: 'var(--ada-surface)' }}
+            >
+              Voltar
+            </button>
+            <button
+              type="submit"
+              disabled={salvando}
+              className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60"
+              style={{ background: 'linear-gradient(135deg, #D4960C 0%, #B87D0A 100%)', boxShadow: '0 3px 10px rgba(196,135,10,0.28)' }}
+            >
+              {salvando && <Spinner />}
+              {salvando ? 'Salvando…' : 'Salvar Ficha Técnica'}
+            </button>
+          </div>
+        </FormCard>
+      </form>
     </div>
   )
 }

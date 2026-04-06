@@ -1,4 +1,5 @@
 using CasaDiAna.Domain.Entities;
+using CasaDiAna.Domain.Enums;
 
 namespace CasaDiAna.Domain.Interfaces;
 
@@ -10,6 +11,7 @@ public interface INotificacaoEstoqueRepository
 
     Task<bool> ExisteNaoLidaParaIngredienteAsync(
         Guid ingredienteId,
+        TipoNotificacaoEstoque nivel,
         CancellationToken ct = default);
 
     Task<int> ContarNaoLidasAsync(CancellationToken ct = default);

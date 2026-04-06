@@ -25,7 +25,7 @@ public class NotificacaoEstoqueService : INotificacaoEstoqueService
 
         if (nivel is null) return;
 
-        var jaExiste = await _notificacoes.ExisteNaoLidaParaIngredienteAsync(ingrediente.Id, ct);
+        var jaExiste = await _notificacoes.ExisteNaoLidaParaIngredienteAsync(ingrediente.Id, nivel.Value, ct);
         if (jaExiste) return;
 
         var (titulo, mensagem) = GerarTexto(ingrediente, nivel.Value);

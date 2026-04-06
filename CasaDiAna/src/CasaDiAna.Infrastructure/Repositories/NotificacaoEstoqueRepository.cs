@@ -1,4 +1,5 @@
 using CasaDiAna.Domain.Entities;
+using CasaDiAna.Domain.Enums;
 using CasaDiAna.Domain.Interfaces;
 using CasaDiAna.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -29,10 +30,11 @@ public class NotificacaoEstoqueRepository : INotificacaoEstoqueRepository
 
     public async Task<bool> ExisteNaoLidaParaIngredienteAsync(
         Guid ingredienteId,
+        TipoNotificacaoEstoque nivel,
         CancellationToken ct = default)
     {
         return await _db.NotificacoesEstoque
-            .AnyAsync(n => n.IngredienteId == ingredienteId && !n.Lida, ct);
+            .AnyAsync(n => n.IngredienteId == ingredienteId && !n.Lida && n.Tipo == nivel, ct);
     }
 
     public async Task<int> ContarNaoLidasAsync(CancellationToken ct = default)

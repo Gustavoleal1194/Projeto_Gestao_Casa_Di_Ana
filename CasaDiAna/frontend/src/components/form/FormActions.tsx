@@ -1,4 +1,3 @@
-// frontend/src/components/form/FormActions.tsx
 import { Spinner } from './Spinner'
 
 interface FormActionsProps {

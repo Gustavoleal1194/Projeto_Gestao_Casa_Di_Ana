@@ -1,4 +1,3 @@
-// frontend/src/components/form/Spinner.tsx
 export function Spinner({ className = '' }: { className?: string }) {
   return (
     <svg className={`animate-spin h-4 w-4 ${className}`} viewBox="0 0 24 24" fill="none">

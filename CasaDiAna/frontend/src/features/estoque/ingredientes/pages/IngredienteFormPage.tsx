@@ -8,30 +8,12 @@ import { useUnidadesMedida } from '@/features/estoque/unidades/hooks/useUnidades
 import { CampoTexto } from '../components/CampoTexto'
 import { SelectCampo } from '../components/SelectCampo'
 import { Toast } from '../components/Toast'
+import { Spinner } from '@/components/form/Spinner'
+import { FormSection } from '@/components/form/FormSection'
+import { FormTextarea } from '@/components/form/FormTextarea'
+import { FormActions } from '@/components/form/FormActions'
+import { FormCard } from '@/components/form/FormCard'
 import type { Ingrediente } from '@/types/estoque'
-
-function Spinner({ className = '' }: { className?: string }) {
-  return (
-    <svg className={`animate-spin h-4 w-4 ${className}`} viewBox="0 0 24 24" fill="none">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-    </svg>
-  )
-}
-
-function SecaoFormulario({ titulo }: { titulo: string }) {
-  return (
-    <div className="flex items-center gap-3 mt-7 mb-4">
-      <span
-        className="text-[10.5px] font-semibold uppercase tracking-[0.10em] whitespace-nowrap"
-        style={{ color: 'var(--ada-placeholder)', fontFamily: 'Sora, system-ui, sans-serif' }}
-      >
-        {titulo}
-      </span>
-      <div className="flex-1" style={{ borderTop: '1px solid var(--ada-border-sub)' }} aria-hidden="true" />
-    </div>
-  )
-}
 
 export function IngredienteFormPage() {
   const { id } = useParams<{ id?: string }>()
@@ -106,13 +88,10 @@ export function IngredienteFormPage() {
   if (erroCarregamento) {
     return (
       <div className="p-6">
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+        <div className="rounded-xl px-4 py-3 text-sm" style={{ background: 'var(--ada-error-bg)', border: '1px solid var(--ada-error-border)', color: 'var(--ada-error-text)' }}>
           {erroCarregamento}
         </div>
-        <Link
-          to="/estoque/ingredientes"
-          className="mt-4 inline-flex items-center gap-1 text-sm text-stone-500 hover:text-amber-700"
-        >
+        <Link to="/estoque/ingredientes" className="mt-4 inline-flex items-center gap-1 text-sm" style={{ color: 'var(--ada-muted)' }}>
           <ChevronLeftIcon className="h-4 w-4" />
           Voltar para Ingredientes
         </Link>
@@ -144,17 +123,9 @@ export function IngredienteFormPage() {
         {modoEdicao ? `Editar: ${ingrediente?.nome ?? ''}` : 'Novo Ingrediente'}
       </h1>
 
-      <form
-        onSubmit={onSubmit}
-        className="rounded-xl p-6"
-        style={{
-          background: 'var(--ada-surface)',
-          border: '1px solid var(--ada-border)',
-          boxShadow: 'var(--shadow-sm)',
-        }}
-      >
-
-        <SecaoFormulario titulo="Identificação" />
+      <form onSubmit={onSubmit}>
+        <FormCard>
+          <FormSection titulo="Identificação" />
         <div className="grid grid-cols-3 gap-4">
           <div className="col-span-2">
             <CampoTexto
@@ -175,7 +146,7 @@ export function IngredienteFormPage() {
           </div>
         </div>
 
-        <SecaoFormulario titulo="Classificação" />
+          <FormSection titulo="Classificação" />
         <div className="grid grid-cols-2 gap-4">
           <SelectCampo
             label="Categoria"
@@ -194,7 +165,7 @@ export function IngredienteFormPage() {
           />
         </div>
 
-        <SecaoFormulario titulo="Controle de Estoque" />
+          <FormSection titulo="Controle de Estoque" />
         <div className="grid grid-cols-2 gap-4">
           <CampoTexto
             label="Estoque Mínimo"
@@ -219,68 +190,20 @@ export function IngredienteFormPage() {
           />
         </div>
 
-        <SecaoFormulario titulo="Observações" />
-        <div>
-          <label
-            htmlFor="observacoes"
-            className="block text-[13px] font-medium mb-1.5"
-            style={{ color: 'var(--ada-body)', fontFamily: 'DM Sans, system-ui, sans-serif' }}
-          >
-            Observações
-          </label>
-          <textarea
-            id="observacoes"
-            rows={3}
+          <FormSection titulo="Observações" />
+          <FormTextarea
+            label="Observações"
             placeholder="Informações adicionais sobre este ingrediente…"
             {...register('observacoes')}
-            className="w-full rounded-lg px-3.5 py-2.5 text-sm resize-none outline-none transition-all duration-200
-                       focus-visible:ring-2 focus-visible:ring-[#C4870A]/25 focus-visible:border-[#C4870A]"
-            style={{
-              border: errors.observacoes ? '1px solid #FCA5A5' : '1px solid var(--ada-border)',
-              background: errors.observacoes ? 'var(--ada-error-bg)' : 'var(--ada-surface)',
-              color: 'var(--ada-heading)',
-              boxShadow: 'var(--shadow-xs)',
-            }}
+            erro={errors.observacoes?.message}
           />
-          {errors.observacoes && (
-            <p className="mt-1.5 text-xs text-red-600">{String(errors.observacoes.message)}</p>
-          )}
-        </div>
 
-        {/* Rodapé */}
-        <div
-          className="flex justify-end gap-2.5 pt-5 mt-6"
-          style={{ borderTop: '1px solid var(--ada-border-sub)' }}
-        >
-          <button
-            type="button"
-            onClick={() => navigate('/estoque/ingredientes')}
-            disabled={salvando}
-            className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 outline-none
-                       focus-visible:ring-2 focus-visible:ring-[#C4870A]/40 disabled:opacity-50"
-            style={{ border: '1px solid var(--ada-border)', color: 'var(--ada-body)', background: 'var(--ada-surface)' }}
-            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--ada-bg)'}
-            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'var(--ada-surface)'}
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            disabled={salvando}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold text-white
-                       transition-all duration-200 outline-none
-                       focus-visible:ring-2 focus-visible:ring-[#C4870A]/40
-                       disabled:opacity-60 disabled:cursor-not-allowed"
-            style={{
-              background: 'linear-gradient(135deg, #D4960C 0%, #B87D0A 100%)',
-              boxShadow: '0 3px 10px rgba(196,135,10,0.28)',
-              fontFamily: 'Sora, system-ui, sans-serif',
-            }}
-          >
-            {salvando && <Spinner />}
-            {salvando ? 'Salvando…' : 'Salvar Ingrediente'}
-          </button>
-        </div>
+          <FormActions
+            salvando={salvando}
+            labelSalvar="Salvar Ingrediente"
+            onCancelar={() => navigate('/estoque/ingredientes')}
+          />
+        </FormCard>
       </form>
     </div>
   )

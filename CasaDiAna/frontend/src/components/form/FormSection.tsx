@@ -1,4 +1,3 @@
-// frontend/src/components/form/FormSection.tsx
 interface FormSectionProps {
   titulo: string
 }

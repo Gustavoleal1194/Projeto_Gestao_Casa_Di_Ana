@@ -1,4 +1,3 @@
-// frontend/src/components/form/FormTextarea.tsx
 import type { TextareaHTMLAttributes } from 'react'
 
 interface Props extends TextareaHTMLAttributes<HTMLTextAreaElement> {

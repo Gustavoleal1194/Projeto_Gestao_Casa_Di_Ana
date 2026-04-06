@@ -1,6 +1,7 @@
-// frontend/src/components/form/FormCard.tsx
+import type { ReactNode } from 'react'
+
 interface FormCardProps {
-  children: React.ReactNode
+  children: ReactNode
   className?: string
 }
 

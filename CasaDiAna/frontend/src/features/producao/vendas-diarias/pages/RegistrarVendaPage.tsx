@@ -1,11 +1,17 @@
+// frontend/src/features/producao/vendas-diarias/pages/RegistrarVendaPage.tsx
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ChevronLeftIcon } from '@heroicons/react/24/outline'
 import { vendasDiariasService } from '../services/vendasDiariasService'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
+import { CampoTexto } from '@/features/estoque/ingredientes/components/CampoTexto'
+import { SelectCampo } from '@/features/estoque/ingredientes/components/SelectCampo'
+import { FormSection } from '@/components/form/FormSection'
+import { FormActions } from '@/components/form/FormActions'
+import { FormCard } from '@/components/form/FormCard'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
 import type { ProdutoResumo, VendaFormValues } from '@/types/producao'
 
@@ -17,12 +23,6 @@ const vendaSchema = z.object({
     .min(1, 'Informe a quantidade.')
     .refine(v => Number(v) > 0, 'Quantidade deve ser maior que 0.'),
 })
-
-const inputClass =
-  'w-full border border-stone-200 rounded-lg px-3 py-2.5 text-sm ' +
-  'focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent'
-
-const selectClass = inputClass + ' bg-white'
 
 export function RegistrarVendaPage() {
   const navigate = useNavigate()
@@ -60,72 +60,65 @@ export function RegistrarVendaPage() {
 
   return (
     <div className="p-6 max-w-lg">
-      <button
-        onClick={() => navigate('/producao/vendas')}
-        className="flex items-center gap-1 text-sm text-stone-500 hover:text-amber-700 mb-6 transition-colors"
+      {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
+
+      <Link
+        to="/producao/vendas"
+        className="inline-flex items-center gap-1.5 text-sm font-medium mb-5 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-[#C4870A]/40 rounded"
+        style={{ color: 'var(--ada-muted)' }}
+        onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#C4870A'}
+        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--ada-muted)'}
       >
         <ChevronLeftIcon className="h-4 w-4" />
         Vendas Diárias
-      </button>
+      </Link>
 
-      <h1 className="text-2xl font-semibold text-stone-800 mb-6">Registrar Venda</h1>
+      <h1
+        className="text-xl font-bold tracking-tight mb-6"
+        style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
+      >
+        Registrar Venda
+      </h1>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">
-              Produto <span className="text-red-500">*</span>
-            </label>
-            <select className={selectClass} {...register('produtoId')}>
-              <option value="">Selecione o produto...</option>
-              {produtos.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
-            </select>
-            {errors.produtoId && <p className="mt-1 text-xs text-red-600">{errors.produtoId.message}</p>}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">
-              Data <span className="text-red-500">*</span>
-            </label>
-            <input type="date" className={inputClass} {...register('data')} />
-            {errors.data && <p className="mt-1 text-xs text-red-600">{errors.data.message}</p>}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">
-              Quantidade Vendida <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              step="0.001"
-              min="0.001"
-              placeholder="Ex: 8"
-              className={inputClass}
-              {...register('quantidadeVendida')}
+        <FormCard>
+          <FormSection titulo="Dados da Venda" />
+          <div className="grid gap-4">
+            <SelectCampo
+              label="Produto"
+              obrigatorio
+              opcoes={produtos.filter(p => p.ativo).map(p => ({ valor: p.id, rotulo: p.nome }))}
+              {...register('produtoId')}
+              erro={errors.produtoId?.message}
             />
-            {errors.quantidadeVendida && <p className="mt-1 text-xs text-red-600">{errors.quantidadeVendida.message}</p>}
+            <div className="grid grid-cols-2 gap-4">
+              <CampoTexto
+                label="Data"
+                obrigatorio
+                type="date"
+                {...register('data')}
+                erro={errors.data?.message}
+              />
+              <CampoTexto
+                label="Quantidade Vendida"
+                obrigatorio
+                type="number"
+                step="1"
+                min="1"
+                placeholder="Ex: 5"
+                {...register('quantidadeVendida')}
+                erro={errors.quantidadeVendida?.message}
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="flex justify-end gap-3 mt-6">
-          <button
-            type="button"
-            onClick={() => navigate('/producao/vendas')}
-            className="px-4 py-2.5 border border-stone-200 rounded-lg text-sm text-stone-600 hover:bg-stone-50 font-medium"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="px-6 py-2.5 bg-amber-700 hover:bg-amber-800 text-white rounded-lg text-sm font-medium disabled:opacity-50"
-          >
-            {isSubmitting ? 'Registrando...' : 'Registrar Venda'}
-          </button>
-        </div>
+          <FormActions
+            salvando={isSubmitting}
+            labelSalvar="Registrar Venda"
+            onCancelar={() => navigate('/producao/vendas')}
+          />
+        </FormCard>
       </form>
-
-      {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
     </div>
   )
 }

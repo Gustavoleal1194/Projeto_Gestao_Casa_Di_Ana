@@ -1,13 +1,21 @@
 import { useEffect, useState } from 'react'
 import { PrinterIcon, ClockIcon } from '@heroicons/react/24/outline'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
+import { ingredientesService } from '@/features/estoque/ingredientes/services/ingredientesService'
 import { etiquetasService, type TipoEtiqueta, type HistoricoImpressao, type ModeloNutricional } from '@/lib/etiquetasService'
 import type { Produto, ProdutoResumo } from '@/types/producao'
+import type { IngredienteResumo } from '@/types/estoque'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 function formatarData(isoStr: string): string {
   return new Date(isoStr).toLocaleDateString('pt-BR')
+}
+
+// Formata datas vindas de input[type=date] (YYYY-MM-DD) sem conversão de timezone
+function formatarDataLocal(yyyymmdd: string): string {
+  const [year, month, day] = yyyymmdd.split('-')
+  return `${day}/${month}/${year}`
 }
 
 const TIPO_LABELS: Record<TipoEtiqueta, string> = {
@@ -318,6 +326,7 @@ function htmlEtiquetaNutricional(
 
 interface PreviewProps {
   produto: Produto | null
+  nomeOverride?: string
   tipo: TipoEtiqueta
   dataProducao: string
   dataValidade: string
@@ -328,22 +337,23 @@ interface PreviewProps {
   }
 }
 
-function LabelPreview({ produto, tipo, dataProducao, dataValidade, nutri }: PreviewProps) {
-  if (!produto) {
+function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade, nutri }: PreviewProps) {
+  const nomeExibido = nomeOverride ?? produto?.nome ?? null
+  if (!nomeExibido) {
     return (
       <div
         className="flex-1 flex items-center justify-center rounded-xl border-2 border-dashed"
         style={{ borderColor: 'var(--ada-border)', minHeight: 200 }}
       >
         <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>
-          Selecione um produto para ver a prévia
+          Selecione um item para ver a prévia
         </p>
       </div>
     )
   }
 
-  const validade = dataValidade ? new Date(dataValidade).toLocaleDateString('pt-BR') : '—'
-  const dataPtBr = new Date(dataProducao).toLocaleDateString('pt-BR')
+  const validade = dataValidade ? formatarDataLocal(dataValidade) : '—'
+  const dataPtBr = formatarDataLocal(dataProducao)
 
   if (tipo === 1) {
     return (
@@ -373,7 +383,7 @@ function LabelPreview({ produto, tipo, dataProducao, dataValidade, nutri }: Prev
           </div>
 
           <div style={{ fontSize: 18, fontWeight: 700, color: '#2C1A0E', textAlign: 'center', lineHeight: 1.2, letterSpacing: 0.3 }}>
-            {produto?.nome || 'Nome do Produto'}
+            {nomeExibido}
           </div>
 
           <div style={{ fontSize: 8, color: '#8B6347', marginTop: 4 }}>
@@ -420,7 +430,7 @@ function LabelPreview({ produto, tipo, dataProducao, dataValidade, nutri }: Prev
           fontFamily: 'Arial, sans-serif',
         }}
       >
-        <div style={{ fontSize: 15, fontWeight: 700 }}>{produto.nome}</div>
+        <div style={{ fontSize: 15, fontWeight: 700 }}>{nomeExibido}</div>
         <div style={{ fontSize: 11, marginTop: 6, color: '#333' }}>Val.: {validade}</div>
       </div>
     )
@@ -453,8 +463,8 @@ function LabelPreview({ produto, tipo, dataProducao, dataValidade, nutri }: Prev
     [true, false, 'Sódio', sodioNum > 0 ? `${nutri.sodio} mg` : '—', vd(sodioNum, 2300)],
   ]
 
-  const validadePrev = dataValidade ? new Date(dataValidade).toLocaleDateString('pt-BR') : '—'
-  const dataFabPrev = new Date(dataProducao).toLocaleDateString('pt-BR')
+  const validadePrev = dataValidade ? formatarDataLocal(dataValidade) : '—'
+  const dataFabPrev = formatarDataLocal(dataProducao)
 
   return (
     <div style={{
@@ -471,7 +481,7 @@ function LabelPreview({ produto, tipo, dataProducao, dataValidade, nutri }: Prev
           INFORMAÇÃO NUTRICIONAL
         </div>
         <div style={{ fontSize: 8, textAlign: 'center', marginTop: 1, opacity: 0.9 }}>
-          {produto.nome}
+          {nomeExibido}
         </div>
       </div>
 
@@ -540,9 +550,12 @@ function LabelPreview({ produto, tipo, dataProducao, dataValidade, nutri }: Prev
 // ─── Componente principal ────────────────────────────────────────────────────
 
 export function EtiquetasPage() {
+  const [tipoItem, setTipoItem] = useState<'produto' | 'ingrediente'>('produto')
   const [produtos, setProdutos] = useState<ProdutoResumo[]>([])
   const [produtoId, setProdutoId] = useState('')
   const [produtoDetalhe, setProdutoDetalhe] = useState<Produto | null>(null)
+  const [ingredientes, setIngredientes] = useState<IngredienteResumo[]>([])
+  const [ingredienteId, setIngredienteId] = useState('')
   const [tipo, setTipo] = useState<TipoEtiqueta>(1)
   const [dataProducao, setDataProducao] = useState(
     new Date().toISOString().split('T')[0]
@@ -574,6 +587,7 @@ export function EtiquetasPage() {
   useEffect(() => {
     produtosService.listar().then(setProdutos).catch(() => {})
     etiquetasService.listarHistorico().then(setHistorico).catch(() => {})
+    ingredientesService.listar().then(setIngredientes).catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -619,7 +633,12 @@ export function EtiquetasPage() {
   }, [produtoId, tipo])
 
   const handleImprimir = async () => {
-    if (!produto) return
+    const isIngrediente = tipoItem === 'ingrediente'
+    const nomeParaImpressao = isIngrediente
+      ? ingredientes.find(i => i.id === ingredienteId)?.nome ?? ''
+      : produto?.nome ?? ''
+
+    if (!nomeParaImpressao) return
     setImprimindo(true)
     setErro(null)
 
@@ -630,36 +649,34 @@ export function EtiquetasPage() {
     }
 
     try {
-      const validadePtBr = new Date(dataValidade).toLocaleDateString('pt-BR')
-      const dataPtBr = new Date(dataProducao).toLocaleDateString('pt-BR')
+      const validadePtBr = formatarDataLocal(dataValidade)
+      const dataPtBr = formatarDataLocal(dataProducao)
 
       let html = ''
-      if (tipo === 1) html = htmlEtiquetaCompleta(
-        produto.nome,
-        dataPtBr,
-        validadePtBr,
-        quantidade,
-        logoBase64
-      )
-      else if (tipo === 2) html = htmlEtiquetaSimples(produto.nome, validadePtBr, quantidade)
-      else html = htmlEtiquetaNutricional(
-        produto.nome,
-        dataPtBr,
-        validadePtBr,
-        quantidade,
-        {
-          porcao: nutri.porcao || '100g',
-          kcal: nutri.valorEnergeticoKcal || '—',
-          kj: nutri.valorEnergeticoKJ || '—',
-          carbo: nutri.carboidratos || '—',
-          acucares: nutri.acucaresTotais || '—',
-          proteinas: nutri.proteinas || '—',
-          gorduras: nutri.gordurasTotais || '—',
-          gordSat: nutri.gordurasSaturadas || '—',
-          fibra: nutri.fibraAlimentar || '—',
-          sodio: nutri.sodio || '—',
-        }
-      )
+      if (isIngrediente || tipo === 2) {
+        html = htmlEtiquetaSimples(nomeParaImpressao, validadePtBr, quantidade)
+      } else if (tipo === 1) {
+        html = htmlEtiquetaCompleta(nomeParaImpressao, dataPtBr, validadePtBr, quantidade, logoBase64)
+      } else {
+        html = htmlEtiquetaNutricional(
+          nomeParaImpressao,
+          dataPtBr,
+          validadePtBr,
+          quantidade,
+          {
+            porcao: nutri.porcao || '100g',
+            kcal: nutri.valorEnergeticoKcal || '—',
+            kj: nutri.valorEnergeticoKJ || '—',
+            carbo: nutri.carboidratos || '—',
+            acucares: nutri.acucaresTotais || '—',
+            proteinas: nutri.proteinas || '—',
+            gorduras: nutri.gordurasTotais || '—',
+            gordSat: nutri.gordurasSaturadas || '—',
+            fibra: nutri.fibraAlimentar || '—',
+            sodio: nutri.sodio || '—',
+          }
+        )
+      }
 
       const win = window.open('', '_blank', 'width=600,height=400')
       if (win) {
@@ -670,13 +687,15 @@ export function EtiquetasPage() {
         setTimeout(() => win.close(), 1000)
       }
 
-      const novo = await etiquetasService.registrarImpressao({
-        produtoId: produto.id,
-        tipoEtiqueta: tipo,
-        quantidade,
-        dataProducao,
-      })
-      setHistorico(prev => [novo, ...prev])
+      if (!isIngrediente && produto) {
+        const novo = await etiquetasService.registrarImpressao({
+          produtoId: produto.id,
+          tipoEtiqueta: tipo,
+          quantidade,
+          dataProducao,
+        })
+        setHistorico(prev => [novo, ...prev])
+      }
     } catch {
       setErro('Erro ao registrar impressão. A etiqueta pode ter sido impressa mesmo assim.')
     } finally {
@@ -743,52 +762,103 @@ export function EtiquetasPage() {
             Configurar Impressão
           </p>
 
+          {/* Toggle Produto / Ingrediente */}
           <div>
             <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-text)' }}>
-              Produto <span className="text-red-500">*</span>
+              Tipo de Item
             </label>
-            <select
-              value={produtoId}
-              onChange={e => setProdutoId(e.target.value)}
-              className="w-full rounded-lg px-3 py-2.5 text-sm border outline-none"
-              style={{
-                background: 'var(--ada-bg)',
-                borderColor: 'var(--ada-border)',
-                color: 'var(--ada-text)',
-              }}
-            >
-              <option value="">Selecione um produto...</option>
-              {produtos.map(p => (
-                <option key={p.id} value={p.id}>
-                  {p.nome}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-text)' }}>
-              Tipo de Etiqueta
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              {tiposOpcoes.map(op => (
+            <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: 'var(--ada-border)' }}>
+              {(['produto', 'ingrediente'] as const).map(t => (
                 <button
-                  key={op.valor}
+                  key={t}
                   type="button"
-                  onClick={() => setTipo(op.valor)}
-                  className="rounded-lg border p-2.5 text-left transition-colors"
+                  onClick={() => {
+                    setTipoItem(t)
+                    if (t === 'ingrediente') setTipo(2)
+                  }}
+                  className="flex-1 py-2 text-sm font-medium transition-colors"
                   style={{
-                    background: tipo === op.valor ? 'var(--sb-accent)' : 'var(--ada-bg)',
-                    borderColor: tipo === op.valor ? 'var(--sb-accent)' : 'var(--ada-border)',
-                    color: tipo === op.valor ? '#fff' : 'var(--ada-text)',
+                    background: tipoItem === t ? 'var(--sb-accent)' : 'var(--ada-bg)',
+                    color: tipoItem === t ? '#fff' : 'var(--ada-text)',
                   }}
                 >
-                  <div className="text-xs font-semibold">{op.label}</div>
-                  <div className="text-[10px] mt-0.5 opacity-75">{op.dim}</div>
+                  {t === 'produto' ? 'Produto' : 'Ingrediente'}
                 </button>
               ))}
             </div>
           </div>
+
+          {/* Seletor de produto ou ingrediente */}
+          {tipoItem === 'produto' ? (
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-text)' }}>
+                Produto <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={produtoId}
+                onChange={e => setProdutoId(e.target.value)}
+                className="w-full rounded-lg px-3 py-2.5 text-sm border outline-none"
+                style={{
+                  background: 'var(--ada-bg)',
+                  borderColor: 'var(--ada-border)',
+                  color: 'var(--ada-text)',
+                }}
+              >
+                <option value="">Selecione um produto...</option>
+                {produtos.map(p => (
+                  <option key={p.id} value={p.id}>{p.nome}</option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-text)' }}>
+                Ingrediente <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={ingredienteId}
+                onChange={e => setIngredienteId(e.target.value)}
+                className="w-full rounded-lg px-3 py-2.5 text-sm border outline-none"
+                style={{
+                  background: 'var(--ada-bg)',
+                  borderColor: 'var(--ada-border)',
+                  color: 'var(--ada-text)',
+                }}
+              >
+                <option value="">Selecione um ingrediente...</option>
+                {ingredientes.filter(i => i.ativo).map(i => (
+                  <option key={i.id} value={i.id}>{i.nome}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Tipo de etiqueta — só disponível para produtos */}
+          {tipoItem === 'produto' && (
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-text)' }}>
+                Tipo de Etiqueta
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {tiposOpcoes.map(op => (
+                  <button
+                    key={op.valor}
+                    type="button"
+                    onClick={() => setTipo(op.valor)}
+                    className="rounded-lg border p-2.5 text-left transition-colors"
+                    style={{
+                      background: tipo === op.valor ? 'var(--sb-accent)' : 'var(--ada-bg)',
+                      borderColor: tipo === op.valor ? 'var(--sb-accent)' : 'var(--ada-border)',
+                      color: tipo === op.valor ? '#fff' : 'var(--ada-text)',
+                    }}
+                  >
+                    <div className="text-xs font-semibold">{op.label}</div>
+                    <div className="text-[10px] mt-0.5 opacity-75">{op.dim}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Dados nutricionais — só aparece quando tipo = Nutricional */}
           {tipo === 3 && (
@@ -930,7 +1000,7 @@ export function EtiquetasPage() {
 
           <button
             onClick={handleImprimir}
-            disabled={!produto || imprimindo}
+            disabled={(tipoItem === 'produto' ? !produto : !ingredienteId) || imprimindo}
             className="w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white transition-opacity disabled:opacity-40"
             style={{ background: 'var(--sb-accent)' }}
           >
@@ -953,11 +1023,18 @@ export function EtiquetasPage() {
             Prévia da Etiqueta
           </p>
           <div className="flex-1 flex items-center justify-center">
-            <LabelPreview produto={produto} tipo={tipo} dataProducao={dataProducao} dataValidade={dataValidade} nutri={nutri} />
+            <LabelPreview
+              produto={produto}
+              nomeOverride={tipoItem === 'ingrediente' ? (ingredientes.find(i => i.id === ingredienteId)?.nome) : undefined}
+              tipo={tipoItem === 'ingrediente' ? 2 : tipo}
+              dataProducao={dataProducao}
+              dataValidade={dataValidade}
+              nutri={nutri}
+            />
           </div>
           <p className="text-xs text-center mt-4" style={{ color: 'var(--ada-muted)' }}>
             {TIPO_LABELS[tipo]} · {tiposOpcoes.find(o => o.valor === tipo)?.dim}
-            {dataValidade ? ` · Validade: ${new Date(dataValidade).toLocaleDateString('pt-BR')}` : ''}
+            {dataValidade ? ` · Validade: ${formatarDataLocal(dataValidade)}` : ''}
           </p>
         </div>
       </div>

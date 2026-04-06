@@ -1,10 +1,15 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ChevronLeftIcon } from '@heroicons/react/24/outline'
 import { inventariosService } from '../services/inventariosService'
+import { CampoTexto } from '@/features/estoque/ingredientes/components/CampoTexto'
+import { FormTextarea } from '@/components/form/FormTextarea'
+import { FormSection } from '@/components/form/FormSection'
+import { FormActions } from '@/components/form/FormActions'
+import { FormCard } from '@/components/form/FormCard'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
 
 interface IniciarFormValues {
@@ -19,22 +24,20 @@ const schema = z.object({
   observacoes: z.string(),
 })
 
-const inputClass =
-  'w-full border border-stone-200 rounded-lg px-3 py-2.5 text-sm ' +
-  'focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent'
-
 export function InventarioFormPage() {
   const navigate = useNavigate()
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<IniciarFormValues>({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      dataRealizacao: new Date().toISOString().split('T')[0],
-      descricao: '',
-      observacoes: '',
-    },
-  })
+  const { register, handleSubmit, formState: { errors, isSubmitting } } =
+    useForm<IniciarFormValues>({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      resolver: zodResolver(schema) as any,
+      defaultValues: {
+        dataRealizacao: new Date().toISOString().split('T')[0],
+        descricao: '',
+        observacoes: '',
+      },
+    })
 
   const onSubmit = async (values: IniciarFormValues) => {
     try {
@@ -52,67 +55,57 @@ export function InventarioFormPage() {
 
   return (
     <div className="p-6 max-w-lg">
-      <button
-        onClick={() => navigate('/inventarios')}
-        className="flex items-center gap-1 text-sm text-stone-500 hover:text-amber-700 mb-6 transition-colors"
+      {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
+
+      <Link
+        to="/inventarios"
+        className="inline-flex items-center gap-1.5 text-sm font-medium mb-5 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-[#C4870A]/40 rounded"
+        style={{ color: 'var(--ada-muted)' }}
+        onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#C4870A'}
+        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--ada-muted)'}
       >
         <ChevronLeftIcon className="h-4 w-4" />
         Inventários
-      </button>
+      </Link>
 
-      <h1 className="text-2xl font-semibold text-stone-800 mb-6">Novo Inventário</h1>
+      <h1
+        className="text-xl font-bold tracking-tight mb-6"
+        style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
+      >
+        Novo Inventário
+      </h1>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">
-              Data de Realização <span className="text-red-500">*</span>
-            </label>
-            <input type="date" className={inputClass} {...register('dataRealizacao')} />
-            {errors.dataRealizacao && (
-              <p className="mt-1 text-xs text-red-600">{errors.dataRealizacao.message}</p>
-            )}
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">Descrição</label>
-            <input
-              type="text"
-              placeholder="Ex: Inventário mensal de janeiro"
+        <FormCard>
+          <FormSection titulo="Dados do Inventário" />
+          <div className="grid gap-4">
+            <CampoTexto
+              label="Data de Realização"
+              obrigatorio
+              type="date"
+              erro={errors.dataRealizacao?.message}
+              {...register('dataRealizacao')}
+            />
+            <CampoTexto
+              label="Descrição"
+              placeholder="Ex: Inventário mensal de abril"
               maxLength={200}
-              className={inputClass}
               {...register('descricao')}
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">Observações</label>
-            <textarea
-              rows={3}
+            <FormTextarea
+              label="Observações"
               placeholder="Observações gerais..."
-              className={`${inputClass} resize-none`}
               {...register('observacoes')}
             />
           </div>
-        </div>
 
-        <div className="flex justify-end gap-3 mt-6">
-          <button
-            type="button"
-            onClick={() => navigate('/inventarios')}
-            className="px-4 py-2.5 border border-stone-200 rounded-lg text-sm text-stone-600 hover:bg-stone-50 font-medium"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="px-6 py-2.5 bg-amber-700 hover:bg-amber-800 text-white rounded-lg text-sm font-medium disabled:opacity-50"
-          >
-            {isSubmitting ? 'Iniciando...' : 'Iniciar Inventário'}
-          </button>
-        </div>
+          <FormActions
+            salvando={isSubmitting}
+            labelSalvar="Iniciar Inventário"
+            onCancelar={() => navigate('/inventarios')}
+          />
+        </FormCard>
       </form>
-
-      {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
     </div>
   )
 }

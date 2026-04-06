@@ -8,6 +8,8 @@ import { inventariosService } from '../services/inventariosService'
 import { ingredientesService } from '@/features/estoque/ingredientes/services/ingredientesService'
 import { useAuthStore } from '@/store/authStore'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
+import { CampoTexto } from '@/features/estoque/ingredientes/components/CampoTexto'
+import { SelectCampo } from '@/features/estoque/ingredientes/components/SelectCampo'
 import type { Inventario, IngredienteResumo } from '@/types/estoque'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
@@ -40,13 +42,6 @@ function formatarData(iso: string): string {
   return new Date(iso).toLocaleDateString('pt-BR')
 }
 
-const inputClass =
-  'w-full border border-stone-200 rounded-lg px-3 py-2.5 text-sm ' +
-  'focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent'
-
-const selectClass =
-  'w-full border border-stone-200 rounded-lg px-3 py-2.5 text-sm bg-white ' +
-  'focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent'
 
 export function InventarioDetalhePage() {
   const navigate = useNavigate()
@@ -188,53 +183,63 @@ export function InventarioDetalhePage() {
       </div>
 
       {podeEditar && emAndamento && (
-        <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-5 mb-4">
-          <p className="text-xs font-semibold text-stone-400 uppercase tracking-widest mb-4">Adicionar Item</p>
+        <div
+          className="rounded-xl p-5 mb-4"
+          style={{ background: 'var(--ada-surface)', border: '1px solid var(--ada-border)', boxShadow: 'var(--shadow-sm)' }}
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-[3px] h-3.5 rounded-full shrink-0" style={{ background: '#C4870A' }} />
+            <span
+              className="text-[10.5px] font-semibold uppercase tracking-[0.10em]"
+              style={{ color: 'var(--ada-muted)', fontFamily: 'Sora, system-ui, sans-serif' }}
+            >
+              Adicionar Item
+            </span>
+          </div>
           <form onSubmit={handleSubmit(handleAdicionarItem)}>
             <div className="grid grid-cols-[1fr_120px_180px_auto] gap-3 items-start">
               <div>
-                <select className={selectClass} {...register('ingredienteId')}>
-                  <option value="">Selecione o ingrediente...</option>
-                  {ingredientes.map(ing => (
-                    <option key={ing.id} value={ing.id}>
-                      {ing.nome} ({ing.unidadeMedidaCodigo})
-                    </option>
-                  ))}
-                </select>
-                {errors.ingredienteId && (
-                  <p className="mt-0.5 text-xs text-red-600">{errors.ingredienteId.message}</p>
-                )}
+                <SelectCampo
+                  label="Ingrediente"
+                  obrigatorio
+                  opcoes={ingredientes.map(ing => ({
+                    valor: ing.id,
+                    rotulo: `${ing.nome} (${ing.unidadeMedidaCodigo})`,
+                  }))}
+                  {...register('ingredienteId')}
+                  erro={errors.ingredienteId?.message}
+                />
               </div>
               <div>
-                <input
+                <CampoTexto
+                  label="Qtd. contada"
+                  obrigatorio
                   type="number"
                   step="0.001"
                   min="0"
-                  placeholder="Qtd. contada"
-                  className={inputClass}
+                  placeholder="0"
                   {...register('quantidadeContada')}
+                  erro={errors.quantidadeContada?.message}
                 />
-                {errors.quantidadeContada && (
-                  <p className="mt-0.5 text-xs text-red-600">{errors.quantidadeContada.message}</p>
-                )}
               </div>
               <div>
-                <input
-                  type="text"
-                  placeholder="Observação (opcional)"
-                  className={inputClass}
+                <CampoTexto
+                  label="Observação"
+                  placeholder="Opcional"
                   {...register('observacoes')}
                 />
               </div>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex items-center gap-1 px-4 py-2.5 bg-amber-700 hover:bg-amber-800 text-white
-                           rounded-lg text-sm font-medium disabled:opacity-50 whitespace-nowrap"
-              >
-                <PlusIcon className="h-4 w-4" />
-                {isSubmitting ? 'Adicionando...' : 'Adicionar'}
-              </button>
+              <div className="pt-[22px]">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex items-center gap-1 px-4 py-2.5 text-white rounded-lg text-sm font-semibold disabled:opacity-50 whitespace-nowrap"
+                  style={{ background: 'linear-gradient(135deg, #D4960C 0%, #B87D0A 100%)', boxShadow: '0 3px 10px rgba(196,135,10,0.28)' }}
+                >
+                  <PlusIcon className="h-4 w-4" />
+                  {isSubmitting ? '…' : 'Adicionar'}
+                </button>
+              </div>
             </div>
           </form>
         </div>

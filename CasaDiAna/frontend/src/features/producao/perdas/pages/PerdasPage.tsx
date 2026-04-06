@@ -1,10 +1,32 @@
 import { useEffect, useState, useCallback } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 import { perdasService } from '../services/perdasService'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
+import { CampoTexto } from '@/features/estoque/ingredientes/components/CampoTexto'
+import { SelectCampo } from '@/features/estoque/ingredientes/components/SelectCampo'
+import { FormTextarea } from '@/components/form/FormTextarea'
+import { Spinner } from '@/components/form/Spinner'
 import type { PerdaProduto } from '@/types/producao'
 import type { ProdutoResumo } from '@/types/producao'
+
+const perdaSchema = z.object({
+  produtoId: z.string().min(1, 'Produto obrigatório.'),
+  data: z.string().min(1, 'Data obrigatória.'),
+  quantidade: z
+    .string()
+    .min(1, 'Quantidade obrigatória.')
+    .refine(v => Number(v) > 0, 'Deve ser maior que zero.'),
+  justificativa: z
+    .string()
+    .min(1, 'Justificativa obrigatória.')
+    .max(500, 'Máximo 500 caracteres.'),
+})
+
+type PerdaFormValues = z.infer<typeof perdaSchema>
 
 function hoje() {
   return new Date().toISOString().split('T')[0]
@@ -19,27 +41,22 @@ const inputClass =
   'border border-stone-200 rounded-lg px-3 py-2 text-sm bg-white ' +
   'focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent'
 
-interface FormState {
-  produtoId: string
-  data: string
-  quantidade: string
-  justificativa: string
-}
-
-const formVazio: FormState = { produtoId: '', data: hoje(), quantidade: '', justificativa: '' }
-
 export function PerdasPage() {
   const [perdas, setPerdas] = useState<PerdaProduto[]>([])
   const [produtos, setProdutos] = useState<ProdutoResumo[]>([])
   const [loading, setLoading] = useState(false)
-  const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
   const [modalAberto, setModalAberto] = useState(false)
-  const [form, setForm] = useState<FormState>(formVazio)
-  const [errosForm, setErrosForm] = useState<Partial<Record<keyof FormState, string>>>({})
   const [de, setDe] = useState(primeiroDoMes())
   const [ate, setAte] = useState(hoje())
+
+  const { register, handleSubmit, reset: resetForm, formState: { errors: formErrors, isSubmitting } } =
+    useForm<PerdaFormValues>({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      resolver: zodResolver(perdaSchema) as any,
+      defaultValues: { produtoId: '', data: hoje(), quantidade: '', justificativa: '' },
+    })
 
   const carregar = useCallback(async (filtroDe: string, filtroAte: string) => {
     setLoading(true)
@@ -61,37 +78,22 @@ export function PerdasPage() {
 
   const handleFiltrar = () => carregar(de, ate)
 
-  const validar = () => {
-    const erros: typeof errosForm = {}
-    if (!form.produtoId) erros.produtoId = 'Produto obrigatório'
-    if (!form.data) erros.data = 'Data obrigatória'
-    const qtd = Number(form.quantidade)
-    if (!form.quantidade || isNaN(qtd) || qtd <= 0) erros.quantidade = 'Quantidade deve ser maior que zero'
-    if (!form.justificativa.trim()) erros.justificativa = 'Justificativa obrigatória'
-    if (form.justificativa.length > 500) erros.justificativa = 'Máximo 500 caracteres'
-    setErrosForm(erros)
-    return Object.keys(erros).length === 0
-  }
-
-  const handleSalvar = async () => {
-    if (!validar()) return
-    setSalvando(true)
+  const onSubmitPerda = async (values: PerdaFormValues) => {
     try {
       await perdasService.registrar({
-        produtoId: form.produtoId,
-        data: form.data,
-        quantidade: Number(form.quantidade),
-        justificativa: form.justificativa.trim(),
+        produtoId: values.produtoId,
+        data: values.data,
+        quantidade: Number(values.quantidade),
+        justificativa: values.justificativa.trim(),
       })
       setToast({ tipo: 'sucesso', mensagem: 'Perda registrada com sucesso.' })
       setModalAberto(false)
-      setForm(formVazio)
+      resetForm({ produtoId: '', data: hoje(), quantidade: '', justificativa: '' })
       carregar(de, ate)
-    } catch (err: any) {
-      const msg = err?.response?.data?.erros?.[0] ?? 'Erro ao registrar perda.'
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { erros?: string[] } } })?.response?.data?.erros?.[0]
+        ?? 'Erro ao registrar perda.'
       setToast({ tipo: 'erro', mensagem: msg })
-    } finally {
-      setSalvando(false)
     }
   }
 
@@ -108,7 +110,7 @@ export function PerdasPage() {
           </p>
         </div>
         <button
-          onClick={() => { setForm(formVazio); setErrosForm({}); setModalAberto(true) }}
+          onClick={() => { resetForm({ produtoId: '', data: hoje(), quantidade: '', justificativa: '' }); setModalAberto(true) }}
           className="flex items-center gap-2 px-4 py-2.5 bg-amber-700 hover:bg-amber-800 text-white rounded-lg text-sm font-medium transition-colors"
         >
           <PlusIcon className="h-4 w-4" />
@@ -191,84 +193,81 @@ export function PerdasPage() {
       {/* Modal */}
       {modalAberto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
-            <h2 className="text-lg font-semibold text-stone-800 mb-5">Registrar Perda</h2>
+          <div
+            className="w-full max-w-md mx-4 rounded-2xl p-6"
+            style={{ background: 'var(--ada-surface)', boxShadow: 'var(--shadow-xl)' }}
+          >
+            <h2
+              className="text-base font-bold mb-1"
+              style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
+            >
+              Registrar Perda
+            </h2>
+            <p className="text-sm mb-5" style={{ color: 'var(--ada-muted)' }}>
+              Registre produtos perdidos, descartados ou danificados.
+            </p>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">Produto</label>
-                <select
-                  value={form.produtoId}
-                  onChange={e => setForm(f => ({ ...f, produtoId: e.target.value }))}
-                  className={`${inputClass} w-full ${errosForm.produtoId ? 'border-red-400' : ''}`}
-                >
-                  <option value="">Selecione o produto...</option>
-                  {produtos.filter(p => p.ativo).map(p => (
-                    <option key={p.id} value={p.id}>{p.nome}</option>
-                  ))}
-                </select>
-                {errosForm.produtoId && <p className="text-xs text-red-500 mt-1">{errosForm.produtoId}</p>}
-              </div>
-
+            <form onSubmit={handleSubmit(onSubmitPerda)} className="space-y-4">
+              <SelectCampo
+                label="Produto"
+                obrigatorio
+                opcoes={produtos.filter(p => p.ativo).map(p => ({ valor: p.id, rotulo: p.nome }))}
+                {...register('produtoId')}
+                erro={formErrors.produtoId?.message}
+              />
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-1">Data</label>
-                  <input
-                    type="date"
-                    value={form.data}
-                    onChange={e => setForm(f => ({ ...f, data: e.target.value }))}
-                    className={`${inputClass} w-full ${errosForm.data ? 'border-red-400' : ''}`}
-                  />
-                  {errosForm.data && <p className="text-xs text-red-500 mt-1">{errosForm.data}</p>}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-1">Quantidade (un.)</label>
-                  <input
-                    type="number"
-                    step="1"
-                    min="1"
-                    placeholder="0"
-                    value={form.quantidade}
-                    onChange={e => setForm(f => ({ ...f, quantidade: e.target.value }))}
-                    className={`${inputClass} w-full text-right ${errosForm.quantidade ? 'border-red-400' : ''}`}
-                  />
-                  {errosForm.quantidade && <p className="text-xs text-red-500 mt-1">{errosForm.quantidade}</p>}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">Justificativa</label>
-                <textarea
-                  rows={3}
-                  placeholder="Ex: Produto queimado, vencido, contaminado..."
-                  value={form.justificativa}
-                  onChange={e => setForm(f => ({ ...f, justificativa: e.target.value }))}
-                  className={`${inputClass} w-full resize-none ${errosForm.justificativa ? 'border-red-400' : ''}`}
+                <CampoTexto
+                  label="Data"
+                  obrigatorio
+                  type="date"
+                  {...register('data')}
+                  erro={formErrors.data?.message}
                 />
-                <div className="flex justify-between mt-1">
-                  {errosForm.justificativa
-                    ? <p className="text-xs text-red-500">{errosForm.justificativa}</p>
-                    : <span />}
-                  <p className="text-xs text-stone-400">{form.justificativa.length}/500</p>
-                </div>
+                <CampoTexto
+                  label="Quantidade (un.)"
+                  obrigatorio
+                  type="number"
+                  step="1"
+                  min="1"
+                  placeholder="0"
+                  {...register('quantidade')}
+                  erro={formErrors.quantidade?.message}
+                />
               </div>
-            </div>
+              <FormTextarea
+                label="Justificativa"
+                obrigatorio
+                placeholder="Descreva o motivo da perda..."
+                rows={3}
+                maxLength={500}
+                {...register('justificativa')}
+                erro={formErrors.justificativa?.message}
+              />
 
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => setModalAberto(false)}
-                className="flex-1 px-4 py-2.5 border border-stone-200 text-stone-700 rounded-lg text-sm font-medium hover:bg-stone-50"
+              <div
+                className="flex justify-end gap-2.5 pt-4"
+                style={{ borderTop: '1px solid var(--ada-border-sub)' }}
               >
-                Cancelar
-              </button>
-              <button
-                onClick={handleSalvar}
-                disabled={salvando}
-                className="flex-1 px-4 py-2.5 bg-amber-700 hover:bg-amber-800 text-white rounded-lg text-sm font-medium disabled:opacity-40"
-              >
-                {salvando ? 'Salvando...' : 'Registrar'}
-              </button>
-            </div>
+                <button
+                  type="button"
+                  onClick={() => setModalAberto(false)}
+                  disabled={isSubmitting}
+                  className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 disabled:opacity-50 hover:bg-[var(--ada-bg)]"
+                  style={{ border: '1px solid var(--ada-border)', color: 'var(--ada-body)', background: 'var(--ada-surface)' }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60"
+                  style={{ background: 'linear-gradient(135deg, #D4960C 0%, #B87D0A 100%)', boxShadow: '0 3px 10px rgba(196,135,10,0.28)' }}
+                >
+                  {isSubmitting && <Spinner />}
+                  {isSubmitting ? 'Salvando…' : 'Registrar Perda'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

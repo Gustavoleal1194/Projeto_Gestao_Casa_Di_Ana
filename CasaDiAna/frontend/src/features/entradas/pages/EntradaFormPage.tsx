@@ -1,5 +1,6 @@
+// frontend/src/features/entradas/pages/EntradaFormPage.tsx
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -7,6 +8,11 @@ import { ChevronLeftIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outlin
 import { entradasService } from '../services/entradasService'
 import { fornecedoresService } from '@/features/fornecedores/services/fornecedoresService'
 import { ingredientesService } from '@/features/estoque/ingredientes/services/ingredientesService'
+import { CampoTexto } from '@/features/estoque/ingredientes/components/CampoTexto'
+import { SelectCampo } from '@/features/estoque/ingredientes/components/SelectCampo'
+import { FormSection } from '@/components/form/FormSection'
+import { FormActions } from '@/components/form/FormActions'
+import { FormCard } from '@/components/form/FormCard'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
 import type { Fornecedor, IngredienteResumo, EntradaFormValues } from '@/types/estoque'
 
@@ -26,30 +32,24 @@ const entradaSchema = z.object({
     .min(1, 'Adicione pelo menos um item.'),
 })
 
-const selectClass =
-  'w-full border border-stone-200 rounded-lg px-3 py-2.5 text-sm bg-white ' +
-  'focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent'
-
-const inputClass =
-  'w-full border border-stone-200 rounded-lg px-3 py-2.5 text-sm ' +
-  'focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent'
-
 export function EntradaFormPage() {
   const navigate = useNavigate()
   const [fornecedores, setFornecedores] = useState<Fornecedor[]>([])
   const [ingredientes, setIngredientes] = useState<IngredienteResumo[]>([])
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
 
-  const { register, control, handleSubmit, formState: { errors, isSubmitting } } = useForm<EntradaFormValues>({
-    resolver: zodResolver(entradaSchema),
-    defaultValues: {
-      fornecedorId: '',
-      dataEntrada: new Date().toISOString().split('T')[0],
-      numeroNotaFiscal: '',
-      observacoes: '',
-      itens: [{ ingredienteId: '', quantidade: '', custoUnitario: '' }],
-    },
-  })
+  const { register, control, handleSubmit, formState: { errors, isSubmitting } } =
+    useForm<EntradaFormValues>({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      resolver: zodResolver(entradaSchema) as any,
+      defaultValues: {
+        fornecedorId: '',
+        dataEntrada: new Date().toISOString().split('T')[0],
+        numeroNotaFiscal: '',
+        observacoes: '',
+        itens: [{ ingredienteId: '', quantidade: '', custoUnitario: '' }],
+      },
+    })
 
   const { fields, append, remove } = useFieldArray({ control, name: 'itens' })
 
@@ -80,140 +80,142 @@ export function EntradaFormPage() {
 
   return (
     <div className="p-6 max-w-3xl">
-      <button
-        onClick={() => navigate('/entradas')}
-        className="flex items-center gap-1 text-sm text-stone-500 hover:text-amber-700 mb-6 transition-colors"
+      {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
+
+      <Link
+        to="/entradas"
+        className="inline-flex items-center gap-1.5 text-sm font-medium mb-5 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-[#C4870A]/40 rounded"
+        style={{ color: 'var(--ada-muted)' }}
+        onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#C4870A'}
+        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--ada-muted)'}
       >
         <ChevronLeftIcon className="h-4 w-4" />
         Entradas
-      </button>
+      </Link>
 
-      <h1 className="text-2xl font-semibold text-stone-800 mb-6">Nova Entrada de Mercadoria</h1>
+      <h1
+        className="text-xl font-bold tracking-tight mb-6"
+        style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
+      >
+        Nova Entrada de Mercadoria
+      </h1>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-6 space-y-6">
-          <div>
-            <p className="text-xs font-semibold text-stone-400 uppercase tracking-widest mb-4">Dados da Entrada</p>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">
-                  Fornecedor <span className="text-red-500">*</span>
-                </label>
-                <select className={selectClass} {...register('fornecedorId')}>
-                  <option value="">Selecione o fornecedor...</option>
-                  {fornecedores.map(f => (
-                    <option key={f.id} value={f.id}>{f.razaoSocial}</option>
-                  ))}
-                </select>
-                {errors.fornecedorId && (
-                  <p className="mt-1 text-xs text-red-600">{errors.fornecedorId.message}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">
-                  Data da Entrada <span className="text-red-500">*</span>
-                </label>
-                <input type="date" className={inputClass} {...register('dataEntrada')} />
-                {errors.dataEntrada && (
-                  <p className="mt-1 text-xs text-red-600">{errors.dataEntrada.message}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">Nota Fiscal</label>
-                <input type="text" placeholder="Número da NF (opcional)" className={inputClass} {...register('numeroNotaFiscal')} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">Observações</label>
-                <input type="text" placeholder="Observações (opcional)" className={inputClass} {...register('observacoes')} />
-              </div>
-            </div>
+        <FormCard>
+          <FormSection titulo="Dados da Entrada" />
+          <div className="grid grid-cols-2 gap-4">
+            <SelectCampo
+              label="Fornecedor"
+              obrigatorio
+              opcoes={fornecedores.map(f => ({ valor: f.id, rotulo: f.razaoSocial }))}
+              {...register('fornecedorId')}
+              erro={errors.fornecedorId?.message}
+            />
+            <CampoTexto
+              label="Data da Entrada"
+              obrigatorio
+              type="date"
+              {...register('dataEntrada')}
+              erro={errors.dataEntrada?.message}
+            />
+            <CampoTexto
+              label="Nota Fiscal"
+              placeholder="Número da NF (opcional)"
+              {...register('numeroNotaFiscal')}
+            />
+            <CampoTexto
+              label="Observações"
+              placeholder="Observações (opcional)"
+              {...register('observacoes')}
+            />
           </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-semibold text-stone-400 uppercase tracking-widest">Itens da Entrada</p>
-              <button
-                type="button"
-                onClick={() => append({ ingredienteId: '', quantidade: '', custoUnitario: '' })}
-                className="flex items-center gap-1 text-xs font-medium text-amber-700 hover:text-amber-800"
-              >
-                <PlusIcon className="h-3.5 w-3.5" />
-                Adicionar item
-              </button>
-            </div>
+          <FormSection titulo="Itens da Entrada" />
 
-            {errors.itens && !Array.isArray(errors.itens) && (
-              <p className="mb-2 text-xs text-red-600">{(errors.itens as { message?: string }).message}</p>
-            )}
+          {errors.itens && !Array.isArray(errors.itens) && (
+            <p className="mb-3 text-xs text-red-600 flex items-center gap-1">
+              <svg className="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+              </svg>
+              {(errors.itens as { message?: string }).message}
+            </p>
+          )}
 
-            <div className="space-y-3">
-              <div className="grid grid-cols-[1fr_100px_120px_40px] gap-2 text-xs font-medium text-stone-500 px-1">
-                <span>Ingrediente</span>
-                <span>Quantidade</span>
-                <span>Custo Unit. (R$)</span>
-                <span />
-              </div>
-
-              {fields.map((field, index) => (
-                <div key={field.id} className="grid grid-cols-[1fr_100px_120px_40px] gap-2 items-start">
-                  <div>
-                    <select className={selectClass} {...register(`itens.${index}.ingredienteId`)}>
-                      <option value="">Selecione...</option>
-                      {ingredientes.map(ing => (
-                        <option key={ing.id} value={ing.id}>
-                          {ing.nome} ({ing.unidadeMedidaCodigo})
-                        </option>
-                      ))}
-                    </select>
-                    {errors.itens?.[index]?.ingredienteId && (
-                      <p className="mt-0.5 text-xs text-red-600">{errors.itens[index]?.ingredienteId?.message}</p>
-                    )}
-                  </div>
-                  <div>
-                    <input type="number" step="0.001" min="0.001" placeholder="0.000" className={inputClass} {...register(`itens.${index}.quantidade`)} />
-                    {errors.itens?.[index]?.quantidade && (
-                      <p className="mt-0.5 text-xs text-red-600">{errors.itens[index]?.quantidade?.message}</p>
-                    )}
-                  </div>
-                  <div>
-                    <input type="number" step="0.01" min="0" placeholder="0.00" className={inputClass} {...register(`itens.${index}.custoUnitario`)} />
-                    {errors.itens?.[index]?.custoUnitario && (
-                      <p className="mt-0.5 text-xs text-red-600">{errors.itens[index]?.custoUnitario?.message}</p>
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => fields.length > 1 && remove(index)}
-                    disabled={fields.length === 1}
-                    className="p-2 rounded hover:bg-red-50 text-stone-400 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed mt-0.5"
-                  >
-                    <TrashIcon className="h-4 w-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
+          {/* Cabeçalho da tabela de itens */}
+          <div
+            className="grid grid-cols-[1fr_110px_130px_36px] gap-2 px-1 mb-1.5"
+          >
+            <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--ada-muted)' }}>Ingrediente</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--ada-muted)' }}>Quantidade</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--ada-muted)' }}>Custo Unit. (R$)</span>
+            <span />
           </div>
-        </div>
 
-        <div className="flex justify-end gap-3 mt-6">
+          <div className="space-y-2">
+            {fields.map((field, index) => (
+              <div key={field.id} className="grid grid-cols-[1fr_110px_130px_36px] gap-2 items-start">
+                <SelectCampo
+                  label=" "
+                  opcoes={ingredientes.map(ing => ({
+                    valor: ing.id,
+                    rotulo: `${ing.nome} (${ing.unidadeMedidaCodigo})`,
+                  }))}
+                  {...register(`itens.${index}.ingredienteId`)}
+                  erro={errors.itens?.[index]?.ingredienteId?.message}
+                />
+                <CampoTexto
+                  label=" "
+                  type="number"
+                  step="0.001"
+                  min="0.001"
+                  placeholder="0.000"
+                  {...register(`itens.${index}.quantidade`)}
+                  erro={errors.itens?.[index]?.quantidade?.message}
+                />
+                <CampoTexto
+                  label=" "
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  {...register(`itens.${index}.custoUnitario`)}
+                  erro={errors.itens?.[index]?.custoUnitario?.message}
+                />
+                <button
+                  type="button"
+                  onClick={() => fields.length > 1 && remove(index)}
+                  disabled={fields.length === 1}
+                  className="mt-0.5 p-2 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  style={{ color: 'var(--ada-muted)' }}
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#DC2626'}
+                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--ada-muted)'}
+                  title="Remover item"
+                >
+                  <TrashIcon className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+
           <button
             type="button"
-            onClick={() => navigate('/entradas')}
-            className="px-4 py-2.5 border border-stone-200 rounded-lg text-sm text-stone-600 hover:bg-stone-50 font-medium"
+            onClick={() => append({ ingredienteId: '', quantidade: '', custoUnitario: '' })}
+            className="mt-3 flex items-center gap-1.5 text-xs font-semibold transition-colors"
+            style={{ color: '#C4870A' }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#B87D0A'}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = '#C4870A'}
           >
-            Cancelar
+            <PlusIcon className="h-3.5 w-3.5" />
+            Adicionar item
           </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="px-6 py-2.5 bg-amber-700 hover:bg-amber-800 text-white rounded-lg text-sm font-medium disabled:opacity-50"
-          >
-            {isSubmitting ? 'Registrando...' : 'Registrar Entrada'}
-          </button>
-        </div>
-      </form>
 
-      {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
+          <FormActions
+            salvando={isSubmitting}
+            labelSalvar="Registrar Entrada"
+            onCancelar={() => navigate('/entradas')}
+          />
+        </FormCard>
+      </form>
     </div>
   )
 }

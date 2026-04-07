@@ -1098,15 +1098,17 @@ export function EtiquetasPage() {
           >
             Prévia da Etiqueta
           </p>
-          <div className="flex-1 flex items-center justify-center">
-            <LabelPreview
-              produto={produto}
-              nomeOverride={tipoItem === 'ingrediente' ? (ingredientes.find(i => i.id === ingredienteId)?.nome) : undefined}
-              tipo={tipoItem === 'ingrediente' ? 2 : tipo}
-              dataProducao={dataProducao}
-              dataValidade={dataValidade}
-              nutri={nutri}
-            />
+          <div className="flex-1 flex items-center justify-center overflow-hidden py-4">
+            <div style={{ transform: 'scale(1.55)', transformOrigin: 'center center' }}>
+              <LabelPreview
+                produto={produto}
+                nomeOverride={tipoItem === 'ingrediente' ? (ingredientes.find(i => i.id === ingredienteId)?.nome) : undefined}
+                tipo={tipoItem === 'ingrediente' ? 2 : tipo}
+                dataProducao={dataProducao}
+                dataValidade={dataValidade}
+                nutri={nutri}
+              />
+            </div>
           </div>
           <p className="text-xs text-center mt-4" style={{ color: 'var(--ada-muted)' }}>
             {TIPO_LABELS[tipo]} · {tiposOpcoes.find(o => o.valor === tipo)?.dim}

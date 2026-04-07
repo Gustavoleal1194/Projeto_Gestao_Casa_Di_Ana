@@ -683,8 +683,10 @@ export function EtiquetasPage() {
         win.document.write(html)
         win.document.close()
         win.focus()
-        win.print()
-        setTimeout(() => win.close(), 1000)
+        win.onload = () => {
+          win.print()
+          setTimeout(() => win.close(), 1500)
+        }
       }
 
       if (!isIngrediente && produto) {

@@ -218,6 +218,17 @@ function htmlEtiquetaSimples(
   </style></head><body>${etiquetas}</body></html>`
 }
 
+function parsePorcaoGramas(porcao: string): number {
+  const match = porcao.match(/(\d+(?:[.,]\d+)?)\s*(?:g|ml)\b/i)
+  return match ? parseFloat(match[1].replace(',', '.')) : 0
+}
+
+function fmt100(value: number, porcaoG: number): string {
+  if (!value || !porcaoG) return '—'
+  const v = (value / porcaoG) * 100
+  return v % 1 === 0 ? String(Math.round(v)) : v.toFixed(1)
+}
+
 function htmlEtiquetaNutricional(
   produtoNome: string,
   dataProducao: string,
@@ -225,89 +236,105 @@ function htmlEtiquetaNutricional(
   quantidade: number,
   dados: {
     porcao: string; kcal: string; kj: string; carbo: string; acucares: string;
-    proteinas: string; gorduras: string; gordSat: string; fibra: string; sodio: string;
-  } = { porcao: '100g', kcal: '—', kj: '—', carbo: '—', acucares: '—', proteinas: '—', gorduras: '—', gordSat: '—', fibra: '—', sodio: '—' },
+    acucaresAdic: string; proteinas: string; gorduras: string; gordSat: string;
+    gordTrans: string; fibra: string; sodio: string;
+    porcoesPorEmbalagem: string; medidaCaseira: string;
+  } = {
+    porcao: '100g', kcal: '—', kj: '—', carbo: '—', acucares: '—',
+    acucaresAdic: '—', proteinas: '—', gorduras: '—', gordSat: '—',
+    gordTrans: '—', fibra: '—', sodio: '—', porcoesPorEmbalagem: '', medidaCaseira: '',
+  },
 ): string {
   const kcal = Number(dados.kcal) || 0
   const kj = Number(dados.kj) || 0
   const carbo = Number(dados.carbo) || 0
+  const acucares = Number(dados.acucares) || 0
+  const acucaresAdic = Number(dados.acucaresAdic) || 0
   const prot = Number(dados.proteinas) || 0
   const gord = Number(dados.gorduras) || 0
   const gordSat = Number(dados.gordSat) || 0
+  const gordTrans = Number(dados.gordTrans) || 0
   const fibra = Number(dados.fibra) || 0
   const sodio = Number(dados.sodio) || 0
+  const porcaoG = parsePorcaoGramas(dados.porcao)
 
-  const vdKcal = kcal > 0 ? `${Math.round((kcal / 2000) * 100)}%` : '—'
-  const vdCarbo = carbo > 0 ? `${Math.round((carbo / 300) * 100)}%` : '—'
-  const vdProt = prot > 0 ? `${Math.round((prot / 75) * 100)}%` : '—'
-  const vdGord = gord > 0 ? `${Math.round((gord / 65) * 100)}%` : '—'
-  const vdGordSat = gordSat > 0 ? `${Math.round((gordSat / 22) * 100)}%` : '—'
-  const vdFibra = fibra > 0 ? `${Math.round((fibra / 25) * 100)}%` : '—'
-  const vdSodio = sodio > 0 ? `${Math.round((sodio / 2300) * 100)}%` : '—'
+  const vd = (v: number, ref: number) => v > 0 ? `${Math.round((v / ref) * 100)}%` : '—'
+  const nd = '**'
 
-  // kj used in vd calculations above for completeness
-  void kj
+  const porcaoLabel = dados.medidaCaseira
+    ? `${dados.porcao} (${dados.medidaCaseira})`
+    : dados.porcao
+  const porcoesPorEmb = dados.porcoesPorEmbalagem
+    ? `${dados.porcoesPorEmbalagem} porções por embalagem`
+    : ''
 
-  const row = (bold: boolean, indent: boolean, nome: string, qty: string, vd: string) => `
-    <tr style="border-bottom: 0.3mm solid #000;">
-      <td style="font-weight:${bold ? 'bold' : 'normal'}; padding: 0.6mm ${indent ? '3mm' : '1mm'} 0.6mm 1mm; font-size:6.5pt;">
+  const row = (bold: boolean, indent: boolean, nome: string, qty: string, vdVal: string, c100: string) => `
+    <tr style="border-bottom:0.3mm solid #000;">
+      <td style="font-weight:${bold ? 'bold' : 'normal'}; padding:0.5mm ${indent ? '3mm' : '1mm'} 0.5mm 1mm; font-size:6pt; line-height:1.3;">
         ${nome}
       </td>
-      <td style="text-align:right; padding: 0.6mm 1mm; font-size:6.5pt; border-left:0.3mm solid #000; white-space:nowrap;">
+      <td style="text-align:right; padding:0.5mm 1mm; font-size:6pt; border-left:0.3mm solid #000; white-space:nowrap; line-height:1.3;">
         ${qty}
       </td>
-      <td style="text-align:center; padding: 0.6mm 1mm; font-size:6.5pt; border-left:0.3mm solid #000; white-space:nowrap;">
-        ${vd}
+      <td style="text-align:center; padding:0.5mm 1mm; font-size:6pt; border-left:0.3mm solid #000; white-space:nowrap; line-height:1.3;">
+        ${vdVal}
+      </td>
+      <td style="text-align:right; padding:0.5mm 1mm; font-size:6pt; border-left:0.3mm solid #000; white-space:nowrap; line-height:1.3; color:#555;">
+        ${c100}
       </td>
     </tr>`
 
   const etiqueta = `
-    <div style="width:76mm; border:0.8mm solid #000; font-family:Arial Narrow, Arial, sans-serif; display:flex; flex-direction:column; page-break-after:always; background:#fff;">
+    <div style="width:76mm; border:0.8mm solid #000; font-family:'Arial Narrow',Arial,sans-serif; display:flex; flex-direction:column; page-break-after:always; background:#fff; color:#000;">
 
-      <!-- Topo: nome do produto + datas -->
-      <div style="background:#000; color:#fff; padding:1.5mm 2mm 0.5mm;">
-        <div style="font-size:8pt; font-weight:bold; text-align:center; letter-spacing:0.5px;">INFORMAÇÃO NUTRICIONAL</div>
-        <div style="font-size:7pt; text-align:center; margin-top:0.5mm;">${produtoNome}</div>
+      <div style="background:#000; color:#fff; padding:1.5mm 2mm 1mm; text-align:center;">
+        <div style="font-size:9pt; font-weight:bold; letter-spacing:0.5px;">INFORMAÇÃO NUTRICIONAL</div>
+        <div style="font-size:7pt; margin-top:0.5mm;">${produtoNome}</div>
       </div>
 
-      <!-- Porção -->
-      <div style="padding:1.2mm 2mm; font-size:7pt; border-bottom:0.6mm solid #000;">
-        <strong>Porção:</strong> ${dados.porcao}
+      <div style="padding:1mm 2mm; font-size:6.5pt; border-bottom:0.5mm solid #000; line-height:1.5;">
+        <strong>Porção:</strong> ${porcaoLabel}${porcoesPorEmb ? `<br>${porcoesPorEmb}` : ''}
       </div>
 
-      <!-- Cabeçalho da tabela -->
-      <table style="width:100%; border-collapse:collapse; border-bottom:0.6mm solid #000;">
+      <table style="width:100%; border-collapse:collapse;">
         <colgroup>
-          <col style="width:55%">
-          <col style="width:27%">
-          <col style="width:18%">
+          <col style="width:42%">
+          <col style="width:22%">
+          <col style="width:14%">
+          <col style="width:22%">
         </colgroup>
         <thead>
-          <tr style="background:#e8e8e8;">
-            <th style="font-size:6pt; font-weight:bold; padding:0.8mm 1mm; text-align:left; border-bottom:0.3mm solid #000;">Nutrientes</th>
-            <th style="font-size:6pt; font-weight:bold; padding:0.8mm 1mm; text-align:right; border-left:0.3mm solid #000; border-bottom:0.3mm solid #000;">Qtd por porção</th>
-            <th style="font-size:6pt; font-weight:bold; padding:0.8mm 1mm; text-align:center; border-left:0.3mm solid #000; border-bottom:0.3mm solid #000;">%VD*</th>
+          <tr style="background:#e0e0e0; border-bottom:0.4mm solid #000;">
+            <th style="font-size:5.5pt; font-weight:bold; padding:0.8mm 1mm; text-align:left;">Nutrientes</th>
+            <th style="font-size:5.5pt; font-weight:bold; padding:0.8mm 1mm; text-align:right; border-left:0.3mm solid #000;">Porção</th>
+            <th style="font-size:5.5pt; font-weight:bold; padding:0.8mm 1mm; text-align:center; border-left:0.3mm solid #000;">%VD*</th>
+            <th style="font-size:5.5pt; font-weight:bold; padding:0.8mm 1mm; text-align:right; border-left:0.3mm solid #000;">100g/100ml</th>
           </tr>
         </thead>
         <tbody>
-          ${row(true, false, 'Valor Energético', `${dados.kcal} kcal<br><span style="font-weight:normal">${dados.kj} kJ</span>`, vdKcal)}
-          ${row(true, false, 'Carboidratos', `${dados.carbo} g`, vdCarbo)}
-          ${row(false, true, '&nbsp;&nbsp;Açúcares totais', `${dados.acucares} g`, '**')}
-          ${row(true, false, 'Proteínas', `${dados.proteinas} g`, vdProt)}
-          ${row(true, false, 'Gorduras totais', `${dados.gorduras} g`, vdGord)}
-          ${row(false, true, '&nbsp;&nbsp;Gorduras saturadas', `${dados.gordSat} g`, vdGordSat)}
-          ${row(true, false, 'Fibra alimentar', `${dados.fibra} g`, vdFibra)}
-          ${row(true, false, 'Sódio', `${dados.sodio} mg`, vdSodio)}
+          ${row(true, false,
+            'Valor energético',
+            `${dados.kcal} kcal / ${dados.kj} kJ`,
+            vd(kcal, 2000),
+            kcal > 0 ? `${fmt100(kcal, porcaoG)} kcal / ${fmt100(kj, porcaoG)} kJ` : '—'
+          )}
+          ${row(true, false, 'Carboidratos', `${dados.carbo} g`, vd(carbo, 300), `${fmt100(carbo, porcaoG)} g`)}
+          ${row(false, true, '&nbsp;&nbsp;Açúcares totais', `${dados.acucares} g`, nd, `${fmt100(acucares, porcaoG)} g`)}
+          ${row(false, true, '&nbsp;&nbsp;Açúcares adicionados', `${dados.acucaresAdic} g`, nd, `${fmt100(acucaresAdic, porcaoG)} g`)}
+          ${row(true, false, 'Proteínas', `${dados.proteinas} g`, vd(prot, 75), `${fmt100(prot, porcaoG)} g`)}
+          ${row(true, false, 'Gorduras totais', `${dados.gorduras} g`, vd(gord, 65), `${fmt100(gord, porcaoG)} g`)}
+          ${row(false, true, '&nbsp;&nbsp;Gorduras saturadas', `${dados.gordSat} g`, vd(gordSat, 22), `${fmt100(gordSat, porcaoG)} g`)}
+          ${row(false, true, '&nbsp;&nbsp;Gorduras trans', `${dados.gordTrans} g`, nd, `${fmt100(gordTrans, porcaoG)} g`)}
+          ${row(true, false, 'Fibra alimentar', `${dados.fibra} g`, vd(fibra, 25), `${fmt100(fibra, porcaoG)} g`)}
+          ${row(true, false, 'Sódio', `${dados.sodio} mg`, vd(sodio, 2300), `${fmt100(sodio, porcaoG)} mg`)}
         </tbody>
       </table>
 
-      <!-- Footer %VD -->
-      <div style="padding:1.2mm 1.5mm; font-size:5.5pt; color:#222; line-height:1.3; border-bottom:0.6mm solid #000;">
-        *% Valores Diários com base em uma dieta de 2000 kcal ou 8400 kJ. Seus valores diários podem ser maiores ou menores dependendo de suas necessidades energéticas. **Valor Diário não estabelecido.
+      <div style="padding:1mm 1.5mm; font-size:5.5pt; color:#222; line-height:1.4; border-top:0.5mm solid #000; border-bottom:0.5mm solid #000;">
+        *Percentual de valores diários fornecidos pela porção. **Valor Diário não estabelecido. Valores diários de referência com base em uma dieta de 2000 kcal ou 8400 kJ.
       </div>
 
-      <!-- Validade -->
-      <div style="display:flex; justify-content:space-between; padding:1.2mm 2mm; font-size:6.5pt;">
+      <div style="display:flex; justify-content:space-between; padding:1mm 2mm; font-size:6pt;">
         <span><strong>Fab:</strong> ${dataProducao}</span>
         <span><strong>Val:</strong> ${validade}</span>
         <span style="font-style:italic;">Casa di Ana</span>
@@ -316,7 +343,7 @@ function htmlEtiquetaNutricional(
 
   const etiquetas = Array(quantidade).fill(etiqueta).join('')
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
-    @page { size: 80mm 130mm; margin: 2mm; }
+    @page { size: 80mm 150mm; margin: 2mm; }
     * { box-sizing: border-box; }
     body { margin: 0; padding: 0; background: #fff; }
   </style></head><body>${etiquetas}</body></html>`
@@ -332,8 +359,10 @@ interface PreviewProps {
   dataValidade: string
   nutri: {
     porcao: string; valorEnergeticoKcal: string; valorEnergeticoKJ: string;
-    carboidratos: string; acucaresTotais: string; proteinas: string;
-    gordurasTotais: string; gordurasSaturadas: string; fibraAlimentar: string; sodio: string;
+    carboidratos: string; acucaresTotais: string; acucaresAdicionados: string;
+    proteinas: string; gordurasTotais: string; gordurasSaturadas: string;
+    gordurasTrans: string; fibraAlimentar: string; sodio: string;
+    porcoesPorEmbalagem: string; medidaCaseira: string;
   }
 }
 
@@ -441,34 +470,45 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
   const kjNum = Number(nutri.valorEnergeticoKJ) || 0
   const carboNum = Number(nutri.carboidratos) || 0
   const acucaresNum = Number(nutri.acucaresTotais) || 0
+  const acucaresAdicNum = Number(nutri.acucaresAdicionados) || 0
   const protNum = Number(nutri.proteinas) || 0
   const gordNum = Number(nutri.gordurasTotais) || 0
   const gordSatNum = Number(nutri.gordurasSaturadas) || 0
+  const gordTransNum = Number(nutri.gordurasTrans) || 0
   const fibraNum = Number(nutri.fibraAlimentar) || 0
   const sodioNum = Number(nutri.sodio) || 0
+  const porcaoG = parsePorcaoGramas(nutri.porcao || '100g')
 
-  // suppress unused warning — kjNum used for display consistency
-  void kjNum
+  const vdPrev = (v: number, ref: number) => v > 0 ? `${Math.round((v / ref) * 100)}%` : '—'
+  const nd = '**'
 
-  const vd = (v: number, ref: number) => ref === 0 ? '**' : v > 0 ? `${Math.round((v / ref) * 100)}%` : '—'
+  const porcaoLabel = nutri.medidaCaseira
+    ? `${nutri.porcao || '100g'} (${nutri.medidaCaseira})`
+    : (nutri.porcao || '100g')
 
-  const rows: [boolean, boolean, string, string, string][] = [
-    [true, false, 'Valor Energético', kcalNum > 0 ? `${nutri.valorEnergeticoKcal} kcal / ${nutri.valorEnergeticoKJ} kJ` : '—', vd(kcalNum, 2000)],
-    [true, false, 'Carboidratos', carboNum > 0 ? `${nutri.carboidratos} g` : '—', vd(carboNum, 300)],
-    [false, true, 'Açúcares totais', acucaresNum > 0 ? `${nutri.acucaresTotais} g` : '—', '**'],
-    [true, false, 'Proteínas', protNum > 0 ? `${nutri.proteinas} g` : '—', vd(protNum, 75)],
-    [true, false, 'Gorduras totais', gordNum > 0 ? `${nutri.gordurasTotais} g` : '—', vd(gordNum, 65)],
-    [false, true, 'Gord. saturadas', gordSatNum > 0 ? `${nutri.gordurasSaturadas} g` : '—', vd(gordSatNum, 22)],
-    [true, false, 'Fibra alimentar', fibraNum > 0 ? `${nutri.fibraAlimentar} g` : '—', vd(fibraNum, 25)],
-    [true, false, 'Sódio', sodioNum > 0 ? `${nutri.sodio} mg` : '—', vd(sodioNum, 2300)],
+  type Row = { bold: boolean; indent: boolean; nome: string; qty: string; vdVal: string; c100: string }
+  const rows: Row[] = [
+    { bold: true, indent: false, nome: 'Valor energético', qty: kcalNum > 0 ? `${nutri.valorEnergeticoKcal} kcal / ${nutri.valorEnergeticoKJ} kJ` : '—', vdVal: vdPrev(kcalNum, 2000), c100: kcalNum > 0 ? `${fmt100(kcalNum, porcaoG)} kcal` : '—' },
+    { bold: true, indent: false, nome: 'Carboidratos', qty: carboNum > 0 ? `${nutri.carboidratos} g` : '—', vdVal: vdPrev(carboNum, 300), c100: `${fmt100(carboNum, porcaoG)} g` },
+    { bold: false, indent: true, nome: 'Açúcares totais', qty: acucaresNum > 0 ? `${nutri.acucaresTotais} g` : '—', vdVal: nd, c100: `${fmt100(acucaresNum, porcaoG)} g` },
+    { bold: false, indent: true, nome: 'Açúcares adicionados', qty: acucaresAdicNum > 0 ? `${nutri.acucaresAdicionados} g` : '—', vdVal: nd, c100: `${fmt100(acucaresAdicNum, porcaoG)} g` },
+    { bold: true, indent: false, nome: 'Proteínas', qty: protNum > 0 ? `${nutri.proteinas} g` : '—', vdVal: vdPrev(protNum, 75), c100: `${fmt100(protNum, porcaoG)} g` },
+    { bold: true, indent: false, nome: 'Gorduras totais', qty: gordNum > 0 ? `${nutri.gordurasTotais} g` : '—', vdVal: vdPrev(gordNum, 65), c100: `${fmt100(gordNum, porcaoG)} g` },
+    { bold: false, indent: true, nome: 'Gorduras saturadas', qty: gordSatNum > 0 ? `${nutri.gordurasSaturadas} g` : '—', vdVal: vdPrev(gordSatNum, 22), c100: `${fmt100(gordSatNum, porcaoG)} g` },
+    { bold: false, indent: true, nome: 'Gorduras trans', qty: gordTransNum > 0 ? `${nutri.gordurasTrans} g` : '—', vdVal: nd, c100: `${fmt100(gordTransNum, porcaoG)} g` },
+    { bold: true, indent: false, nome: 'Fibra alimentar', qty: fibraNum > 0 ? `${nutri.fibraAlimentar} g` : '—', vdVal: vdPrev(fibraNum, 25), c100: `${fmt100(fibraNum, porcaoG)} g` },
+    { bold: true, indent: false, nome: 'Sódio', qty: sodioNum > 0 ? `${nutri.sodio} mg` : '—', vdVal: vdPrev(sodioNum, 2300), c100: `${fmt100(sodioNum, porcaoG)} mg` },
   ]
+
+  // suppress unused warning
+  void kjNum
 
   const validadePrev = dataValidade ? formatarDataLocal(dataValidade) : '—'
   const dataFabPrev = formatarDataLocal(dataProducao)
 
   return (
     <div style={{
-      width: 228,
+      width: 260,
       border: '2px solid #000',
       fontFamily: "'Arial Narrow', Arial, sans-serif",
       background: '#fff',
@@ -476,69 +516,54 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
       fontSize: 0,
     }}>
       {/* Header */}
-      <div style={{ background: '#000', color: '#fff', padding: '4px 6px 3px' }}>
-        <div style={{ fontSize: 10, fontWeight: 700, textAlign: 'center', letterSpacing: 0.5 }}>
-          INFORMAÇÃO NUTRICIONAL
-        </div>
-        <div style={{ fontSize: 8, textAlign: 'center', marginTop: 1, opacity: 0.9 }}>
-          {nomeExibido}
-        </div>
+      <div style={{ background: '#000', color: '#fff', padding: '4px 6px 3px', textAlign: 'center' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.5 }}>INFORMAÇÃO NUTRICIONAL</div>
+        <div style={{ fontSize: 8, marginTop: 1, opacity: 0.9 }}>{nomeExibido}</div>
       </div>
 
       {/* Porção */}
-      <div style={{ padding: '3px 6px', fontSize: 8, borderBottom: '1.5px solid #000' }}>
-        <strong>Porção:</strong> {nutri.porcao || '100g'}
+      <div style={{ padding: '3px 6px', fontSize: 7.5, borderBottom: '1.5px solid #000', lineHeight: 1.5 }}>
+        <strong>Porção:</strong> {porcaoLabel}
+        {nutri.porcoesPorEmbalagem ? <><br />{nutri.porcoesPorEmbalagem} porções por embalagem</> : null}
       </div>
 
       {/* Tabela */}
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 7.5 }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 7 }}>
         <thead>
-          <tr style={{ background: '#e8e8e8', borderBottom: '1px solid #000' }}>
-            <th style={{ fontWeight: 700, padding: '2px 4px', textAlign: 'left', width: '54%' }}>Nutrientes</th>
-            <th style={{ fontWeight: 700, padding: '2px 4px', textAlign: 'right', borderLeft: '1px solid #000', width: '28%' }}>Qtd / porção</th>
-            <th style={{ fontWeight: 700, padding: '2px 4px', textAlign: 'center', borderLeft: '1px solid #000', width: '18%' }}>%VD*</th>
+          <tr style={{ background: '#e0e0e0', borderBottom: '1px solid #000' }}>
+            <th style={{ fontWeight: 700, padding: '2px 3px', textAlign: 'left', width: '40%' }}>Nutrientes</th>
+            <th style={{ fontWeight: 700, padding: '2px 3px', textAlign: 'right', borderLeft: '1px solid #000', width: '24%' }}>Porção</th>
+            <th style={{ fontWeight: 700, padding: '2px 3px', textAlign: 'center', borderLeft: '1px solid #000', width: '14%' }}>%VD*</th>
+            <th style={{ fontWeight: 700, padding: '2px 3px', textAlign: 'right', borderLeft: '1px solid #000', width: '22%' }}>100g/100ml</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map(([bold, indent, nome, qty, vdVal]) => (
-            <tr key={nome} style={{ borderBottom: '0.5px solid #000' }}>
-              <td style={{
-                fontWeight: bold ? 700 : 400,
-                padding: `1.5px ${indent ? '10px' : '4px'} 1.5px 4px`,
-                fontSize: 7.5,
-              }}>
-                {nome}
+          {rows.map((r) => (
+            <tr key={r.nome} style={{ borderBottom: '0.5px solid #000' }}>
+              <td style={{ fontWeight: r.bold ? 700 : 400, padding: `1px ${r.indent ? '8px' : '3px'} 1px 3px`, fontSize: 7, lineHeight: 1.3 }}>
+                {r.nome}
               </td>
-              <td style={{ textAlign: 'right', padding: '1.5px 4px', borderLeft: '1px solid #000', fontSize: 7.5 }}>
-                {qty}
+              <td style={{ textAlign: 'right', padding: '1px 3px', borderLeft: '1px solid #000', fontSize: 7, lineHeight: 1.3 }}>
+                {r.qty}
               </td>
-              <td style={{ textAlign: 'center', padding: '1.5px 4px', borderLeft: '1px solid #000', fontSize: 7.5, color: '#333' }}>
-                {vdVal}
+              <td style={{ textAlign: 'center', padding: '1px 3px', borderLeft: '1px solid #000', fontSize: 7, color: '#333', lineHeight: 1.3 }}>
+                {r.vdVal}
+              </td>
+              <td style={{ textAlign: 'right', padding: '1px 3px', borderLeft: '1px solid #000', fontSize: 7, color: '#555', lineHeight: 1.3 }}>
+                {r.c100}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      {/* Footer %VD */}
-      <div style={{
-        padding: '3px 5px',
-        fontSize: 6,
-        color: '#333',
-        lineHeight: 1.4,
-        borderTop: '1.5px solid #000',
-        borderBottom: '1px solid #000',
-      }}>
-        *% VD com base em dieta de 2000 kcal. **VD não estabelecido.
+      {/* Footer */}
+      <div style={{ padding: '2px 5px', fontSize: 5.5, color: '#333', lineHeight: 1.4, borderTop: '1.5px solid #000', borderBottom: '1px solid #000' }}>
+        *Percentual de valores diários fornecidos pela porção. **Valor Diário não estabelecido. Valores diários de referência com base em dieta de 2000 kcal ou 8400 kJ.
       </div>
 
       {/* Datas */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        padding: '3px 6px',
-        fontSize: 7,
-      }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 6px', fontSize: 6.5 }}>
         <span><strong>Fab:</strong> {dataFabPrev}</span>
         <span><strong>Val:</strong> {validadePrev}</span>
         <span style={{ fontStyle: 'italic', opacity: 0.7 }}>Casa di Ana</span>
@@ -571,13 +596,17 @@ export function EtiquetasPage() {
   const [logoBase64, setLogoBase64] = useState('')
   const [nutri, setNutri] = useState({
     porcao: '100g',
+    medidaCaseira: '',
+    porcoesPorEmbalagem: '',
     valorEnergeticoKcal: '',
     valorEnergeticoKJ: '',
     carboidratos: '',
     acucaresTotais: '',
+    acucaresAdicionados: '',
     proteinas: '',
     gordurasTotais: '',
     gordurasSaturadas: '',
+    gordurasTrans: '',
     fibraAlimentar: '',
     sodio: '',
   })
@@ -615,18 +644,22 @@ export function EtiquetasPage() {
         if (modelo) {
           setNutri({
             porcao: modelo.porcao,
+            medidaCaseira: modelo.medidaCaseira ?? '',
+            porcoesPorEmbalagem: modelo.porcoesPorEmbalagem != null ? String(modelo.porcoesPorEmbalagem) : '',
             valorEnergeticoKcal: String(modelo.valorEnergeticoKcal),
             valorEnergeticoKJ: String(modelo.valorEnergeticoKJ),
             carboidratos: String(modelo.carboidratos),
             acucaresTotais: String(modelo.acucaresTotais),
+            acucaresAdicionados: String(modelo.acucaresAdicionados),
             proteinas: String(modelo.proteinas),
             gordurasTotais: String(modelo.gordurasTotais),
             gordurasSaturadas: String(modelo.gordurasSaturadas),
+            gordurasTrans: String(modelo.gordurasTrans),
             fibraAlimentar: String(modelo.fibraAlimentar),
             sodio: String(modelo.sodio),
           })
         } else {
-          setNutri({ porcao: '100g', valorEnergeticoKcal: '', valorEnergeticoKJ: '', carboidratos: '', acucaresTotais: '', proteinas: '', gordurasTotais: '', gordurasSaturadas: '', fibraAlimentar: '', sodio: '' })
+          setNutri({ porcao: '100g', medidaCaseira: '', porcoesPorEmbalagem: '', valorEnergeticoKcal: '', valorEnergeticoKJ: '', carboidratos: '', acucaresTotais: '', acucaresAdicionados: '', proteinas: '', gordurasTotais: '', gordurasSaturadas: '', gordurasTrans: '', fibraAlimentar: '', sodio: '' })
         }
       })
       .catch(() => {})
@@ -669,11 +702,15 @@ export function EtiquetasPage() {
             kj: nutri.valorEnergeticoKJ || '—',
             carbo: nutri.carboidratos || '—',
             acucares: nutri.acucaresTotais || '—',
+            acucaresAdic: nutri.acucaresAdicionados || '—',
             proteinas: nutri.proteinas || '—',
             gorduras: nutri.gordurasTotais || '—',
             gordSat: nutri.gordurasSaturadas || '—',
+            gordTrans: nutri.gordurasTrans || '—',
             fibra: nutri.fibraAlimentar || '—',
             sodio: nutri.sodio || '—',
+            porcoesPorEmbalagem: nutri.porcoesPorEmbalagem || '',
+            medidaCaseira: nutri.medidaCaseira || '',
           }
         )
       }
@@ -716,11 +753,15 @@ export function EtiquetasPage() {
         valorEnergeticoKJ: Number(nutri.valorEnergeticoKJ) || 0,
         carboidratos: Number(nutri.carboidratos) || 0,
         acucaresTotais: Number(nutri.acucaresTotais) || 0,
+        acucaresAdicionados: Number(nutri.acucaresAdicionados) || 0,
         proteinas: Number(nutri.proteinas) || 0,
         gordurasTotais: Number(nutri.gordurasTotais) || 0,
         gordurasSaturadas: Number(nutri.gordurasSaturadas) || 0,
+        gordurasTrans: Number(nutri.gordurasTrans) || 0,
         fibraAlimentar: Number(nutri.fibraAlimentar) || 0,
         sodio: Number(nutri.sodio) || 0,
+        porcoesPorEmbalagem: nutri.porcoesPorEmbalagem ? Number(nutri.porcoesPorEmbalagem) : null,
+        medidaCaseira: nutri.medidaCaseira || null,
       })
       setModeloSalvo(true)
       setTimeout(() => setModeloSalvo(false), 3000)
@@ -880,13 +921,40 @@ export function EtiquetasPage() {
               </div>
 
               {/* Porção */}
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs font-medium mb-1" style={{ color: 'var(--ada-text)' }}>Porção</label>
+                  <input
+                    type="text"
+                    placeholder="Ex: 50g"
+                    value={nutri.porcao}
+                    onChange={e => setNutri(n => ({ ...n, porcao: e.target.value }))}
+                    className="w-full rounded-lg px-3 py-2 text-sm border outline-none"
+                    style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)', color: 'var(--ada-text)' }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium mb-1" style={{ color: 'var(--ada-text)' }}>Medida caseira</label>
+                  <input
+                    type="text"
+                    placeholder="Ex: 1 fatia"
+                    value={nutri.medidaCaseira}
+                    onChange={e => setNutri(n => ({ ...n, medidaCaseira: e.target.value }))}
+                    className="w-full rounded-lg px-3 py-2 text-sm border outline-none"
+                    style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)', color: 'var(--ada-text)' }}
+                  />
+                </div>
+              </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: 'var(--ada-text)' }}>Porção</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: 'var(--ada-text)' }}>
+                  Porções por embalagem
+                </label>
                 <input
-                  type="text"
-                  placeholder="Ex: 100g"
-                  value={nutri.porcao}
-                  onChange={e => setNutri(n => ({ ...n, porcao: e.target.value }))}
+                  type="number"
+                  min="1"
+                  placeholder="Ex: 10"
+                  value={nutri.porcoesPorEmbalagem}
+                  onChange={e => setNutri(n => ({ ...n, porcoesPorEmbalagem: e.target.value }))}
                   className="w-full rounded-lg px-3 py-2 text-sm border outline-none"
                   style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)', color: 'var(--ada-text)' }}
                 />
@@ -895,13 +963,15 @@ export function EtiquetasPage() {
               {/* Grid 2 colunas para os campos numéricos */}
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { key: 'valorEnergeticoKcal', label: 'Calorias (kcal)', unit: 'kcal' },
-                  { key: 'valorEnergeticoKJ', label: 'Calorias (kJ)', unit: 'kJ' },
+                  { key: 'valorEnergeticoKcal', label: 'Valor energético', unit: 'kcal' },
+                  { key: 'valorEnergeticoKJ', label: 'Valor energético', unit: 'kJ' },
                   { key: 'carboidratos', label: 'Carboidratos', unit: 'g' },
                   { key: 'acucaresTotais', label: 'Açúcares totais', unit: 'g' },
+                  { key: 'acucaresAdicionados', label: 'Açúcares adicionados', unit: 'g' },
                   { key: 'proteinas', label: 'Proteínas', unit: 'g' },
                   { key: 'gordurasTotais', label: 'Gorduras totais', unit: 'g' },
                   { key: 'gordurasSaturadas', label: 'Gord. saturadas', unit: 'g' },
+                  { key: 'gordurasTrans', label: 'Gorduras trans', unit: 'g' },
                   { key: 'fibraAlimentar', label: 'Fibra alimentar', unit: 'g' },
                   { key: 'sodio', label: 'Sódio', unit: 'mg' },
                 ].map(({ key, label, unit }) => (

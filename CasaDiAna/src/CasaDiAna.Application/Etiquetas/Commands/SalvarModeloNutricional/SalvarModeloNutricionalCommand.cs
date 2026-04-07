@@ -10,8 +10,12 @@ public record SalvarModeloNutricionalCommand(
     decimal ValorEnergeticoKJ,
     decimal Carboidratos,
     decimal AcucaresTotais,
+    decimal AcucaresAdicionados,
     decimal Proteinas,
     decimal GordurasTotais,
     decimal GordurasSaturadas,
+    decimal GordurasTrans,
     decimal FibraAlimentar,
-    decimal Sodio) : IRequest<ModeloEtiquetaNutricionalDto>;
+    decimal Sodio,
+    int? PorcoesPorEmbalagem,
+    string? MedidaCaseira) : IRequest<ModeloEtiquetaNutricionalDto>;

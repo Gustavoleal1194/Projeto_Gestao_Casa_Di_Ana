@@ -38,11 +38,15 @@ public class SalvarModeloNutricionalCommandHandler
                 request.ValorEnergeticoKJ,
                 request.Carboidratos,
                 request.AcucaresTotais,
+                request.AcucaresAdicionados,
                 request.Proteinas,
                 request.GordurasTotais,
                 request.GordurasSaturadas,
+                request.GordurasTrans,
                 request.FibraAlimentar,
-                request.Sodio);
+                request.Sodio,
+                request.PorcoesPorEmbalagem,
+                request.MedidaCaseira);
 
             await _modelos.AdicionarAsync(novo, cancellationToken);
             await _modelos.SalvarAsync(cancellationToken);
@@ -55,11 +59,15 @@ public class SalvarModeloNutricionalCommandHandler
             request.ValorEnergeticoKJ,
             request.Carboidratos,
             request.AcucaresTotais,
+            request.AcucaresAdicionados,
             request.Proteinas,
             request.GordurasTotais,
             request.GordurasSaturadas,
+            request.GordurasTrans,
             request.FibraAlimentar,
-            request.Sodio);
+            request.Sodio,
+            request.PorcoesPorEmbalagem,
+            request.MedidaCaseira);
 
         _modelos.Atualizar(existente);
         await _modelos.SalvarAsync(cancellationToken);
@@ -74,9 +82,13 @@ public class SalvarModeloNutricionalCommandHandler
         m.ValorEnergeticoKJ,
         m.Carboidratos,
         m.AcucaresTotais,
+        m.AcucaresAdicionados,
         m.Proteinas,
         m.GordurasTotais,
         m.GordurasSaturadas,
+        m.GordurasTrans,
         m.FibraAlimentar,
-        m.Sodio);
+        m.Sodio,
+        m.PorcoesPorEmbalagem,
+        m.MedidaCaseira);
 }

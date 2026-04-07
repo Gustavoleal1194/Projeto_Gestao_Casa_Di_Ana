@@ -550,6 +550,11 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<decimal>("AcucaresAdicionados")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("acucares_adicionados");
+
                     b.Property<decimal>("AcucaresTotais")
                         .HasPrecision(10, 2)
                         .HasColumnType("numeric(10,2)")
@@ -578,16 +583,30 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnType("numeric(10,2)")
                         .HasColumnName("gorduras_saturadas");
 
+                    b.Property<decimal>("GordurasTrans")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("gorduras_trans");
+
                     b.Property<decimal>("GordurasTotais")
                         .HasPrecision(10, 2)
                         .HasColumnType("numeric(10,2)")
                         .HasColumnName("gorduras_totais");
+
+                    b.Property<string>("MedidaCaseira")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("medida_caseira");
 
                     b.Property<string>("Porcao")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasColumnName("porcao");
+
+                    b.Property<int?>("PorcoesPorEmbalagem")
+                        .HasColumnType("integer")
+                        .HasColumnName("porcoes_por_embalagem");
 
                     b.Property<Guid>("ProdutoId")
                         .HasColumnType("uuid")

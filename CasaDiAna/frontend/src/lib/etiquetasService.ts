@@ -27,11 +27,15 @@ export interface ModeloNutricional {
   valorEnergeticoKJ: number
   carboidratos: number
   acucaresTotais: number
+  acucaresAdicionados: number
   proteinas: number
   gordurasTotais: number
   gordurasSaturadas: number
+  gordurasTrans: number
   fibraAlimentar: number
   sodio: number
+  porcoesPorEmbalagem: number | null
+  medidaCaseira: string | null
 }
 
 export interface SalvarModeloNutricionalInput {
@@ -40,11 +44,15 @@ export interface SalvarModeloNutricionalInput {
   valorEnergeticoKJ: number
   carboidratos: number
   acucaresTotais: number
+  acucaresAdicionados: number
   proteinas: number
   gordurasTotais: number
   gordurasSaturadas: number
+  gordurasTrans: number
   fibraAlimentar: number
   sodio: number
+  porcoesPorEmbalagem: number | null
+  medidaCaseira: string | null
 }
 
 interface ApiResponse<T> {

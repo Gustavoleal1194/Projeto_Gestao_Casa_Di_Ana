@@ -8,8 +8,12 @@ public record ModeloEtiquetaNutricionalDto(
     decimal ValorEnergeticoKJ,
     decimal Carboidratos,
     decimal AcucaresTotais,
+    decimal AcucaresAdicionados,
     decimal Proteinas,
     decimal GordurasTotais,
     decimal GordurasSaturadas,
+    decimal GordurasTrans,
     decimal FibraAlimentar,
-    decimal Sodio);
+    decimal Sodio,
+    int? PorcoesPorEmbalagem,
+    string? MedidaCaseira);

@@ -19,11 +19,15 @@ public class ModeloEtiquetaNutricionalConfiguration
         builder.Property(m => m.ValorEnergeticoKJ).HasColumnName("valor_energetico_kj").HasPrecision(10, 2).IsRequired();
         builder.Property(m => m.Carboidratos).HasColumnName("carboidratos").HasPrecision(10, 2).IsRequired();
         builder.Property(m => m.AcucaresTotais).HasColumnName("acucares_totais").HasPrecision(10, 2).IsRequired();
+        builder.Property(m => m.AcucaresAdicionados).HasColumnName("acucares_adicionados").HasPrecision(10, 2).IsRequired();
         builder.Property(m => m.Proteinas).HasColumnName("proteinas").HasPrecision(10, 2).IsRequired();
         builder.Property(m => m.GordurasTotais).HasColumnName("gorduras_totais").HasPrecision(10, 2).IsRequired();
         builder.Property(m => m.GordurasSaturadas).HasColumnName("gorduras_saturadas").HasPrecision(10, 2).IsRequired();
+        builder.Property(m => m.GordurasTrans).HasColumnName("gorduras_trans").HasPrecision(10, 2).IsRequired();
         builder.Property(m => m.FibraAlimentar).HasColumnName("fibra_alimentar").HasPrecision(10, 2).IsRequired();
         builder.Property(m => m.Sodio).HasColumnName("sodio").HasPrecision(10, 2).IsRequired();
+        builder.Property(m => m.PorcoesPorEmbalagem).HasColumnName("porcoes_por_embalagem");
+        builder.Property(m => m.MedidaCaseira).HasColumnName("medida_caseira").HasMaxLength(100);
         builder.Property(m => m.CriadoEm).HasColumnName("criado_em").IsRequired();
         builder.Property(m => m.AtualizadoEm).HasColumnName("atualizado_em").IsRequired();
 

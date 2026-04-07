@@ -71,11 +71,15 @@ public class EtiquetasController : ControllerBase
             body.ValorEnergeticoKJ,
             body.Carboidratos,
             body.AcucaresTotais,
+            body.AcucaresAdicionados,
             body.Proteinas,
             body.GordurasTotais,
             body.GordurasSaturadas,
+            body.GordurasTrans,
             body.FibraAlimentar,
-            body.Sodio);
+            body.Sodio,
+            body.PorcoesPorEmbalagem,
+            body.MedidaCaseira);
 
         var resultado = await _mediator.Send(command, ct);
         return Ok(ApiResponse<ModeloEtiquetaNutricionalDto>.Ok(resultado));
@@ -94,8 +98,12 @@ public record SalvarModeloNutricionalRequest(
     decimal ValorEnergeticoKJ,
     decimal Carboidratos,
     decimal AcucaresTotais,
+    decimal AcucaresAdicionados,
     decimal Proteinas,
     decimal GordurasTotais,
     decimal GordurasSaturadas,
+    decimal GordurasTrans,
     decimal FibraAlimentar,
-    decimal Sodio);
+    decimal Sodio,
+    int? PorcoesPorEmbalagem,
+    string? MedidaCaseira);

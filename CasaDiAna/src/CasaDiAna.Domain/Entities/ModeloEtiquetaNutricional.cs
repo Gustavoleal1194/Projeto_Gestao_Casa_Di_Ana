@@ -10,11 +10,15 @@ public class ModeloEtiquetaNutricional
     public decimal ValorEnergeticoKJ { get; private set; }
     public decimal Carboidratos { get; private set; }
     public decimal AcucaresTotais { get; private set; }
+    public decimal AcucaresAdicionados { get; private set; }
     public decimal Proteinas { get; private set; }
     public decimal GordurasTotais { get; private set; }
     public decimal GordurasSaturadas { get; private set; }
+    public decimal GordurasTrans { get; private set; }
     public decimal FibraAlimentar { get; private set; }
     public decimal Sodio { get; private set; }
+    public int? PorcoesPorEmbalagem { get; private set; }
+    public string? MedidaCaseira { get; private set; }
     public DateTime CriadoEm { get; private set; }
     public DateTime AtualizadoEm { get; private set; }
 
@@ -27,11 +31,15 @@ public class ModeloEtiquetaNutricional
         decimal valorEnergeticoKJ,
         decimal carboidratos,
         decimal acucaresTotais,
+        decimal acucaresAdicionados,
         decimal proteinas,
         decimal gordurasTotais,
         decimal gordurasSaturadas,
+        decimal gordurasTrans,
         decimal fibraAlimentar,
-        decimal sodio)
+        decimal sodio,
+        int? porcoesPorEmbalagem,
+        string? medidaCaseira)
     {
         return new ModeloEtiquetaNutricional
         {
@@ -42,11 +50,15 @@ public class ModeloEtiquetaNutricional
             ValorEnergeticoKJ = valorEnergeticoKJ,
             Carboidratos = carboidratos,
             AcucaresTotais = acucaresTotais,
+            AcucaresAdicionados = acucaresAdicionados,
             Proteinas = proteinas,
             GordurasTotais = gordurasTotais,
             GordurasSaturadas = gordurasSaturadas,
+            GordurasTrans = gordurasTrans,
             FibraAlimentar = fibraAlimentar,
             Sodio = sodio,
+            PorcoesPorEmbalagem = porcoesPorEmbalagem,
+            MedidaCaseira = medidaCaseira,
             CriadoEm = DateTime.UtcNow,
             AtualizadoEm = DateTime.UtcNow,
         };
@@ -58,22 +70,30 @@ public class ModeloEtiquetaNutricional
         decimal valorEnergeticoKJ,
         decimal carboidratos,
         decimal acucaresTotais,
+        decimal acucaresAdicionados,
         decimal proteinas,
         decimal gordurasTotais,
         decimal gordurasSaturadas,
+        decimal gordurasTrans,
         decimal fibraAlimentar,
-        decimal sodio)
+        decimal sodio,
+        int? porcoesPorEmbalagem,
+        string? medidaCaseira)
     {
         Porcao = porcao;
         ValorEnergeticoKcal = valorEnergeticoKcal;
         ValorEnergeticoKJ = valorEnergeticoKJ;
         Carboidratos = carboidratos;
         AcucaresTotais = acucaresTotais;
+        AcucaresAdicionados = acucaresAdicionados;
         Proteinas = proteinas;
         GordurasTotais = gordurasTotais;
         GordurasSaturadas = gordurasSaturadas;
+        GordurasTrans = gordurasTrans;
         FibraAlimentar = fibraAlimentar;
         Sodio = sodio;
+        PorcoesPorEmbalagem = porcoesPorEmbalagem;
+        MedidaCaseira = medidaCaseira;
         AtualizadoEm = DateTime.UtcNow;
     }
 }

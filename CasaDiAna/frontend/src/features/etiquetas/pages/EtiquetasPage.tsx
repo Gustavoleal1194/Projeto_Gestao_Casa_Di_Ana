@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { PrinterIcon, ClockIcon } from '@heroicons/react/24/outline'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import { ingredientesService } from '@/features/estoque/ingredientes/services/ingredientesService'
@@ -617,6 +617,21 @@ export function EtiquetasPage() {
 
   const produto = produtoDetalhe
 
+  const previewContainerRef = useRef<HTMLDivElement>(null)
+  const [previewScale, setPreviewScale] = useState(1.55)
+
+  useEffect(() => {
+    const el = previewContainerRef.current
+    if (!el) return
+    const observer = new ResizeObserver(([entry]) => {
+      const available = entry.contentRect.width - 48 // 24px padding de cada lado
+      const scale = Math.min(1.55, available / 300)
+      setPreviewScale(Math.max(0.6, scale))
+    })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
   useEffect(() => {
     produtosService.listar().then(setProdutos).catch(() => {})
     etiquetasService.listarHistorico().then(setHistorico).catch(() => {})
@@ -1098,8 +1113,8 @@ export function EtiquetasPage() {
           >
             Prévia da Etiqueta
           </p>
-          <div className="flex-1 flex items-center justify-center overflow-hidden py-4">
-            <div style={{ transform: 'scale(1.55)', transformOrigin: 'center center' }}>
+          <div ref={previewContainerRef} className="flex-1 flex items-center justify-center overflow-hidden py-4">
+            <div style={{ transform: `scale(${previewScale})`, transformOrigin: 'center center' }}>
               <LabelPreview
                 produto={produto}
                 nomeOverride={tipoItem === 'ingrediente' ? (ingredientes.find(i => i.id === ingredienteId)?.nome) : undefined}

@@ -59,12 +59,13 @@ export function InventarioFormPage() {
 
       <Link
         to="/inventarios"
-        className="inline-flex items-center gap-1.5 text-sm font-medium mb-5 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-[#C4870A]/40 rounded"
+        className="inline-flex items-center gap-1.5 text-sm font-medium mb-5 rounded
+                   transition-colors duration-150 outline-none
+                   focus-visible:ring-2 focus-visible:ring-[#C4870A]/40
+                   hover:text-[#C4870A]"
         style={{ color: 'var(--ada-muted)' }}
-        onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#C4870A'}
-        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--ada-muted)'}
       >
-        <ChevronLeftIcon className="h-4 w-4" />
+        <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
         Inventários
       </Link>
 

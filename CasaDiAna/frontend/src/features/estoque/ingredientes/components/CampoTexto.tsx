@@ -35,7 +35,7 @@ export function CampoTexto({ label, erro, obrigatorio, sufixo, className, id, ..
             'focus-visible:ring-2 focus-visible:ring-[#C4870A]/25',
             erro
               ? 'border-red-300 bg-red-50/50 focus-visible:border-red-400'
-              : 'border-[var(--ada-border)] bg-white focus-visible:border-[#C4870A]',
+              : 'border-[var(--ada-border)] bg-[var(--ada-surface)] focus-visible:border-[#C4870A]',
             props.disabled
               ? 'bg-[var(--ada-surface-2)] cursor-not-allowed text-[var(--ada-muted)] border-[var(--ada-border-sub)]'
               : '',

@@ -113,11 +113,11 @@ export function IngredienteFormPage() {
       {/* Breadcrumb */}
       <Link
         to="/estoque/ingredientes"
-        className="inline-flex items-center gap-1.5 text-sm font-medium mb-5 transition-colors duration-150 outline-none
-                   focus-visible:ring-2 focus-visible:ring-[#C4870A]/40 rounded"
+        className="inline-flex items-center gap-1.5 text-sm font-medium mb-5 rounded
+                   transition-colors duration-150 outline-none
+                   focus-visible:ring-2 focus-visible:ring-[#C4870A]/40
+                   hover:text-[#C4870A]"
         style={{ color: 'var(--ada-muted)' }}
-        onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#C4870A'}
-        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--ada-muted)'}
       >
         <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
         Ingredientes
@@ -133,69 +133,69 @@ export function IngredienteFormPage() {
       <form onSubmit={onSubmit}>
         <FormCard>
           <FormSection titulo="Identificação" primeiro />
-        <div className="grid grid-cols-3 gap-4">
-          <div className="col-span-2">
-            <CampoTexto
-              label="Nome"
-              obrigatorio
-              placeholder="Ex: Farinha de Trigo Especial"
-              {...register('nome')}
-              erro={errors.nome?.message}
-            />
+          <div className="grid grid-cols-3 gap-4">
+            <div className="col-span-2">
+              <CampoTexto
+                label="Nome"
+                obrigatorio
+                placeholder="Ex: Farinha de Trigo Especial"
+                {...register('nome')}
+                erro={errors.nome?.message}
+              />
+            </div>
+            <div className="col-span-1">
+              <CampoTexto
+                label="Código Interno"
+                placeholder="Ex: FA-001"
+                {...register('codigoInterno')}
+                erro={errors.codigoInterno?.message}
+              />
+            </div>
           </div>
-          <div className="col-span-1">
-            <CampoTexto
-              label="Código Interno"
-              placeholder="Ex: FA-001"
-              {...register('codigoInterno')}
-              erro={errors.codigoInterno?.message}
-            />
-          </div>
-        </div>
 
           <FormSection titulo="Classificação" />
-        <div className="grid grid-cols-2 gap-4">
-          <SelectCampo
-            label="Categoria"
-            placeholderOpcao="Sem categoria"
-            opcoes={categorias.map(c => ({ valor: c.id, rotulo: c.nome }))}
-            {...register('categoriaId')}
-            erro={errors.categoriaId?.message}
-          />
-          <SelectCampo
-            label="Unidade de Medida"
-            obrigatorio
-            placeholderOpcao="Selecione..."
-            opcoes={unidades.map(u => ({ valor: u.id, rotulo: `${u.codigo} — ${u.descricao}` }))}
-            {...register('unidadeMedidaId')}
-            erro={errors.unidadeMedidaId?.message}
-          />
-        </div>
+          <div className="grid grid-cols-2 gap-4">
+            <SelectCampo
+              label="Categoria"
+              placeholderOpcao="Sem categoria"
+              opcoes={categorias.map(c => ({ valor: c.id, rotulo: c.nome }))}
+              {...register('categoriaId')}
+              erro={errors.categoriaId?.message}
+            />
+            <SelectCampo
+              label="Unidade de Medida"
+              obrigatorio
+              placeholderOpcao="Selecione…"
+              opcoes={unidades.map(u => ({ valor: u.id, rotulo: `${u.codigo} — ${u.descricao}` }))}
+              {...register('unidadeMedidaId')}
+              erro={errors.unidadeMedidaId?.message}
+            />
+          </div>
 
           <FormSection titulo="Controle de Estoque" />
-        <div className="grid grid-cols-2 gap-4">
-          <CampoTexto
-            label="Estoque Mínimo"
-            obrigatorio
-            type="number"
-            step="0.001"
-            min="0"
-            placeholder="0"
-            sufixo={unidadeAtual}
-            {...register('estoqueMinimo')}
-            erro={errors.estoqueMinimo?.message}
-          />
-          <CampoTexto
-            label="Estoque Máximo"
-            type="number"
-            step="0.001"
-            min="0"
-            placeholder="Opcional"
-            sufixo={unidadeAtual}
-            {...register('estoqueMaximo')}
-            erro={errors.estoqueMaximo?.message}
-          />
-        </div>
+          <div className="grid grid-cols-2 gap-4">
+            <CampoTexto
+              label="Estoque Mínimo"
+              obrigatorio
+              type="number"
+              step="0.001"
+              min="0"
+              placeholder="0"
+              sufixo={unidadeAtual}
+              {...register('estoqueMinimo')}
+              erro={errors.estoqueMinimo?.message}
+            />
+            <CampoTexto
+              label="Estoque Máximo"
+              type="number"
+              step="0.001"
+              min="0"
+              placeholder="Opcional"
+              sufixo={unidadeAtual}
+              {...register('estoqueMaximo')}
+              erro={errors.estoqueMaximo?.message}
+            />
+          </div>
 
           <FormSection titulo="Observações" />
           <FormTextarea

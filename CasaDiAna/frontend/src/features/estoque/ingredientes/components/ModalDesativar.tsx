@@ -105,31 +105,14 @@ export function ModalDesativar({ nomeIngrediente, loading, onConfirmar, onCancel
           <button
             onClick={onCancelar}
             disabled={loading}
-            className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 outline-none
-                       focus-visible:ring-2 focus-visible:ring-[#C4870A]/40
-                       disabled:opacity-50"
-            style={{
-              border: '1px solid var(--ada-border)',
-              color: 'var(--ada-body)',
-              background: 'var(--ada-surface)',
-            }}
-            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--ada-bg)'}
-            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'var(--ada-surface)'}
+            className="btn-secondary disabled:opacity-50"
           >
             Cancelar
           </button>
           <button
             onClick={onConfirmar}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold
-                       text-white transition-all duration-150 outline-none
-                       focus-visible:ring-2 focus-visible:ring-red-400/40
-                       disabled:opacity-60 disabled:cursor-not-allowed"
-            style={{
-              background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
-              boxShadow: '0 2px 8px rgba(220,38,38,0.25)',
-              fontFamily: 'Sora, system-ui, sans-serif',
-            }}
+            className="btn-danger disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading && <Spinner />}
             {loading ? 'Desativando…' : 'Desativar'}

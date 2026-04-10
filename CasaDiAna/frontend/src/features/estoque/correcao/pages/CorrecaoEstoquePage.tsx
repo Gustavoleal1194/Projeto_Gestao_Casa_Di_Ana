@@ -103,12 +103,7 @@ export function CorrecaoEstoquePage() {
         <button
           onClick={handleSalvar}
           disabled={salvando || alteradas.length === 0}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white
-                     disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-          style={{
-            background: 'linear-gradient(135deg, #D4960C 0%, #B87D0A 100%)',
-            boxShadow: alteradas.length > 0 ? '0 3px 10px rgba(196,135,10,0.28)' : 'none',
-          }}
+          className="btn-primary disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {salvando ? 'Salvando…' : `Salvar${alteradas.length > 0 ? ` (${alteradas.length})` : ''}`}
         </button>
@@ -122,7 +117,7 @@ export function CorrecaoEstoquePage() {
           value={busca}
           onChange={e => setBusca(e.target.value)}
           className="w-full max-w-sm rounded-lg px-3 py-2 text-sm outline-none transition-all
-                     focus:ring-2 focus:ring-[#C4870A]/25 focus:border-[#C4870A]"
+                     focus-visible:ring-2 focus-visible:ring-[#C4870A]/25 focus-visible:border-[#C4870A]"
           style={{
             border: '1px solid var(--ada-border)',
             background: 'var(--ada-surface)',

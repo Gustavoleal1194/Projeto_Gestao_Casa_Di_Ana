@@ -151,17 +151,7 @@ export function TabelaIngredientes({
                       <button
                         onClick={() => onEditar(ing.id)}
                         aria-label={`Editar ${ing.nome}`}
-                        className="p-1.5 rounded-lg transition-all duration-150 outline-none
-                                   focus-visible:ring-2 focus-visible:ring-[#C4870A]/40"
-                        style={{ color: 'var(--ada-muted)' }}
-                        onMouseEnter={e => {
-                          (e.currentTarget as HTMLElement).style.color = '#C4870A'
-                          ;(e.currentTarget as HTMLElement).style.background = 'var(--ada-warning-badge)'
-                        }}
-                        onMouseLeave={e => {
-                          (e.currentTarget as HTMLElement).style.color = 'var(--ada-muted)'
-                          ;(e.currentTarget as HTMLElement).style.background = 'transparent'
-                        }}
+                        className="row-action-btn"
                       >
                         <PencilSquareIcon className="h-4 w-4" aria-hidden="true" />
                       </button>
@@ -170,17 +160,7 @@ export function TabelaIngredientes({
                       <button
                         onClick={() => onDesativar(ing)}
                         aria-label={`Desativar ${ing.nome}`}
-                        className="p-1.5 rounded-lg transition-all duration-150 outline-none
-                                   focus-visible:ring-2 focus-visible:ring-red-400/40"
-                        style={{ color: 'var(--ada-muted)' }}
-                        onMouseEnter={e => {
-                          (e.currentTarget as HTMLElement).style.color = '#DC2626'
-                          ;(e.currentTarget as HTMLElement).style.background = 'var(--ada-error-bg)'
-                        }}
-                        onMouseLeave={e => {
-                          (e.currentTarget as HTMLElement).style.color = 'var(--ada-muted)'
-                          ;(e.currentTarget as HTMLElement).style.background = 'transparent'
-                        }}
+                        className="row-action-btn danger"
                       >
                         <TrashIcon className="h-4 w-4" aria-hidden="true" />
                       </button>

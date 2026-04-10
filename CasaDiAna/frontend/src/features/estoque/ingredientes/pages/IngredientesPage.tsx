@@ -86,16 +86,7 @@ export function IngredientesPage() {
         {podeEditar && (
           <button
             onClick={() => navigate('/estoque/ingredientes/novo')}
-            className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white
-                       transition-all duration-200 outline-none whitespace-nowrap
-                       focus-visible:ring-2 focus-visible:ring-[#C4870A]/40"
-            style={{
-              background: 'linear-gradient(135deg, #D4960C 0%, #B87D0A 100%)',
-              boxShadow: '0 3px 10px rgba(196,135,10,0.28)',
-              fontFamily: 'Sora, system-ui, sans-serif',
-            }}
-            onMouseEnter={e => (e.currentTarget as HTMLElement).style.boxShadow = '0 5px 16px rgba(196,135,10,0.38)'}
-            onMouseLeave={e => (e.currentTarget as HTMLElement).style.boxShadow = '0 3px 10px rgba(196,135,10,0.28)'}
+            className="btn-primary"
           >
             <PlusIcon className="h-4 w-4" aria-hidden="true" />
             Novo Ingrediente

@@ -50,7 +50,7 @@ export function SelectCampo({
             'pr-10', // space for chevron
             erro
               ? 'border-red-300 bg-red-50/50 text-[var(--ada-heading)] focus-visible:border-red-400'
-              : 'border-[var(--ada-border)] bg-white text-[var(--ada-heading)] focus-visible:border-[#C4870A]',
+              : 'border-[var(--ada-border)] bg-[var(--ada-surface)] text-[var(--ada-heading)] focus-visible:border-[#C4870A]',
             props.disabled
               ? 'bg-[var(--ada-surface-2)] cursor-not-allowed text-[var(--ada-muted)] border-[var(--ada-border-sub)]'
               : '',

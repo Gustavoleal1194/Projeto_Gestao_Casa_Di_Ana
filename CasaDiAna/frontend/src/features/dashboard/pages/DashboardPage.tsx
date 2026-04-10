@@ -46,7 +46,7 @@ function listarDiasNoIntervalo(de: string, ate: string, limite = 62) {
 const inputCls = [
   'border rounded-lg px-3 py-2 text-sm outline-none',
   'transition-all duration-200',
-  'border-[var(--ada-border)] bg-white text-[var(--ada-heading)]',
+  'border-[var(--ada-border)] bg-[var(--ada-surface)] text-[var(--ada-heading)]',
   'focus-visible:border-[#C4870A] focus-visible:ring-2 focus-visible:ring-[#C4870A]/20',
 ].join(' ')
 

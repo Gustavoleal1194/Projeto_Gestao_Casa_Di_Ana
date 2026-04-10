@@ -16,10 +16,6 @@ function hoje(): string {
   return new Date().toISOString().split('T')[0]
 }
 
-const inputClass =
-  'border border-stone-200 rounded-lg px-3 py-2 text-sm bg-white ' +
-  'focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent'
-
 export function InsumosProducaoPage() {
   const [itens, setItens] = useState<InsumoProducaoDia[]>([])
   const [ingredientes, setIngredientes] = useState<IngredienteResumo[]>([])
@@ -70,69 +66,70 @@ export function InsumosProducaoPage() {
   const datas = Object.keys(porData).sort()
 
   return (
-    <div className="p-6">
+    <div className="ada-page">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-semibold text-stone-800">Insumos por Produção</h1>
-          <p className="text-sm text-stone-500 mt-1">
-            Consumo de ingredientes por dia e por produto produzido.
+          <h1
+            className="text-xl font-bold tracking-tight"
+            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
+          >
+            Insumos por Produção
+          </h1>
+          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
+            Consumo de ingredientes por dia e por produto produzido
           </p>
         </div>
         {itens.length > 0 && (
-          <button
-            onClick={() => gerarPdfInsumosProducao(itens, de, ate)}
-            className="flex items-center gap-2 px-3 py-2 border border-stone-200 rounded-lg text-sm text-stone-600 hover:bg-stone-50 font-medium"
-          >
-            <ArrowDownTrayIcon className="h-4 w-4" />
+          <button onClick={() => gerarPdfInsumosProducao(itens, de, ate)} className="btn-secondary">
+            <ArrowDownTrayIcon className="h-4 w-4" aria-hidden="true" />
             Baixar PDF
           </button>
         )}
       </div>
 
-      {/* Filtros */}
-      <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-4 mb-6 flex flex-wrap gap-3 items-end">
+      <div className="filter-bar" role="search" aria-label="Filtrar insumos">
         <div>
-          <label className="block text-xs font-medium text-stone-500 mb-1">De</label>
-          <input type="date" value={de} onChange={e => setDe(e.target.value)} className={inputClass} />
+          <label className="filter-label">De</label>
+          <input type="date" value={de} onChange={e => setDe(e.target.value)} className="filter-input" />
         </div>
         <div>
-          <label className="block text-xs font-medium text-stone-500 mb-1">Até</label>
-          <input type="date" value={ate} onChange={e => setAte(e.target.value)} className={inputClass} />
+          <label className="filter-label">Até</label>
+          <input type="date" value={ate} onChange={e => setAte(e.target.value)} className="filter-input" />
         </div>
         <div>
-          <label className="block text-xs font-medium text-stone-500 mb-1">Ingrediente</label>
-          <select value={ingredienteFiltro} onChange={e => setIngredienteFiltro(e.target.value)} className={inputClass}>
+          <label className="filter-label">Ingrediente</label>
+          <select value={ingredienteFiltro} onChange={e => setIngredienteFiltro(e.target.value)} className="filter-input">
             <option value="">Todos</option>
             {ingredientes.map(i => <option key={i.id} value={i.id}>{i.nome}</option>)}
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-stone-500 mb-1">Produto</label>
-          <select value={produtoFiltro} onChange={e => setProdutoFiltro(e.target.value)} className={inputClass}>
+          <label className="filter-label">Produto</label>
+          <select value={produtoFiltro} onChange={e => setProdutoFiltro(e.target.value)} className="filter-input">
             <option value="">Todos</option>
             {produtos.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
           </select>
         </div>
-        <button
-          onClick={handleFiltrar}
-          className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-white rounded-lg text-sm font-medium"
-        >
-          Filtrar
-        </button>
+        <button type="button" onClick={handleFiltrar} className="btn-secondary">Filtrar</button>
       </div>
 
       {loading && (
-        <div className="bg-white rounded-xl shadow-sm py-16 text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-stone-200 border-t-amber-700" />
-          <p className="text-stone-500 mt-3 text-sm">Carregando...</p>
+        <div className="state-loading">
+          <div
+            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
+            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
+            role="status" aria-label="Carregando…"
+          />
+          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando insumos…</p>
         </div>
       )}
-      {!loading && erro && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">{erro}</div>
-      )}
+      {!loading && erro && <div className="state-error" role="alert">{erro}</div>}
       {!loading && !erro && itens.length === 0 && (
-        <div className="bg-white rounded-xl shadow-sm py-16 text-center">
-          <p className="text-stone-500 text-sm">Nenhum registro de produção no período.</p>
+        <div className="state-loading">
+          <p className="text-sm font-semibold" style={{ color: 'var(--ada-body)', fontFamily: 'Sora, system-ui, sans-serif' }}>
+            Nenhum registro de produção no período
+          </p>
+          <p className="text-xs mt-1" style={{ color: 'var(--ada-muted)' }}>Ajuste os filtros e tente novamente.</p>
         </div>
       )}
       {!loading && !erro && datas.length > 0 && (
@@ -145,43 +142,71 @@ export function InsumosProducaoPage() {
             })
 
             return (
-              <div key={data} className="bg-white rounded-xl shadow-sm overflow-hidden">
-                <div className="bg-stone-50 border-b border-stone-200 px-4 py-2.5 flex items-center justify-between">
-                  <span className="text-sm font-semibold text-stone-700 capitalize">{dataFormatada}</span>
-                  <span className="text-xs text-stone-500">{linhas.length} lançamento(s)</span>
+              <div key={data} className="ada-surface-card">
+                <div
+                  className="px-4 py-2.5 flex items-center justify-between"
+                  style={{ background: 'var(--ada-surface-2)', borderBottom: '1px solid var(--ada-border)' }}
+                >
+                  <span
+                    className="text-sm font-semibold capitalize"
+                    style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
+                  >
+                    {dataFormatada}
+                  </span>
+                  <span className="text-xs" style={{ color: 'var(--ada-muted)' }}>
+                    {linhas.length} lançamento(s)
+                  </span>
                 </div>
                 <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-stone-50 border-b border-stone-100">
-                    <tr>
-                      <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-2.5 text-left">Produto</th>
-                      <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-2.5 text-left">Ingrediente</th>
-                      <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-2.5 text-right">Quantidade</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {linhas.map((linha, idx) => (
-                      <tr key={`${linha.producaoDiariaId}-${linha.ingredienteId}-${idx}`}
-                          className="border-b border-stone-100 hover:bg-amber-50 transition-colors">
-                        <td className="px-4 py-2.5 text-sm text-stone-700">{linha.produtoNome}</td>
-                        <td className="px-4 py-2.5 text-sm text-stone-600">{linha.ingredienteNome}</td>
-                        <td className="px-4 py-2.5 text-sm text-right font-medium text-stone-800">
-                          {linha.quantidade.toFixed(3)} <span className="text-xs text-stone-400 font-normal">{linha.unidadeMedidaCodigo}</span>
+                  <table className="w-full" role="table">
+                    <thead>
+                      <tr className="table-head-row">
+                        <th className="table-th" scope="col">Produto</th>
+                        <th className="table-th" scope="col">Ingrediente</th>
+                        <th className="table-th table-th-right" scope="col">Quantidade</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {linhas.map((linha, idx) => (
+                        <tr
+                          key={`${linha.producaoDiariaId}-${linha.ingredienteId}-${idx}`}
+                          className="table-row"
+                        >
+                          <td className="table-td">
+                            <span className="text-sm" style={{ color: 'var(--ada-body)' }}>{linha.produtoNome}</span>
+                          </td>
+                          <td className="table-td">
+                            <span className="text-sm" style={{ color: 'var(--ada-muted)' }}>{linha.ingredienteNome}</span>
+                          </td>
+                          <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
+                            <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>
+                              {linha.quantidade.toFixed(3)}
+                            </span>
+                            <span className="text-xs ml-1" style={{ color: 'var(--ada-placeholder)' }}>
+                              {linha.unidadeMedidaCodigo}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr style={{ background: 'var(--ada-warning-badge)', borderTop: '1px solid var(--ada-warning-border)' }}>
+                        <td
+                          colSpan={2}
+                          className="px-4 py-2 text-xs font-semibold uppercase tracking-wide"
+                          style={{ color: 'var(--ada-muted)' }}
+                        >
+                          Total do dia
+                        </td>
+                        <td
+                          className="px-4 py-2 text-sm font-bold tabular-nums"
+                          style={{ textAlign: 'right', color: '#C4870A' }}
+                        >
+                          {totalDia.toFixed(3)}
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                  <tfoot>
-                    <tr className="bg-amber-50 border-t border-amber-200">
-                      <td colSpan={2} className="px-4 py-2 text-xs font-semibold text-stone-600 uppercase tracking-wide">
-                        Total do dia
-                      </td>
-                      <td className="px-4 py-2 text-sm font-bold text-amber-800 text-right">
-                        {totalDia.toFixed(3)}
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
+                    </tfoot>
+                  </table>
                 </div>
               </div>
             )

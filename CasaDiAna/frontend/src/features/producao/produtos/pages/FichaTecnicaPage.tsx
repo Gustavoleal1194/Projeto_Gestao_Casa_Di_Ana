@@ -93,14 +93,21 @@ export function FichaTecnicaPage() {
 
   if (carregando) {
     return (
-      <div className="p-6 flex items-center justify-center h-64">
-        <Spinner className="h-8 w-8 text-amber-700" />
+      <div className="ada-page">
+        <div className="state-loading py-32">
+          <div
+            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
+            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
+            role="status" aria-label="Carregando…"
+          />
+          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando ficha técnica…</p>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="p-6 max-w-3xl">
+    <div className="ada-page max-w-3xl">
       {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
 
       <Link

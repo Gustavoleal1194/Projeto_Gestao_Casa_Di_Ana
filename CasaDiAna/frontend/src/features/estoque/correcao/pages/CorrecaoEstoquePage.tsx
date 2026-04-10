@@ -87,7 +87,7 @@ export function CorrecaoEstoquePage() {
   )
 
   return (
-    <div className="p-6">
+    <div className="ada-page">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1
@@ -146,32 +146,20 @@ export function CorrecaoEstoquePage() {
       )}
 
       {loading && (
-        <div
-          className="rounded-xl py-16 text-center"
-          style={{ background: 'var(--ada-surface)', boxShadow: 'var(--shadow-sm)' }}
-        >
+        <div className="state-loading">
           <div
-            className="inline-block h-8 w-8 animate-spin rounded-full border-4"
-            style={{ borderColor: 'var(--ada-border)', borderTopColor: '#C4870A' }}
+            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
+            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
+            role="status" aria-label="Carregando…"
           />
-          <p className="mt-3 text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando ingredientes...</p>
+          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando ingredientes…</p>
         </div>
       )}
 
-      {!loading && erro && (
-        <div
-          className="rounded-xl px-4 py-3 text-sm"
-          style={{ background: 'var(--ada-error-bg)', border: '1px solid var(--ada-error-border)', color: 'var(--ada-error-text)' }}
-        >
-          {erro}
-        </div>
-      )}
+      {!loading && erro && <div className="state-error" role="alert">{erro}</div>}
 
       {!loading && !erro && (
-        <div
-          className="rounded-xl overflow-hidden"
-          style={{ background: 'var(--ada-surface)', boxShadow: 'var(--shadow-sm)' }}
-        >
+        <div className="ada-surface-card">
           {linhasFiltradas.length === 0 ? (
             <div className="py-16 text-center">
               <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Nenhum ingrediente encontrado.</p>
@@ -179,18 +167,13 @@ export function CorrecaoEstoquePage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead style={{ background: 'var(--ada-surface-2)', borderBottom: '1px solid var(--ada-border)' }}>
-                  <tr>
-                    <th className="text-[11px] font-semibold uppercase tracking-wide px-4 py-3 text-left"
-                        style={{ color: 'var(--ada-muted)' }}>Ingrediente</th>
-                    <th className="text-[11px] font-semibold uppercase tracking-wide px-4 py-3 text-left"
-                        style={{ color: 'var(--ada-muted)' }}>Categoria</th>
-                    <th className="text-[11px] font-semibold uppercase tracking-wide px-4 py-3 text-right"
-                        style={{ color: 'var(--ada-muted)' }}>Estoque Atual</th>
-                    <th className="text-[11px] font-semibold uppercase tracking-wide px-4 py-3 text-left w-36"
-                        style={{ color: 'var(--ada-muted)' }}>Nova Quantidade</th>
-                    <th className="text-[11px] font-semibold uppercase tracking-wide px-4 py-3 text-left"
-                        style={{ color: 'var(--ada-muted)' }}>Observação</th>
+                <thead>
+                  <tr className="table-head-row">
+                    <th className="table-th" scope="col">Ingrediente</th>
+                    <th className="table-th" scope="col">Categoria</th>
+                    <th className="table-th table-th-right" scope="col">Estoque Atual</th>
+                    <th className="table-th w-36" scope="col">Nova Quantidade</th>
+                    <th className="table-th" scope="col">Observação</th>
                   </tr>
                 </thead>
                 <tbody>

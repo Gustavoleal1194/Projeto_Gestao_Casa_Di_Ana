@@ -1,0 +1,362 @@
+// ─── Utilitário central de impressão de etiquetas ────────────────────────────
+
+export function imprimirEtiquetaHtml(html: string): void {
+  const win = window.open('', '_blank', 'width=600,height=400')
+  if (!win) {
+    alert(
+      'Popup bloqueado pelo navegador. Permita popups para este site e tente novamente.',
+    )
+    return
+  }
+  win.document.write(html)
+  win.document.close()
+  win.onload = () => {
+    win.print()
+  }
+  win.addEventListener('afterprint', () => win.close())
+  setTimeout(() => {
+    if (!win.closed) win.close()
+  }, 8000)
+}
+
+export function baseStyle(largura: string, altura: string): string {
+  return `
+    @page { size: ${largura} ${altura}; margin: 0 !important; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { margin: 0 !important; padding: 0 !important; background: #fff; font-family: Arial, Helvetica, sans-serif; }
+    .etiqueta { width: ${largura}; height: ${altura}; padding: 3mm 4mm; display: flex; flex-direction: column; page-break-after: always; overflow: hidden; }
+  `
+}
+
+export interface NutriValues {
+  porcao: string
+  kcal: string
+  kj: string
+  carbo: string
+  acucares: string
+  acucaresAdic: string
+  proteinas: string
+  gorduras: string
+  gordSat: string
+  gordTrans: string
+  fibra: string
+  sodio: string
+  porcoesPorEmbalagem: string
+  medidaCaseira: string
+}
+
+// ─── Etiqueta Completa (100×50mm) ────────────────────────────────────────────
+
+export function htmlEtiquetaCompleta(
+  produtoNome: string,
+  dataProducao: string,
+  validade: string,
+  quantidade: number,
+  logoBase64?: string,
+): string {
+  const topoHtml = logoBase64
+    ? `<img src="data:image/png;base64,${logoBase64}" class="logo" alt="Casa di Ana" />`
+    : `<span class="marca">Casa di Ana</span>`
+
+  const etiqueta = `
+    <div class="etiqueta">
+      <div class="topo">${topoHtml}</div>
+      <div class="ornamento">
+        <div class="linha"></div>
+        <div class="diamante">◆</div>
+        <div class="linha"></div>
+      </div>
+      <div class="produto">${produtoNome}</div>
+      <div class="rodape">
+        <span>Fab: ${dataProducao}</span>
+        <span class="val-data">Val: ${validade}</span>
+      </div>
+    </div>`
+
+  const etiquetas = Array(quantidade).fill(etiqueta).join('')
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    ${baseStyle('100mm', '50mm')}
+
+    .etiqueta {
+      background: #FDFAF5;
+      padding: 2mm 3mm;
+      justify-content: space-between;
+    }
+
+    .topo {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+
+    .logo {
+      height: 13mm;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .marca {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 13pt;
+      font-weight: 700;
+      color: #2C1A0E;
+      letter-spacing: 0.5px;
+    }
+
+    .ornamento {
+      display: flex;
+      align-items: center;
+      gap: 2mm;
+      flex: 0 0 auto;
+      margin: 0.5mm 0;
+    }
+
+    .ornamento .linha {
+      flex: 1;
+      height: 0.3mm;
+      background: #C4870A;
+      opacity: 0.6;
+    }
+
+    .ornamento .diamante {
+      color: #C4870A;
+      font-size: 5pt;
+      line-height: 1;
+    }
+
+    .produto {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 14pt;
+      font-weight: 700;
+      color: #2C1A0E;
+      text-align: center;
+      line-height: 1.2;
+      word-break: break-word;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .rodape {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      font-size: 6pt;
+      color: #5C3A1E;
+      border-top: 0.3mm solid #C4870A;
+      padding-top: 1mm;
+      flex: 0 0 auto;
+    }
+
+    .val-data {
+      font-weight: bold;
+      color: #2C1A0E;
+    }
+  </style>
+</head>
+<body>${etiquetas}</body>
+</html>`
+}
+
+// ─── Etiqueta Simples (100×50mm) ─────────────────────────────────────────────
+
+export function htmlEtiquetaSimples(
+  produtoNome: string,
+  validade: string,
+  quantidade: number,
+): string {
+  const etiqueta = `
+    <div class="etiqueta">
+      <div class="nome">${produtoNome}</div>
+      <div class="validade">Val.: ${validade}</div>
+    </div>`
+
+  const etiquetas = Array(quantidade).fill(etiqueta).join('')
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    ${baseStyle('100mm', '50mm')}
+
+    .etiqueta {
+      border: 0.5mm solid #333;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      gap: 3mm;
+    }
+
+    .nome {
+      font-size: 14pt;
+      font-weight: bold;
+      color: #1a1a1a;
+      word-break: break-word;
+    }
+
+    .validade {
+      font-size: 10pt;
+      color: #333;
+    }
+  </style>
+</head>
+<body>${etiquetas}</body>
+</html>`
+}
+
+// ─── Etiqueta Nutricional (80×120mm) ─────────────────────────────────────────
+
+function parsePorcaoGramas(porcao: string): number {
+  const match = porcao.match(/(\d+(?:[.,]\d+)?)\s*(?:g|ml)\b/i)
+  return match ? parseFloat(match[1].replace(',', '.')) : 0
+}
+
+function fmt100(value: number, porcaoG: number): string {
+  if (!value || !porcaoG) return '—'
+  const v = (value / porcaoG) * 100
+  return v % 1 === 0 ? String(Math.round(v)) : v.toFixed(1)
+}
+
+export function htmlEtiquetaNutricional(
+  produtoNome: string,
+  dataProducao: string,
+  validade: string,
+  quantidade: number,
+  nutri: NutriValues,
+): string {
+  const kcal = Number(nutri.kcal) || 0
+  const kj = Number(nutri.kj) || 0
+  const carbo = Number(nutri.carbo) || 0
+  const acucares = Number(nutri.acucares) || 0
+  const acucaresAdic = Number(nutri.acucaresAdic) || 0
+  const prot = Number(nutri.proteinas) || 0
+  const gord = Number(nutri.gorduras) || 0
+  const gordSat = Number(nutri.gordSat) || 0
+  const gordTrans = Number(nutri.gordTrans) || 0
+  const fibra = Number(nutri.fibra) || 0
+  const sodio = Number(nutri.sodio) || 0
+  const porcaoG = parsePorcaoGramas(nutri.porcao)
+
+  const vd = (v: number, ref: number) =>
+    v > 0 ? `${Math.round((v / ref) * 100)}%` : '—'
+  const nd = '**'
+
+  const porcaoLabel = nutri.medidaCaseira
+    ? `${nutri.porcao} (${nutri.medidaCaseira})`
+    : nutri.porcao
+
+  const porcoesPorEmb = nutri.porcoesPorEmbalagem
+    ? `${nutri.porcoesPorEmbalagem} porções por embalagem`
+    : ''
+
+  const row = (
+    bold: boolean,
+    indent: 0 | 1 | 2,
+    nome: string,
+    qty: string,
+    vdVal: string,
+    c100: string,
+  ) => {
+    const pl = indent === 2 ? '5mm' : indent === 1 ? '3mm' : '1mm'
+    return `
+    <tr style="border-bottom:0.3mm solid #000;">
+      <td style="font-weight:${bold ? 'bold' : 'normal'}; padding:0.4mm 1mm 0.4mm ${pl}; font-size:5.5pt; line-height:1.3;">
+        ${nome}
+      </td>
+      <td style="text-align:right; padding:0.4mm 1mm; font-size:5.5pt; border-left:0.3mm solid #000; white-space:nowrap; line-height:1.3;">
+        ${qty}
+      </td>
+      <td style="text-align:center; padding:0.4mm 1mm; font-size:5.5pt; border-left:0.3mm solid #000; white-space:nowrap; line-height:1.3;">
+        ${vdVal}
+      </td>
+      <td style="text-align:right; padding:0.4mm 1mm; font-size:5.5pt; border-left:0.3mm solid #000; white-space:nowrap; line-height:1.3; color:#555;">
+        ${c100}
+      </td>
+    </tr>`
+  }
+
+  const etiqueta = `
+    <div style="width:76mm; border:0.8mm solid #000; font-family:'Arial Narrow',Arial,sans-serif; display:flex; flex-direction:column; page-break-after:always; background:#fff; color:#000;">
+
+      <div style="border-bottom:0.8mm solid #000; padding:1.2mm 2mm 0.8mm; text-align:center; background:#fff;">
+        <div style="font-size:8pt; font-weight:bold; letter-spacing:0.5px; color:#000;">INFORMAÇÃO NUTRICIONAL</div>
+      </div>
+
+      <div style="padding:0.8mm 2mm; font-size:6pt; border-bottom:0.5mm solid #000; line-height:1.5; background:#fff; color:#000;">
+        <strong>Porção:</strong> ${porcaoLabel}${porcoesPorEmb ? `<br>${porcoesPorEmb}` : ''}
+      </div>
+
+      <div style="border-bottom:0.8mm solid #000; padding:0.5mm 2mm; font-size:6pt; background:#fff; color:#000;">
+        <strong>${produtoNome}</strong>
+      </div>
+
+      <table style="width:100%; border-collapse:collapse; background:#fff;">
+        <colgroup>
+          <col style="width:42%">
+          <col style="width:22%">
+          <col style="width:14%">
+          <col style="width:22%">
+        </colgroup>
+        <thead>
+          <tr style="border-bottom:0.4mm solid #000; background:#fff;">
+            <th style="font-size:5pt; font-weight:bold; padding:0.6mm 1mm; text-align:left; color:#000;">Nutrientes</th>
+            <th style="font-size:5pt; font-weight:bold; padding:0.6mm 1mm; text-align:right; border-left:0.3mm solid #000; color:#000;">Porção</th>
+            <th style="font-size:5pt; font-weight:bold; padding:0.6mm 1mm; text-align:center; border-left:0.3mm solid #000; color:#000;">%VD*</th>
+            <th style="font-size:5pt; font-weight:bold; padding:0.6mm 1mm; text-align:right; border-left:0.3mm solid #000; color:#000;">100g/ml</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${row(true, 0,
+            'Valor energético',
+            `${nutri.kcal} kcal / ${nutri.kj} kJ`,
+            vd(kcal, 2000),
+            kcal > 0 ? `${fmt100(kcal, porcaoG)} kcal / ${fmt100(kj, porcaoG)} kJ` : '—',
+          )}
+          ${row(true, 0, 'Carboidratos', `${nutri.carbo} g`, vd(carbo, 300), `${fmt100(carbo, porcaoG)} g`)}
+          ${row(false, 1, 'Açúcares totais', `${nutri.acucares} g`, nd, `${fmt100(acucares, porcaoG)} g`)}
+          ${row(false, 2, 'Açúcares adicionados', `${nutri.acucaresAdic} g`, nd, `${fmt100(acucaresAdic, porcaoG)} g`)}
+          ${row(true, 0, 'Proteínas', `${nutri.proteinas} g`, vd(prot, 75), `${fmt100(prot, porcaoG)} g`)}
+          ${row(true, 0, 'Gorduras totais', `${nutri.gorduras} g`, vd(gord, 65), `${fmt100(gord, porcaoG)} g`)}
+          ${row(false, 1, 'Gorduras saturadas', `${nutri.gordSat} g`, vd(gordSat, 22), `${fmt100(gordSat, porcaoG)} g`)}
+          ${row(false, 1, 'Gorduras trans', `${nutri.gordTrans} g`, nd, `${fmt100(gordTrans, porcaoG)} g`)}
+          ${row(true, 0, 'Fibra alimentar', `${nutri.fibra} g`, vd(fibra, 25), `${fmt100(fibra, porcaoG)} g`)}
+          ${row(true, 0, 'Sódio', `${nutri.sodio} mg`, vd(sodio, 2300), `${fmt100(sodio, porcaoG)} mg`)}
+        </tbody>
+      </table>
+
+      <div style="padding:0.8mm 1.5mm; font-size:5pt; color:#222; line-height:1.4; border-top:0.8mm solid #000; border-bottom:0.5mm solid #000;">
+        *Percentual de valores diários fornecidos pela porção. **Valor Diário não estabelecido. Valores diários de referência com base em uma dieta de 2000 kcal ou 8400 kJ.
+      </div>
+
+      <div style="display:flex; justify-content:space-between; padding:1mm 2mm; font-size:5.5pt;">
+        <span><strong>Fab:</strong> ${dataProducao}</span>
+        <span><strong>Val:</strong> ${validade}</span>
+        <span style="font-style:italic;">Casa di Ana</span>
+      </div>
+    </div>`
+
+  const etiquetas = Array(quantidade).fill(etiqueta).join('')
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @page { size: 80mm 120mm; margin: 0 !important; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { margin: 0 !important; padding: 0 !important; background: #fff; }
+  </style>
+</head>
+<body>${etiquetas}</body>
+</html>`
+}

@@ -1,10 +1,11 @@
 interface FormSectionProps {
   titulo: string
+  primeiro?: boolean
 }
 
-export function FormSection({ titulo }: FormSectionProps) {
+export function FormSection({ titulo, primeiro }: FormSectionProps) {
   return (
-    <div className="flex items-center gap-3 mt-7 mb-4">
+    <div className={`flex items-center gap-3 ${primeiro ? 'mt-0 mb-4' : 'mt-7 mb-4'}`}>
       <div
         className="w-[3px] h-3.5 rounded-full shrink-0"
         style={{ background: '#C4870A' }}

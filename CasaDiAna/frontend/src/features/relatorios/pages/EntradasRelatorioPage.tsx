@@ -39,99 +39,143 @@ export function EntradasRelatorioPage() {
 
   const handleFiltrar = (e: React.FormEvent) => { e.preventDefault(); carregar() }
 
-  const inputClass = 'border border-stone-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent'
-
   return (
-    <div className="p-6">
+    <div className="ada-page">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-stone-800">Relatório de Entradas</h1>
-        {resumo && resumo.entradas.length > 0 && (
-          <button
-            onClick={() => gerarPdfEntradas(resumo, de, ate)}
-            className="flex items-center gap-2 px-3 py-2 border border-stone-200 rounded-lg text-sm text-stone-600 hover:bg-stone-50 font-medium"
+        <div>
+          <h1
+            className="text-xl font-bold tracking-tight"
+            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
           >
-            <ArrowDownTrayIcon className="h-4 w-4" />
+            Relatório de Entradas
+          </h1>
+          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
+            Entradas de mercadoria por período
+          </p>
+        </div>
+        {resumo && resumo.entradas.length > 0 && (
+          <button onClick={() => gerarPdfEntradas(resumo!, de, ate)} className="btn-secondary">
+            <ArrowDownTrayIcon className="h-4 w-4" aria-hidden="true" />
             Baixar PDF
           </button>
         )}
       </div>
 
-      <form onSubmit={handleFiltrar} className="bg-white rounded-xl shadow-sm border border-stone-100 p-4 mb-4 flex flex-wrap gap-3 items-end">
+      <form onSubmit={handleFiltrar} className="filter-bar" role="search" aria-label="Filtrar entradas">
         <div>
-          <label className="block text-xs font-medium text-stone-500 mb-1">De</label>
-          <input type="date" value={de} onChange={e => setDe(e.target.value)} className={inputClass} />
+          <label className="filter-label">De</label>
+          <input type="date" value={de} onChange={e => setDe(e.target.value)} className="filter-input" />
         </div>
         <div>
-          <label className="block text-xs font-medium text-stone-500 mb-1">Até</label>
-          <input type="date" value={ate} onChange={e => setAte(e.target.value)} className={inputClass} />
+          <label className="filter-label">Até</label>
+          <input type="date" value={ate} onChange={e => setAte(e.target.value)} className="filter-input" />
         </div>
-        <button type="submit" className="px-4 py-2 bg-stone-700 hover:bg-stone-800 text-white rounded-lg text-sm font-medium">Gerar Relatório</button>
+        <button type="submit" className="btn-secondary">Gerar Relatório</button>
       </form>
 
       {loading && (
-        <div className="bg-white rounded-xl shadow-sm py-16 text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-stone-200 border-t-amber-700" />
-          <p className="text-stone-500 mt-3 text-sm">Carregando...</p>
+        <div className="state-loading">
+          <div
+            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
+            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
+            role="status" aria-label="Carregando…"
+          />
+          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando relatório…</p>
         </div>
       )}
-      {!loading && erro && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">{erro}</div>
-      )}
+      {!loading && erro && <div className="state-error" role="alert">{erro}</div>}
       {!loading && resumo && (
         <>
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="bg-white rounded-xl shadow-sm border border-stone-100 p-5">
-              <p className="text-xs font-medium text-stone-500 uppercase tracking-wide mb-1">Total de Entradas</p>
-              <p className="text-2xl font-bold text-stone-800">{resumo.totalEntradas}</p>
+          {/* KPI cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <div className="ada-surface-card p-5">
+              <p
+                className="text-[10.5px] font-semibold uppercase tracking-[0.10em] mb-1"
+                style={{ color: 'var(--ada-muted)', fontFamily: 'Sora, system-ui, sans-serif' }}
+              >
+                Total de Entradas
+              </p>
+              <p className="text-2xl font-bold tabular-nums" style={{ color: 'var(--ada-heading)' }}>
+                {resumo.totalEntradas}
+              </p>
             </div>
-            <div className="bg-white rounded-xl shadow-sm border border-stone-100 p-5">
-              <p className="text-xs font-medium text-stone-500 uppercase tracking-wide mb-1">Confirmadas</p>
-              <p className="text-2xl font-bold text-green-700">{resumo.totalEntradasConfirmadas}</p>
+            <div className="ada-surface-card p-5">
+              <p
+                className="text-[10.5px] font-semibold uppercase tracking-[0.10em] mb-1"
+                style={{ color: 'var(--ada-muted)', fontFamily: 'Sora, system-ui, sans-serif' }}
+              >
+                Confirmadas
+              </p>
+              <p className="text-2xl font-bold tabular-nums" style={{ color: 'var(--ada-success-text)' }}>
+                {resumo.totalEntradasConfirmadas}
+              </p>
             </div>
-            <div className="bg-white rounded-xl shadow-sm border border-stone-100 p-5">
-              <p className="text-xs font-medium text-stone-500 uppercase tracking-wide mb-1">Custo Total (Confirmadas)</p>
-              <p className="text-2xl font-bold text-stone-800">{formatarMoeda(resumo.custoTotalConfirmadas)}</p>
+            <div className="ada-surface-card p-5">
+              <p
+                className="text-[10.5px] font-semibold uppercase tracking-[0.10em] mb-1"
+                style={{ color: 'var(--ada-muted)', fontFamily: 'Sora, system-ui, sans-serif' }}
+              >
+                Custo Total (Confirmadas)
+              </p>
+              <p className="text-2xl font-bold tabular-nums" style={{ color: 'var(--ada-heading)' }}>
+                {formatarMoeda(resumo.custoTotalConfirmadas)}
+              </p>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            {resumo.entradas.length === 0 ? (
-              <div className="py-16 text-center"><p className="text-stone-500 text-sm">Nenhuma entrada no período.</p></div>
-            ) : (
+          {resumo.entradas.length === 0 ? (
+            <div className="state-loading">
+              <p className="text-sm font-semibold" style={{ color: 'var(--ada-body)', fontFamily: 'Sora, system-ui, sans-serif' }}>
+                Nenhuma entrada no período
+              </p>
+              <p className="text-xs mt-1" style={{ color: 'var(--ada-muted)' }}>Ajuste o período e gere o relatório novamente.</p>
+            </div>
+          ) : (
+            <div className="ada-surface-card">
               <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-stone-50 border-b border-stone-200">
-                  <tr>
-                    <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Fornecedor</th>
-                    <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Nota Fiscal</th>
-                    <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Data</th>
-                    <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Status</th>
-                    <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-right">Itens</th>
-                    <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-right">Custo Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {resumo.entradas.map(e => (
-                    <tr key={e.id} className="border-b border-stone-100 hover:bg-amber-50 transition-colors">
-                      <td className="px-4 py-3 text-sm font-medium text-stone-800">{e.fornecedorNome}</td>
-                      <td className="px-4 py-3 text-sm text-stone-600 font-mono">{e.numeroNotaFiscal ?? '—'}</td>
-                      <td className="px-4 py-3 text-sm text-stone-600">{formatarData(e.dataEntrada)}</td>
-                      <td className="px-4 py-3">
-                        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
-                          e.status === 'Confirmada' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                        }`}>
-                          {e.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-stone-600 text-right">{e.totalItens}</td>
-                      <td className="px-4 py-3 text-sm font-medium text-stone-800 text-right">{formatarMoeda(e.custoTotal)}</td>
+                <table className="w-full" role="table">
+                  <thead>
+                    <tr className="table-head-row">
+                      <th className="table-th" scope="col">Fornecedor</th>
+                      <th className="table-th" scope="col">Nota Fiscal</th>
+                      <th className="table-th" scope="col">Data</th>
+                      <th className="table-th" scope="col">Status</th>
+                      <th className="table-th table-th-right" scope="col">Itens</th>
+                      <th className="table-th table-th-right" scope="col">Custo Total</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {resumo.entradas.map(e => (
+                      <tr key={e.id} className="table-row">
+                        <td className="table-td">
+                          <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>{e.fornecedorNome}</span>
+                        </td>
+                        <td className="table-td font-mono">
+                          <span className="text-sm" style={{ color: 'var(--ada-body)' }}>{e.numeroNotaFiscal ?? '—'}</span>
+                        </td>
+                        <td className="table-td">
+                          <span className="text-sm" style={{ color: 'var(--ada-body)' }}>{formatarData(e.dataEntrada)}</span>
+                        </td>
+                        <td className="table-td">
+                          <span className={`badge ${e.status === 'Confirmada' ? 'badge-active' : 'badge-danger'}`}>
+                            {e.status}
+                          </span>
+                        </td>
+                        <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
+                          <span className="text-sm" style={{ color: 'var(--ada-body)' }}>{e.totalItens}</span>
+                        </td>
+                        <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
+                          <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>
+                            {formatarMoeda(e.custoTotal)}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </>
       )}
     </div>

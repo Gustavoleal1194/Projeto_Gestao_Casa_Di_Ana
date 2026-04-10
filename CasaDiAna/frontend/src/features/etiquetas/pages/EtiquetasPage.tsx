@@ -5,6 +5,12 @@ import { ingredientesService } from '@/features/estoque/ingredientes/services/in
 import { etiquetasService, type TipoEtiqueta, type HistoricoImpressao, type ModeloNutricional } from '@/lib/etiquetasService'
 import type { Produto, ProdutoResumo } from '@/types/producao'
 import type { IngredienteResumo } from '@/types/estoque'
+import {
+  imprimirEtiquetaHtml,
+  htmlEtiquetaCompleta,
+  htmlEtiquetaSimples,
+  htmlEtiquetaNutricional,
+} from '../utils/etiquetaUtils'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -24,199 +30,6 @@ const TIPO_LABELS: Record<TipoEtiqueta, string> = {
   3: 'Nutricional',
 }
 
-// ─── Geradores de HTML das etiquetas ────────────────────────────────────────
-
-function htmlEtiquetaCompleta(
-  produtoNome: string,
-  dataProducao: string,
-  validade: string,
-  quantidade: number,
-  logoBase64: string,
-): string {
-  const logoSrc = `data:image/png;base64,${logoBase64}`
-
-  const etiqueta = `
-    <div class="label">
-      <div class="frame">
-        <!-- Logo + marca -->
-        <div class="top">
-          <img src="${logoSrc}" class="logo" alt="Casa di Ana" />
-        </div>
-
-        <!-- Divisor ornamental -->
-        <div class="ornament">
-          <div class="line"></div>
-          <div class="diamond">◆</div>
-          <div class="line"></div>
-        </div>
-
-        <!-- Nome do produto -->
-        <div class="produto">${produtoNome}</div>
-
-        <!-- Datas -->
-        <div class="datas">
-          <span class="fab">Fabricação: ${dataProducao}</span>
-        </div>
-      </div>
-
-      <!-- Faixa de validade -->
-      <div class="validade-bar">
-        <span class="validade-label">VÁLIDO ATÉ</span>
-        <span class="validade-data">${validade}</span>
-      </div>
-    </div>`
-
-  const etiquetas = Array(quantidade).fill(etiqueta).join('')
-
-  return `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <style>
-    @page { size: 100mm 80mm; margin: 0; }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #fff; }
-
-    .label {
-      width: 100mm;
-      height: 80mm;
-      background: #FDFAF5;
-      display: flex;
-      flex-direction: column;
-      page-break-after: always;
-      overflow: hidden;
-    }
-
-    .frame {
-      flex: 1;
-      margin: 3mm;
-      border: 0.4mm solid #C4870A;
-      outline: 0.15mm solid #C4870A;
-      outline-offset: 1mm;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 3mm 4mm 2mm;
-      gap: 1.5mm;
-    }
-
-    .top {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1mm;
-    }
-
-    .logo {
-      height: 22mm;
-      width: auto;
-      object-fit: contain;
-    }
-
-
-    .ornament {
-      display: flex;
-      align-items: center;
-      gap: 2mm;
-      width: 100%;
-      margin: 1mm 0;
-    }
-
-    .ornament .line {
-      flex: 1;
-      height: 0.3mm;
-      background: #C4870A;
-      opacity: 0.6;
-    }
-
-    .ornament .diamond {
-      color: #C4870A;
-      font-size: 5pt;
-      line-height: 1;
-    }
-
-    .produto {
-      font-family: 'Playfair Display', 'Georgia', serif;
-      font-size: 15pt;
-      font-weight: 700;
-      color: #2C1A0E;
-      text-align: center;
-      line-height: 1.2;
-      letter-spacing: 0.3px;
-      word-break: break-word;
-    }
-
-    .datas {
-      margin-top: 1mm;
-    }
-
-    .fab {
-      font-family: 'EB Garamond', 'Georgia', serif;
-      font-size: 6.5pt;
-      color: #8B6347;
-      letter-spacing: 0.5px;
-    }
-
-    .validade-bar {
-      background: #5C3A1E;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4mm;
-      padding: 2.5mm 4mm;
-      margin: 0 3mm 3mm;
-      border-radius: 0.5mm;
-    }
-
-    .validade-label {
-      font-family: 'EB Garamond', Arial, sans-serif;
-      font-size: 7pt;
-      color: #C4870A;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    .validade-data {
-      font-family: 'Playfair Display', 'Georgia', serif;
-      font-size: 11pt;
-      font-weight: 700;
-      color: #FDFAF5;
-      letter-spacing: 0.5px;
-    }
-  </style>
-</head>
-<body>${etiquetas}</body>
-</html>`
-}
-
-function htmlEtiquetaSimples(
-  produtoNome: string,
-  validade: string,
-  quantidade: number,
-): string {
-  const etiqueta = `
-    <div class="etiqueta">
-      <div class="nome">${produtoNome}</div>
-      <div class="validade">Val.: ${validade}</div>
-    </div>`
-  const etiquetas = Array(quantidade).fill(etiqueta).join('')
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
-    @page { size: 70mm 30mm; margin: 0; }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, Helvetica, sans-serif; background: #fff; }
-    .etiqueta {
-      width: 70mm; height: 30mm;
-      border: 0.5mm solid #333;
-      padding: 3mm;
-      display: flex; flex-direction: column; justify-content: center;
-      page-break-after: always;
-    }
-    .nome { font-size: 11pt; font-weight: bold; color: #1a1a1a; word-break: break-word; }
-    .validade { font-size: 9pt; color: #333; margin-top: 2mm; }
-  </style></head><body>${etiquetas}</body></html>`
-}
 
 function parsePorcaoGramas(porcao: string): number {
   const match = porcao.match(/(\d+(?:[.,]\d+)?)\s*(?:g|ml)\b/i)
@@ -227,130 +40,6 @@ function fmt100(value: number, porcaoG: number): string {
   if (!value || !porcaoG) return '—'
   const v = (value / porcaoG) * 100
   return v % 1 === 0 ? String(Math.round(v)) : v.toFixed(1)
-}
-
-function htmlEtiquetaNutricional(
-  produtoNome: string,
-  dataProducao: string,
-  validade: string,
-  quantidade: number,
-  dados: {
-    porcao: string; kcal: string; kj: string; carbo: string; acucares: string;
-    acucaresAdic: string; proteinas: string; gorduras: string; gordSat: string;
-    gordTrans: string; fibra: string; sodio: string;
-    porcoesPorEmbalagem: string; medidaCaseira: string;
-  } = {
-    porcao: '100g', kcal: '—', kj: '—', carbo: '—', acucares: '—',
-    acucaresAdic: '—', proteinas: '—', gorduras: '—', gordSat: '—',
-    gordTrans: '—', fibra: '—', sodio: '—', porcoesPorEmbalagem: '', medidaCaseira: '',
-  },
-): string {
-  const kcal = Number(dados.kcal) || 0
-  const kj = Number(dados.kj) || 0
-  const carbo = Number(dados.carbo) || 0
-  const acucares = Number(dados.acucares) || 0
-  const acucaresAdic = Number(dados.acucaresAdic) || 0
-  const prot = Number(dados.proteinas) || 0
-  const gord = Number(dados.gorduras) || 0
-  const gordSat = Number(dados.gordSat) || 0
-  const gordTrans = Number(dados.gordTrans) || 0
-  const fibra = Number(dados.fibra) || 0
-  const sodio = Number(dados.sodio) || 0
-  const porcaoG = parsePorcaoGramas(dados.porcao)
-
-  const vd = (v: number, ref: number) => v > 0 ? `${Math.round((v / ref) * 100)}%` : '—'
-  const nd = '**'
-
-  const porcaoLabel = dados.medidaCaseira
-    ? `${dados.porcao} (${dados.medidaCaseira})`
-    : dados.porcao
-  const porcoesPorEmb = dados.porcoesPorEmbalagem
-    ? `${dados.porcoesPorEmbalagem} porções por embalagem`
-    : ''
-
-  // indent: 0 = normal, 1 = 1 nível, 2 = 2 níveis
-  const row = (bold: boolean, indent: 0 | 1 | 2, nome: string, qty: string, vdVal: string, c100: string) => {
-    const pl = indent === 2 ? '5mm' : indent === 1 ? '3mm' : '1mm'
-    return `
-    <tr style="border-bottom:0.3mm solid #000;">
-      <td style="font-weight:${bold ? 'bold' : 'normal'}; padding:0.5mm 1mm 0.5mm ${pl}; font-size:6pt; line-height:1.3;">
-        ${nome}
-      </td>
-      <td style="text-align:right; padding:0.5mm 1mm; font-size:6pt; border-left:0.3mm solid #000; white-space:nowrap; line-height:1.3;">
-        ${qty}
-      </td>
-      <td style="text-align:center; padding:0.5mm 1mm; font-size:6pt; border-left:0.3mm solid #000; white-space:nowrap; line-height:1.3;">
-        ${vdVal}
-      </td>
-      <td style="text-align:right; padding:0.5mm 1mm; font-size:6pt; border-left:0.3mm solid #000; white-space:nowrap; line-height:1.3; color:#555;">
-        ${c100}
-      </td>
-    </tr>`
-  }
-
-  const etiqueta = `
-    <div style="width:76mm; border:0.8mm solid #000; font-family:'Arial Narrow',Arial,sans-serif; display:flex; flex-direction:column; page-break-after:always; background:#fff; color:#000;">
-
-      <div style="border-bottom:0.5mm solid #000; padding:1.5mm 2mm 1mm; text-align:center; background:#fff;">
-        <div style="font-size:9pt; font-weight:bold; letter-spacing:0.5px; color:#000;">INFORMAÇÃO NUTRICIONAL</div>
-        <div style="font-size:7pt; margin-top:0.5mm; color:#000;">${produtoNome}</div>
-      </div>
-
-      <div style="padding:1mm 2mm; font-size:6.5pt; border-bottom:0.5mm solid #000; line-height:1.5; background:#fff; color:#000;">
-        <strong>Porção:</strong> ${porcaoLabel}${porcoesPorEmb ? `<br>${porcoesPorEmb}` : ''}
-      </div>
-
-      <table style="width:100%; border-collapse:collapse; background:#fff;">
-        <colgroup>
-          <col style="width:42%">
-          <col style="width:22%">
-          <col style="width:14%">
-          <col style="width:22%">
-        </colgroup>
-        <thead>
-          <tr style="border-bottom:0.4mm solid #000; background:#fff;">
-            <th style="font-size:5.5pt; font-weight:bold; padding:0.8mm 1mm; text-align:left; color:#000;">Nutrientes</th>
-            <th style="font-size:5.5pt; font-weight:bold; padding:0.8mm 1mm; text-align:right; border-left:0.3mm solid #000; color:#000;">Porção</th>
-            <th style="font-size:5.5pt; font-weight:bold; padding:0.8mm 1mm; text-align:center; border-left:0.3mm solid #000; color:#000;">%VD*</th>
-            <th style="font-size:5.5pt; font-weight:bold; padding:0.8mm 1mm; text-align:right; border-left:0.3mm solid #000; color:#000;">100g/100ml</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${row(true, 0,
-            'Valor energético',
-            `${dados.kcal} kcal / ${dados.kj} kJ`,
-            vd(kcal, 2000),
-            kcal > 0 ? `${fmt100(kcal, porcaoG)} kcal / ${fmt100(kj, porcaoG)} kJ` : '—'
-          )}
-          ${row(true, 0, 'Carboidratos', `${dados.carbo} g`, vd(carbo, 300), `${fmt100(carbo, porcaoG)} g`)}
-          ${row(false, 1, 'Açúcares totais', `${dados.acucares} g`, nd, `${fmt100(acucares, porcaoG)} g`)}
-          ${row(false, 2, 'Açúcares adicionados', `${dados.acucaresAdic} g`, nd, `${fmt100(acucaresAdic, porcaoG)} g`)}
-          ${row(true, 0, 'Proteínas', `${dados.proteinas} g`, vd(prot, 75), `${fmt100(prot, porcaoG)} g`)}
-          ${row(true, 0, 'Gorduras totais', `${dados.gorduras} g`, vd(gord, 65), `${fmt100(gord, porcaoG)} g`)}
-          ${row(false, 1, 'Gorduras saturadas', `${dados.gordSat} g`, vd(gordSat, 22), `${fmt100(gordSat, porcaoG)} g`)}
-          ${row(false, 1, 'Gorduras trans', `${dados.gordTrans} g`, nd, `${fmt100(gordTrans, porcaoG)} g`)}
-          ${row(true, 0, 'Fibra alimentar', `${dados.fibra} g`, vd(fibra, 25), `${fmt100(fibra, porcaoG)} g`)}
-          ${row(true, 0, 'Sódio', `${dados.sodio} mg`, vd(sodio, 2300), `${fmt100(sodio, porcaoG)} mg`)}
-        </tbody>
-      </table>
-
-      <div style="padding:1mm 1.5mm; font-size:5.5pt; color:#222; line-height:1.4; border-top:0.5mm solid #000; border-bottom:0.5mm solid #000;">
-        *Percentual de valores diários fornecidos pela porção. **Valor Diário não estabelecido. Valores diários de referência com base em uma dieta de 2000 kcal ou 8400 kJ.
-      </div>
-
-      <div style="display:flex; justify-content:space-between; padding:1mm 2mm; font-size:6pt;">
-        <span><strong>Fab:</strong> ${dataProducao}</span>
-        <span><strong>Val:</strong> ${validade}</span>
-        <span style="font-style:italic;">Casa di Ana</span>
-      </div>
-    </div>`
-
-  const etiquetas = Array(quantidade).fill(etiqueta).join('')
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
-    @page { size: 80mm 150mm; margin: 2mm; }
-    * { box-sizing: border-box; }
-    body { margin: 0; padding: 0; background: #fff; }
-  </style></head><body>${etiquetas}</body></html>`
 }
 
 // ─── Preview das etiquetas ───────────────────────────────────────────────────
@@ -734,16 +423,7 @@ export function EtiquetasPage() {
         )
       }
 
-      const win = window.open('', '_blank', 'width=600,height=400')
-      if (win) {
-        win.document.write(html)
-        win.document.close()
-        win.focus()
-        win.onload = () => {
-          win.print()
-          setTimeout(() => win.close(), 1500)
-        }
-      }
+      imprimirEtiquetaHtml(html)
 
       if (!isIngrediente && produto) {
         const novo = await etiquetasService.registrarImpressao({
@@ -798,15 +478,15 @@ export function EtiquetasPage() {
   ]
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="ada-page space-y-6">
       <div>
         <h1
-          className="text-2xl font-semibold"
+          className="text-xl font-bold tracking-tight"
           style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
         >
           Etiquetas
         </h1>
-        <p className="text-sm mt-1" style={{ color: 'var(--ada-muted)' }}>
+        <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
           Gere e imprima etiquetas térmicas para os produtos
         </p>
       </div>

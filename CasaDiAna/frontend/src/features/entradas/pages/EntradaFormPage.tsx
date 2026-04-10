@@ -79,7 +79,7 @@ export function EntradaFormPage() {
   }
 
   return (
-    <div className="p-6 max-w-3xl">
+    <div className="ada-page max-w-3xl">
       {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
 
       <Link

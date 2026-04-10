@@ -46,96 +46,120 @@ export function MovimentacoesPage() {
 
   const handleFiltrar = (e: React.FormEvent) => { e.preventDefault(); carregar() }
 
-  const inputClass = 'border border-stone-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent'
-
   return (
-    <div className="p-6">
+    <div className="ada-page">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-stone-800">Movimentações de Estoque</h1>
-        {movimentacoes.length > 0 && (
-          <button
-            onClick={() => gerarPdfMovimentacoes(movimentacoes, de, ate)}
-            className="flex items-center gap-2 px-3 py-2 border border-stone-200 rounded-lg text-sm text-stone-600 hover:bg-stone-50 font-medium"
+        <div>
+          <h1
+            className="text-xl font-bold tracking-tight"
+            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
           >
-            <ArrowDownTrayIcon className="h-4 w-4" />
+            Movimentações de Estoque
+          </h1>
+          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
+            {loading ? 'Carregando…' : `${movimentacoes.length} movimentação(ões) no período`}
+          </p>
+        </div>
+        {movimentacoes.length > 0 && (
+          <button onClick={() => gerarPdfMovimentacoes(movimentacoes, de, ate)} className="btn-secondary">
+            <ArrowDownTrayIcon className="h-4 w-4" aria-hidden="true" />
             Baixar PDF
           </button>
         )}
       </div>
 
-      <form onSubmit={handleFiltrar} className="bg-white rounded-xl shadow-sm border border-stone-100 p-4 mb-4 flex flex-wrap gap-3 items-end">
+      <form onSubmit={handleFiltrar} className="filter-bar" role="search" aria-label="Filtrar movimentações">
         <div>
-          <label className="block text-xs font-medium text-stone-500 mb-1">De</label>
-          <input type="date" value={de} onChange={e => setDe(e.target.value)} className={inputClass} />
+          <label className="filter-label">De</label>
+          <input type="date" value={de} onChange={e => setDe(e.target.value)} className="filter-input" />
         </div>
         <div>
-          <label className="block text-xs font-medium text-stone-500 mb-1">Até</label>
-          <input type="date" value={ate} onChange={e => setAte(e.target.value)} className={inputClass} />
+          <label className="filter-label">Até</label>
+          <input type="date" value={ate} onChange={e => setAte(e.target.value)} className="filter-input" />
         </div>
         <div>
-          <label className="block text-xs font-medium text-stone-500 mb-1">Tipo</label>
-          <select value={tipo} onChange={e => setTipo(e.target.value)} className={`${inputClass} bg-white`}>
+          <label className="filter-label">Tipo</label>
+          <select value={tipo} onChange={e => setTipo(e.target.value)} className="filter-input">
             {TIPOS.map(t => <option key={t} value={t}>{t || 'Todos'}</option>)}
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-stone-500 mb-1">Ingrediente</label>
-          <select value={ingredienteId} onChange={e => setIngredienteId(e.target.value)} className={`${inputClass} bg-white`}>
+          <label className="filter-label">Ingrediente</label>
+          <select value={ingredienteId} onChange={e => setIngredienteId(e.target.value)} className="filter-input">
             <option value="">Todos</option>
             {ingredientes.map(i => <option key={i.id} value={i.id}>{i.nome}</option>)}
           </select>
         </div>
-        <button type="submit" className="px-4 py-2 bg-stone-700 hover:bg-stone-800 text-white rounded-lg text-sm font-medium">Filtrar</button>
+        <button type="submit" className="btn-secondary">Filtrar</button>
       </form>
 
       {loading && (
-        <div className="bg-white rounded-xl shadow-sm py-16 text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-stone-200 border-t-amber-700" />
-          <p className="text-stone-500 mt-3 text-sm">Carregando...</p>
+        <div className="state-loading">
+          <div
+            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
+            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
+            role="status" aria-label="Carregando…"
+          />
+          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando movimentações…</p>
         </div>
       )}
-      {!loading && erro && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">{erro}</div>
+      {!loading && erro && <div className="state-error" role="alert">{erro}</div>}
+      {!loading && !erro && movimentacoes.length === 0 && (
+        <div className="state-loading">
+          <p className="text-sm font-semibold" style={{ color: 'var(--ada-body)', fontFamily: 'Sora, system-ui, sans-serif' }}>
+            Nenhuma movimentação no período
+          </p>
+          <p className="text-xs mt-1" style={{ color: 'var(--ada-muted)' }}>Ajuste os filtros e tente novamente.</p>
+        </div>
       )}
-      {!loading && !erro && (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          {movimentacoes.length === 0 ? (
-            <div className="py-16 text-center"><p className="text-stone-500 text-sm">Nenhuma movimentação no período.</p></div>
-          ) : (
-            <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-stone-50 border-b border-stone-200">
-                <tr>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Data/Hora</th>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Ingrediente</th>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Tipo</th>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-right">Quantidade</th>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-right">Saldo Após</th>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Referência</th>
+      {!loading && !erro && movimentacoes.length > 0 && (
+        <div className="ada-surface-card">
+          <div className="overflow-x-auto">
+            <table className="w-full" role="table">
+              <thead>
+                <tr className="table-head-row">
+                  <th className="table-th" scope="col">Data/Hora</th>
+                  <th className="table-th" scope="col">Ingrediente</th>
+                  <th className="table-th" scope="col">Tipo</th>
+                  <th className="table-th table-th-right" scope="col">Quantidade</th>
+                  <th className="table-th table-th-right" scope="col">Saldo Após</th>
+                  <th className="table-th" scope="col">Referência</th>
                 </tr>
               </thead>
               <tbody>
                 {movimentacoes.map(m => (
-                  <tr key={m.id} className="border-b border-stone-100 hover:bg-amber-50 transition-colors">
-                    <td className="px-4 py-3 text-xs text-stone-500 whitespace-nowrap">{formatarDataHora(m.criadoEm)}</td>
-                    <td className="px-4 py-3 text-sm text-stone-800">
-                      {m.ingredienteNome}
-                      <span className="text-stone-400 ml-1">({m.unidadeMedidaCodigo})</span>
+                  <tr key={m.id} className="table-row">
+                    <td className="table-td whitespace-nowrap">
+                      <span className="text-xs tabular-nums" style={{ color: 'var(--ada-muted)' }}>
+                        {formatarDataHora(m.criadoEm)}
+                      </span>
                     </td>
-                    <td className="px-4 py-3 text-sm text-stone-600">{m.tipo}</td>
-                    <td className="px-4 py-3 text-sm font-medium text-right">
-                      <span className={m.tipo.includes('Saida') || m.tipo.includes('Negativo') ? 'text-red-600' : 'text-green-600'}>
+                    <td className="table-td">
+                      <span className="text-sm" style={{ color: 'var(--ada-heading)' }}>{m.ingredienteNome}</span>
+                      <span className="text-xs ml-1" style={{ color: 'var(--ada-placeholder)' }}>({m.unidadeMedidaCodigo})</span>
+                    </td>
+                    <td className="table-td">
+                      <span className="text-sm" style={{ color: 'var(--ada-body)' }}>{m.tipo}</span>
+                    </td>
+                    <td className="table-td" style={{ textAlign: 'right' }}>
+                      <span
+                        className="text-sm font-semibold tabular-nums"
+                        style={{ color: m.tipo.includes('Saida') || m.tipo.includes('Negativo') ? 'var(--ada-error-text)' : 'var(--ada-success-text)' }}
+                      >
                         {m.tipo.includes('Saida') || m.tipo.includes('Negativo') ? '-' : '+'}{m.quantidade}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-sm text-stone-600 text-right">{m.saldoApos}</td>
-                    <td className="px-4 py-3 text-xs text-stone-500">{m.referenciaTipo ?? '—'}</td>
+                    <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
+                      <span className="text-sm" style={{ color: 'var(--ada-body)' }}>{m.saldoApos}</span>
+                    </td>
+                    <td className="table-td">
+                      <span className="text-xs" style={{ color: 'var(--ada-muted)' }}>{m.referenciaTipo ?? '—'}</span>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            </div>
-          )}
+          </div>
         </div>
       )}
     </div>

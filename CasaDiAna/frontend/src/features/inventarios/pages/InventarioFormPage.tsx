@@ -54,7 +54,7 @@ export function InventarioFormPage() {
   }
 
   return (
-    <div className="p-6 max-w-lg">
+    <div className="ada-page max-w-lg">
       {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
 
       <Link

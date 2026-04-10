@@ -61,29 +61,43 @@ export function CategoriasProdutoPage() {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-stone-800">Categorias de Produto</h1>
-        {podeEditar && (
-          <button
-            onClick={abrirCriar}
-            className="flex items-center gap-2 bg-amber-700 hover:bg-amber-800 text-white
-                       px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+    <div className="ada-page">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+        <div>
+          <h1
+            className="text-xl font-bold tracking-tight"
+            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
           >
-            <PlusIcon className="h-4 w-4" />
+            Categorias de Produto
+          </h1>
+          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
+            {loading
+              ? 'Carregando…'
+              : `${categorias.length} categoria${categorias.length !== 1 ? 's' : ''} cadastrada${categorias.length !== 1 ? 's' : ''}`
+            }
+          </p>
+        </div>
+        {podeEditar && (
+          <button onClick={abrirCriar} className="btn-primary">
+            <PlusIcon className="h-4 w-4" aria-hidden="true" />
             Nova Categoria
           </button>
         )}
       </div>
 
       {loading && (
-        <div className="bg-white rounded-xl shadow-sm py-16 text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-stone-200 border-t-amber-700" />
-          <p className="text-stone-500 mt-3 text-sm">Carregando...</p>
+        <div className="state-loading">
+          <div
+            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
+            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
+            role="status"
+            aria-label="Carregando…"
+          />
+          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando categorias…</p>
         </div>
       )}
       {!loading && erro && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">{erro}</div>
+        <div className="state-error" role="alert">{erro}</div>
       )}
       {!loading && !erro && (
         <TabelaCategoriasProduto

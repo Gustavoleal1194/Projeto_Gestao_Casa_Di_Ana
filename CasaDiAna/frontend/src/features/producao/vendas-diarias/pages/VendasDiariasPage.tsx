@@ -1,16 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PlusIcon } from '@heroicons/react/20/solid'
+import { CalendarIcon } from '@heroicons/react/24/outline'
 import { useVendasDiarias } from '../hooks/useVendasDiarias'
 import { useAuthStore } from '@/store/authStore'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import type { ProdutoResumo } from '@/types/producao'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
-
-const inputClass =
-  'border border-stone-200 rounded-lg px-3 py-2 text-sm bg-white ' +
-  'focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent'
 
 export function VendasDiariasPage() {
   const navigate = useNavigate()
@@ -28,86 +25,136 @@ export function VendasDiariasPage() {
   const handleFiltrar = () => carregar(de, ate, produtoFiltro || undefined)
 
   return (
-    <div className="p-6">
+    <div className="ada-page">
+
+      {/* ── Cabeçalho ──────────────────────────────────────────────────── */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-stone-800">Vendas Diárias</h1>
+        <div>
+          <h1
+            className="text-xl font-bold tracking-tight"
+            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
+          >
+            Vendas Diárias
+          </h1>
+          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
+            {loading ? 'Carregando…' : `${vendas.length} venda${vendas.length !== 1 ? 's' : ''} no período`}
+          </p>
+        </div>
         {podeEditar && (
           <button
             onClick={() => navigate('/producao/vendas/nova')}
-            className="flex items-center gap-2 bg-amber-700 hover:bg-amber-800 text-white
-                       px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            className="btn-primary"
           >
-            <PlusIcon className="h-4 w-4" />
+            <PlusIcon className="h-4 w-4" aria-hidden="true" />
             Registrar Venda
           </button>
         )}
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-4 mb-6 flex flex-wrap gap-3 items-end">
+      {/* ── Filtros ─────────────────────────────────────────────────────── */}
+      <div className="filter-bar" role="search" aria-label="Filtrar vendas">
+        <CalendarIcon className="h-4 w-4 shrink-0" style={{ color: 'var(--ada-placeholder)' }} aria-hidden="true" />
         <div>
-          <label className="block text-xs font-medium text-stone-500 mb-1">De</label>
-          <input type="date" value={de} onChange={e => setDe(e.target.value)} className={inputClass} />
+          <label htmlFor="venda-de" className="filter-label">De</label>
+          <input id="venda-de" type="date" value={de} onChange={e => setDe(e.target.value)} className="filter-input" />
         </div>
         <div>
-          <label className="block text-xs font-medium text-stone-500 mb-1">Até</label>
-          <input type="date" value={ate} onChange={e => setAte(e.target.value)} className={inputClass} />
+          <label htmlFor="venda-ate" className="filter-label">Até</label>
+          <input id="venda-ate" type="date" value={ate} onChange={e => setAte(e.target.value)} className="filter-input" />
         </div>
         <div>
-          <label className="block text-xs font-medium text-stone-500 mb-1">Produto</label>
-          <select value={produtoFiltro} onChange={e => setProdutoFiltro(e.target.value)} className={inputClass}>
+          <label htmlFor="venda-produto" className="filter-label">Produto</label>
+          <select
+            id="venda-produto"
+            value={produtoFiltro}
+            onChange={e => setProdutoFiltro(e.target.value)}
+            className="filter-input"
+            style={{ paddingRight: '2rem' }}
+          >
             <option value="">Todos</option>
             {produtos.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
           </select>
         </div>
-        <button
-          onClick={handleFiltrar}
-          className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-white rounded-lg text-sm font-medium"
-        >
+        <button type="button" onClick={handleFiltrar} className="btn-secondary">
           Filtrar
         </button>
       </div>
 
+      {/* ── Estados ────────────────────────────────────────────────────── */}
       {loading && (
-        <div className="bg-white rounded-xl shadow-sm py-16 text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-stone-200 border-t-amber-700" />
-          <p className="text-stone-500 mt-3 text-sm">Carregando...</p>
+        <div className="state-loading">
+          <div
+            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
+            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
+            role="status"
+            aria-label="Carregando…"
+          />
+          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando vendas…</p>
         </div>
       )}
       {!loading && erro && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">{erro}</div>
+        <div className="state-error" role="alert">{erro}</div>
       )}
+
+      {/* ── Tabela ─────────────────────────────────────────────────────── */}
       {!loading && !erro && (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="ada-surface-card">
           {vendas.length === 0 ? (
-            <div className="py-16 text-center">
-              <p className="text-stone-500 text-sm">Nenhuma venda registrada no período.</p>
+            <div className="state-empty">
+              <div
+                className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
+                style={{ background: 'var(--ada-bg)', border: '1px solid var(--ada-border)' }}
+                aria-hidden="true"
+              >
+                <svg className="w-6 h-6" style={{ color: 'var(--ada-placeholder)' }} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <p className="text-sm font-semibold" style={{ color: 'var(--ada-body)', fontFamily: 'Sora, system-ui, sans-serif' }}>
+                Nenhuma venda registrada no período
+              </p>
+              <p className="text-xs mt-1" style={{ color: 'var(--ada-muted)' }}>
+                Ajuste os filtros ou registre uma nova venda.
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-stone-50 border-b border-stone-200">
-                <tr>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Data</th>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Produto</th>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-right">Qtd Vendida</th>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Registrado em</th>
-                </tr>
-              </thead>
-              <tbody>
-                {vendas.map(v => (
-                  <tr key={v.id} className="border-b border-stone-100 hover:bg-amber-50 transition-colors">
-                    <td className="px-4 py-3 text-sm text-stone-600">
-                      {new Date(v.data).toLocaleDateString('pt-BR')}
-                    </td>
-                    <td className="px-4 py-3 text-sm font-medium text-stone-800">{v.produtoNome}</td>
-                    <td className="px-4 py-3 text-sm text-stone-800 text-right font-semibold">{v.quantidadeVendida}</td>
-                    <td className="px-4 py-3 text-sm text-stone-500">
-                      {new Date(v.criadoEm).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
-                    </td>
+              <table className="w-full" role="table">
+                <thead>
+                  <tr className="table-head-row">
+                    <th className="table-th" scope="col">Data</th>
+                    <th className="table-th" scope="col">Produto</th>
+                    <th className="table-th table-th-right" scope="col">Qtd Vendida</th>
+                    <th className="table-th" scope="col">Registrado em</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {vendas.map(v => (
+                    <tr key={v.id} className="table-row">
+                      <td className="table-td">
+                        <span className="text-sm" style={{ color: 'var(--ada-body)' }}>
+                          {new Date(v.data).toLocaleDateString('pt-BR')}
+                        </span>
+                      </td>
+                      <td className="table-td">
+                        <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>
+                          {v.produtoNome}
+                        </span>
+                      </td>
+                      <td className="table-td" style={{ textAlign: 'right' }}>
+                        <span className="text-sm font-bold tabular-nums" style={{ color: 'var(--ada-heading)' }}>
+                          {v.quantidadeVendida}
+                        </span>
+                      </td>
+                      <td className="table-td">
+                        <span className="text-sm" style={{ color: 'var(--ada-muted)' }}>
+                          {new Date(v.criadoEm).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>

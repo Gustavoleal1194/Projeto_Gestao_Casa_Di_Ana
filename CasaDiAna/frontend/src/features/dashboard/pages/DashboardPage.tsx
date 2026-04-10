@@ -533,7 +533,7 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="p-6 space-y-6 max-w-[1280px] mx-auto">
+    <div className="ada-page space-y-6 max-w-[1280px] mx-auto">
 
       {/* ── Cabeçalho ─────────────────────────────────────────────────── */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">

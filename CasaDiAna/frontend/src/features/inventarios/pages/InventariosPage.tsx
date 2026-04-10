@@ -5,11 +5,11 @@ import { useAuthStore } from '@/store/authStore'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
 
-function badgeStatus(status: string) {
-  if (status === 'EmAndamento') return 'bg-amber-100 text-amber-700'
-  if (status === 'Finalizado') return 'bg-green-100 text-green-700'
-  if (status === 'Cancelado') return 'bg-red-100 text-red-700'
-  return 'bg-stone-100 text-stone-500'
+function getBadgeClass(status: string) {
+  if (status === 'EmAndamento') return 'badge badge-warning'
+  if (status === 'Finalizado') return 'badge badge-active'
+  if (status === 'Cancelado') return 'badge badge-danger'
+  return 'badge badge-inactive'
 }
 
 function labelStatus(status: string) {
@@ -28,66 +28,114 @@ export function InventariosPage() {
   const podeCriar = temPapel(...PAPEIS_EDICAO)
 
   return (
-    <div className="p-6">
+    <div className="ada-page">
+
+      {/* ── Cabeçalho ──────────────────────────────────────────────────── */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-stone-800">Inventários</h1>
+        <div>
+          <h1
+            className="text-xl font-bold tracking-tight"
+            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
+          >
+            Inventários
+          </h1>
+          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
+            {loading
+              ? 'Carregando…'
+              : `${inventarios.length} inventário${inventarios.length !== 1 ? 's' : ''} registrado${inventarios.length !== 1 ? 's' : ''}`
+            }
+          </p>
+        </div>
         {podeCriar && (
           <button
             onClick={() => navigate('/inventarios/novo')}
-            className="flex items-center gap-2 bg-amber-700 hover:bg-amber-800 text-white
-                       px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            className="btn-primary"
           >
-            <PlusIcon className="h-4 w-4" />
+            <PlusIcon className="h-4 w-4" aria-hidden="true" />
             Novo Inventário
           </button>
         )}
       </div>
 
+      {/* ── Estados ────────────────────────────────────────────────────── */}
       {loading && (
-        <div className="bg-white rounded-xl shadow-sm py-16 text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-stone-200 border-t-amber-700" />
-          <p className="text-stone-500 mt-3 text-sm">Carregando inventários...</p>
+        <div className="state-loading">
+          <div
+            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
+            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
+            role="status"
+            aria-label="Carregando inventários…"
+          />
+          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando inventários…</p>
         </div>
       )}
       {!loading && erro && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">{erro}</div>
+        <div className="state-error" role="alert">{erro}</div>
       )}
+
+      {/* ── Tabela ─────────────────────────────────────────────────────── */}
       {!loading && !erro && (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="ada-surface-card">
           {inventarios.length === 0 ? (
-            <div className="py-16 text-center">
-              <p className="text-stone-500 text-sm">Nenhum inventário registrado.</p>
+            <div className="state-empty">
+              <div
+                className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
+                style={{ background: 'var(--ada-bg)', border: '1px solid var(--ada-border)' }}
+                aria-hidden="true"
+              >
+                <svg className="w-6 h-6" style={{ color: 'var(--ada-placeholder)' }} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <p className="text-sm font-semibold" style={{ color: 'var(--ada-body)', fontFamily: 'Sora, system-ui, sans-serif' }}>
+                Nenhum inventário registrado
+              </p>
+              <p className="text-xs mt-1" style={{ color: 'var(--ada-muted)' }}>
+                Crie um inventário para contabilizar o estoque.
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-stone-50 border-b border-stone-200">
-                <tr>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Data</th>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Descrição</th>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Itens</th>
-                  <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {inventarios.map(inv => (
-                  <tr
-                    key={inv.id}
-                    onClick={() => navigate(`/inventarios/${inv.id}`)}
-                    className="border-b border-stone-100 hover:bg-amber-50 transition-colors cursor-pointer"
-                  >
-                    <td className="px-4 py-3 text-sm text-stone-800">{formatarData(inv.dataRealizacao)}</td>
-                    <td className="px-4 py-3 text-sm text-stone-600">{inv.descricao ?? '—'}</td>
-                    <td className="px-4 py-3 text-sm text-stone-600">{inv.totalItens}</td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${badgeStatus(inv.status)}`}>
-                        {labelStatus(inv.status)}
-                      </span>
-                    </td>
+              <table className="w-full" role="table">
+                <thead>
+                  <tr className="table-head-row">
+                    <th className="table-th" scope="col">Data</th>
+                    <th className="table-th" scope="col">Descrição</th>
+                    <th className="table-th" scope="col">Itens</th>
+                    <th className="table-th" scope="col">Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {inventarios.map(inv => (
+                    <tr
+                      key={inv.id}
+                      onClick={() => navigate(`/inventarios/${inv.id}`)}
+                      className="table-row table-row-clickable"
+                    >
+                      <td className="table-td">
+                        <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>
+                          {formatarData(inv.dataRealizacao)}
+                        </span>
+                      </td>
+                      <td className="table-td">
+                        <span className="text-sm" style={{ color: inv.descricao ? 'var(--ada-body)' : 'var(--ada-placeholder)' }}>
+                          {inv.descricao ?? '—'}
+                        </span>
+                      </td>
+                      <td className="table-td">
+                        <span className="text-sm tabular-nums" style={{ color: 'var(--ada-body)' }}>
+                          {inv.totalItens}
+                        </span>
+                      </td>
+                      <td className="table-td">
+                        <span className={getBadgeClass(inv.status)}>
+                          {labelStatus(inv.status)}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>

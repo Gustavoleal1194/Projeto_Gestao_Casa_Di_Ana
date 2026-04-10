@@ -26,11 +26,11 @@ const itemSchema = z.object({
   observacoes: z.string(),
 })
 
-function badgeStatus(status: string) {
-  if (status === 'EmAndamento') return 'bg-amber-100 text-amber-700'
-  if (status === 'Finalizado') return 'bg-green-100 text-green-700'
-  if (status === 'Cancelado') return 'bg-red-100 text-red-700'
-  return 'bg-stone-100 text-stone-500'
+function getBadgeClass(status: string) {
+  if (status === 'EmAndamento') return 'badge badge-warning'
+  if (status === 'Finalizado') return 'badge badge-active'
+  if (status === 'Cancelado') return 'badge badge-danger'
+  return 'badge badge-inactive'
 }
 
 function labelStatus(status: string) {
@@ -123,57 +123,67 @@ export function InventarioDetalhePage() {
 
   if (loading) {
     return (
-      <div className="p-6 flex justify-center py-32">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-stone-200 border-t-amber-700" />
+      <div className="ada-page">
+        <div className="state-loading py-32">
+          <div
+            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
+            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
+            role="status" aria-label="Carregando…"
+          />
+          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando inventário…</p>
+        </div>
       </div>
     )
   }
 
   if (erro || !inventario) {
     return (
-      <div className="p-6">
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
-          {erro ?? 'Inventário não encontrado.'}
-        </div>
+      <div className="ada-page">
+        <div className="state-error" role="alert">{erro ?? 'Inventário não encontrado.'}</div>
       </div>
     )
   }
 
   return (
-    <div className="p-6 max-w-4xl">
+    <div className="ada-page max-w-4xl">
       <button
         onClick={() => navigate('/inventarios')}
-        className="flex items-center gap-1 text-sm text-stone-500 hover:text-amber-700 mb-6 transition-colors"
+        className="inline-flex items-center gap-1.5 text-sm font-medium mb-5 transition-colors duration-150"
+        style={{ color: 'var(--ada-muted)' }}
+        onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#C4870A'}
+        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--ada-muted)'}
       >
         <ChevronLeftIcon className="h-4 w-4" />
         Inventários
       </button>
 
-      <div className="flex items-start justify-between mb-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-semibold text-stone-800">
+          <h1
+            className="text-xl font-bold tracking-tight"
+            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
+          >
             {inventario.descricao ?? `Inventário de ${formatarData(inventario.dataRealizacao)}`}
           </h1>
-          <p className="text-stone-500 text-sm mt-1">
+          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
             {formatarData(inventario.dataRealizacao)}
             {inventario.finalizadoEm && ` · Finalizado em ${formatarData(inventario.finalizadoEm)}`}
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${badgeStatus(inventario.status)}`}>
-            {labelStatus(inventario.status)}
-          </span>
+        <div className="flex items-center gap-3 shrink-0">
+          <span className={getBadgeClass(inventario.status)}>{labelStatus(inventario.status)}</span>
           {podeEditar && emAndamento && (
             <>
               <button
                 onClick={() => setConfirmandoCancelar(true)}
-                className="px-4 py-2 border border-stone-200 text-stone-600 hover:bg-stone-50 rounded-lg text-sm font-medium transition-colors"
+                className="btn-secondary"
               >
-                Cancelar
+                Cancelar Inventário
               </button>
               <button
                 onClick={() => setConfirmandoFinalizar(true)}
-                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all duration-150"
+                style={{ background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)', boxShadow: '0 3px 10px rgba(22,163,74,0.28)' }}
               >
                 Finalizar
               </button>
@@ -183,12 +193,9 @@ export function InventarioDetalhePage() {
       </div>
 
       {podeEditar && emAndamento && (
-        <div
-          className="rounded-xl p-5 mb-4"
-          style={{ background: 'var(--ada-surface)', border: '1px solid var(--ada-border)', boxShadow: 'var(--shadow-sm)' }}
-        >
+        <div className="ada-surface-card p-5 mb-4">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-[3px] h-3.5 rounded-full shrink-0" style={{ background: '#C4870A' }} />
+            <div className="w-[3px] h-3.5 rounded-full shrink-0" style={{ background: '#C4870A' }} aria-hidden="true" />
             <span
               className="text-[10.5px] font-semibold uppercase tracking-[0.10em]"
               style={{ color: 'var(--ada-muted)', fontFamily: 'Sora, system-ui, sans-serif' }}
@@ -197,44 +204,37 @@ export function InventarioDetalhePage() {
             </span>
           </div>
           <form onSubmit={handleSubmit(handleAdicionarItem)}>
-            <div className="grid grid-cols-[1fr_120px_180px_auto] gap-3 items-start">
-              <div>
-                <SelectCampo
-                  label="Ingrediente"
-                  obrigatorio
-                  opcoes={ingredientes.map(ing => ({
-                    valor: ing.id,
-                    rotulo: `${ing.nome} (${ing.unidadeMedidaCodigo})`,
-                  }))}
-                  {...register('ingredienteId')}
-                  erro={errors.ingredienteId?.message}
-                />
-              </div>
-              <div>
-                <CampoTexto
-                  label="Qtd. contada"
-                  obrigatorio
-                  type="number"
-                  step="0.001"
-                  min="0"
-                  placeholder="0"
-                  {...register('quantidadeContada')}
-                  erro={errors.quantidadeContada?.message}
-                />
-              </div>
-              <div>
-                <CampoTexto
-                  label="Observação"
-                  placeholder="Opcional"
-                  {...register('observacoes')}
-                />
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-[1fr_120px_180px_auto] gap-3 items-start">
+              <SelectCampo
+                label="Ingrediente"
+                obrigatorio
+                opcoes={ingredientes.map(ing => ({
+                  valor: ing.id,
+                  rotulo: `${ing.nome} (${ing.unidadeMedidaCodigo})`,
+                }))}
+                {...register('ingredienteId')}
+                erro={errors.ingredienteId?.message}
+              />
+              <CampoTexto
+                label="Qtd. contada"
+                obrigatorio
+                type="number"
+                step="0.001"
+                min="0"
+                placeholder="0"
+                {...register('quantidadeContada')}
+                erro={errors.quantidadeContada?.message}
+              />
+              <CampoTexto
+                label="Observação"
+                placeholder="Opcional"
+                {...register('observacoes')}
+              />
               <div className="pt-[22px]">
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex items-center gap-1 px-4 py-2.5 text-white rounded-lg text-sm font-semibold disabled:opacity-50 whitespace-nowrap"
-                  style={{ background: 'linear-gradient(135deg, #D4960C 0%, #B87D0A 100%)', boxShadow: '0 3px 10px rgba(196,135,10,0.28)' }}
+                  className="btn-primary whitespace-nowrap"
                 >
                   <PlusIcon className="h-4 w-4" />
                   {isSubmitting ? '…' : 'Adicionar'}
@@ -245,58 +245,86 @@ export function InventarioDetalhePage() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div className="ada-surface-card">
         {inventario.itens.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-stone-500 text-sm">Nenhum item lançado ainda.</p>
+            <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Nenhum item lançado ainda.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-stone-50 border-b border-stone-200">
-              <tr>
-                <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Ingrediente</th>
-                <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-right">Sistema</th>
-                <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-right">Contado</th>
-                <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-right">Diferença</th>
-                <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Obs.</th>
-              </tr>
-            </thead>
-            <tbody>
-              {inventario.itens.map(item => (
-                <tr key={item.id} className="border-b border-stone-100">
-                  <td className="px-4 py-3 text-sm text-stone-800">
-                    {item.ingredienteNome}
-                    <span className="text-stone-400 ml-1">({item.unidadeMedidaCodigo})</span>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-stone-600 text-right">{item.quantidadeSistema}</td>
-                  <td className="px-4 py-3 text-sm text-stone-800 font-medium text-right">{item.quantidadeContada}</td>
-                  <td className="px-4 py-3 text-right">
-                    <span className={`text-sm font-medium ${
-                      item.diferenca < 0 ? 'text-red-600' : item.diferenca > 0 ? 'text-green-600' : 'text-stone-500'
-                    }`}>
-                      {item.diferenca > 0 ? '+' : ''}{item.diferenca}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-stone-500">{item.observacoes ?? '—'}</td>
+            <table className="w-full" role="table">
+              <thead>
+                <tr className="table-head-row">
+                  <th className="table-th" scope="col">Ingrediente</th>
+                  <th className="table-th table-th-right" scope="col">Sistema</th>
+                  <th className="table-th table-th-right" scope="col">Contado</th>
+                  <th className="table-th table-th-right" scope="col">Diferença</th>
+                  <th className="table-th" scope="col">Observação</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {inventario.itens.map(item => (
+                  <tr key={item.id} className="table-row">
+                    <td className="table-td">
+                      <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>{item.ingredienteNome}</span>
+                      <span className="text-xs ml-1" style={{ color: 'var(--ada-placeholder)' }}>({item.unidadeMedidaCodigo})</span>
+                    </td>
+                    <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
+                      <span className="text-sm" style={{ color: 'var(--ada-muted)' }}>{item.quantidadeSistema}</span>
+                    </td>
+                    <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
+                      <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>{item.quantidadeContada}</span>
+                    </td>
+                    <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
+                      <span
+                        className="text-sm font-semibold"
+                        style={{
+                          color: item.diferenca < 0 ? 'var(--ada-error-text)'
+                            : item.diferenca > 0 ? 'var(--ada-success-text)'
+                            : 'var(--ada-muted)'
+                        }}
+                      >
+                        {item.diferenca > 0 ? '+' : ''}{item.diferenca}
+                      </span>
+                    </td>
+                    <td className="table-td">
+                      <span className="text-sm" style={{ color: 'var(--ada-muted)' }}>{item.observacoes ?? '—'}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
 
       {confirmandoFinalizar && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div className="absolute inset-0 bg-black/30" onClick={() => setConfirmandoFinalizar(false)} />
-          <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
-            <h2 className="text-base font-semibold text-stone-800 mb-2">Finalizar inventário?</h2>
-            <p className="text-sm text-stone-500 mb-5">O estoque será ajustado conforme as diferenças. Esta ação não pode ser desfeita.</p>
-            <div className="flex justify-end gap-3">
-              <button onClick={() => setConfirmandoFinalizar(false)} className="px-4 py-2.5 border border-stone-200 rounded-lg text-sm text-stone-600 hover:bg-stone-50 font-medium">Voltar</button>
-              <button onClick={handleFinalizar} disabled={processando} className="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium disabled:opacity-50">
-                {processando ? 'Finalizando...' : 'Confirmar'}
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(4px)' }}>
+          <div
+            className="w-full max-w-sm mx-4 rounded-2xl p-6"
+            style={{ background: 'var(--ada-surface)', boxShadow: 'var(--shadow-xl)' }}
+          >
+            <h2 className="text-base font-bold mb-1" style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}>
+              Finalizar inventário?
+            </h2>
+            <p className="text-sm mb-5" style={{ color: 'var(--ada-muted)' }}>
+              O estoque será ajustado conforme as diferenças. Esta ação não pode ser desfeita.
+            </p>
+            <div className="flex justify-end gap-2.5 pt-4" style={{ borderTop: '1px solid var(--ada-border-sub)' }}>
+              <button
+                onClick={() => setConfirmandoFinalizar(false)}
+                className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 hover:bg-[var(--ada-bg)]"
+                style={{ border: '1px solid var(--ada-border)', color: 'var(--ada-body)', background: 'var(--ada-surface)' }}
+              >
+                Voltar
+              </button>
+              <button
+                onClick={handleFinalizar}
+                disabled={processando}
+                className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60 transition-all duration-150"
+                style={{ background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)', boxShadow: '0 3px 10px rgba(22,163,74,0.28)' }}
+              >
+                {processando ? 'Finalizando…' : 'Confirmar'}
               </button>
             </div>
           </div>
@@ -304,15 +332,32 @@ export function InventarioDetalhePage() {
       )}
 
       {confirmandoCancelar && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div className="absolute inset-0 bg-black/30" onClick={() => setConfirmandoCancelar(false)} />
-          <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
-            <h2 className="text-base font-semibold text-stone-800 mb-2">Cancelar inventário?</h2>
-            <p className="text-sm text-stone-500 mb-5">Nenhum ajuste de estoque será feito.</p>
-            <div className="flex justify-end gap-3">
-              <button onClick={() => setConfirmandoCancelar(false)} className="px-4 py-2.5 border border-stone-200 rounded-lg text-sm text-stone-600 hover:bg-stone-50 font-medium">Voltar</button>
-              <button onClick={handleCancelar} disabled={processando} className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium disabled:opacity-50">
-                {processando ? 'Cancelando...' : 'Confirmar Cancelamento'}
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(4px)' }}>
+          <div
+            className="w-full max-w-sm mx-4 rounded-2xl p-6"
+            style={{ background: 'var(--ada-surface)', boxShadow: 'var(--shadow-xl)' }}
+          >
+            <h2 className="text-base font-bold mb-1" style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}>
+              Cancelar inventário?
+            </h2>
+            <p className="text-sm mb-5" style={{ color: 'var(--ada-muted)' }}>
+              Nenhum ajuste de estoque será feito.
+            </p>
+            <div className="flex justify-end gap-2.5 pt-4" style={{ borderTop: '1px solid var(--ada-border-sub)' }}>
+              <button
+                onClick={() => setConfirmandoCancelar(false)}
+                className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 hover:bg-[var(--ada-bg)]"
+                style={{ border: '1px solid var(--ada-border)', color: 'var(--ada-body)', background: 'var(--ada-surface)' }}
+              >
+                Voltar
+              </button>
+              <button
+                onClick={handleCancelar}
+                disabled={processando}
+                className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60 transition-all duration-150"
+                style={{ background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)', boxShadow: '0 3px 10px rgba(220,38,38,0.28)' }}
+              >
+                {processando ? 'Cancelando…' : 'Confirmar Cancelamento'}
               </button>
             </div>
           </div>

@@ -83,7 +83,7 @@ export function NotificacoesPage() {
   const naoLidasCount = notificacoes.filter(n => !n.lida).length
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
+    <div className="ada-page max-w-3xl">
       {/* ── Cabeçalho ─────────────────────────────────────────────────── */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
@@ -112,58 +112,29 @@ export function NotificacoesPage() {
           </label>
 
           {naoLidasCount > 0 && (
-            <button
-              onClick={handleMarcarTodasLidas}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
-              style={{
-                border: '1px solid var(--ada-border)',
-                color: 'var(--ada-body)',
-                background: 'transparent',
-              }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'var(--ada-hover)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-            >
-              <CheckIcon className="h-4 w-4" />
+            <button onClick={handleMarcarTodasLidas} className="btn-secondary">
+              <CheckIcon className="h-4 w-4" aria-hidden="true" />
               Marcar todas como lidas
             </button>
           )}
         </div>
       </div>
 
-      {/* ── Loading ────────────────────────────────────────────────────── */}
       {loading && (
-        <div
-          className="rounded-xl py-16 text-center"
-          style={{ background: 'var(--ada-surface)', border: '1px solid var(--ada-border)', boxShadow: 'var(--shadow-sm)' }}
-        >
+        <div className="state-loading">
           <div
-            className="inline-block h-8 w-8 animate-spin rounded-full mb-3"
-            style={{ border: '3px solid var(--ada-border)', borderTopColor: '#C4870A' }}
+            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
+            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
+            role="status" aria-label="Carregando…"
           />
-          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando…</p>
+          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando notificações…</p>
         </div>
       )}
 
-      {/* ── Erro ───────────────────────────────────────────────────────── */}
-      {!loading && erro && (
-        <div
-          className="rounded-xl px-4 py-3 text-sm"
-          style={{
-            background: 'var(--ada-error-bg)',
-            border: '1px solid var(--ada-error-border)',
-            color: 'var(--ada-error-text)',
-          }}
-        >
-          {erro}
-        </div>
-      )}
+      {!loading && erro && <div className="state-error" role="alert">{erro}</div>}
 
-      {/* ── Lista ──────────────────────────────────────────────────────── */}
       {!loading && !erro && (
-        <div
-          className="rounded-xl overflow-hidden"
-          style={{ background: 'var(--ada-surface)', border: '1px solid var(--ada-border)', boxShadow: 'var(--shadow-sm)' }}
-        >
+        <div className="ada-surface-card">
           {notificacoes.length === 0 ? (
             <div className="py-20 text-center flex flex-col items-center gap-3">
               <div

@@ -23,10 +23,6 @@ function pct(v: number | null): string {
   return `${v.toFixed(1)}%`
 }
 
-const inputClass =
-  'border border-stone-200 rounded-lg px-3 py-2 text-sm bg-white ' +
-  'focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent'
-
 export function ProducaoVendasRelatorioPage() {
   const [relatorio, setRelatorio] = useState<RelatorioProducaoVendas | null>(null)
   const [produtos, setProdutos] = useState<ProdutoResumo[]>([])
@@ -69,149 +65,172 @@ export function ProducaoVendasRelatorioPage() {
   )
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-stone-800">Relatório Produção / Vendas</h1>
-        {relatorio && relatorio.itens.length > 0 && (
-          <button
-            onClick={() => gerarPdfProducaoVendas(relatorio.itens, de, ate)}
-            className="flex items-center gap-2 px-3 py-2 border border-stone-200 rounded-lg text-sm text-stone-600 hover:bg-stone-50 font-medium"
+    <div className="ada-page">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+        <div>
+          <h1
+            className="text-xl font-bold tracking-tight"
+            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
           >
-            <ArrowDownTrayIcon className="h-4 w-4" />
+            Relatório Produção / Vendas
+          </h1>
+          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
+            Análise de produção, vendas, perdas e margens
+          </p>
+        </div>
+        {relatorio && relatorio.itens.length > 0 && (
+          <button onClick={() => gerarPdfProducaoVendas(relatorio!.itens, de, ate)} className="btn-secondary">
+            <ArrowDownTrayIcon className="h-4 w-4" aria-hidden="true" />
             Baixar PDF
           </button>
         )}
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-4 mb-6 flex flex-wrap gap-3 items-end">
+      <div className="filter-bar" role="search" aria-label="Filtrar relatório">
         <div>
-          <label className="block text-xs font-medium text-stone-500 mb-1">De</label>
-          <input type="date" value={de} onChange={e => setDe(e.target.value)} className={inputClass} />
+          <label className="filter-label">De</label>
+          <input type="date" value={de} onChange={e => setDe(e.target.value)} className="filter-input" />
         </div>
         <div>
-          <label className="block text-xs font-medium text-stone-500 mb-1">Até</label>
-          <input type="date" value={ate} onChange={e => setAte(e.target.value)} className={inputClass} />
+          <label className="filter-label">Até</label>
+          <input type="date" value={ate} onChange={e => setAte(e.target.value)} className="filter-input" />
         </div>
         <div>
-          <label className="block text-xs font-medium text-stone-500 mb-1">Produto</label>
-          <select value={produtoFiltro} onChange={e => setProdutoFiltro(e.target.value)} className={inputClass}>
+          <label className="filter-label">Produto</label>
+          <select value={produtoFiltro} onChange={e => setProdutoFiltro(e.target.value)} className="filter-input">
             <option value="">Todos</option>
             {produtos.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
           </select>
         </div>
-        <button
-          onClick={handleFiltrar}
-          className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-white rounded-lg text-sm font-medium"
-        >
-          Filtrar
-        </button>
+        <button type="button" onClick={handleFiltrar} className="btn-secondary">Filtrar</button>
       </div>
 
       {loading && (
-        <div className="bg-white rounded-xl shadow-sm py-16 text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-stone-200 border-t-amber-700" />
-          <p className="text-stone-500 mt-3 text-sm">Carregando relatório...</p>
+        <div className="state-loading">
+          <div
+            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
+            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
+            role="status" aria-label="Carregando…"
+          />
+          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando relatório…</p>
         </div>
       )}
-      {!loading && erro && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">{erro}</div>
-      )}
+      {!loading && erro && <div className="state-error" role="alert">{erro}</div>}
       {!loading && !erro && relatorio && (
         <>
           {totais && (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-              <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-4">
-                <p className="text-xs text-stone-500 mb-1">Total Produzido</p>
-                <p className="text-xl font-semibold text-stone-800">{totais.produzido.toFixed(0)}</p>
-              </div>
-              <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-4">
-                <p className="text-xs text-stone-500 mb-1">Total Vendido</p>
-                <p className="text-xl font-semibold text-stone-800">{totais.vendido.toFixed(0)}</p>
-              </div>
-              <div className={`rounded-xl shadow-sm border p-4 ${totais.perda > 0 ? 'bg-red-50 border-red-200' : 'bg-white border-stone-200'}`}>
-                <p className="text-xs text-stone-500 mb-1">Perda Total</p>
-                <p className={`text-xl font-semibold ${totais.perda > 0 ? 'text-red-700' : 'text-stone-800'}`}>
-                  {totais.perda.toFixed(0)}
-                </p>
-              </div>
-              <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-4">
-                <p className="text-xs text-stone-500 mb-1">Custo Produção</p>
-                <p className="text-lg font-semibold text-stone-800">{brl(totais.custoProducao)}</p>
-              </div>
-              <div className={`rounded-xl shadow-sm border p-4 ${totais.custoPerda > 0 ? 'bg-red-50 border-red-200' : 'bg-white border-stone-200'}`}>
-                <p className="text-xs text-stone-500 mb-1">Custo da Perda</p>
-                <p className={`text-lg font-semibold ${totais.custoPerda > 0 ? 'text-red-700' : 'text-stone-800'}`}>
-                  {brl(totais.custoPerda)}
-                </p>
-              </div>
-              <div className="bg-green-50 rounded-xl shadow-sm border border-green-200 p-4">
-                <p className="text-xs text-stone-500 mb-1">Receita Estimada</p>
-                <p className="text-lg font-semibold text-green-700">{brl(totais.receita)}</p>
-              </div>
+              {[
+                { label: 'Total Produzido', value: totais.produzido.toFixed(0), color: 'var(--ada-heading)', highlight: false },
+                { label: 'Total Vendido', value: totais.vendido.toFixed(0), color: 'var(--ada-success-text)', highlight: false },
+                { label: 'Perda Total', value: totais.perda.toFixed(0), color: totais.perda > 0 ? 'var(--ada-error-text)' : 'var(--ada-heading)', highlight: totais.perda > 0 },
+                { label: 'Custo Produção', value: brl(totais.custoProducao), color: 'var(--ada-heading)', highlight: false },
+                { label: 'Custo da Perda', value: brl(totais.custoPerda), color: totais.custoPerda > 0 ? 'var(--ada-error-text)' : 'var(--ada-heading)', highlight: totais.custoPerda > 0 },
+                { label: 'Receita Estimada', value: brl(totais.receita), color: 'var(--ada-success-text)', highlight: false },
+              ].map(card => (
+                <div
+                  key={card.label}
+                  className="ada-surface-card p-4"
+                  style={card.highlight ? { background: 'var(--ada-error-bg)', borderColor: 'var(--ada-error-border)' } : {}}
+                >
+                  <p
+                    className="text-[10.5px] font-semibold uppercase tracking-[0.10em] mb-1"
+                    style={{ color: 'var(--ada-muted)', fontFamily: 'Sora, system-ui, sans-serif' }}
+                  >
+                    {card.label}
+                  </p>
+                  <p className="text-xl font-bold tabular-nums" style={{ color: card.color }}>{card.value}</p>
+                </div>
+              ))}
             </div>
           )}
 
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            {relatorio.itens.length === 0 ? (
-              <div className="py-16 text-center">
-                <p className="text-stone-500 text-sm">Nenhum produto com produção ou venda no período.</p>
-              </div>
-            ) : (
+          {relatorio.itens.length === 0 ? (
+            <div className="state-loading">
+              <p className="text-sm font-semibold" style={{ color: 'var(--ada-body)', fontFamily: 'Sora, system-ui, sans-serif' }}>
+                Nenhum produto com produção ou venda no período
+              </p>
+              <p className="text-xs mt-1" style={{ color: 'var(--ada-muted)' }}>Ajuste os filtros e tente novamente.</p>
+            </div>
+          ) : (
+            <div className="ada-surface-card">
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[900px]">
-                  <thead className="bg-stone-50 border-b border-stone-200">
-                    <tr>
-                      <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-left">Produto</th>
-                      <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-right">Preço Venda</th>
-                      <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-right">Produzido</th>
-                      <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-right">Vendido</th>
-                      <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-right">Perda</th>
-                      <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-right">Custo Prod.</th>
-                      <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-right">Custo Médio</th>
-                      <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-right">Receita Est.</th>
-                      <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-right">Margem Lucro</th>
-                      <th className="text-xs font-medium text-stone-500 uppercase tracking-wide px-4 py-3 text-right">Margem Perda</th>
+                <table className="w-full min-w-[900px]" role="table">
+                  <thead>
+                    <tr className="table-head-row">
+                      <th className="table-th" scope="col">Produto</th>
+                      <th className="table-th table-th-right" scope="col">Preço Venda</th>
+                      <th className="table-th table-th-right" scope="col">Produzido</th>
+                      <th className="table-th table-th-right" scope="col">Vendido</th>
+                      <th className="table-th table-th-right" scope="col">Perda</th>
+                      <th className="table-th table-th-right" scope="col">Custo Prod.</th>
+                      <th className="table-th table-th-right" scope="col">Custo Médio</th>
+                      <th className="table-th table-th-right" scope="col">Receita Est.</th>
+                      <th className="table-th table-th-right" scope="col">Mg. Lucro</th>
+                      <th className="table-th table-th-right" scope="col">Mg. Perda</th>
                     </tr>
                   </thead>
                   <tbody>
                     {relatorio.itens.map((item: RelatorioProducaoVendasItem) => (
                       <tr
                         key={item.produtoId}
-                        className={`border-b border-stone-100 transition-colors ${
-                          item.margemPerda != null && item.margemPerda > 20
-                            ? 'bg-red-50 hover:bg-red-100'
-                            : 'hover:bg-amber-50'
-                        }`}
+                        className="table-row"
+                        style={item.margemPerda != null && item.margemPerda > 20
+                          ? { background: 'var(--ada-error-bg)' }
+                          : {}}
                       >
-                        <td className="px-4 py-3 text-sm font-medium text-stone-800">{item.produtoNome}</td>
-                        <td className="px-4 py-3 text-sm text-stone-600 text-right">{brl(item.precoVenda)}</td>
-                        <td className="px-4 py-3 text-sm text-stone-800 text-right">{item.totalProduzido.toFixed(0)}</td>
-                        <td className="px-4 py-3 text-sm text-stone-800 text-right">{item.totalVendido.toFixed(0)}</td>
-                        <td className="px-4 py-3 text-sm text-right">
-                          <span className={item.perda > 0 ? 'text-red-600 font-semibold' : 'text-stone-600'}>
+                        <td className="table-td">
+                          <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>{item.produtoNome}</span>
+                        </td>
+                        <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
+                          <span className="text-sm" style={{ color: 'var(--ada-body)' }}>{brl(item.precoVenda)}</span>
+                        </td>
+                        <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
+                          <span className="text-sm" style={{ color: 'var(--ada-heading)' }}>{item.totalProduzido.toFixed(0)}</span>
+                        </td>
+                        <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
+                          <span className="text-sm" style={{ color: 'var(--ada-heading)' }}>{item.totalVendido.toFixed(0)}</span>
+                        </td>
+                        <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
+                          <span
+                            className="text-sm font-semibold"
+                            style={{ color: item.perda > 0 ? 'var(--ada-error-text)' : 'var(--ada-body)' }}
+                          >
                             {item.perda.toFixed(0)}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-sm text-stone-600 text-right">{brl(item.custoTotalProducao)}</td>
-                        <td className="px-4 py-3 text-sm text-stone-600 text-right">{brl(item.custoMedioUnitario)}</td>
-                        <td className="px-4 py-3 text-sm text-green-700 font-semibold text-right">{brl(item.receitaEstimada)}</td>
-                        <td className="px-4 py-3 text-sm text-right">
-                          <span className={
-                            item.margemLucro == null ? 'text-stone-400'
-                            : item.margemLucro >= 30 ? 'text-green-600 font-semibold'
-                            : item.margemLucro >= 0 ? 'text-amber-600'
-                            : 'text-red-600 font-semibold'
-                          }>
+                        <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
+                          <span className="text-sm" style={{ color: 'var(--ada-body)' }}>{brl(item.custoTotalProducao)}</span>
+                        </td>
+                        <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
+                          <span className="text-sm" style={{ color: 'var(--ada-body)' }}>{brl(item.custoMedioUnitario)}</span>
+                        </td>
+                        <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
+                          <span className="text-sm font-semibold" style={{ color: 'var(--ada-success-text)' }}>{brl(item.receitaEstimada)}</span>
+                        </td>
+                        <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
+                          <span
+                            className="text-sm font-semibold"
+                            style={{
+                              color: item.margemLucro == null ? 'var(--ada-placeholder)'
+                                : item.margemLucro >= 30 ? 'var(--ada-success-text)'
+                                : item.margemLucro >= 0 ? '#C4870A'
+                                : 'var(--ada-error-text)'
+                            }}
+                          >
                             {pct(item.margemLucro)}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-sm text-right">
-                          <span className={
-                            item.margemPerda == null ? 'text-stone-400'
-                            : item.margemPerda > 20 ? 'text-red-600 font-semibold'
-                            : item.margemPerda > 0 ? 'text-amber-600'
-                            : 'text-stone-600'
-                          }>
+                        <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
+                          <span
+                            className="text-sm font-semibold"
+                            style={{
+                              color: item.margemPerda == null ? 'var(--ada-placeholder)'
+                                : item.margemPerda > 20 ? 'var(--ada-error-text)'
+                                : item.margemPerda > 0 ? '#C4870A'
+                                : 'var(--ada-body)'
+                            }}
+                          >
                             {pct(item.margemPerda)}
                           </span>
                         </td>
@@ -220,8 +239,8 @@ export function ProducaoVendasRelatorioPage() {
                   </tbody>
                 </table>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </>
       )}
     </div>

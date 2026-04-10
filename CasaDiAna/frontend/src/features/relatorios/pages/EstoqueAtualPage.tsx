@@ -32,160 +32,114 @@ export function EstoqueAtualPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="ada-page">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <h1 className="text-2xl font-semibold" style={{ color: 'var(--ada-heading)' }}>
-          Estoque Atual
-        </h1>
+        <div>
+          <h1
+            className="text-xl font-bold tracking-tight"
+            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
+          >
+            Estoque Atual
+          </h1>
+          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
+            {loading ? 'Carregando…' : `${itens.length} ingrediente(s)`}
+          </p>
+        </div>
         <div className="flex items-center gap-4">
           {itens.length > 0 && (
-            <button
-              onClick={() => gerarPdfEstoqueAtual(itens, apenasAbaixo)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-              style={{
-                border: '1px solid var(--ada-border)',
-                color: 'var(--ada-body)',
-                background: 'transparent',
-              }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'var(--ada-hover)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-            >
-              <ArrowDownTrayIcon className="h-4 w-4" />
+            <button onClick={() => gerarPdfEstoqueAtual(itens, apenasAbaixo)} className="btn-secondary">
+              <ArrowDownTrayIcon className="h-4 w-4" aria-hidden="true" />
               Baixar PDF
             </button>
           )}
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label className="flex items-center gap-2 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={apenasAbaixo}
               onChange={handleToggle}
               className="h-4 w-4 accent-amber-700"
             />
-            <span className="text-sm" style={{ color: 'var(--ada-body)' }}>
-              Apenas abaixo do mínimo
-            </span>
+            <span className="text-sm" style={{ color: 'var(--ada-body)' }}>Apenas abaixo do mínimo</span>
           </label>
         </div>
       </div>
 
       {loading && (
-        <div
-          className="rounded-xl py-16 text-center"
-          style={{ background: 'var(--ada-surface)', boxShadow: 'var(--shadow-sm)' }}
-        >
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-t-amber-700"
-            style={{ borderColor: 'var(--ada-border)', borderTopColor: '#C4870A' }}
+        <div className="state-loading">
+          <div
+            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
+            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
+            role="status" aria-label="Carregando…"
           />
-          <p className="mt-3 text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando...</p>
+          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando estoque…</p>
         </div>
       )}
-
-      {!loading && erro && (
-        <div
-          className="rounded-xl px-4 py-3 text-sm"
-          style={{
-            background: 'var(--ada-error-bg)',
-            border: '1px solid var(--ada-error-border)',
-            color: 'var(--ada-error-text, #b91c1c)',
-          }}
-        >
-          {erro}
+      {!loading && erro && <div className="state-error" role="alert">{erro}</div>}
+      {!loading && !erro && itens.length === 0 && (
+        <div className="state-loading">
+          <p className="text-sm font-semibold" style={{ color: 'var(--ada-body)', fontFamily: 'Sora, system-ui, sans-serif' }}>
+            Nenhum ingrediente encontrado
+          </p>
+          <p className="text-xs mt-1" style={{ color: 'var(--ada-muted)' }}>
+            {apenasAbaixo ? 'Nenhum ingrediente abaixo do mínimo.' : 'Cadastre ingredientes para visualizar o estoque.'}
+          </p>
         </div>
       )}
-
-      {!loading && !erro && (
-        <div
-          className="rounded-xl overflow-hidden"
-          style={{ background: 'var(--ada-surface)', boxShadow: 'var(--shadow-sm)' }}
-        >
-          {itens.length === 0 ? (
-            <div className="py-16 text-center">
-              <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>
-                Nenhum ingrediente encontrado.
-              </p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead style={{ background: 'var(--ada-surface-2)', borderBottom: '1px solid var(--ada-border)' }}>
-                  <tr>
-                    {['Ingrediente', 'Categoria', 'Estoque Atual', 'Mínimo', 'Máximo', 'Situação'].map((col, i) => (
-                      <th
-                        key={col}
-                        className={`text-xs font-semibold uppercase tracking-wide px-4 py-3 ${i >= 2 && i <= 4 ? 'text-right' : 'text-left'}`}
-                        style={{ color: 'var(--ada-muted)' }}
+      {!loading && !erro && itens.length > 0 && (
+        <div className="ada-surface-card">
+          <div className="overflow-x-auto">
+            <table className="w-full" role="table">
+              <thead>
+                <tr className="table-head-row">
+                  <th className="table-th" scope="col">Ingrediente</th>
+                  <th className="table-th" scope="col">Categoria</th>
+                  <th className="table-th table-th-right" scope="col">Estoque Atual</th>
+                  <th className="table-th table-th-right" scope="col">Mínimo</th>
+                  <th className="table-th table-th-right" scope="col">Máximo</th>
+                  <th className="table-th" scope="col">Situação</th>
+                </tr>
+              </thead>
+              <tbody>
+                {itens.map(item => (
+                  <tr
+                    key={item.ingredienteId}
+                    className="table-row"
+                    style={item.estaBaixoDoMinimo ? { background: 'var(--ada-error-bg)' } : {}}
+                  >
+                    <td className="table-td">
+                      <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>{item.nome}</span>
+                    </td>
+                    <td className="table-td">
+                      <span className="text-sm" style={{ color: 'var(--ada-muted)' }}>{item.categoriaNome ?? '—'}</span>
+                    </td>
+                    <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
+                      <span
+                        className="text-sm font-semibold"
+                        style={{ color: item.estaBaixoDoMinimo ? 'var(--ada-error-text)' : 'var(--ada-heading)' }}
                       >
-                        {col}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {itens.map(item => (
-                    <tr
-                      key={item.ingredienteId}
-                      className="transition-colors"
-                      style={{
-                        borderBottom: '1px solid var(--ada-border-sub)',
-                        background: item.estaBaixoDoMinimo ? 'var(--ada-error-bg)' : undefined,
-                      }}
-                      onMouseEnter={e => {
-                        if (!item.estaBaixoDoMinimo)
-                          (e.currentTarget as HTMLElement).style.background = 'var(--ada-row-alert-hover)'
-                      }}
-                      onMouseLeave={e => {
-                        (e.currentTarget as HTMLElement).style.background =
-                          item.estaBaixoDoMinimo ? 'var(--ada-error-bg)' : ''
-                      }}
-                    >
-                      <td className="px-4 py-3 text-sm font-medium" style={{ color: 'var(--ada-heading)' }}>
-                        {item.nome}
-                      </td>
-                      <td className="px-4 py-3 text-sm" style={{ color: 'var(--ada-muted)' }}>
-                        {item.categoriaNome ?? '—'}
-                      </td>
-                      <td className="px-4 py-3 text-sm font-semibold text-right">
-                        <span style={{ color: item.estaBaixoDoMinimo ? 'var(--ada-danger-text, #dc2626)' : 'var(--ada-heading)' }}>
-                          {item.estoqueAtual} {item.unidadeMedidaCodigo}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-right" style={{ color: 'var(--ada-body)' }}>
+                        {item.estoqueAtual} {item.unidadeMedidaCodigo}
+                      </span>
+                    </td>
+                    <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
+                      <span className="text-sm" style={{ color: 'var(--ada-body)' }}>
                         {item.estoqueMinimo} {item.unidadeMedidaCodigo}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-right" style={{ color: 'var(--ada-body)' }}>
+                      </span>
+                    </td>
+                    <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
+                      <span className="text-sm" style={{ color: 'var(--ada-body)' }}>
                         {item.estoqueMaximo != null ? `${item.estoqueMaximo} ${item.unidadeMedidaCodigo}` : '—'}
-                      </td>
-                      <td className="px-4 py-3">
-                        {item.estaBaixoDoMinimo ? (
-                          <span
-                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
-                            style={{
-                              background: 'var(--ada-error-badge)',
-                              color: 'var(--ada-error-text)',
-                              border: '1px solid var(--ada-error-border)',
-                            }}
-                          >
-                            Abaixo do mínimo
-                          </span>
-                        ) : (
-                          <span
-                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
-                            style={{
-                              background: 'var(--ada-success-bg)',
-                              color: 'var(--ada-success-text)',
-                              border: '1px solid var(--ada-success-border)',
-                            }}
-                          >
-                            OK
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                      </span>
+                    </td>
+                    <td className="table-td">
+                      <span className={`badge ${item.estaBaixoDoMinimo ? 'badge-danger' : 'badge-active'}`}>
+                        {item.estaBaixoDoMinimo ? 'Abaixo do mínimo' : 'OK'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

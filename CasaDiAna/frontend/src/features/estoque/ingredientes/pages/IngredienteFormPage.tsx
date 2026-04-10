@@ -79,16 +79,23 @@ export function IngredienteFormPage() {
 
   if (carregando) {
     return (
-      <div className="p-6 flex items-center justify-center h-64">
-        <Spinner className="text-amber-700 h-8 w-8" />
+      <div className="ada-page">
+        <div className="state-loading py-32">
+          <div
+            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
+            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
+            role="status" aria-label="Carregando…"
+          />
+          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando ingrediente…</p>
+        </div>
       </div>
     )
   }
 
   if (erroCarregamento) {
     return (
-      <div className="p-6">
-        <div className="rounded-xl px-4 py-3 text-sm" style={{ background: 'var(--ada-error-bg)', border: '1px solid var(--ada-error-border)', color: 'var(--ada-error-text)' }}>
+      <div className="ada-page">
+        <div className="state-error" role="alert">
           {erroCarregamento}
         </div>
         <Link to="/estoque/ingredientes" className="mt-4 inline-flex items-center gap-1 text-sm" style={{ color: 'var(--ada-muted)' }}>
@@ -100,7 +107,7 @@ export function IngredienteFormPage() {
   }
 
   return (
-    <div className="p-6 max-w-3xl">
+    <div className="ada-page max-w-3xl">
       {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={fecharToast} />}
 
       {/* Breadcrumb */}
@@ -125,7 +132,7 @@ export function IngredienteFormPage() {
 
       <form onSubmit={onSubmit}>
         <FormCard>
-          <FormSection titulo="Identificação" />
+          <FormSection titulo="Identificação" primeiro />
         <div className="grid grid-cols-3 gap-4">
           <div className="col-span-2">
             <CampoTexto

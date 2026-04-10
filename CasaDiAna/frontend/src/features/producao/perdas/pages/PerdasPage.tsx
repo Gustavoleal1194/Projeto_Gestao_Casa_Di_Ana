@@ -37,10 +37,6 @@ function primeiroDoMes() {
   return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0]
 }
 
-const inputClass =
-  'border border-[var(--ada-border)] rounded-lg px-3 py-2 text-sm bg-[var(--ada-surface)] ' +
-  'text-[var(--ada-heading)] outline-none transition-all duration-200 ' +
-  'focus-visible:border-[#C4870A] focus-visible:ring-2 focus-visible:ring-[#C4870A]/25'
 
 export function PerdasPage() {
   const [perdas, setPerdas] = useState<PerdaProduto[]>([])

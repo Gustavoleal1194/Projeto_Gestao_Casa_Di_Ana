@@ -8,7 +8,6 @@ import { useUnidadesMedida } from '@/features/estoque/unidades/hooks/useUnidades
 import { CampoTexto } from '../components/CampoTexto'
 import { SelectCampo } from '../components/SelectCampo'
 import { Toast } from '../components/Toast'
-import { Spinner } from '@/components/form/Spinner'
 import { FormSection } from '@/components/form/FormSection'
 import { FormTextarea } from '@/components/form/FormTextarea'
 import { FormActions } from '@/components/form/FormActions'

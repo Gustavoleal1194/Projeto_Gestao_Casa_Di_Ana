@@ -11,7 +11,6 @@ import { FormTextarea } from '@/components/form/FormTextarea'
 import { FormSection } from '@/components/form/FormSection'
 import { FormActions } from '@/components/form/FormActions'
 import { FormCard } from '@/components/form/FormCard'
-import { Spinner } from '@/components/form/Spinner'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
 import type { CategoriaProduto, ProdutoFormValues } from '@/types/producao'
 

@@ -75,8 +75,8 @@
   --sb-active-bd:   #D4960C;
 
   /* Topbar — sempre escura (theme-independent) */
-  --topbar-bg:      #111827;
-  --topbar-border:  #1F2937;
+  --topbar-bg:      #07101E;
+  --topbar-border:  #0F1E30;
   --topbar-text:    #6B7280;
   --topbar-heading: #F1F5F9;
   --topbar-hover:   rgba(255,255,255,0.06);
@@ -134,8 +134,8 @@
   --sb-active-bd:   #D4960C;
 
   /* Topbar — no dark mode fica ainda mais integrada */
-  --topbar-bg:      #0F172A;
-  --topbar-border:  #1F2937;
+  --topbar-bg:      #050D18;
+  --topbar-border:  #0A1626;
 
   /* Sombras — elevação marcante para superfícies sobre fundo escuro */
   --shadow-xs: 0 1px 2px rgba(0,0,0,0.35);

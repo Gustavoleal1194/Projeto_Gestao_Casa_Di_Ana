@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom'
 import { PlusIcon } from '@heroicons/react/20/solid'
+import { ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline'
 import { useInventarios } from '../hooks/useInventarios'
 import { useAuthStore } from '@/store/authStore'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { SkeletonTable } from '@/components/ui/SkeletonTable'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
 
@@ -54,23 +56,12 @@ export function InventariosPage() {
       {!loading && !erro && (
         <div className="ada-surface-card">
           {inventarios.length === 0 ? (
-            <div className="state-empty">
-              <div
-                className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                style={{ background: 'var(--ada-bg)', border: '1px solid var(--ada-border)' }}
-                aria-hidden="true"
-              >
-                <svg className="w-6 h-6" style={{ color: 'var(--ada-placeholder)' }} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <p className="text-sm font-semibold" style={{ color: 'var(--ada-body)', fontFamily: 'Sora, system-ui, sans-serif' }}>
-                Nenhum inventário registrado
-              </p>
-              <p className="text-xs mt-1" style={{ color: 'var(--ada-muted)' }}>
-                Crie um inventário para contabilizar o estoque.
-              </p>
-            </div>
+            <EmptyState
+              icon={<ClipboardDocumentCheckIcon className="w-7 h-7" />}
+              iconColor="neutral"
+              titulo="Nenhum inventário registrado"
+              descricao="Crie um inventário para contabilizar o estoque."
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full" role="table">

@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PlusIcon } from '@heroicons/react/20/solid'
-import { PencilSquareIcon, TrashIcon, DocumentTextIcon } from '@heroicons/react/20/solid'
+import { PencilSquareIcon, TrashIcon, DocumentTextIcon, CubeIcon } from '@heroicons/react/20/solid'
 import { useProdutos } from '../hooks/useProdutos'
 import { useAuthStore } from '@/store/authStore'
 import { ModalDesativar } from '@/features/estoque/ingredientes/components/ModalDesativar'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { SkeletonTable } from '@/components/ui/SkeletonTable'
+import { EmptyState } from '@/components/ui/EmptyState'
 import type { ProdutoResumo } from '@/types/producao'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
@@ -61,24 +62,18 @@ export function ProdutosPage() {
       {!loading && !erro && (
         <div className="ada-surface-card">
           {produtos.length === 0 ? (
-            <div className="state-empty">
-              <div
-                className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                style={{ background: 'var(--ada-bg)', border: '1px solid var(--ada-border)' }}
-                aria-hidden="true"
-              >
-                <svg className="w-6 h-6" style={{ color: 'var(--ada-placeholder)' }} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z" stroke="currentColor" strokeWidth="1.5"/>
-                  <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" stroke="currentColor" strokeWidth="1.5"/>
-                </svg>
-              </div>
-              <p className="text-sm font-semibold" style={{ color: 'var(--ada-body)', fontFamily: 'Sora, system-ui, sans-serif' }}>
-                Nenhum produto cadastrado
-              </p>
-              <p className="text-xs mt-1" style={{ color: 'var(--ada-muted)' }}>
-                Cadastre um produto para registrar produção e vendas.
-              </p>
-            </div>
+            <EmptyState
+              icon={<CubeIcon className="w-7 h-7" />}
+              iconColor="amber"
+              titulo="Nenhum produto cadastrado"
+              descricao="Cadastre um produto para registrar produção e vendas."
+              action={podeEditar ? (
+                <button onClick={() => navigate('/producao/produtos/novo')} className="btn-primary">
+                  <PlusIcon className="h-4 w-4" aria-hidden="true" />
+                  Novo Produto
+                </button>
+              ) : undefined}
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full" role="table">

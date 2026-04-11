@@ -1,11 +1,12 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PlusIcon } from '@heroicons/react/20/solid'
-import { CalendarIcon } from '@heroicons/react/24/outline'
+import { CalendarIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline'
 import { useEntradas } from '../hooks/useEntradas'
 import { useAuthStore } from '@/store/authStore'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { SkeletonTable } from '@/components/ui/SkeletonTable'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
 
@@ -86,25 +87,12 @@ export function EntradasPage() {
       {!loading && !erro && (
         <div className="ada-surface-card">
           {entradas.length === 0 ? (
-            <div className="state-empty">
-              <div
-                className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                style={{ background: 'var(--ada-bg)', border: '1px solid var(--ada-border)' }}
-                aria-hidden="true"
-              >
-                <svg className="w-6 h-6" style={{ color: 'var(--ada-placeholder)' }} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M20 12V22H4V12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M22 7H2v5h20V7z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <p className="text-sm font-semibold" style={{ color: 'var(--ada-body)', fontFamily: 'Sora, system-ui, sans-serif' }}>
-                Nenhuma entrada no período selecionado
-              </p>
-              <p className="text-xs mt-1" style={{ color: 'var(--ada-muted)' }}>
-                Ajuste o período ou registre uma nova entrada.
-              </p>
-            </div>
+            <EmptyState
+              icon={<ArchiveBoxIcon className="w-7 h-7" />}
+              iconColor="green"
+              titulo="Nenhuma entrada no período"
+              descricao="Ajuste o período ou registre uma nova entrada."
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full" role="table">

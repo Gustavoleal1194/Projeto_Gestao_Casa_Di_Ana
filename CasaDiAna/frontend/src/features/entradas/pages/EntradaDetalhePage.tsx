@@ -4,6 +4,7 @@ import { ChevronLeftIcon, XCircleIcon } from '@heroicons/react/24/outline'
 import { entradasService } from '../services/entradasService'
 import { useAuthStore } from '@/store/authStore'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
+import { LoadingState } from '@/components/ui/LoadingState'
 import type { EntradaMercadoria } from '@/types/estoque'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
@@ -56,14 +57,7 @@ export function EntradaDetalhePage() {
   if (loading) {
     return (
       <div className="ada-page">
-        <div className="state-loading py-32">
-          <div
-            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
-            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
-            role="status" aria-label="Carregando…"
-          />
-          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando entrada…</p>
-        </div>
+        <LoadingState mensagem="Carregando entrada…" />
       </div>
     )
   }
@@ -78,14 +72,7 @@ export function EntradaDetalhePage() {
 
   return (
     <div className="ada-page max-w-3xl">
-      <button
-        onClick={() => navigate('/entradas')}
-        className="inline-flex items-center gap-1.5 text-sm font-medium mb-5 rounded
-                   transition-colors duration-150 outline-none
-                   focus-visible:ring-2 focus-visible:ring-[#C4870A]/40
-                   hover:text-[#C4870A]"
-        style={{ color: 'var(--ada-muted)' }}
-      >
+      <button onClick={() => navigate('/entradas')} className="back-link">
         <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
         Entradas
       </button>
@@ -187,22 +174,25 @@ export function EntradaDetalhePage() {
       </div>
 
       {confirmando && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(4px)' }}>
-          <div
-            className="w-full max-w-sm mx-4 rounded-2xl p-6"
-            style={{ background: 'var(--ada-surface)', boxShadow: 'var(--shadow-xl)' }}
-          >
-            <h2 className="text-base font-bold mb-1" style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}>
-              Cancelar esta entrada?
-            </h2>
-            <p className="text-sm mb-5" style={{ color: 'var(--ada-muted)' }}>
-              O estoque dos ingredientes será revertido. Esta ação não pode ser desfeita.
-            </p>
-            <div className="flex justify-end gap-2.5 pt-4" style={{ borderTop: '1px solid var(--ada-border-sub)' }}>
+        <div
+          className="modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          onClick={e => { if (e.target === e.currentTarget && !cancelando) setConfirmando(false) }}
+        >
+          <div className="modal-card max-w-sm">
+            <div className="px-6 pt-5 pb-1">
+              <h2 className="text-base font-bold mb-1" style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}>
+                Cancelar esta entrada?
+              </h2>
+              <p className="text-sm mt-1" style={{ color: 'var(--ada-muted)' }}>
+                O estoque dos ingredientes será revertido. Esta ação não pode ser desfeita.
+              </p>
+            </div>
+            <div className="modal-footer">
               <button
                 onClick={() => setConfirmando(false)}
-                className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 hover:bg-[var(--ada-bg)]"
-                style={{ border: '1px solid var(--ada-border)', color: 'var(--ada-body)', background: 'var(--ada-surface)' }}
+                className="btn-secondary"
               >
                 Voltar
               </button>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ingredientesService } from '@/features/estoque/ingredientes/services/ingredientesService'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
+import { LoadingState } from '@/components/ui/LoadingState'
 import api from '@/lib/api'
 import type { ApiResponse } from '@/types/estoque'
 import type { IngredienteResumo } from '@/types/estoque'
@@ -140,16 +141,7 @@ export function CorrecaoEstoquePage() {
         </div>
       )}
 
-      {loading && (
-        <div className="state-loading">
-          <div
-            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
-            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
-            role="status" aria-label="Carregando…"
-          />
-          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando ingredientes…</p>
-        </div>
-      )}
+      {loading && <LoadingState mensagem="Carregando ingredientes…" />}
 
       {!loading && erro && <div className="state-error" role="alert">{erro}</div>}
 

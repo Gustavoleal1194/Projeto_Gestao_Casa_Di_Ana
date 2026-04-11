@@ -1,4 +1,3 @@
-// frontend/src/features/producao/produtos/pages/ProdutoFormPage.tsx
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { ChevronLeftIcon } from '@heroicons/react/24/outline'
@@ -12,6 +11,7 @@ import { FormSection } from '@/components/form/FormSection'
 import { FormActions } from '@/components/form/FormActions'
 import { FormCard } from '@/components/form/FormCard'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
+import { LoadingState } from '@/components/ui/LoadingState'
 import type { CategoriaProduto, ProdutoFormValues } from '@/types/producao'
 
 export function ProdutoFormPage() {
@@ -53,14 +53,7 @@ export function ProdutoFormPage() {
   if (carregando) {
     return (
       <div className="ada-page">
-        <div className="state-loading py-32">
-          <div
-            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
-            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
-            role="status" aria-label="Carregando…"
-          />
-          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando produto…</p>
-        </div>
+        <LoadingState mensagem="Carregando produto…" />
       </div>
     )
   }
@@ -69,14 +62,7 @@ export function ProdutoFormPage() {
     <div className="ada-page max-w-2xl">
       {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
 
-      <Link
-        to="/producao/produtos"
-        className="inline-flex items-center gap-1.5 text-sm font-medium mb-5 rounded
-                   transition-colors duration-150 outline-none
-                   focus-visible:ring-2 focus-visible:ring-[#C4870A]/40
-                   hover:text-[#C4870A]"
-        style={{ color: 'var(--ada-muted)' }}
-      >
+      <Link to="/producao/produtos" className="back-link">
         <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
         Produtos
       </Link>

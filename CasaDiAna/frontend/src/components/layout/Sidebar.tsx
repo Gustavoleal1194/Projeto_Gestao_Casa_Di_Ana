@@ -15,6 +15,7 @@ import {
   SquaresPlusIcon,
   ChartBarIcon,
   QrCodeIcon,
+  Squares2X2Icon,
 } from '@heroicons/react/24/outline'
 import { useAuthStore } from '@/store/authStore'
 
@@ -134,6 +135,50 @@ export function Sidebar({ aberta, onFechar }: { aberta: boolean; onFechar: () =>
         className="flex-1 px-3 py-4 overflow-y-auto sidebar-scroll space-y-5"
         aria-label="Navegação principal"
       >
+        {/* Dashboard home item — antes dos grupos */}
+        <div>
+          <ul className="space-y-0.5" role="list">
+            <li>
+              <NavLink
+                to="/"
+                end
+                onClick={onFechar}
+                className={({ isActive }) => [
+                  'flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium',
+                  'transition-colors duration-150',
+                  isActive ? 'text-white' : 'hover:text-white',
+                ].join(' ')}
+                style={({ isActive }) => isActive
+                  ? {
+                      color: 'var(--sb-text-active)',
+                      background: 'var(--sb-active-bg)',
+                      borderLeft: '2px solid var(--sb-active-bd)',
+                      paddingLeft: '10px',
+                    }
+                  : {
+                      color: 'var(--sb-text)',
+                      borderLeft: '2px solid transparent',
+                    }
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <Squares2X2Icon
+                      className="h-4 w-4 shrink-0 transition-colors duration-150"
+                      aria-hidden="true"
+                      style={{
+                        color: isActive ? 'var(--sb-accent)' : 'var(--sb-text)',
+                        opacity: isActive ? 1 : 0.75,
+                      }}
+                    />
+                    <span className="flex-1 leading-none">Dashboard</span>
+                  </>
+                )}
+              </NavLink>
+            </li>
+          </ul>
+        </div>
+
         {grupos.map(grupo => (
           <div key={grupo.titulo}>
             <p

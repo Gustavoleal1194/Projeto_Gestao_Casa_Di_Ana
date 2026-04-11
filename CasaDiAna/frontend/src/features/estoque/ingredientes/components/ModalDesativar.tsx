@@ -29,29 +29,16 @@ export function ModalDesativar({ nomeIngrediente, loading, onConfirmar, onCancel
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(4px)' }}
+      className="modal-overlay"
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-titulo"
       aria-describedby="modal-descricao"
       onClick={e => { if (e.target === e.currentTarget && !loading) onCancelar() }}
     >
-      <div
-        className="w-full max-w-[400px] rounded-2xl"
-        style={{
-          background: 'var(--ada-surface)',
-          border: '1px solid var(--ada-border)',
-          boxShadow: '0 24px 48px rgba(13,17,23,0.18), 0 8px 16px rgba(13,17,23,0.10)',
-          overscrollBehavior: 'contain',
-          animation: 'modalIn 200ms cubic-bezier(0.34,1.56,0.64,1) both',
-        }}
-      >
+      <div className="modal-card max-w-[400px]">
         {/* Header */}
-        <div
-          className="flex items-center justify-between px-6 pt-5 pb-4"
-          style={{ borderBottom: '1px solid var(--ada-border-sub)' }}
-        >
+        <div className="modal-header">
           <div className="flex items-center gap-3">
             <div
               className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
@@ -98,10 +85,7 @@ export function ModalDesativar({ nomeIngrediente, loading, onConfirmar, onCancel
         </div>
 
         {/* Footer */}
-        <div
-          className="flex justify-end gap-2.5 px-6 py-4"
-          style={{ borderTop: '1px solid var(--ada-border-sub)', background: 'var(--ada-surface-2)', borderRadius: '0 0 16px 16px' }}
-        >
+        <div className="modal-footer">
           <button
             onClick={onCancelar}
             disabled={loading}
@@ -118,16 +102,6 @@ export function ModalDesativar({ nomeIngrediente, loading, onConfirmar, onCancel
             {loading ? 'Desativando…' : 'Desativar'}
           </button>
         </div>
-
-        <style>{`
-          @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.95) translateY(8px); }
-            to   { opacity: 1; transform: scale(1) translateY(0); }
-          }
-          @media (prefers-reduced-motion: reduce) {
-            [role="dialog"] > div { animation: none !important; }
-          }
-        `}</style>
       </div>
     </div>
   )

@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PlusIcon } from '@heroicons/react/20/solid'
-import { CalendarIcon } from '@heroicons/react/24/outline'
+import { CalendarIcon, FireIcon } from '@heroicons/react/24/outline'
 import { useProducaoDiaria } from '../hooks/useProducaoDiaria'
 import { useAuthStore } from '@/store/authStore'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { LoadingState } from '@/components/ui/LoadingState'
+import { EmptyState } from '@/components/ui/EmptyState'
 import type { ProdutoResumo } from '@/types/producao'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
@@ -70,17 +72,7 @@ export function ProducaoDiariaPage() {
       </div>
 
       {/* ── Estados ────────────────────────────────────────────────────── */}
-      {loading && (
-        <div className="state-loading">
-          <div
-            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
-            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
-            role="status"
-            aria-label="Carregando…"
-          />
-          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando produções…</p>
-        </div>
-      )}
+      {loading && <LoadingState mensagem="Carregando produções…" />}
       {!loading && erro && (
         <div className="state-error" role="alert">{erro}</div>
       )}
@@ -89,23 +81,12 @@ export function ProducaoDiariaPage() {
       {!loading && !erro && (
         <div className="ada-surface-card">
           {producoes.length === 0 ? (
-            <div className="state-empty">
-              <div
-                className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                style={{ background: 'var(--ada-bg)', border: '1px solid var(--ada-border)' }}
-                aria-hidden="true"
-              >
-                <svg className="w-6 h-6" style={{ color: 'var(--ada-placeholder)' }} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" fill="currentColor"/>
-                </svg>
-              </div>
-              <p className="text-sm font-semibold" style={{ color: 'var(--ada-body)', fontFamily: 'Sora, system-ui, sans-serif' }}>
-                Nenhuma produção registrada no período
-              </p>
-              <p className="text-xs mt-1" style={{ color: 'var(--ada-muted)' }}>
-                Ajuste os filtros ou registre uma nova produção.
-              </p>
-            </div>
+            <EmptyState
+              icon={<FireIcon className="w-7 h-7" />}
+              iconColor="amber"
+              titulo="Nenhuma produção no período"
+              descricao="Ajuste os filtros ou registre uma nova produção."
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full" role="table">

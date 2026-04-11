@@ -3,6 +3,7 @@ import { ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import { relatoriosService } from '../services/relatoriosService'
 import { gerarPdfEstoqueAtual } from '@/lib/pdf'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { LoadingState } from '@/components/ui/LoadingState'
 import type { EstoqueAtualItem } from '@/types/estoque'
 
 export function EstoqueAtualPage() {
@@ -59,23 +60,14 @@ export function EstoqueAtualPage() {
         }
       />
 
-      {loading && (
-        <div className="state-loading">
-          <div
-            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
-            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
-            role="status" aria-label="Carregando…"
-          />
-          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando estoque…</p>
-        </div>
-      )}
+      {loading && <LoadingState mensagem="Carregando estoque…" />}
       {!loading && erro && <div className="state-error" role="alert">{erro}</div>}
       {!loading && !erro && itens.length === 0 && (
         <div className="state-loading">
           <p className="text-sm font-semibold" style={{ color: 'var(--ada-body)', fontFamily: 'Sora, system-ui, sans-serif' }}>
             Nenhum ingrediente encontrado
           </p>
-          <p className="text-xs mt-1" style={{ color: 'var(--ada-muted)' }}>
+          <p className="text-xs" style={{ color: 'var(--ada-muted)' }}>
             {apenasAbaixo ? 'Nenhum ingrediente abaixo do mínimo.' : 'Cadastre ingredientes para visualizar o estoque.'}
           </p>
         </div>

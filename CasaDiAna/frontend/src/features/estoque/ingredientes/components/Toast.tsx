@@ -73,15 +73,6 @@ export function Toast({ tipo, mensagem, onFechar, duracao = 4000 }: Props) {
         <XMarkIcon className="h-4 w-4" aria-hidden="true" />
       </button>
 
-      <style>{`
-        @keyframes toastIn {
-          from { transform: translateX(calc(100% + 24px)); opacity: 0; }
-          to   { transform: translateX(0); opacity: 1; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          [role="status"] { animation: none !important; transition: opacity 0.1ms !important; }
-        }
-      `}</style>
     </div>
   )
 }

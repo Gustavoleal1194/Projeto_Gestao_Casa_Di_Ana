@@ -57,14 +57,7 @@ export function InventarioFormPage() {
     <div className="ada-page max-w-lg">
       {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
 
-      <Link
-        to="/inventarios"
-        className="inline-flex items-center gap-1.5 text-sm font-medium mb-5 rounded
-                   transition-colors duration-150 outline-none
-                   focus-visible:ring-2 focus-visible:ring-[#C4870A]/40
-                   hover:text-[#C4870A]"
-        style={{ color: 'var(--ada-muted)' }}
-      >
+      <Link to="/inventarios" className="back-link">
         <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
         Inventários
       </Link>

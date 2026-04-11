@@ -272,26 +272,15 @@ export function UsuariosPage() {
       {/* ── Modal — Criar usuário ───────────────────────────────────────── */}
       {modal === 'criar' && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(4px)' }}
+          className="modal-overlay"
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-criar-titulo"
           onClick={e => { if (e.target === e.currentTarget && !salvando) setModal(null) }}
         >
-          <div
-            className="w-full max-w-md rounded-2xl"
-            style={{
-              background: 'var(--ada-surface)',
-              border: '1px solid var(--ada-border)',
-              boxShadow: '0 24px 48px rgba(13,17,23,0.18), 0 8px 16px rgba(13,17,23,0.10)',
-            }}
-          >
+          <div className="modal-card max-w-md">
             {/* Header */}
-            <div
-              className="flex items-center justify-between px-6 pt-5 pb-4"
-              style={{ borderBottom: '1px solid var(--ada-border-sub)' }}
-            >
+            <div className="modal-header">
               <h2
                 id="modal-criar-titulo"
                 className="text-[15px] font-semibold"
@@ -356,10 +345,7 @@ export function UsuariosPage() {
             </div>
 
             {/* Footer */}
-            <div
-              className="flex justify-end gap-2.5 px-6 py-4"
-              style={{ borderTop: '1px solid var(--ada-border-sub)', background: 'var(--ada-surface-2)', borderRadius: '0 0 16px 16px' }}
-            >
+            <div className="modal-footer">
               <button
                 onClick={() => setModal(null)}
                 disabled={salvando}
@@ -383,26 +369,15 @@ export function UsuariosPage() {
       {/* ── Modal — Redefinir senha ─────────────────────────────────────── */}
       {modal === 'senha' && usuarioSelecionado && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(4px)' }}
+          className="modal-overlay"
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-senha-titulo"
           onClick={e => { if (e.target === e.currentTarget && !salvando) setModal(null) }}
         >
-          <div
-            className="w-full max-w-sm rounded-2xl"
-            style={{
-              background: 'var(--ada-surface)',
-              border: '1px solid var(--ada-border)',
-              boxShadow: '0 24px 48px rgba(13,17,23,0.18), 0 8px 16px rgba(13,17,23,0.10)',
-            }}
-          >
+          <div className="modal-card max-w-sm">
             {/* Header */}
-            <div
-              className="flex items-center justify-between px-6 pt-5 pb-4"
-              style={{ borderBottom: '1px solid var(--ada-border-sub)' }}
-            >
+            <div className="modal-header">
               <div>
                 <h2
                   id="modal-senha-titulo"
@@ -444,10 +419,7 @@ export function UsuariosPage() {
             </div>
 
             {/* Footer */}
-            <div
-              className="flex justify-end gap-2.5 px-6 py-4"
-              style={{ borderTop: '1px solid var(--ada-border-sub)', background: 'var(--ada-surface-2)', borderRadius: '0 0 16px 16px' }}
-            >
+            <div className="modal-footer">
               <button
                 onClick={() => setModal(null)}
                 disabled={salvando}

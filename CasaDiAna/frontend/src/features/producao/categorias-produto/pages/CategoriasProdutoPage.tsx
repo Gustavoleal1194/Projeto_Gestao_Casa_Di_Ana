@@ -7,6 +7,8 @@ import { TabelaCategoriasProduto } from '../components/TabelaCategoriasProduto'
 import { ModalCategoriaProduto } from '../components/ModalCategoriaProduto'
 import { ModalDesativar } from '@/features/estoque/ingredientes/components/ModalDesativar'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
+import { PageHeader } from '@/components/ui/PageHeader'
+import { LoadingState } from '@/components/ui/LoadingState'
 import type { CategoriaProduto } from '@/types/producao'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
@@ -62,40 +64,19 @@ export function CategoriasProdutoPage() {
 
   return (
     <div className="ada-page">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div>
-          <h1
-            className="text-xl font-bold tracking-tight"
-            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
-          >
-            Categorias de Produto
-          </h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
-            {loading
-              ? 'Carregando…'
-              : `${categorias.length} categoria${categorias.length !== 1 ? 's' : ''} cadastrada${categorias.length !== 1 ? 's' : ''}`
-            }
-          </p>
-        </div>
-        {podeEditar && (
+      <PageHeader
+        titulo="Categorias de Produto"
+        breadcrumb={['Produção', 'Categorias de Produto']}
+        subtitulo={loading ? 'Carregando…' : `${categorias.length} categoria${categorias.length !== 1 ? 's' : ''} cadastrada${categorias.length !== 1 ? 's' : ''}`}
+        actions={podeEditar ? (
           <button onClick={abrirCriar} className="btn-primary">
             <PlusIcon className="h-4 w-4" aria-hidden="true" />
             Nova Categoria
           </button>
-        )}
-      </div>
+        ) : undefined}
+      />
 
-      {loading && (
-        <div className="state-loading">
-          <div
-            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
-            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
-            role="status"
-            aria-label="Carregando…"
-          />
-          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando categorias…</p>
-        </div>
-      )}
+      {loading && <LoadingState mensagem="Carregando categorias…" />}
       {!loading && erro && (
         <div className="state-error" role="alert">{erro}</div>
       )}

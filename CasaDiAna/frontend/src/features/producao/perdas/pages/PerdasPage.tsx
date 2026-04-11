@@ -11,6 +11,8 @@ import { SelectCampo } from '@/features/estoque/ingredientes/components/SelectCa
 import { FormTextarea } from '@/components/form/FormTextarea'
 import { Spinner } from '@/components/form/Spinner'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { LoadingState } from '@/components/ui/LoadingState'
+import { EmptyState } from '@/components/ui/EmptyState'
 import type { PerdaProduto } from '@/types/producao'
 import type { ProdutoResumo } from '@/types/producao'
 
@@ -139,35 +141,18 @@ export function PerdasPage() {
       </div>
 
       {/* ── Estados ────────────────────────────────────────────────────── */}
-      {loading && (
-        <div className="state-loading">
-          <div
-            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
-            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
-            role="status"
-            aria-label="Carregando…"
-          />
-          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando registros…</p>
-        </div>
-      )}
+      {loading && <LoadingState mensagem="Carregando registros…" />}
       {!loading && erro && (
         <div className="state-error" role="alert">{erro}</div>
       )}
       {!loading && !erro && perdas.length === 0 && (
-        <div className="state-loading">
-          <div
-            className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
-            style={{ background: 'var(--ada-bg)', border: '1px solid var(--ada-border)' }}
-            aria-hidden="true"
-          >
-            <ExclamationTriangleIcon className="h-6 w-6" style={{ color: 'var(--ada-placeholder)' }} />
-          </div>
-          <p className="text-sm font-semibold" style={{ color: 'var(--ada-body)', fontFamily: 'Sora, system-ui, sans-serif' }}>
-            Nenhuma perda registrada no período
-          </p>
-          <p className="text-xs mt-1" style={{ color: 'var(--ada-muted)' }}>
-            Ajuste o período ou registre uma nova perda.
-          </p>
+        <div className="ada-surface-card">
+          <EmptyState
+            icon={<ExclamationTriangleIcon className="w-7 h-7" />}
+            iconColor="red"
+            titulo="Nenhuma perda no período"
+            descricao="Ajuste o período ou registre uma nova perda."
+          />
         </div>
       )}
       {!loading && !erro && perdas.length > 0 && (
@@ -215,22 +200,31 @@ export function PerdasPage() {
 
       {/* Modal */}
       {modalAberto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div
-            className="w-full max-w-md mx-4 rounded-2xl p-6"
-            style={{ background: 'var(--ada-surface)', boxShadow: 'var(--shadow-xl)' }}
-          >
-            <h2
-              className="text-base font-bold mb-1"
-              style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
-            >
-              Registrar Perda
-            </h2>
-            <p className="text-sm mb-5" style={{ color: 'var(--ada-muted)' }}>
-              Registre produtos perdidos, descartados ou danificados.
-            </p>
+        <div
+          className="modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-perda-titulo"
+          onClick={e => { if (e.target === e.currentTarget && !isSubmitting) setModalAberto(false) }}
+        >
+          <div className="modal-card max-w-md">
+            <div className="modal-header">
+              <div>
+                <h2
+                  id="modal-perda-titulo"
+                  className="text-[15px] font-semibold"
+                  style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
+                >
+                  Registrar Perda
+                </h2>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--ada-muted)' }}>
+                  Produtos perdidos, descartados ou danificados.
+                </p>
+              </div>
+            </div>
 
-            <form onSubmit={handleSubmit(onSubmitPerda)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmitPerda)}>
+            <div className="px-6 py-5 space-y-4">
               <SelectCampo
                 label="Produto"
                 obrigatorio
@@ -267,29 +261,25 @@ export function PerdasPage() {
                 erro={formErrors.justificativa?.message}
               />
 
-              <div
-                className="flex justify-end gap-2.5 pt-4"
-                style={{ borderTop: '1px solid var(--ada-border-sub)' }}
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                onClick={() => setModalAberto(false)}
+                disabled={isSubmitting}
+                className="btn-secondary disabled:opacity-50"
               >
-                <button
-                  type="button"
-                  onClick={() => setModalAberto(false)}
-                  disabled={isSubmitting}
-                  className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 disabled:opacity-50 hover:bg-[var(--ada-bg)]"
-                  style={{ border: '1px solid var(--ada-border)', color: 'var(--ada-body)', background: 'var(--ada-surface)' }}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60"
-                  style={{ background: 'linear-gradient(135deg, #D4960C 0%, #B87D0A 100%)', boxShadow: '0 3px 10px rgba(196,135,10,0.28)' }}
-                >
-                  {isSubmitting && <Spinner />}
-                  {isSubmitting ? 'Salvando…' : 'Registrar Perda'}
-                </button>
-              </div>
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="btn-primary disabled:opacity-60"
+              >
+                {isSubmitting && <Spinner />}
+                {isSubmitting ? 'Salvando…' : 'Registrar Perda'}
+              </button>
+            </div>
             </form>
           </div>
         </div>

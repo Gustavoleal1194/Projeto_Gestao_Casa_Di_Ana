@@ -3,6 +3,7 @@ import { ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import { relatoriosService } from '../services/relatoriosService'
 import { gerarPdfEntradas } from '@/lib/pdf'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { LoadingState } from '@/components/ui/LoadingState'
 import type { EntradaRelatorioResumo } from '@/types/estoque'
 
 function hoje(): string { return new Date().toISOString().split('T')[0] }
@@ -66,16 +67,7 @@ export function EntradasRelatorioPage() {
         <button type="submit" className="btn-secondary">Gerar Relatório</button>
       </form>
 
-      {loading && (
-        <div className="state-loading">
-          <div
-            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
-            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
-            role="status" aria-label="Carregando…"
-          />
-          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando relatório…</p>
-        </div>
-      )}
+      {loading && <LoadingState mensagem="Carregando relatório…" />}
       {!loading && erro && <div className="state-error" role="alert">{erro}</div>}
       {!loading && resumo && (
         <>

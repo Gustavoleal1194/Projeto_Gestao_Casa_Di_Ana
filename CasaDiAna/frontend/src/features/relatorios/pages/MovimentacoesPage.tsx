@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
-import { ArrowDownTrayIcon } from '@heroicons/react/24/outline'
+import { ArrowDownTrayIcon, ArrowsRightLeftIcon } from '@heroicons/react/24/outline'
 import { relatoriosService } from '../services/relatoriosService'
 import { ingredientesService } from '@/features/estoque/ingredientes/services/ingredientesService'
 import { gerarPdfMovimentacoes } from '@/lib/pdf'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { LoadingState } from '@/components/ui/LoadingState'
+import { EmptyState } from '@/components/ui/EmptyState'
 import type { MovimentacaoRelatorio, IngredienteResumo } from '@/types/estoque'
 
 const TIPOS = ['', 'Entrada', 'AjustePositivo', 'AjusteNegativo', 'SaidaProducao']
@@ -86,23 +88,16 @@ export function MovimentacoesPage() {
         <button type="submit" className="btn-secondary">Filtrar</button>
       </form>
 
-      {loading && (
-        <div className="state-loading">
-          <div
-            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
-            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
-            role="status" aria-label="Carregando…"
-          />
-          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando movimentações…</p>
-        </div>
-      )}
+      {loading && <LoadingState mensagem="Carregando movimentações…" />}
       {!loading && erro && <div className="state-error" role="alert">{erro}</div>}
       {!loading && !erro && movimentacoes.length === 0 && (
-        <div className="state-loading">
-          <p className="text-sm font-semibold" style={{ color: 'var(--ada-body)', fontFamily: 'Sora, system-ui, sans-serif' }}>
-            Nenhuma movimentação no período
-          </p>
-          <p className="text-xs mt-1" style={{ color: 'var(--ada-muted)' }}>Ajuste os filtros e tente novamente.</p>
+        <div className="ada-surface-card">
+          <EmptyState
+            icon={<ArrowsRightLeftIcon className="w-7 h-7" />}
+            iconColor="neutral"
+            titulo="Nenhuma movimentação no período"
+            descricao="Ajuste os filtros e tente novamente."
+          />
         </div>
       )}
       {!loading && !erro && movimentacoes.length > 0 && (

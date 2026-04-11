@@ -5,6 +5,7 @@ import { ingredientesService } from '@/features/estoque/ingredientes/services/in
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import { gerarPdfInsumosProducao } from '@/lib/pdf'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { LoadingState } from '@/components/ui/LoadingState'
 import type { InsumoProducaoDia, IngredienteResumo } from '@/types/estoque'
 import type { ProdutoResumo } from '@/types/producao'
 
@@ -106,16 +107,7 @@ export function InsumosProducaoPage() {
         <button type="button" onClick={handleFiltrar} className="btn-secondary">Filtrar</button>
       </div>
 
-      {loading && (
-        <div className="state-loading">
-          <div
-            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
-            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
-            role="status" aria-label="Carregando…"
-          />
-          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando insumos…</p>
-        </div>
-      )}
+      {loading && <LoadingState mensagem="Carregando insumos…" />}
       {!loading && erro && <div className="state-error" role="alert">{erro}</div>}
       {!loading && !erro && itens.length === 0 && (
         <div className="state-loading">

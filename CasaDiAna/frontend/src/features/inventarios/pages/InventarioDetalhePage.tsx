@@ -10,6 +10,7 @@ import { useAuthStore } from '@/store/authStore'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
 import { CampoTexto } from '@/features/estoque/ingredientes/components/CampoTexto'
 import { SelectCampo } from '@/features/estoque/ingredientes/components/SelectCampo'
+import { LoadingState } from '@/components/ui/LoadingState'
 import type { Inventario, IngredienteResumo } from '@/types/estoque'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
@@ -124,14 +125,7 @@ export function InventarioDetalhePage() {
   if (loading) {
     return (
       <div className="ada-page">
-        <div className="state-loading py-32">
-          <div
-            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
-            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
-            role="status" aria-label="Carregando…"
-          />
-          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando inventário…</p>
-        </div>
+        <LoadingState mensagem="Carregando inventário…" />
       </div>
     )
   }
@@ -146,14 +140,7 @@ export function InventarioDetalhePage() {
 
   return (
     <div className="ada-page max-w-4xl">
-      <button
-        onClick={() => navigate('/inventarios')}
-        className="inline-flex items-center gap-1.5 text-sm font-medium mb-5 rounded
-                   transition-colors duration-150 outline-none
-                   focus-visible:ring-2 focus-visible:ring-[#C4870A]/40
-                   hover:text-[#C4870A]"
-        style={{ color: 'var(--ada-muted)' }}
-      >
+      <button onClick={() => navigate('/inventarios')} className="back-link">
         <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
         Inventários
       </button>
@@ -300,29 +287,32 @@ export function InventarioDetalhePage() {
       </div>
 
       {confirmandoFinalizar && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(4px)' }}>
-          <div
-            className="w-full max-w-sm mx-4 rounded-2xl p-6"
-            style={{ background: 'var(--ada-surface)', boxShadow: 'var(--shadow-xl)' }}
-          >
-            <h2 className="text-base font-bold mb-1" style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}>
-              Finalizar inventário?
-            </h2>
-            <p className="text-sm mb-5" style={{ color: 'var(--ada-muted)' }}>
-              O estoque será ajustado conforme as diferenças. Esta ação não pode ser desfeita.
-            </p>
-            <div className="flex justify-end gap-2.5 pt-4" style={{ borderTop: '1px solid var(--ada-border-sub)' }}>
+        <div
+          className="modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          onClick={e => { if (e.target === e.currentTarget && !processando) setConfirmandoFinalizar(false) }}
+        >
+          <div className="modal-card max-w-sm">
+            <div className="px-6 pt-5 pb-1">
+              <h2 className="text-base font-bold mb-1" style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}>
+                Finalizar inventário?
+              </h2>
+              <p className="text-sm mt-1" style={{ color: 'var(--ada-muted)' }}>
+                O estoque será ajustado conforme as diferenças. Esta ação não pode ser desfeita.
+              </p>
+            </div>
+            <div className="modal-footer">
               <button
                 onClick={() => setConfirmandoFinalizar(false)}
-                className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 hover:bg-[var(--ada-bg)]"
-                style={{ border: '1px solid var(--ada-border)', color: 'var(--ada-body)', background: 'var(--ada-surface)' }}
+                className="btn-secondary"
               >
                 Voltar
               </button>
               <button
                 onClick={handleFinalizar}
                 disabled={processando}
-                className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60 transition-all duration-150"
+                className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60 transition-all duration-150"
                 style={{ background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)', boxShadow: '0 3px 10px rgba(22,163,74,0.28)' }}
               >
                 {processando ? 'Finalizando…' : 'Confirmar'}
@@ -333,22 +323,25 @@ export function InventarioDetalhePage() {
       )}
 
       {confirmandoCancelar && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(4px)' }}>
-          <div
-            className="w-full max-w-sm mx-4 rounded-2xl p-6"
-            style={{ background: 'var(--ada-surface)', boxShadow: 'var(--shadow-xl)' }}
-          >
-            <h2 className="text-base font-bold mb-1" style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}>
-              Cancelar inventário?
-            </h2>
-            <p className="text-sm mb-5" style={{ color: 'var(--ada-muted)' }}>
-              Nenhum ajuste de estoque será feito.
-            </p>
-            <div className="flex justify-end gap-2.5 pt-4" style={{ borderTop: '1px solid var(--ada-border-sub)' }}>
+        <div
+          className="modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          onClick={e => { if (e.target === e.currentTarget && !processando) setConfirmandoCancelar(false) }}
+        >
+          <div className="modal-card max-w-sm">
+            <div className="px-6 pt-5 pb-1">
+              <h2 className="text-base font-bold mb-1" style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}>
+                Cancelar inventário?
+              </h2>
+              <p className="text-sm mt-1" style={{ color: 'var(--ada-muted)' }}>
+                Nenhum ajuste de estoque será feito.
+              </p>
+            </div>
+            <div className="modal-footer">
               <button
                 onClick={() => setConfirmandoCancelar(false)}
-                className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 hover:bg-[var(--ada-bg)]"
-                style={{ border: '1px solid var(--ada-border)', color: 'var(--ada-body)', background: 'var(--ada-surface)' }}
+                className="btn-secondary"
               >
                 Voltar
               </button>

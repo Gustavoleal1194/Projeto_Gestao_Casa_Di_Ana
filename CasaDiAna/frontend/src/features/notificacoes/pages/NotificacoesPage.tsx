@@ -8,6 +8,7 @@ import {
 import { notificacoesService, type NotificacaoEstoqueDto } from '@/lib/notificacoesService'
 import { useNotificacoesCount } from '@/hooks/useNotificacoesCount'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { LoadingState } from '@/components/ui/LoadingState'
 
 const CONFIG_TIPO = {
   Zerado: {
@@ -111,16 +112,7 @@ export function NotificacoesPage() {
         }
       />
 
-      {loading && (
-        <div className="state-loading">
-          <div
-            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
-            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
-            role="status" aria-label="Carregando…"
-          />
-          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando notificações…</p>
-        </div>
-      )}
+      {loading && <LoadingState mensagem="Carregando notificações…" />}
 
       {!loading && erro && <div className="state-error" role="alert">{erro}</div>}
 

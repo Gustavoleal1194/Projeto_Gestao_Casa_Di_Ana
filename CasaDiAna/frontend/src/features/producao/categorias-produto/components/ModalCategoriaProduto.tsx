@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { XMarkIcon } from '@heroicons/react/24/outline'
 import { CampoTexto } from '@/features/estoque/ingredientes/components/CampoTexto'
 import { Spinner } from '@/components/form/Spinner'
 import type { CategoriaProduto } from '@/types/producao'
@@ -29,49 +30,73 @@ export function ModalCategoriaProduto({ categoria, salvando, onSalvar, onFechar 
     reset({ nome: categoria?.nome ?? '' })
   }, [categoria, reset])
 
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !salvando) onFechar()
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [salvando, onFechar])
+
   const onSubmit = (values: FormValues) => onSalvar(values.nome)
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div
-        className="w-full max-w-sm mx-4 rounded-2xl p-6"
-        style={{ background: 'var(--ada-surface)', boxShadow: 'var(--shadow-xl)' }}
-      >
-        <h2
-          className="text-base font-bold mb-5"
-          style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
-        >
-          {categoria ? 'Editar Categoria' : 'Nova Categoria de Produto'}
-        </h2>
+    <div
+      className="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-cat-prod-titulo"
+      onClick={e => { if (e.target === e.currentTarget && !salvando) onFechar() }}
+    >
+      <div className="modal-card max-w-sm">
+        <div className="modal-header">
+          <h2
+            id="modal-cat-prod-titulo"
+            className="text-[15px] font-semibold"
+            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
+          >
+            {categoria ? 'Editar Categoria' : 'Nova Categoria de Produto'}
+          </h2>
+          <button
+            type="button"
+            onClick={onFechar}
+            disabled={salvando}
+            className="p-1.5 rounded-lg transition-colors duration-150 outline-none
+                       focus-visible:ring-2 focus-visible:ring-[#C4870A]/40 disabled:opacity-40"
+            aria-label="Fechar"
+            style={{ color: 'var(--ada-muted)' }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--ada-bg)'}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+          >
+            <XMarkIcon className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          <CampoTexto
-            label="Nome"
-            obrigatorio
-            placeholder="Ex: Bolos"
-            autoFocus
-            {...register('nome')}
-            erro={errors.nome?.message}
-          />
+          <div className="px-6 py-5">
+            <CampoTexto
+              label="Nome"
+              obrigatorio
+              placeholder="Ex: Bolos"
+              autoFocus
+              {...register('nome')}
+              erro={errors.nome?.message}
+            />
+          </div>
 
-          <div
-            className="flex justify-end gap-2.5 pt-5 mt-5"
-            style={{ borderTop: '1px solid var(--ada-border-sub)' }}
-          >
+          <div className="modal-footer">
             <button
               type="button"
               onClick={onFechar}
               disabled={salvando}
-              className="px-4 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-[var(--ada-bg)] transition-colors"
-              style={{ border: '1px solid var(--ada-border)', color: 'var(--ada-body)', background: 'var(--ada-surface)' }}
+              className="btn-secondary disabled:opacity-50"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={salvando}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60"
-              style={{ background: 'linear-gradient(135deg, #D4960C 0%, #B87D0A 100%)', boxShadow: '0 3px 10px rgba(196,135,10,0.28)' }}
+              className="btn-primary disabled:opacity-60"
             >
               {salvando && <Spinner />}
               {salvando ? 'Salvando…' : 'Salvar'}

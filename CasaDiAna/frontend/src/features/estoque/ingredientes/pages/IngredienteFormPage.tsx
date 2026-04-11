@@ -12,6 +12,7 @@ import { FormSection } from '@/components/form/FormSection'
 import { FormTextarea } from '@/components/form/FormTextarea'
 import { FormActions } from '@/components/form/FormActions'
 import { FormCard } from '@/components/form/FormCard'
+import { LoadingState } from '@/components/ui/LoadingState'
 import type { Ingrediente } from '@/types/estoque'
 
 export function IngredienteFormPage() {
@@ -79,14 +80,7 @@ export function IngredienteFormPage() {
   if (carregando) {
     return (
       <div className="ada-page">
-        <div className="state-loading py-32">
-          <div
-            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
-            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
-            role="status" aria-label="Carregando…"
-          />
-          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando ingrediente…</p>
-        </div>
+        <LoadingState mensagem="Carregando ingrediente…" />
       </div>
     )
   }
@@ -110,14 +104,7 @@ export function IngredienteFormPage() {
       {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={fecharToast} />}
 
       {/* Breadcrumb */}
-      <Link
-        to="/estoque/ingredientes"
-        className="inline-flex items-center gap-1.5 text-sm font-medium mb-5 rounded
-                   transition-colors duration-150 outline-none
-                   focus-visible:ring-2 focus-visible:ring-[#C4870A]/40
-                   hover:text-[#C4870A]"
-        style={{ color: 'var(--ada-muted)' }}
-      >
+      <Link to="/estoque/ingredientes" className="back-link">
         <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
         Ingredientes
       </Link>

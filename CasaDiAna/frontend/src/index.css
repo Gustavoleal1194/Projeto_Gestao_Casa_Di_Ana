@@ -356,7 +356,7 @@
   padding: 0.5rem 0.875rem;
   border-radius: 0.5rem;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--ada-body);
   background: var(--ada-surface);
   border: 1px solid var(--ada-border);
@@ -533,9 +533,9 @@
 }
 .page-header-left { min-width: 0; }
 .page-header-title {
-  font-size: 1.25rem;
+  font-size: 1.375rem;    /* 22px */
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   color: var(--ada-heading);
   font-family: 'Sora', system-ui, sans-serif;
   margin: 0;

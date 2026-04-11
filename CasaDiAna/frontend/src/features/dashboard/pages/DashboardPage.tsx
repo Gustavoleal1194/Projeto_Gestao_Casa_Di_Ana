@@ -1,6 +1,13 @@
 import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import ReactECharts from 'echarts-for-react'
 import type { EChartsOption } from 'echarts'
+import {
+  FireIcon,
+  BanknotesIcon,
+  ArrowDownTrayIcon,
+  ExclamationTriangleIcon,
+} from '@heroicons/react/24/outline'
 import { relatoriosService } from '@/features/relatorios/services/relatoriosService'
 import type { EstoqueAtualItem } from '@/types/estoque'
 import type { RelatorioProducaoVendasItem } from '@/types/producao'
@@ -79,6 +86,56 @@ const IcEficiência = () => (
     <path fillRule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zm3.78 5.47a.75.75 0 10-1.06-1.06L9.25 9.88 7.78 8.41a.75.75 0 00-1.06 1.06l2 2a.75.75 0 001.06 0l3.999-4z" clipRule="evenodd"/>
   </svg>
 )
+
+// ─── AcoesRapidas ───────────────────────────────────────────────────────────
+interface AcaoRapidaProps {
+  icone: React.ReactNode
+  label: string
+  onClick: () => void
+}
+
+function AcaoRapida({ icone, label, onClick }: AcaoRapidaProps) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex flex-col items-center justify-center gap-3 rounded-xl p-4 text-left
+                 transition-all duration-200 outline-none
+                 focus-visible:ring-2 focus-visible:ring-[#C4870A]/40"
+      style={{
+        background: 'var(--ada-surface)',
+        border: '1px solid var(--ada-border)',
+        boxShadow: 'var(--shadow-xs)',
+        cursor: 'pointer',
+      }}
+      onMouseEnter={e => {
+        const el = e.currentTarget as HTMLElement
+        el.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'
+        el.style.transform = 'translateY(-2px)'
+      }}
+      onMouseLeave={e => {
+        const el = e.currentTarget as HTMLElement
+        el.style.boxShadow = 'var(--shadow-xs)'
+        el.style.transform = 'translateY(0)'
+      }}
+    >
+      <div
+        className="w-10 h-10 rounded-xl flex items-center justify-center"
+        style={{ background: 'var(--ada-warning-badge)', border: '1px solid var(--ada-warning-border)' }}
+        aria-hidden="true"
+      >
+        <span style={{ color: '#D4960C' }} className="w-5 h-5 flex items-center justify-center">
+          {icone}
+        </span>
+      </div>
+      <span
+        className="text-[13px] font-semibold leading-tight text-center"
+        style={{ color: 'var(--ada-body)', fontFamily: 'DM Sans, system-ui, sans-serif' }}
+      >
+        {label}
+      </span>
+    </button>
+  )
+}
 
 // ─── DashboardCard ──────────────────────────────────────────────────────────
 interface DashboardCardProps {
@@ -200,6 +257,7 @@ interface DashboardData {
 
 // ─── Página ─────────────────────────────────────────────────────────────────
 export function DashboardPage() {
+  const navigate = useNavigate()
   const { isDark } = useTheme()
   const chartTooltip = useMemo(() => ({
     backgroundColor: isDark ? '#1A1814' : '#ffffff',
@@ -539,8 +597,8 @@ export function DashboardPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1
-            className="text-xl font-bold tracking-tight"
-            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
+            className="font-bold tracking-tight"
+            style={{ fontSize: '1.375rem', color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif', letterSpacing: '-0.025em' }}
           >
             Dashboard
           </h1>
@@ -596,6 +654,38 @@ export function DashboardPage() {
           >
             Atualizar
           </button>
+        </div>
+      </div>
+
+      {/* ── Ações Rápidas ─────────────────────────────────────────────── */}
+      <div>
+        <p
+          className="text-[11px] font-semibold uppercase tracking-[0.05em] mb-3"
+          style={{ color: 'var(--ada-muted)', fontFamily: 'DM Sans, system-ui, sans-serif' }}
+        >
+          Ações Rápidas
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <AcaoRapida
+            icone={<FireIcon className="w-5 h-5" />}
+            label="Nova Produção"
+            onClick={() => navigate('/producao/diaria/nova')}
+          />
+          <AcaoRapida
+            icone={<BanknotesIcon className="w-5 h-5" />}
+            label="Nova Venda"
+            onClick={() => navigate('/producao/vendas/nova')}
+          />
+          <AcaoRapida
+            icone={<ArrowDownTrayIcon className="w-5 h-5" />}
+            label="Registrar Entrada"
+            onClick={() => navigate('/entradas/nova')}
+          />
+          <AcaoRapida
+            icone={<ExclamationTriangleIcon className="w-5 h-5" />}
+            label="Ver Estoque Baixo"
+            onClick={() => navigate('/estoque/ingredientes')}
+          />
         </div>
       </div>
 

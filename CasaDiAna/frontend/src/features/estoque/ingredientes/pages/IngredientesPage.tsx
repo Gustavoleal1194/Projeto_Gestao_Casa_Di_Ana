@@ -8,6 +8,8 @@ import { TabelaIngredientes } from '../components/TabelaIngredientes'
 import { FiltrosIngredientes } from '../components/FiltrosIngredientes'
 import { ModalDesativar } from '../components/ModalDesativar'
 import { Paginacao } from '../components/Paginacao'
+import { PageHeader } from '@/components/ui/PageHeader'
+import { SkeletonTable } from '@/components/ui/SkeletonTable'
 import type { IngredienteResumo } from '@/types/estoque'
 
 const ITENS_POR_PAGINA = 10
@@ -67,32 +69,17 @@ export function IngredientesPage() {
   return (
     <div className="ada-page max-w-[1280px] mx-auto">
 
-      {/* ── Cabeçalho da página ──────────────────────────────────────── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div>
-          <h1
-            className="text-xl font-bold tracking-tight"
-            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
-          >
-            Ingredientes
-          </h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
-            {loading
-              ? 'Carregando…'
-              : `${ingredientes.length} ingrediente${ingredientes.length !== 1 ? 's' : ''} cadastrado${ingredientes.length !== 1 ? 's' : ''}`
-            }
-          </p>
-        </div>
-        {podeEditar && (
-          <button
-            onClick={() => navigate('/estoque/ingredientes/novo')}
-            className="btn-primary"
-          >
+      <PageHeader
+        titulo="Ingredientes"
+        breadcrumb={['Cadastros', 'Ingredientes']}
+        subtitulo={loading ? 'Carregando…' : `${ingredientes.length} ingrediente${ingredientes.length !== 1 ? 's' : ''} cadastrado${ingredientes.length !== 1 ? 's' : ''}`}
+        actions={podeEditar ? (
+          <button onClick={() => navigate('/estoque/ingredientes/novo')} className="btn-primary">
             <PlusIcon className="h-4 w-4" aria-hidden="true" />
             Novo Ingrediente
           </button>
-        )}
-      </div>
+        ) : undefined}
+      />
 
       {/* ── Filtros ──────────────────────────────────────────────────── */}
       <FiltrosIngredientes
@@ -106,20 +93,7 @@ export function IngredientesPage() {
       />
 
       {/* ── Carregando ───────────────────────────────────────────────── */}
-      {loading && (
-        <div
-          className="rounded-xl py-20 text-center"
-          style={{ background: 'var(--ada-surface)', border: '1px solid var(--ada-border)', boxShadow: 'var(--shadow-sm)' }}
-        >
-          <div
-            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
-            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
-            role="status"
-            aria-label="Carregando ingredientes…"
-          />
-          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando ingredientes…</p>
-        </div>
-      )}
+      {loading && <SkeletonTable colunas={6} linhas={5} />}
 
       {/* ── Erro ─────────────────────────────────────────────────────── */}
       {!loading && erro && (

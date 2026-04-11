@@ -4,6 +4,8 @@ import { PlusIcon } from '@heroicons/react/20/solid'
 import { CalendarIcon } from '@heroicons/react/24/outline'
 import { useEntradas } from '../hooks/useEntradas'
 import { useAuthStore } from '@/store/authStore'
+import { PageHeader } from '@/components/ui/PageHeader'
+import { SkeletonTable } from '@/components/ui/SkeletonTable'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
 
@@ -34,29 +36,17 @@ export function EntradasPage() {
   return (
     <div className="ada-page">
 
-      {/* ── Cabeçalho ──────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div>
-          <h1
-            className="text-xl font-bold tracking-tight"
-            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
-          >
-            Entradas de Mercadoria
-          </h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
-            {loading ? 'Carregando…' : `${entradas.length} entrada${entradas.length !== 1 ? 's' : ''} no período`}
-          </p>
-        </div>
-        {podeCriar && (
-          <button
-            onClick={() => navigate('/entradas/nova')}
-            className="btn-primary"
-          >
+      <PageHeader
+        titulo="Entradas de Mercadoria"
+        breadcrumb={['Movimentações', 'Entradas']}
+        subtitulo={loading ? 'Carregando…' : `${entradas.length} entrada${entradas.length !== 1 ? 's' : ''} no período`}
+        actions={podeCriar ? (
+          <button onClick={() => navigate('/entradas/nova')} className="btn-primary">
             <PlusIcon className="h-4 w-4" aria-hidden="true" />
             Nova Entrada
           </button>
-        )}
-      </div>
+        ) : undefined}
+      />
 
       {/* ── Filtro de período ───────────────────────────────────────────── */}
       <form onSubmit={handleFiltrar} className="filter-bar" aria-label="Filtrar entradas">
@@ -87,17 +77,7 @@ export function EntradasPage() {
       </form>
 
       {/* ── Estados ────────────────────────────────────────────────────── */}
-      {loading && (
-        <div className="state-loading">
-          <div
-            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
-            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
-            role="status"
-            aria-label="Carregando entradas…"
-          />
-          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando entradas…</p>
-        </div>
-      )}
+      {loading && <SkeletonTable colunas={5} linhas={5} />}
       {!loading && erro && (
         <div className="state-error" role="alert">{erro}</div>
       )}

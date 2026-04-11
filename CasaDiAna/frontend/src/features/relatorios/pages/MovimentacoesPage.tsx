@@ -3,6 +3,7 @@ import { ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import { relatoriosService } from '../services/relatoriosService'
 import { ingredientesService } from '@/features/estoque/ingredientes/services/ingredientesService'
 import { gerarPdfMovimentacoes } from '@/lib/pdf'
+import { PageHeader } from '@/components/ui/PageHeader'
 import type { MovimentacaoRelatorio, IngredienteResumo } from '@/types/estoque'
 
 const TIPOS = ['', 'Entrada', 'AjustePositivo', 'AjusteNegativo', 'SaidaProducao']
@@ -48,25 +49,17 @@ export function MovimentacoesPage() {
 
   return (
     <div className="ada-page">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div>
-          <h1
-            className="text-xl font-bold tracking-tight"
-            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
-          >
-            Movimentações de Estoque
-          </h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
-            {loading ? 'Carregando…' : `${movimentacoes.length} movimentação(ões) no período`}
-          </p>
-        </div>
-        {movimentacoes.length > 0 && (
+      <PageHeader
+        titulo="Movimentações de Estoque"
+        breadcrumb={['Relatórios', 'Movimentações']}
+        subtitulo={loading ? 'Carregando…' : `${movimentacoes.length} movimentação(ões) no período`}
+        actions={movimentacoes.length > 0 ? (
           <button onClick={() => gerarPdfMovimentacoes(movimentacoes, de, ate)} className="btn-secondary">
             <ArrowDownTrayIcon className="h-4 w-4" aria-hidden="true" />
             Baixar PDF
           </button>
-        )}
-      </div>
+        ) : undefined}
+      />
 
       <form onSubmit={handleFiltrar} className="filter-bar" role="search" aria-label="Filtrar movimentações">
         <div>

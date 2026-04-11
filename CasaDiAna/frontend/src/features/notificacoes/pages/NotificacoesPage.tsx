@@ -7,6 +7,7 @@ import {
 } from '@heroicons/react/24/solid'
 import { notificacoesService, type NotificacaoEstoqueDto } from '@/lib/notificacoesService'
 import { useNotificacoesCount } from '@/hooks/useNotificacoesCount'
+import { PageHeader } from '@/components/ui/PageHeader'
 
 const CONFIG_TIPO = {
   Zerado: {
@@ -84,41 +85,31 @@ export function NotificacoesPage() {
 
   return (
     <div className="ada-page max-w-3xl">
-      {/* ── Cabeçalho ─────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div>
-          <h1
-            className="text-xl font-bold tracking-tight"
-            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
-          >
-            Notificações de Estoque
-          </h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
-            {loading ? 'Carregando…' : `${naoLidasCount} não lida${naoLidasCount !== 1 ? 's' : ''}`}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={apenasNaoLidas}
-              onChange={handleToggle}
-              className="h-4 w-4 accent-amber-700"
-            />
-            <span className="text-sm" style={{ color: 'var(--ada-body)' }}>
-              Apenas não lidas
-            </span>
-          </label>
-
-          {naoLidasCount > 0 && (
-            <button onClick={handleMarcarTodasLidas} className="btn-secondary">
-              <CheckIcon className="h-4 w-4" aria-hidden="true" />
-              Marcar todas como lidas
-            </button>
-          )}
-        </div>
-      </div>
+      <PageHeader
+        titulo="Notificações de Estoque"
+        subtitulo={loading ? 'Carregando…' : `${naoLidasCount} não lida${naoLidasCount !== 1 ? 's' : ''}`}
+        actions={
+          <div className="flex items-center gap-3">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={apenasNaoLidas}
+                onChange={handleToggle}
+                className="h-4 w-4 accent-amber-700"
+              />
+              <span className="text-sm" style={{ color: 'var(--ada-body)' }}>
+                Apenas não lidas
+              </span>
+            </label>
+            {naoLidasCount > 0 && (
+              <button onClick={handleMarcarTodasLidas} className="btn-secondary">
+                <CheckIcon className="h-4 w-4" aria-hidden="true" />
+                Marcar todas como lidas
+              </button>
+            )}
+          </div>
+        }
+      />
 
       {loading && (
         <div className="state-loading">

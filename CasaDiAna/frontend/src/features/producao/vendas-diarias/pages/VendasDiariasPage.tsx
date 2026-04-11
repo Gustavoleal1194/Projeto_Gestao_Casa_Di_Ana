@@ -5,6 +5,7 @@ import { CalendarIcon } from '@heroicons/react/24/outline'
 import { useVendasDiarias } from '../hooks/useVendasDiarias'
 import { useAuthStore } from '@/store/authStore'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
+import { PageHeader } from '@/components/ui/PageHeader'
 import type { ProdutoResumo } from '@/types/producao'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
@@ -27,29 +28,17 @@ export function VendasDiariasPage() {
   return (
     <div className="ada-page">
 
-      {/* ── Cabeçalho ──────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div>
-          <h1
-            className="text-xl font-bold tracking-tight"
-            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
-          >
-            Vendas Diárias
-          </h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
-            {loading ? 'Carregando…' : `${vendas.length} venda${vendas.length !== 1 ? 's' : ''} no período`}
-          </p>
-        </div>
-        {podeEditar && (
-          <button
-            onClick={() => navigate('/producao/vendas/nova')}
-            className="btn-primary"
-          >
+      <PageHeader
+        titulo="Vendas Diárias"
+        breadcrumb={['Produção', 'Vendas Diárias']}
+        subtitulo={loading ? 'Carregando…' : `${vendas.length} venda${vendas.length !== 1 ? 's' : ''} no período`}
+        actions={podeEditar ? (
+          <button onClick={() => navigate('/producao/vendas/nova')} className="btn-primary">
             <PlusIcon className="h-4 w-4" aria-hidden="true" />
             Registrar Venda
           </button>
-        )}
-      </div>
+        ) : undefined}
+      />
 
       {/* ── Filtros ─────────────────────────────────────────────────────── */}
       <div className="filter-bar" role="search" aria-label="Filtrar vendas">

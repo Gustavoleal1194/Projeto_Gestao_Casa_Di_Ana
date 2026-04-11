@@ -5,6 +5,7 @@ import { CalendarIcon } from '@heroicons/react/24/outline'
 import { useProducaoDiaria } from '../hooks/useProducaoDiaria'
 import { useAuthStore } from '@/store/authStore'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
+import { PageHeader } from '@/components/ui/PageHeader'
 import type { ProdutoResumo } from '@/types/producao'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
@@ -27,29 +28,17 @@ export function ProducaoDiariaPage() {
   return (
     <div className="ada-page">
 
-      {/* ── Cabeçalho ──────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div>
-          <h1
-            className="text-xl font-bold tracking-tight"
-            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
-          >
-            Produção Diária
-          </h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
-            {loading ? 'Carregando…' : `${producoes.length} registro${producoes.length !== 1 ? 's' : ''} no período`}
-          </p>
-        </div>
-        {podeEditar && (
-          <button
-            onClick={() => navigate('/producao/diaria/nova')}
-            className="btn-primary"
-          >
+      <PageHeader
+        titulo="Produção Diária"
+        breadcrumb={['Produção', 'Produção Diária']}
+        subtitulo={loading ? 'Carregando…' : `${producoes.length} registro${producoes.length !== 1 ? 's' : ''} no período`}
+        actions={podeEditar ? (
+          <button onClick={() => navigate('/producao/diaria/nova')} className="btn-primary">
             <PlusIcon className="h-4 w-4" aria-hidden="true" />
             Registrar Produção
           </button>
-        )}
-      </div>
+        ) : undefined}
+      />
 
       {/* ── Filtros ─────────────────────────────────────────────────────── */}
       <div className="filter-bar" role="search" aria-label="Filtrar produção">

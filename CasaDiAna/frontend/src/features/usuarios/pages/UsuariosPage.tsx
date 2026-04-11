@@ -4,6 +4,8 @@ import { KeyIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { usuariosService, type UsuarioDto, type CriarUsuarioInput } from '../services/usuariosService'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
 import { Spinner } from '@/components/form/Spinner'
+import { PageHeader } from '@/components/ui/PageHeader'
+import { SkeletonTable } from '@/components/ui/SkeletonTable'
 
 const PAPEIS = [
   'Admin',
@@ -162,40 +164,20 @@ export function UsuariosPage() {
   return (
     <div className="ada-page">
 
-      {/* ── Cabeçalho ──────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div>
-          <h1
-            className="text-xl font-bold tracking-tight"
-            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
-          >
-            Usuários
-          </h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
-            {loading
-              ? 'Carregando…'
-              : `${usuarios.length} usuário${usuarios.length !== 1 ? 's' : ''} cadastrado${usuarios.length !== 1 ? 's' : ''}`
-            }
-          </p>
-        </div>
-        <button onClick={abrirCriar} className="btn-primary">
-          <PlusIcon className="h-4 w-4" aria-hidden="true" />
-          Novo Usuário
-        </button>
-      </div>
+      <PageHeader
+        titulo="Usuários"
+        breadcrumb={['Configurações', 'Usuários']}
+        subtitulo={loading ? 'Carregando…' : `${usuarios.length} usuário${usuarios.length !== 1 ? 's' : ''} cadastrado${usuarios.length !== 1 ? 's' : ''}`}
+        actions={
+          <button onClick={abrirCriar} className="btn-primary">
+            <PlusIcon className="h-4 w-4" aria-hidden="true" />
+            Novo Usuário
+          </button>
+        }
+      />
 
       {/* ── Estados ────────────────────────────────────────────────────── */}
-      {loading && (
-        <div className="state-loading">
-          <div
-            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
-            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
-            role="status"
-            aria-label="Carregando usuários…"
-          />
-          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando usuários…</p>
-        </div>
-      )}
+      {loading && <SkeletonTable colunas={4} linhas={4} />}
       {!loading && erro && (
         <div className="state-error" role="alert">{erro}</div>
       )}

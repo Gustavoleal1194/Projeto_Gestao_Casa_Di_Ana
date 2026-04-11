@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import { relatoriosService } from '../services/relatoriosService'
 import { gerarPdfEntradas } from '@/lib/pdf'
+import { PageHeader } from '@/components/ui/PageHeader'
 import type { EntradaRelatorioResumo } from '@/types/estoque'
 
 function hoje(): string { return new Date().toISOString().split('T')[0] }
@@ -41,25 +42,17 @@ export function EntradasRelatorioPage() {
 
   return (
     <div className="ada-page">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div>
-          <h1
-            className="text-xl font-bold tracking-tight"
-            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
-          >
-            Relatório de Entradas
-          </h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
-            Entradas de mercadoria por período
-          </p>
-        </div>
-        {resumo && resumo.entradas.length > 0 && (
+      <PageHeader
+        titulo="Relatório de Entradas"
+        breadcrumb={['Relatórios', 'Entradas']}
+        subtitulo="Entradas de mercadoria por período"
+        actions={resumo && resumo.entradas.length > 0 ? (
           <button onClick={() => gerarPdfEntradas(resumo!, de, ate)} className="btn-secondary">
             <ArrowDownTrayIcon className="h-4 w-4" aria-hidden="true" />
             Baixar PDF
           </button>
-        )}
-      </div>
+        ) : undefined}
+      />
 
       <form onSubmit={handleFiltrar} className="filter-bar" role="search" aria-label="Filtrar entradas">
         <div>

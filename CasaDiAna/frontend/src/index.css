@@ -33,14 +33,14 @@
 /* ─── Global CSS Custom Properties ─────────────────────────────────────── */
 :root {
   /* Layout */
-  --header-h: 52px;
+  --header-h: 60px;
 
   /* ── Semantic design tokens (runtime, theme-switchable) ── */
-  --ada-bg:           #F5F3EF;
+  --ada-bg:           #F7F8FA;
   --ada-surface:      #FFFFFF;
-  --ada-surface-2:    #FAFAF8;
-  --ada-border:       #E4DDD3;
-  --ada-border-sub:   #EEEBE5;
+  --ada-surface-2:    #F0F2F5;
+  --ada-border:       #E2E8F0;
+  --ada-border-sub:   #EDF2F7;
   --ada-heading:      #18150E;
   --ada-body:         #4B4039;
   --ada-muted:        #8B7E73;
@@ -500,3 +500,142 @@
 .row-action-btn:focus-visible { outline: 2px solid rgba(196,135,10,0.40); outline-offset: 2px; }
 .row-action-btn.danger:hover { color: #DC2626; background: var(--ada-error-bg); }
 .row-action-btn.danger:focus-visible { outline: 2px solid rgba(220,38,38,0.40); }
+
+/* ─── Table density — compacto (ERP padrão) ─────────────────────────────── */
+.table-th { padding: 0.625rem 1.25rem; }
+.table-td { padding: 0.625rem 1.25rem; }
+
+/* Sticky table header */
+.ada-surface-card table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.ada-surface-card table thead th {
+  white-space: nowrap;
+}
+
+/* Referência truncada com ellipsis */
+.cell-truncate {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Page Header ────────────────────────────────────────────────────────── */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.page-header-left { min-width: 0; }
+.page-header-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ada-heading);
+  font-family: 'Sora', system-ui, sans-serif;
+  margin: 0;
+}
+.page-header-subtitle {
+  font-size: 0.8125rem;
+  color: var(--ada-muted);
+  margin-top: 0.125rem;
+}
+.page-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  color: var(--ada-muted);
+  margin-bottom: 0.25rem;
+  font-family: 'Sora', system-ui, sans-serif;
+}
+.page-breadcrumb span { opacity: 0.5; }
+.page-header-actions { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+@media (max-width: 639px) {
+  .page-header { flex-direction: column; }
+  .page-header-actions { width: 100%; }
+}
+
+/* ─── Skeleton loader ────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+.skeleton {
+  border-radius: 0.375rem;
+  background: linear-gradient(
+    90deg,
+    var(--ada-border-sub) 25%,
+    var(--ada-hover) 50%,
+    var(--ada-border-sub) 75%
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+[data-theme="dark"] .skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--ada-border) 25%,
+    var(--ada-hover) 50%,
+    var(--ada-border) 75%
+  );
+  background-size: 600px 100%;
+}
+
+/* ─── Notification Panel ─────────────────────────────────────────────────── */
+.notification-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 360px;
+  max-height: 440px;
+  overflow-y: auto;
+  background: var(--ada-surface);
+  border: 1px solid var(--ada-border);
+  border-radius: 0.875rem;
+  box-shadow: var(--shadow-lg);
+  z-index: 60;
+}
+.notification-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--ada-border-sub);
+  position: sticky;
+  top: 0;
+  background: var(--ada-surface);
+  z-index: 1;
+}
+.notification-panel-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--ada-border-sub);
+  transition: background 100ms;
+  cursor: pointer;
+}
+.notification-panel-item:last-child { border-bottom: none; }
+.notification-panel-item:hover { background: var(--ada-hover); }
+.notification-panel-item.unread { background: var(--ada-warning-badge); }
+.notification-panel-item.unread:hover { background: var(--ada-warning-bg); }
+[data-theme="dark"] .notification-panel-item.unread { background: rgba(212,150,12,0.09); }
+
+/* ─── Dashboard Card hover via CSS ───────────────────────────────────────── */
+.dashboard-card {
+  background: var(--ada-surface);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.dashboard-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}

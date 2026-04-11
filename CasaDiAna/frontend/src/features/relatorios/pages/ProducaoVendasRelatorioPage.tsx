@@ -3,6 +3,7 @@ import { ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import { relatoriosService } from '../services/relatoriosService'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import { gerarPdfProducaoVendas } from '@/lib/pdf'
+import { PageHeader } from '@/components/ui/PageHeader'
 import type { RelatorioProducaoVendas, RelatorioProducaoVendasItem, ProdutoResumo } from '@/types/producao'
 
 function primeiroDoMes(): string {
@@ -66,25 +67,17 @@ export function ProducaoVendasRelatorioPage() {
 
   return (
     <div className="ada-page">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div>
-          <h1
-            className="text-xl font-bold tracking-tight"
-            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
-          >
-            Relatório Produção / Vendas
-          </h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
-            Análise de produção, vendas, perdas e margens
-          </p>
-        </div>
-        {relatorio && relatorio.itens.length > 0 && (
+      <PageHeader
+        titulo="Relatório Produção / Vendas"
+        breadcrumb={['Relatórios', 'Produção / Vendas']}
+        subtitulo="Análise de produção, vendas, perdas e margens"
+        actions={relatorio && relatorio.itens.length > 0 ? (
           <button onClick={() => gerarPdfProducaoVendas(relatorio!.itens, de, ate)} className="btn-secondary">
             <ArrowDownTrayIcon className="h-4 w-4" aria-hidden="true" />
             Baixar PDF
           </button>
-        )}
-      </div>
+        ) : undefined}
+      />
 
       <div className="filter-bar" role="search" aria-label="Filtrar relatório">
         <div>

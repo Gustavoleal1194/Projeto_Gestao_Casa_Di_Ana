@@ -2,6 +2,8 @@ import { useNavigate } from 'react-router-dom'
 import { PlusIcon } from '@heroicons/react/20/solid'
 import { useInventarios } from '../hooks/useInventarios'
 import { useAuthStore } from '@/store/authStore'
+import { PageHeader } from '@/components/ui/PageHeader'
+import { SkeletonTable } from '@/components/ui/SkeletonTable'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
 
@@ -30,45 +32,20 @@ export function InventariosPage() {
   return (
     <div className="ada-page">
 
-      {/* ── Cabeçalho ──────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div>
-          <h1
-            className="text-xl font-bold tracking-tight"
-            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
-          >
-            Inventários
-          </h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
-            {loading
-              ? 'Carregando…'
-              : `${inventarios.length} inventário${inventarios.length !== 1 ? 's' : ''} registrado${inventarios.length !== 1 ? 's' : ''}`
-            }
-          </p>
-        </div>
-        {podeCriar && (
-          <button
-            onClick={() => navigate('/inventarios/novo')}
-            className="btn-primary"
-          >
+      <PageHeader
+        titulo="Inventários"
+        breadcrumb={['Movimentações', 'Inventário']}
+        subtitulo={loading ? 'Carregando…' : `${inventarios.length} inventário${inventarios.length !== 1 ? 's' : ''} registrado${inventarios.length !== 1 ? 's' : ''}`}
+        actions={podeCriar ? (
+          <button onClick={() => navigate('/inventarios/novo')} className="btn-primary">
             <PlusIcon className="h-4 w-4" aria-hidden="true" />
             Novo Inventário
           </button>
-        )}
-      </div>
+        ) : undefined}
+      />
 
       {/* ── Estados ────────────────────────────────────────────────────── */}
-      {loading && (
-        <div className="state-loading">
-          <div
-            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
-            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
-            role="status"
-            aria-label="Carregando inventários…"
-          />
-          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando inventários…</p>
-        </div>
-      )}
+      {loading && <SkeletonTable colunas={4} linhas={5} />}
       {!loading && erro && (
         <div className="state-error" role="alert">{erro}</div>
       )}

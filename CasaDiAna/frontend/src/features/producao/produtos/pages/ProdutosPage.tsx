@@ -6,6 +6,8 @@ import { useProdutos } from '../hooks/useProdutos'
 import { useAuthStore } from '@/store/authStore'
 import { ModalDesativar } from '@/features/estoque/ingredientes/components/ModalDesativar'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
+import { PageHeader } from '@/components/ui/PageHeader'
+import { SkeletonTable } from '@/components/ui/SkeletonTable'
 import type { ProdutoResumo } from '@/types/producao'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
@@ -37,45 +39,20 @@ export function ProdutosPage() {
   return (
     <div className="ada-page">
 
-      {/* ── Cabeçalho ──────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div>
-          <h1
-            className="text-xl font-bold tracking-tight"
-            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
-          >
-            Produtos
-          </h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
-            {loading
-              ? 'Carregando…'
-              : `${produtos.length} produto${produtos.length !== 1 ? 's' : ''} cadastrado${produtos.length !== 1 ? 's' : ''}`
-            }
-          </p>
-        </div>
-        {podeEditar && (
-          <button
-            onClick={() => navigate('/producao/produtos/novo')}
-            className="btn-primary"
-          >
+      <PageHeader
+        titulo="Produtos"
+        breadcrumb={['Produção', 'Produtos']}
+        subtitulo={loading ? 'Carregando…' : `${produtos.length} produto${produtos.length !== 1 ? 's' : ''} cadastrado${produtos.length !== 1 ? 's' : ''}`}
+        actions={podeEditar ? (
+          <button onClick={() => navigate('/producao/produtos/novo')} className="btn-primary">
             <PlusIcon className="h-4 w-4" aria-hidden="true" />
             Novo Produto
           </button>
-        )}
-      </div>
+        ) : undefined}
+      />
 
       {/* ── Estados ────────────────────────────────────────────────────── */}
-      {loading && (
-        <div className="state-loading">
-          <div
-            className="inline-block h-9 w-9 animate-spin rounded-full mb-4"
-            style={{ border: '3px solid var(--ada-border-sub)', borderTopColor: '#C4870A' }}
-            role="status"
-            aria-label="Carregando produtos…"
-          />
-          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Carregando produtos…</p>
-        </div>
-      )}
+      {loading && <SkeletonTable colunas={5} linhas={5} />}
       {!loading && erro && (
         <div className="state-error" role="alert">{erro}</div>
       )}

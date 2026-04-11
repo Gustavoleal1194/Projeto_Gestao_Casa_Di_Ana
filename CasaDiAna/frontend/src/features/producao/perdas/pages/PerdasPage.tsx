@@ -10,6 +10,7 @@ import { CampoTexto } from '@/features/estoque/ingredientes/components/CampoText
 import { SelectCampo } from '@/features/estoque/ingredientes/components/SelectCampo'
 import { FormTextarea } from '@/components/form/FormTextarea'
 import { Spinner } from '@/components/form/Spinner'
+import { PageHeader } from '@/components/ui/PageHeader'
 import type { PerdaProduto } from '@/types/producao'
 import type { ProdutoResumo } from '@/types/producao'
 
@@ -99,27 +100,20 @@ export function PerdasPage() {
   return (
     <div className="ada-page">
 
-      {/* ── Cabeçalho ──────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div>
-          <h1
-            className="text-xl font-bold tracking-tight"
-            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
+      <PageHeader
+        titulo="Registro de Perdas"
+        breadcrumb={['Produção', 'Perdas']}
+        subtitulo={loading ? 'Carregando…' : `${perdas.length} registro${perdas.length !== 1 ? 's' : ''} no período`}
+        actions={
+          <button
+            onClick={() => { resetForm({ produtoId: '', data: hoje(), quantidade: '', justificativa: '' }); setModalAberto(true) }}
+            className="btn-primary"
           >
-            Registro de Perdas
-          </h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
-            {loading ? 'Carregando…' : `${perdas.length} registro${perdas.length !== 1 ? 's' : ''} no período`}
-          </p>
-        </div>
-        <button
-          onClick={() => { resetForm({ produtoId: '', data: hoje(), quantidade: '', justificativa: '' }); setModalAberto(true) }}
-          className="btn-primary"
-        >
-          <PlusIcon className="h-4 w-4" aria-hidden="true" />
-          Registrar Perda
-        </button>
-      </div>
+            <PlusIcon className="h-4 w-4" aria-hidden="true" />
+            Registrar Perda
+          </button>
+        }
+      />
 
       {/* ── Filtros ─────────────────────────────────────────────────────── */}
       <div className="filter-bar" role="search" aria-label="Filtrar perdas">

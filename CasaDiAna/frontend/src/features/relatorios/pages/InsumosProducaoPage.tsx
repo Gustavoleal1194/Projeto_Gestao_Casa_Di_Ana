@@ -4,6 +4,7 @@ import { relatoriosService } from '../services/relatoriosService'
 import { ingredientesService } from '@/features/estoque/ingredientes/services/ingredientesService'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import { gerarPdfInsumosProducao } from '@/lib/pdf'
+import { PageHeader } from '@/components/ui/PageHeader'
 import type { InsumoProducaoDia, IngredienteResumo } from '@/types/estoque'
 import type { ProdutoResumo } from '@/types/producao'
 
@@ -67,25 +68,17 @@ export function InsumosProducaoPage() {
 
   return (
     <div className="ada-page">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div>
-          <h1
-            className="text-xl font-bold tracking-tight"
-            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
-          >
-            Insumos por Produção
-          </h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
-            Consumo de ingredientes por dia e por produto produzido
-          </p>
-        </div>
-        {itens.length > 0 && (
+      <PageHeader
+        titulo="Insumos por Produção"
+        breadcrumb={['Relatórios', 'Insumos por Produção']}
+        subtitulo="Consumo de ingredientes por dia e por produto produzido"
+        actions={itens.length > 0 ? (
           <button onClick={() => gerarPdfInsumosProducao(itens, de, ate)} className="btn-secondary">
             <ArrowDownTrayIcon className="h-4 w-4" aria-hidden="true" />
             Baixar PDF
           </button>
-        )}
-      </div>
+        ) : undefined}
+      />
 
       <div className="filter-bar" role="search" aria-label="Filtrar insumos">
         <div>

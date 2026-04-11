@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import { relatoriosService } from '../services/relatoriosService'
 import { gerarPdfEstoqueAtual } from '@/lib/pdf'
+import { PageHeader } from '@/components/ui/PageHeader'
 import type { EstoqueAtualItem } from '@/types/estoque'
 
 export function EstoqueAtualPage() {
@@ -33,36 +34,30 @@ export function EstoqueAtualPage() {
 
   return (
     <div className="ada-page">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div>
-          <h1
-            className="text-xl font-bold tracking-tight"
-            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
-          >
-            Estoque Atual
-          </h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
-            {loading ? 'Carregando…' : `${itens.length} ingrediente(s)`}
-          </p>
-        </div>
-        <div className="flex items-center gap-4">
-          {itens.length > 0 && (
-            <button onClick={() => gerarPdfEstoqueAtual(itens, apenasAbaixo)} className="btn-secondary">
-              <ArrowDownTrayIcon className="h-4 w-4" aria-hidden="true" />
-              Baixar PDF
-            </button>
-          )}
-          <label className="flex items-center gap-2 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={apenasAbaixo}
-              onChange={handleToggle}
-              className="h-4 w-4 accent-amber-700"
-            />
-            <span className="text-sm" style={{ color: 'var(--ada-body)' }}>Apenas abaixo do mínimo</span>
-          </label>
-        </div>
-      </div>
+      <PageHeader
+        titulo="Estoque Atual"
+        breadcrumb={['Relatórios', 'Estoque Atual']}
+        subtitulo={loading ? 'Carregando…' : `${itens.length} ingrediente(s)`}
+        actions={
+          <div className="flex items-center gap-4">
+            {itens.length > 0 && (
+              <button onClick={() => gerarPdfEstoqueAtual(itens, apenasAbaixo)} className="btn-secondary">
+                <ArrowDownTrayIcon className="h-4 w-4" aria-hidden="true" />
+                Baixar PDF
+              </button>
+            )}
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={apenasAbaixo}
+                onChange={handleToggle}
+                className="h-4 w-4 accent-amber-700"
+              />
+              <span className="text-sm" style={{ color: 'var(--ada-body)' }}>Apenas abaixo do mínimo</span>
+            </label>
+          </div>
+        }
+      />
 
       {loading && (
         <div className="state-loading">

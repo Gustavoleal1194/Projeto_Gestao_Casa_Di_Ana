@@ -34,6 +34,7 @@ interface NavItem {
   label: string
   href: string
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
+  iconColor?: string
 }
 
 interface NavGroup {
@@ -45,38 +46,38 @@ const grupos: NavGroup[] = [
   {
     titulo: 'Cadastros',
     itens: [
-      { label: 'Ingredientes',  href: '/estoque/ingredientes', icon: BeakerIcon  },
-      { label: 'Categorias',    href: '/estoque/categorias',   icon: TagIcon     },
-      { label: 'Fornecedores',  href: '/fornecedores',         icon: TruckIcon   },
+      { label: 'Ingredientes',  href: '/estoque/ingredientes', icon: BeakerIcon,  iconColor: '#60A5FA' },
+      { label: 'Categorias',    href: '/estoque/categorias',   icon: TagIcon,     iconColor: '#60A5FA' },
+      { label: 'Fornecedores',  href: '/fornecedores',         icon: TruckIcon,   iconColor: '#60A5FA' },
     ],
   },
   {
     titulo: 'Produção',
     itens: [
-      { label: 'Categorias de Produto', href: '/producao/categorias-produto', icon: SquaresPlusIcon       },
-      { label: 'Produtos',              href: '/producao/produtos',            icon: CubeIcon              },
-      { label: 'Produção Diária',       href: '/producao/diaria',              icon: FireIcon              },
-      { label: 'Vendas Diárias',        href: '/producao/vendas',              icon: BanknotesIcon         },
-      { label: 'Perdas',                href: '/producao/perdas',              icon: ExclamationCircleIcon },
-      { label: 'Etiquetas',             href: '/etiquetas',                    icon: QrCodeIcon            },
+      { label: 'Categorias de Produto', href: '/producao/categorias-produto', icon: SquaresPlusIcon,       iconColor: '#D4960C' },
+      { label: 'Produtos',              href: '/producao/produtos',            icon: CubeIcon,              iconColor: '#D4960C' },
+      { label: 'Produção Diária',       href: '/producao/diaria',              icon: FireIcon,              iconColor: '#D4960C' },
+      { label: 'Vendas Diárias',        href: '/producao/vendas',              icon: BanknotesIcon,         iconColor: '#D4960C' },
+      { label: 'Perdas',                href: '/producao/perdas',              icon: ExclamationCircleIcon, iconColor: '#F87171' },
+      { label: 'Etiquetas',             href: '/etiquetas',                    icon: QrCodeIcon,            iconColor: '#D4960C' },
     ],
   },
   {
     titulo: 'Movimentações',
     itens: [
-      { label: 'Entradas',            href: '/entradas',         icon: ArrowDownTrayIcon          },
-      { label: 'Inventário',          href: '/inventarios',      icon: ClipboardDocumentCheckIcon },
-      { label: 'Correção de Estoque', href: '/estoque/correcao', icon: AdjustmentsHorizontalIcon  },
+      { label: 'Entradas',            href: '/entradas',         icon: ArrowDownTrayIcon,          iconColor: '#34D399' },
+      { label: 'Inventário',          href: '/inventarios',      icon: ClipboardDocumentCheckIcon, iconColor: '#34D399' },
+      { label: 'Correção de Estoque', href: '/estoque/correcao', icon: AdjustmentsHorizontalIcon,  iconColor: '#34D399' },
     ],
   },
   {
     titulo: 'Relatórios',
     itens: [
-      { label: 'Estoque Atual',        href: '/relatorios/estoque-atual',    icon: ChartBarIcon       },
-      { label: 'Movimentações',        href: '/relatorios/movimentacoes',    icon: ChartBarSquareIcon },
-      { label: 'Entradas',             href: '/relatorios/entradas',         icon: ArrowDownTrayIcon  },
-      { label: 'Produção/Vendas',      href: '/relatorios/producao-vendas',  icon: ChartBarIcon       },
-      { label: 'Insumos por Produção', href: '/relatorios/insumos-producao', icon: ChartBarSquareIcon },
+      { label: 'Estoque Atual',        href: '/relatorios/estoque-atual',    icon: ChartBarIcon,       iconColor: '#A78BFA' },
+      { label: 'Movimentações',        href: '/relatorios/movimentacoes',    icon: ChartBarSquareIcon, iconColor: '#A78BFA' },
+      { label: 'Entradas',             href: '/relatorios/entradas',         icon: ArrowDownTrayIcon,  iconColor: '#A78BFA' },
+      { label: 'Produção/Vendas',      href: '/relatorios/producao-vendas',  icon: ChartBarIcon,       iconColor: '#A78BFA' },
+      { label: 'Insumos por Produção', href: '/relatorios/insumos-producao', icon: ChartBarSquareIcon, iconColor: '#A78BFA' },
     ],
   },
 ]
@@ -172,7 +173,12 @@ export function Sidebar({ aberta, onFechar }: { aberta: boolean; onFechar: () =>
                           <Icon
                             className="h-4 w-4 shrink-0 transition-colors duration-150"
                             aria-hidden="true"
-                            style={{ color: isActive ? 'var(--sb-accent)' : 'var(--sb-text)' }}
+                            style={{
+                              color: isActive
+                                ? 'var(--sb-accent)'
+                                : item.iconColor ?? 'var(--sb-text)',
+                              opacity: isActive ? 1 : 0.75,
+                            }}
                           />
                           <span className="flex-1 leading-none">{item.label}</span>
                         </>

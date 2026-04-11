@@ -15,11 +15,12 @@ import { useTheme } from '@/hooks/useTheme'
 
 // ─── Paleta de cores ────────────────────────────────────────────────────────
 const COR = {
-  verde:    '#22c55e',
-  vermelho: '#ef4444',
-  laranja:  '#f97316',
-  azul:     '#3b82f6',
-  pedra:    '#e7e5e4',
+  verde:    '#10b981',  // emerald-500 — positivo / vendido
+  vermelho: '#f43f5e',  // rose-500 — perda / negativo
+  laranja:  '#f59e0b',  // amber-500 — produção
+  azul:     '#60a5fa',  // blue-400 — neutro / tendência receita
+  indigo:   '#818cf8',  // indigo-400 — tendência custo
+  pedra:    '#cbd5e1',  // slate-300 — restante (sutil)
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -338,7 +339,7 @@ export function DashboardPage() {
     .map(i => ({ nome: nomeCurto(i.produtoNome), margem: Number(i.margemLucro!.toFixed(1)) }))
     .sort((a, b) => b.margem - a.margem) ?? []
 
-  const margemCor = (v: number) => v >= 30 ? COR.verde : v >= 0 ? COR.laranja : COR.vermelho
+  const margemCor = (v: number) => v >= 30 ? '#10b981' : v >= 0 ? '#f59e0b' : '#f43f5e'
 
   const chartPerdaProduto = data?.prodVendas
     .filter(i => i.totalProduzido > 0)
@@ -361,85 +362,119 @@ export function DashboardPage() {
 
   const optionProdVendas: EChartsOption = {
     color: [COR.verde, COR.vermelho, COR.pedra],
+    animation: true,
+    animationDuration: 700,
+    animationEasing: 'cubicOut',
     tooltip: {
       trigger: 'axis',
-      axisPointer: { type: 'shadow' },
+      axisPointer: { type: 'shadow', shadowStyle: { color: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)' } },
       backgroundColor: chartTooltip.backgroundColor,
       borderColor: chartTooltip.borderColor,
       borderWidth: 1,
-      textStyle: { color: chartTooltip.textColor },
+      padding: [10, 14],
+      textStyle: { color: chartTooltip.textColor, fontSize: 12 },
+      confine: true,
+      extraCssText: 'border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);',
       formatter: (params: any) => {
         const linhas = Array.isArray(params) ? params : [params]
         const row = linhas[0]?.data ?? {}
+        const divider = `<div style="height:1px;background:${isDark ? '#2C2620' : '#f0ece8'};margin:8px 0;"></div>`
         return `
-          <div style="min-width:220px;padding:2px 0;">
-            <div style="font-weight:700;margin-bottom:8px;">${linhas[0]?.axisValue ?? ''}</div>
+          <div style="min-width:200px;">
+            <div style="font-weight:600;font-size:13px;margin-bottom:8px;">${linhas[0]?.axisValue ?? ''}</div>
             ${linhas.map((p: any) => `
-              <div style="display:flex;justify-content:space-between;gap:20px;margin:2px 0;">
-                <span>${p.marker}${p.seriesName}</span>
-                <strong>${Number(p.value).toFixed(0)} un.</strong>
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:20px;margin:4px 0;">
+                <span style="display:flex;align-items:center;gap:6px;">${p.marker}${p.seriesName}</span>
+                <strong style="font-variant-numeric:tabular-nums;">${Number(p.value).toFixed(0)} un.</strong>
               </div>
             `).join('')}
-            <div style="border-top:1px solid #f5f5f4;margin-top:8px;padding-top:8px;display:flex;justify-content:space-between;">
+            ${divider}
+            <div style="display:flex;justify-content:space-between;align-items:center;margin:3px 0;">
               <span>Total produzido</span>
-              <strong>${Number(row.totalProduzido ?? 0).toFixed(0)} un.</strong>
+              <strong style="font-variant-numeric:tabular-nums;">${Number(row.totalProduzido ?? 0).toFixed(0)} un.</strong>
             </div>
-            <div style="display:flex;justify-content:space-between;margin-top:4px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin:3px 0;">
               <span>Receita est.</span>
-              <strong style="color:#15803d;">${brl(Number(row.receitaEstimada ?? 0))}</strong>
+              <strong style="color:#10b981;font-variant-numeric:tabular-nums;">${brl(Number(row.receitaEstimada ?? 0))}</strong>
             </div>
           </div>
         `
       },
     },
     legend: {
-      bottom: 0,
+      bottom: 4,
       icon: 'roundRect',
-      itemWidth: 12,
-      itemHeight: 8,
-      textStyle: { color: chartAxis.bodyColor, fontSize: 11 },
+      itemWidth: 10,
+      itemHeight: 7,
+      itemGap: 20,
+      textStyle: { color: chartAxis.bodyColor, fontSize: 11, fontFamily: 'DM Sans, system-ui, sans-serif' },
     },
-    grid: { left: 24, right: 12, top: 20, bottom: 64, containLabel: true },
+    grid: { left: 20, right: 12, top: 16, bottom: 56, containLabel: true },
     xAxis: {
       type: 'category',
       data: chartProdVendas.map(i => i.nome),
-      axisLabel: { rotate: 30, color: chartAxis.axisColor, fontSize: 11 },
+      axisLabel: { rotate: 28, color: chartAxis.axisColor, fontSize: 11, margin: 10 },
       axisLine: { show: false },
       axisTick: { show: false },
     },
     yAxis: {
       type: 'value',
       axisLabel: { color: chartAxis.axisColor, fontSize: 11 },
-      splitLine: { lineStyle: { color: chartAxis.gridColor } },
+      splitLine: { lineStyle: { color: chartAxis.gridColor, type: 'dashed' } },
     },
     series: [
-      { name: 'Vendido', type: 'bar', stack: 'total', data: chartProdVendas.map(i => i.Vendido), barMaxWidth: 34, emphasis: { focus: 'series' } },
-      { name: 'Perda', type: 'bar', stack: 'total', data: chartProdVendas.map(i => i.Perda), barMaxWidth: 34, emphasis: { focus: 'series' } },
+      {
+        name: 'Vendido',
+        type: 'bar',
+        stack: 'total',
+        data: chartProdVendas.map(i => i.Vendido),
+        barMaxWidth: 32,
+        emphasis: { focus: 'series', itemStyle: { opacity: 0.85 } },
+      },
+      {
+        name: 'Perda',
+        type: 'bar',
+        stack: 'total',
+        data: chartProdVendas.map(i => i.Perda),
+        barMaxWidth: 32,
+        emphasis: { focus: 'series', itemStyle: { opacity: 0.85 } },
+      },
       {
         name: 'Restante',
         type: 'bar',
         stack: 'total',
         data: chartProdVendas.map(i => ({ value: i.Restante, totalProduzido: i.totalProduzido, receitaEstimada: i.receitaEstimada })),
-        barMaxWidth: 34,
-        itemStyle: { borderRadius: [6, 6, 0, 0] },
+        barMaxWidth: 32,
+        itemStyle: { borderRadius: [4, 4, 0, 0] },
+        emphasis: { focus: 'series', itemStyle: { opacity: 0.85 } },
       },
     ],
   }
 
   const optionMargem: EChartsOption = {
+    animation: true,
+    animationDuration: 700,
+    animationEasing: 'cubicOut',
     tooltip: {
       trigger: 'item',
       backgroundColor: chartTooltip.backgroundColor,
       borderColor: chartTooltip.borderColor,
       borderWidth: 1,
-      textStyle: { color: chartTooltip.textColor },
-      formatter: (p: any) => `${p.name}<br/><strong style="color:${margemCor(Number(p.value))}">${pct(Number(p.value))}</strong>`,
+      padding: [10, 14],
+      textStyle: { color: chartTooltip.textColor, fontSize: 12 },
+      confine: true,
+      extraCssText: 'border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);',
+      formatter: (p: any) => {
+        const v = Number(p.value)
+        const label = v >= 30 ? 'Excelente' : v >= 0 ? 'Regular' : 'Negativa'
+        return `<div style="min-width:140px;"><div style="font-weight:600;margin-bottom:6px;">${p.name}</div><div style="display:flex;justify-content:space-between;gap:16px;"><span>Margem</span><strong style="color:${margemCor(v)};font-variant-numeric:tabular-nums;">${pct(v)}</strong></div><div style="font-size:11px;color:${chartAxis.bodyColor};margin-top:4px;">${label}</div></div>`
+      },
     },
-    grid: { left: 20, right: 56, top: 8, bottom: 8, containLabel: true },
+    grid: { left: 16, right: 64, top: 8, bottom: 8, containLabel: true },
     xAxis: {
       type: 'value',
-      axisLabel: { color: chartAxis.axisColor, formatter: (v: number) => `${v}%` },
-      splitLine: { lineStyle: { color: chartAxis.gridColor } },
+      axisLabel: { color: chartAxis.axisColor, fontSize: 11, formatter: (v: number) => `${v}%` },
+      splitLine: { lineStyle: { color: chartAxis.gridColor, type: 'dashed' } },
     },
     yAxis: {
       type: 'category',
@@ -455,27 +490,34 @@ export function DashboardPage() {
         type: 'bar',
         data: chartMargem.map(i => ({
           value: i.margem,
-          itemStyle: { color: margemCor(i.margem), borderRadius: [0, 6, 6, 0] },
+          itemStyle: { color: margemCor(i.margem), borderRadius: [0, 5, 5, 0], opacity: 0.9 },
           label: { show: true, position: 'right', formatter: `${pct(i.margem)}`, color: chartAxis.labelColor, fontWeight: 600, fontSize: 11 },
         })),
-        barMaxWidth: 26,
+        barMaxWidth: 22,
       },
     ],
   }
 
   const optionPerdaProduto: EChartsOption = {
+    animation: true,
+    animationDuration: 700,
+    animationEasing: 'cubicOut',
     tooltip: {
       trigger: 'item',
       backgroundColor: chartTooltip.backgroundColor,
       borderColor: chartTooltip.borderColor,
       borderWidth: 1,
-      formatter: (p: any) => `${p.name}<br/><strong>${Number(p.value).toFixed(1)}%</strong> de perda`,
+      padding: [10, 14],
+      textStyle: { color: chartTooltip.textColor, fontSize: 12 },
+      confine: true,
+      extraCssText: 'border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);',
+      formatter: (p: any) => `<div style="min-width:140px;"><div style="font-weight:600;margin-bottom:6px;">${p.name}</div><div style="display:flex;justify-content:space-between;gap:16px;"><span>Taxa de perda</span><strong style="color:${COR.vermelho};font-variant-numeric:tabular-nums;">${Number(p.value).toFixed(1)}%</strong></div></div>`,
     },
-    grid: { left: 20, right: 24, top: 8, bottom: 8, containLabel: true },
+    grid: { left: 16, right: 32, top: 8, bottom: 8, containLabel: true },
     xAxis: {
       type: 'value',
-      axisLabel: { color: chartAxis.axisColor, formatter: (v: number) => `${v}%` },
-      splitLine: { lineStyle: { color: chartAxis.gridColor } },
+      axisLabel: { color: chartAxis.axisColor, fontSize: 11, formatter: (v: number) => `${v}%` },
+      splitLine: { lineStyle: { color: chartAxis.gridColor, type: 'dashed' } },
     },
     yAxis: {
       type: 'category',
@@ -490,58 +532,88 @@ export function DashboardPage() {
         type: 'bar',
         data: chartPerdaProduto.map(i => ({
           value: i.perdaPct,
-          itemStyle: { color: '#ef4444', borderRadius: [0, 6, 6, 0] },
-          label: { show: true, position: 'right', formatter: `${i.perdaPct}%`, color: '#7f1d1d', fontWeight: 600, fontSize: 11 },
+          itemStyle: { color: COR.vermelho, borderRadius: [0, 5, 5, 0], opacity: 0.85 },
+          label: { show: true, position: 'right', formatter: `${i.perdaPct}%`, color: chartAxis.labelColor, fontWeight: 600, fontSize: 11 },
         })),
-        barMaxWidth: 24,
+        barMaxWidth: 22,
       },
     ],
   }
 
   const optionMixReceita: EChartsOption = {
+    animation: true,
+    animationDuration: 700,
+    animationEasing: 'cubicOut',
+    color: ['#10b981', '#60a5fa', '#818cf8', '#f59e0b', '#2dd4bf', '#f472b6', '#94a3b8'],
     tooltip: {
       trigger: 'item',
       backgroundColor: chartTooltip.backgroundColor,
       borderColor: chartTooltip.borderColor,
       borderWidth: 1,
-      formatter: (p: any) => `${p.name}<br/><strong>${brl(Number(p.value))}</strong> (${Number(p.percent).toFixed(1)}%)`,
+      padding: [10, 14],
+      textStyle: { color: chartTooltip.textColor, fontSize: 12 },
+      confine: true,
+      extraCssText: 'border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);',
+      formatter: (p: any) => `<div style="min-width:160px;"><div style="font-weight:600;margin-bottom:6px;">${p.name}</div><div style="display:flex;justify-content:space-between;gap:16px;"><span>Receita</span><strong style="font-variant-numeric:tabular-nums;">${brl(Number(p.value))}</strong></div><div style="display:flex;justify-content:space-between;gap:16px;margin-top:3px;"><span>Participação</span><strong style="font-variant-numeric:tabular-nums;">${Number(p.percent).toFixed(1)}%</strong></div></div>`,
     },
     legend: {
       bottom: 0,
       type: 'scroll',
-      textStyle: { color: chartAxis.bodyColor, fontSize: 11 },
+      icon: 'circle',
+      itemWidth: 8,
+      itemHeight: 8,
+      itemGap: 16,
+      textStyle: { color: chartAxis.bodyColor, fontSize: 11, fontFamily: 'DM Sans, system-ui, sans-serif' },
     },
     series: [
       {
         type: 'pie',
-        radius: ['48%', '72%'],
-        center: ['50%', '44%'],
-        itemStyle: { borderColor: '#fff', borderWidth: 2 },
-        label: { color: chartAxis.labelColor, fontSize: 11, formatter: '{d}%' },
+        radius: ['46%', '70%'],
+        center: ['50%', '43%'],
+        itemStyle: {
+          borderColor: isDark ? '#1A1814' : '#ffffff',
+          borderWidth: 2,
+        },
+        label: {
+          color: chartAxis.labelColor,
+          fontSize: 11,
+          formatter: '{d}%',
+        },
+        emphasis: {
+          itemStyle: { shadowBlur: 12, shadowOffsetX: 0, shadowColor: 'rgba(0,0,0,0.2)' },
+        },
         data: chartMixReceita.map(i => ({ name: nomeCurto(i.nome), value: i.receita })),
       },
     ],
-    color: ['#22c55e', '#16a34a', '#65a30d', '#0ea5e9', '#6366f1', '#8b5cf6', '#a8a29e'],
   }
 
   const optionTendenciaDiaria: EChartsOption = {
-    color: [COR.verde, COR.vermelho, COR.azul],
+    color: [COR.azul, COR.indigo, COR.verde],
+    animation: true,
+    animationDuration: 700,
+    animationEasing: 'cubicOut',
     tooltip: {
       trigger: 'axis',
+      axisPointer: { type: 'cross', lineStyle: { color: chartAxis.gridColor, type: 'dashed' }, crossStyle: { color: chartAxis.gridColor } },
       backgroundColor: chartTooltip.backgroundColor,
       borderColor: chartTooltip.borderColor,
       borderWidth: 1,
+      padding: [10, 14],
+      textStyle: { color: chartTooltip.textColor, fontSize: 12 },
+      confine: true,
+      extraCssText: 'border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);',
       formatter: (params: any) => {
         const linhas = Array.isArray(params) ? params : [params]
+        const divider = `<div style="height:1px;background:${isDark ? '#2C2620' : '#f0ece8'};margin:8px 0;"></div>`
         return `
           <div style="min-width:200px;">
-            <div style="font-weight:700;margin-bottom:8px;">${linhas[0]?.axisValue ?? ''}</div>
+            <div style="font-weight:600;font-size:13px;margin-bottom:8px;">${linhas[0]?.axisValue ?? ''}</div>
             ${linhas.map((p: any) => `
-              <div style="display:flex;justify-content:space-between;gap:20px;margin:2px 0;">
-                <span>${p.marker}${p.seriesName}</span>
-                <strong>${brl(Number(p.value))}</strong>
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:20px;margin:4px 0;">
+                <span style="display:flex;align-items:center;gap:6px;">${p.marker}${p.seriesName}</span>
+                <strong style="font-variant-numeric:tabular-nums;">${brl(Number(p.value))}</strong>
               </div>
-            `).join('')}
+            `).join(divider)}
           </div>
         `
       },
@@ -549,43 +621,51 @@ export function DashboardPage() {
     legend: {
       top: 0,
       right: 0,
-      textStyle: { color: chartAxis.bodyColor, fontSize: 11 },
+      icon: 'circle',
+      itemWidth: 8,
+      itemHeight: 8,
+      itemGap: 18,
+      textStyle: { color: chartAxis.bodyColor, fontSize: 11, fontFamily: 'DM Sans, system-ui, sans-serif' },
     },
-    grid: { left: 20, right: 20, top: 44, bottom: 12, containLabel: true },
+    grid: { left: 16, right: 16, top: 40, bottom: 12, containLabel: true },
     xAxis: {
       type: 'category',
       data: (data?.tendenciaDiaria ?? []).map(i => formatarDataBr(i.data)),
       axisLabel: { color: chartAxis.axisColor, fontSize: 11 },
       axisLine: { show: false },
       axisTick: { show: false },
+      boundaryGap: false,
     },
     yAxis: {
       type: 'value',
-      axisLabel: { color: chartAxis.axisColor, formatter: (v: number) => brl(v).replace('R$', 'R$ ') },
-      splitLine: { lineStyle: { color: chartAxis.gridColor } },
+      axisLabel: { color: chartAxis.axisColor, fontSize: 11, formatter: (v: number) => brl(v).replace('R$\u00a0', '') },
+      splitLine: { lineStyle: { color: chartAxis.gridColor, type: 'dashed' } },
     },
     series: [
       {
         name: 'Receita',
         type: 'line',
-        smooth: true,
-        symbolSize: 6,
+        smooth: 0.4,
+        symbolSize: 5,
+        lineStyle: { width: 2 },
         data: (data?.tendenciaDiaria ?? []).map(i => Number(i.receita.toFixed(2))),
       },
       {
         name: 'Custo',
         type: 'line',
-        smooth: true,
-        symbolSize: 6,
+        smooth: 0.4,
+        symbolSize: 5,
+        lineStyle: { width: 2 },
         data: (data?.tendenciaDiaria ?? []).map(i => Number(i.custo.toFixed(2))),
       },
       {
         name: 'Lucro',
         type: 'line',
-        smooth: true,
-        symbolSize: 6,
+        smooth: 0.4,
+        symbolSize: 5,
+        lineStyle: { width: 2 },
         data: (data?.tendenciaDiaria ?? []).map(i => Number(i.lucro.toFixed(2))),
-        areaStyle: { opacity: 0.08 },
+        areaStyle: { opacity: 0.07 },
       },
     ],
   }
@@ -761,20 +841,6 @@ export function DashboardPage() {
               titulo="Produção vs Vendas por Produto"
               subtitulo="Cada barra = total produzido · Vendido + Perda + Restante"
               vazio={chartProdVendas.length === 0}
-              rodape={
-                <div className="flex items-center gap-5 text-xs text-stone-500 flex-wrap">
-                  {[
-                    { cor: COR.verde,    label: 'Vendido'  },
-                    { cor: COR.vermelho, label: 'Perda'    },
-                    { cor: COR.pedra,    label: 'Restante' },
-                  ].map(({ cor, label }) => (
-                    <span key={label} className="flex items-center gap-1.5">
-                      <span className="w-3 h-2.5 rounded-sm inline-block" style={{ background: cor }} />
-                      {label}
-                    </span>
-                  ))}
-                </div>
-              }
             >
               <ReactECharts option={optionProdVendas} style={{ height: 320 }} notMerge lazyUpdate />
             </ChartContainer>
@@ -786,7 +852,7 @@ export function DashboardPage() {
               // KPI card para produto único
               <ChartContainer titulo="Margem de Lucro por Produto" subtitulo="Rentabilidade no período">
                 <div className="flex flex-col items-center justify-center py-10 gap-3">
-                  <p className="text-sm font-medium text-stone-500">{chartMargem[0].nome}</p>
+                  <p className="text-sm font-medium" style={{ color: 'var(--ada-muted)' }}>{chartMargem[0].nome}</p>
                   <p className="text-7xl font-bold leading-none" style={{ color: margemCor(chartMargem[0].margem) }}>
                     {pct(chartMargem[0].margem)}
                   </p>
@@ -796,7 +862,7 @@ export function DashboardPage() {
                   >
                     {chartMargem[0].margem >= 30 ? '✓ Excelente' : chartMargem[0].margem >= 0 ? '~ Regular' : '✗ Negativa'}
                   </span>
-                  <p className="text-xs text-stone-400 mt-1">margem de lucro estimada</p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--ada-muted)' }}>margem de lucro estimada</p>
                 </div>
               </ChartContainer>
             ) : (
@@ -805,11 +871,11 @@ export function DashboardPage() {
                 titulo="Margem de Lucro por Produto"
                 subtitulo="Ordenado do maior para o menor"
                 rodape={
-                  <div className="flex items-center gap-5 text-xs text-stone-500 flex-wrap">
+                  <div className="flex items-center gap-5 text-xs flex-wrap" style={{ color: 'var(--ada-muted)' }}>
                     {[
-                      { cor: COR.verde,    label: '≥ 30% — Excelente' },
-                      { cor: COR.laranja,  label: '0–30% — Regular'   },
-                      { cor: COR.vermelho, label: '< 0% — Negativa'    },
+                      { cor: '#10b981', label: '≥ 30% — Excelente' },
+                      { cor: '#f59e0b', label: '0–30% — Regular'   },
+                      { cor: '#f43f5e', label: '< 0% — Negativa'    },
                     ].map(({ cor, label }) => (
                       <span key={label} className="flex items-center gap-1.5">
                         <span className="w-3 h-2.5 rounded-sm inline-block" style={{ background: cor }} />

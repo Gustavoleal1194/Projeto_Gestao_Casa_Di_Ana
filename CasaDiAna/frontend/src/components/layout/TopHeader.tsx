@@ -294,7 +294,7 @@ export function TopHeader({ onMobileMenuOpen }: Props) {
       style={{
         height: 'var(--header-h)',
         background: 'var(--topbar-bg)',
-        borderBottom: '1px solid var(--topbar-border)',
+        borderBottom: '1px solid var(--chrome-divider)',
       }}
     >
       {/* ── Esquerda: menu mobile ──────────────────────────────────── */}

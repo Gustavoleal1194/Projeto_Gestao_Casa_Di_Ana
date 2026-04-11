@@ -91,7 +91,7 @@ export function Sidebar({ aberta, onFechar }: { aberta: boolean; onFechar: () =>
 
   return (
     <aside
-      style={{ background: 'var(--sb-bg)', top: 0 }}
+      style={{ background: 'var(--sb-bg)', top: 0, borderRight: '1px solid var(--chrome-divider)' }}
       className={[
         'w-64 flex flex-col shrink-0',
         'fixed bottom-0 left-0 z-30',
@@ -102,7 +102,7 @@ export function Sidebar({ aberta, onFechar }: { aberta: boolean; onFechar: () =>
       {/* ── Logo ─────────────────────────────────────────────────────── */}
       <div
         className="px-5 py-5 cursor-pointer group"
-        style={{ borderBottom: '1px solid var(--sb-divider)' }}
+        style={{ borderBottom: '1px solid var(--chrome-divider)' }}
         onClick={() => { navigate('/'); onFechar() }}
         title="Início"
         role="button"
@@ -241,7 +241,7 @@ export function Sidebar({ aberta, onFechar }: { aberta: boolean; onFechar: () =>
       {isAdmin && (
         <div
           className="px-3 py-3"
-          style={{ borderTop: '1px solid var(--sb-divider)' }}
+          style={{ borderTop: '1px solid var(--chrome-divider)' }}
         >
           <p
             className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-[0.12em]"

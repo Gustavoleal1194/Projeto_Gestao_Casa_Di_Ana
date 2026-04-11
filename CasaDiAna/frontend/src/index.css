@@ -76,7 +76,8 @@
 
   /* Topbar — sempre escura (theme-independent) */
   --topbar-bg:      #07101E;
-  --topbar-border:  #0F1E30;
+  --topbar-border:  #162336;
+  --chrome-divider: #162336;
   --topbar-text:    #6B7280;
   --topbar-heading: #F1F5F9;
   --topbar-hover:   rgba(255,255,255,0.06);
@@ -136,6 +137,7 @@
   /* Topbar — no dark mode fica ainda mais integrada */
   --topbar-bg:      #050D18;
   --topbar-border:  #0A1626;
+  --chrome-divider: #0A1626;
 
   /* Sombras — elevação marcante para superfícies sobre fundo escuro */
   --shadow-xs: 0 1px 2px rgba(0,0,0,0.35);

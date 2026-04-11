@@ -62,17 +62,25 @@
   --ada-success-text:    #16a34a;
   --ada-danger-text:     #dc2626;
 
-  /* Sidebar */
-  --sb-bg:          #0D1117;
-  --sb-hover:       rgba(255,255,255,0.04);
+  /* Sidebar — sempre escura (theme-independent) */
+  --sb-bg:          #07101E;
+  --sb-hover:       rgba(255,255,255,0.05);
   --sb-divider:     rgba(255,255,255,0.07);
-  --sb-group:       #4A5068;
-  --sb-text:        #7A8499;
-  --sb-text-hover:  #C8D0E0;
+  --sb-group:       #2D3A52;
+  --sb-text:        #64748B;
+  --sb-text-hover:  #CBD5E1;
   --sb-text-active: #FFFFFF;
   --sb-accent:      #D4960C;
-  --sb-active-bg:   rgba(212, 150, 12, 0.13);
+  --sb-active-bg:   rgba(212, 150, 12, 0.14);
   --sb-active-bd:   #D4960C;
+
+  /* Topbar — sempre escura (theme-independent) */
+  --topbar-bg:      #111827;
+  --topbar-border:  #1F2937;
+  --topbar-text:    #6B7280;
+  --topbar-heading: #F1F5F9;
+  --topbar-hover:   rgba(255,255,255,0.06);
+  --topbar-divider: rgba(255,255,255,0.08);
 
   /* Shadows */
   --shadow-xs: 0 1px 2px rgba(24,21,14,0.04);
@@ -114,7 +122,7 @@
   --ada-danger-text:     #fda4af;
 
   /* Sidebar — mais escura que o fundo para criar hierarquia de profundidade */
-  --sb-bg:          #07101E;
+  --sb-bg:          #050D18;
   --sb-hover:       rgba(255,255,255,0.05);
   --sb-divider:     rgba(255,255,255,0.06);
   --sb-group:       #2D3A52;
@@ -124,6 +132,10 @@
   --sb-accent:      #D4960C;
   --sb-active-bg:   rgba(212, 150, 12, 0.14);
   --sb-active-bd:   #D4960C;
+
+  /* Topbar — no dark mode fica ainda mais integrada */
+  --topbar-bg:      #0F172A;
+  --topbar-border:  #1F2937;
 
   /* Sombras — elevação marcante para superfícies sobre fundo escuro */
   --shadow-xs: 0 1px 2px rgba(0,0,0,0.35);

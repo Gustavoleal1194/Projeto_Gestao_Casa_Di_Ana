@@ -42,15 +42,15 @@ function IconBtn({
       title={title ?? ariaLabel}
       className="p-2 rounded-lg transition-colors duration-150 outline-none
                  focus-visible:ring-2 focus-visible:ring-[#C4870A]/40"
-      style={{ color: 'var(--ada-muted)' }}
+      style={{ color: 'var(--topbar-text)' }}
       onMouseEnter={e => {
         const el = e.currentTarget as HTMLElement
-        el.style.color    = danger ? '#DC2626' : 'var(--ada-heading)'
-        el.style.background = danger ? 'var(--ada-error-bg)' : 'var(--ada-hover)'
+        el.style.color      = danger ? '#fda4af' : 'var(--topbar-heading)'
+        el.style.background = danger ? 'rgba(244,63,94,0.12)' : 'var(--topbar-hover)'
       }}
       onMouseLeave={e => {
         const el = e.currentTarget as HTMLElement
-        el.style.color      = 'var(--ada-muted)'
+        el.style.color      = 'var(--topbar-text)'
         el.style.background = 'transparent'
       }}
     >
@@ -64,7 +64,7 @@ function Divider() {
   return (
     <div
       className="h-5 w-px mx-1"
-      style={{ background: 'var(--ada-border)' }}
+      style={{ background: 'var(--topbar-divider)' }}
       aria-hidden="true"
     />
   )
@@ -136,15 +136,15 @@ function NotificationDropdown({ count, onCountUpdate }: { count: number; onCount
         aria-haspopup="dialog"
         className="p-2 rounded-lg transition-colors duration-150 outline-none
                    focus-visible:ring-2 focus-visible:ring-[#C4870A]/40"
-        style={{ color: 'var(--ada-muted)' }}
+        style={{ color: 'var(--topbar-text)' }}
         onMouseEnter={e => {
           const el = e.currentTarget as HTMLElement
-          el.style.color = 'var(--ada-heading)'
-          el.style.background = 'var(--ada-hover)'
+          el.style.color = 'var(--topbar-heading)'
+          el.style.background = 'var(--topbar-hover)'
         }}
         onMouseLeave={e => {
           const el = e.currentTarget as HTMLElement
-          el.style.color = 'var(--ada-muted)'
+          el.style.color = 'var(--topbar-text)'
           el.style.background = 'transparent'
         }}
       >
@@ -293,8 +293,8 @@ export function TopHeader({ onMobileMenuOpen }: Props) {
       className="fixed top-0 left-0 md:left-64 right-0 z-40 flex items-center justify-between px-4"
       style={{
         height: 'var(--header-h)',
-        background: 'var(--ada-surface)',
-        borderBottom: '1px solid var(--ada-border)',
+        background: 'var(--topbar-bg)',
+        borderBottom: '1px solid var(--topbar-border)',
       }}
     >
       {/* ── Esquerda: menu mobile ──────────────────────────────────── */}
@@ -304,15 +304,15 @@ export function TopHeader({ onMobileMenuOpen }: Props) {
           onClick={onMobileMenuOpen}
           className="md:hidden p-1.5 rounded-lg transition-colors duration-150 outline-none
                      focus-visible:ring-2 focus-visible:ring-[#C4870A]/40"
-          style={{ color: 'var(--ada-muted)' }}
+          style={{ color: 'var(--topbar-text)' }}
           onMouseEnter={e => {
             const el = e.currentTarget as HTMLElement
-            el.style.color      = 'var(--ada-heading)'
-            el.style.background = 'var(--ada-hover)'
+            el.style.color      = 'var(--topbar-heading)'
+            el.style.background = 'var(--topbar-hover)'
           }}
           onMouseLeave={e => {
             const el = e.currentTarget as HTMLElement
-            el.style.color      = 'var(--ada-muted)'
+            el.style.color      = 'var(--topbar-text)'
             el.style.background = 'transparent'
           }}
           aria-label="Abrir menu"
@@ -323,7 +323,7 @@ export function TopHeader({ onMobileMenuOpen }: Props) {
         {/* Marca — só em mobile (desktop tem a sidebar visível) */}
         <span
           className="md:hidden text-sm font-semibold tracking-[-0.01em]"
-          style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
+          style={{ color: 'var(--topbar-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
         >
           Casa di Ana
         </span>
@@ -369,13 +369,13 @@ export function TopHeader({ onMobileMenuOpen }: Props) {
           <div className="hidden sm:block min-w-0">
             <p
               className="text-[13px] font-medium leading-none truncate max-w-[140px]"
-              style={{ color: 'var(--ada-heading)' }}
+              style={{ color: 'var(--topbar-heading)' }}
             >
               {usuario?.nome ?? '—'}
             </p>
             <p
               className="text-[10.5px] mt-[3px] leading-none truncate"
-              style={{ color: 'var(--ada-muted)' }}
+              style={{ color: 'var(--topbar-text)' }}
             >
               {usuario?.papel ?? ''}
             </p>

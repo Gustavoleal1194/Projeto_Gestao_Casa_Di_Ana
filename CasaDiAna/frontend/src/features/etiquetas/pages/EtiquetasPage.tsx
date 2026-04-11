@@ -322,9 +322,14 @@ export function EtiquetasPage() {
   }, [])
 
   useEffect(() => {
-    produtosService.listar().then(setProdutos).catch(() => {})
+    produtosService.listar().then(lista => {
+      setProdutos(lista)
+      if (lista.length > 0) setProdutoId(lista[0].id)
+    }).catch(() => {})
     etiquetasService.listarHistorico().then(setHistorico).catch(() => {})
-    ingredientesService.listar().then(setIngredientes).catch(() => {})
+    ingredientesService.listar().then(lista => {
+      setIngredientes(lista)
+    }).catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -516,7 +521,13 @@ export function EtiquetasPage() {
                   type="button"
                   onClick={() => {
                     setTipoItem(t)
-                    if (t === 'ingrediente') setTipo(2)
+                    if (t === 'ingrediente') {
+                      setTipo(2)
+                      const ativos = ingredientes.filter(i => i.ativo)
+                      if (ativos.length > 0) setIngredienteId(ativos[0].id)
+                    } else {
+                      if (produtos.length > 0) setProdutoId(p => p || produtos[0].id)
+                    }
                   }}
                   className="flex-1 py-2 text-sm font-medium transition-colors"
                   style={{

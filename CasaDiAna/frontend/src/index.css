@@ -13,14 +13,14 @@
   --color-brand-800: #7a5206;
 
   /* Semantic surface tokens */
-  --color-ada-bg:           #F5F3EF;
+  --color-ada-bg:           #F6F8FB;
   --color-ada-surface:      #FFFFFF;
-  --color-ada-surface-2:    #FAFAF8;
+  --color-ada-surface-2:    #F1F4F8;
   --color-ada-sidebar:      #0D1117;
   --color-ada-accent:       #C4870A;
   --color-ada-accent-light: #FEF3C7;
-  --color-ada-border:       #E4DDD3;
-  --color-ada-border-sub:   #EEEBE5;
+  --color-ada-border:       #E4E7EC;
+  --color-ada-border-sub:   #ECF1F7;
   --color-ada-heading:      #18150E;
   --color-ada-body:         #4B4039;
   --color-ada-muted:        #8B7E73;
@@ -36,17 +36,17 @@
   --header-h: 60px;
 
   /* ── Semantic design tokens (runtime, theme-switchable) ── */
-  --ada-bg:           #F7F8FA;
+  --ada-bg:           #F6F8FB;
   --ada-surface:      #FFFFFF;
-  --ada-surface-2:    #F0F2F5;
-  --ada-border:       #E2E8F0;
-  --ada-border-sub:   #EDF2F7;
+  --ada-surface-2:    #F1F4F8;
+  --ada-border:       #E4E7EC;
+  --ada-border-sub:   #ECF1F7;
   --ada-heading:      #18150E;
   --ada-body:         #4B4039;
   --ada-muted:        #8B7E73;
   --ada-muted-dim:    #6B6456;
   --ada-placeholder:  #C4B8AD;
-  --ada-hover:        #F0EBE3;
+  --ada-hover:        #EEF1F6;
   --ada-row-alert:       #FFFBEB;
   --ada-row-alert-hover: #FEF9E7;
   --ada-error-bg:        #FEF2F2;
@@ -86,44 +86,51 @@
 [data-theme="dark"] {
   color-scheme: dark;
 
-  /* Design tokens — noite no café */
-  --ada-bg:           #100F0C;
-  --ada-surface:      #1A1814;
-  --ada-surface-2:    #201C17;
-  --ada-border:       #2C2620;
-  --ada-border-sub:   #231F1A;
-  --ada-heading:      #EDE5D8;
-  --ada-body:         #B5ABA0;
-  --ada-muted:        #7A7068;
-  --ada-muted-dim:    #625B54;
-  --ada-placeholder:  #443E38;
-  --ada-hover:        #262117;
+  /* Design tokens — premium dark mode */
+  --ada-bg:           #0F172A;  /* slate-900 — fundo profundo e limpo */
+  --ada-surface:      #111827;  /* gray-900  — card, levemente mais claro */
+  --ada-surface-2:    #1A2233;  /* navy      — superfície secundária */
+  --ada-border:       #1F2937;  /* gray-800  — divisores sutis */
+  --ada-border-sub:   #162032;  /* mais escuro que border — separadores internos */
+  --ada-heading:      #EDE5D8;  /* creme quente — contraste elegante sobre fundo frio */
+  --ada-body:         #B5ABA0;  /* stone-400 quente */
+  --ada-muted:        #7A7068;  /* muted quente */
+  --ada-muted-dim:    #625B54;  /* dim quente */
+  --ada-placeholder:  #3A4A5E;  /* placeholder sobre surface-2 */
+  --ada-hover:        #1C2840;  /* hover/separador de linha slate */
   --ada-row-alert:       rgba(212, 150, 12, 0.09);
   --ada-row-alert-hover: rgba(212, 150, 12, 0.16);
-  --ada-error-bg:        rgba(239, 68, 68, 0.10);
-  --ada-error-border:    rgba(239, 68, 68, 0.40);
+  --ada-error-bg:        rgba(244, 63, 94, 0.10);
+  --ada-error-border:    rgba(244, 63, 94, 0.35);
   --ada-warning-bg:      rgba(212, 150, 12, 0.12);
   --ada-warning-border:  rgba(212, 150, 12, 0.35);
   --ada-warning-badge:   rgba(212, 150, 12, 0.20);
-  --ada-success-bg:      rgba(22, 163, 74, 0.12);
-  --ada-success-border:  rgba(22, 163, 74, 0.35);
+  --ada-success-bg:      rgba(16, 185, 129, 0.12);
+  --ada-success-border:  rgba(16, 185, 129, 0.35);
   --ada-warning-text:    #FBBF24;
-  --ada-error-text:      #fca5a5;
-  --ada-error-badge:     rgba(239, 68, 68, 0.22);
-  --ada-success-text:    #86efac;
-  --ada-danger-text:     #fca5a5;
+  --ada-error-text:      #fda4af;
+  --ada-error-badge:     rgba(244, 63, 94, 0.22);
+  --ada-success-text:    #6ee7b7;
+  --ada-danger-text:     #fda4af;
 
-  /* Sidebar levemente mais escura */
-  --sb-bg:      #0A0907;
-  --sb-divider: rgba(255,255,255,0.05);
-  --sb-group:   #3D4358;
+  /* Sidebar — mais escura que o fundo para criar hierarquia de profundidade */
+  --sb-bg:          #07101E;
+  --sb-hover:       rgba(255,255,255,0.05);
+  --sb-divider:     rgba(255,255,255,0.06);
+  --sb-group:       #2D3A52;
+  --sb-text:        #64748B;
+  --sb-text-hover:  #CBD5E1;
+  --sb-text-active: #FFFFFF;
+  --sb-accent:      #D4960C;
+  --sb-active-bg:   rgba(212, 150, 12, 0.14);
+  --sb-active-bd:   #D4960C;
 
-  /* Sombras mais intensas no escuro */
-  --shadow-xs: 0 1px 2px rgba(0,0,0,0.30);
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.40), 0 1px 2px rgba(0,0,0,0.30);
-  --shadow-md: 0 4px 8px  rgba(0,0,0,0.40), 0 2px 4px  rgba(0,0,0,0.30);
-  --shadow-lg: 0 12px 24px rgba(0,0,0,0.50), 0 4px 8px  rgba(0,0,0,0.40);
-  --shadow-xl: 0 24px 48px rgba(0,0,0,0.60), 0 8px 16px rgba(0,0,0,0.45);
+  /* Sombras — elevação marcante para superfícies sobre fundo escuro */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.35);
+  --shadow-sm: 0 0 0 1px rgba(255,255,255,0.04), 0 2px 6px rgba(0,0,0,0.45);
+  --shadow-md: 0 0 0 1px rgba(255,255,255,0.04), 0 4px 12px rgba(0,0,0,0.50);
+  --shadow-lg: 0 0 0 1px rgba(255,255,255,0.04), 0 12px 28px rgba(0,0,0,0.55), 0 4px 8px rgba(0,0,0,0.40);
+  --shadow-xl: 0 0 0 1px rgba(255,255,255,0.05), 0 24px 48px rgba(0,0,0,0.60), 0 8px 16px rgba(0,0,0,0.45);
 }
 
 /* ─── Overrides globais para tema escuro ─────────────────────────────────── */
@@ -143,7 +150,7 @@
   background-color: var(--ada-surface-2) !important;
 }
 [data-theme="dark"] .bg-stone-100 {
-  background-color: var(--ada-border) !important;
+  background-color: var(--ada-surface-2) !important;
 }
 
 /* Hover backgrounds */
@@ -263,8 +270,8 @@
 ::-webkit-scrollbar-thumb   { background: #D0C8BE; border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: #B8B0A4; }
 
-[data-theme="dark"] ::-webkit-scrollbar-thumb       { background: #2E2820; }
-[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #3A3028; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb       { background: #1F2D3F; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #2A3A50; }
 
 .sidebar-scroll::-webkit-scrollbar-thumb       { background: rgba(255,255,255,0.10); }
 .sidebar-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
@@ -626,7 +633,7 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  background: rgba(13,17,23,0.55);
+  background: rgba(7,16,30,0.60);
   backdrop-filter: blur(4px);
 }
 .modal-card {

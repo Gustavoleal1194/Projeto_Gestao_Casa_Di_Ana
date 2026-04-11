@@ -273,15 +273,15 @@ export function DashboardPage() {
   const navigate = useNavigate()
   const { isDark } = useTheme()
   const chartTooltip = useMemo(() => ({
-    backgroundColor: isDark ? '#1A1814' : '#ffffff',
-    borderColor:     isDark ? '#2C2620' : '#e7e5e4',
-    textColor:       isDark ? '#EDE5D8' : '#292524',
+    backgroundColor: isDark ? '#111827' : '#ffffff',
+    borderColor:     isDark ? '#1F2937' : '#e4e7ec',
+    textColor:       isDark ? '#EDE5D8' : '#1e293b',
   }), [isDark])
   const chartAxis = useMemo(() => ({
-    axisColor:  isDark ? '#7A7068' : '#a8a29e',
-    bodyColor:  isDark ? '#B5ABA0' : '#78716c',
-    labelColor: isDark ? '#B5ABA0' : '#57534e',
-    gridColor:  isDark ? '#2C2620' : '#f5f5f4',
+    axisColor:  isDark ? '#4B5563' : '#9ca3af',
+    bodyColor:  isDark ? '#9CA3AF' : '#6b7280',
+    labelColor: isDark ? '#9CA3AF' : '#4b5563',
+    gridColor:  isDark ? '#1F2937' : '#f1f5f9',
   }), [isDark])
 
   const [de, setDe] = useState(primeiroDoMes())
@@ -384,8 +384,8 @@ export function DashboardPage() {
   }), [chartTooltip])
 
   const tooltipDivider = isDark
-    ? '<div style="height:1px;background:#2C2620;margin:7px 0;"></div>'
-    : '<div style="height:1px;background:#ede9e4;margin:7px 0;"></div>'
+    ? '<div style="height:1px;background:#1F2937;margin:7px 0;"></div>'
+    : '<div style="height:1px;background:#e4e7ec;margin:7px 0;"></div>'
 
   const optionProdVendas: EChartsOption = {
     color: [COR.verde, COR.vermelho, COR.pedra],
@@ -634,7 +634,7 @@ export function DashboardPage() {
         radius: ['50%', '72%'],
         center: ['50%', '44%'],
         itemStyle: {
-          borderColor: isDark ? '#1A1814' : '#f8f6f3',
+          borderColor: isDark ? '#111827' : '#f8fafc',
           borderWidth: 2,
         },
         label: { show: false },

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import {
   ArrowUpTrayIcon,
   CheckCircleIcon,
@@ -6,14 +6,19 @@ import {
   XCircleIcon,
   QuestionMarkCircleIcon,
   EyeSlashIcon,
+  PlusCircleIcon,
+  TrashIcon,
 } from '@heroicons/react/24/outline'
 import { importacaoVendasService } from '../services/importacaoVendasService'
+import { QuickCreateProductModal } from '../components/QuickCreateProductModal'
+import { ConfirmRemoveDialog } from '../components/ConfirmRemoveDialog'
 import type {
   PreviewImportacao,
   ItemPreview,
   ResultadoImportacao,
   StatusImportacao,
 } from '@/types/importacao'
+import type { Produto } from '@/types/producao'
 
 type Etapa = 'upload' | 'processando' | 'preview' | 'confirmando' | 'resultado'
 
@@ -41,7 +46,23 @@ export function ImportacaoVendasPage() {
   const [dataVenda, setDataVenda] = useState(new Date().toISOString().split('T')[0])
   const [resultado, setResultado] = useState<ResultadoImportacao | null>(null)
   const [resolucoes, setResolucoes] = useState<Record<string, string>>({})
+
+  // Estado dos modais de ação por linha
+  const [itemParaAdicionar, setItemParaAdicionar] = useState<ItemPreview | null>(null)
+  const [itemParaRemover, setItemParaRemover] = useState<ItemPreview | null>(null)
+
   const inputRef = useRef<HTMLInputElement>(null)
+
+  // Contagens calculadas dinamicamente a partir dos itens atuais (refletem remoções locais)
+  const contagens = useMemo(() => {
+    if (!preview) return { matched: 0, ambiguous: 0, unmatched: 0, ignored: 0 }
+    return {
+      matched:   preview.itens.filter(i => i.status === 'matched').length,
+      ambiguous: preview.itens.filter(i => i.status === 'ambiguous').length,
+      unmatched: preview.itens.filter(i => i.status === 'unmatched').length,
+      ignored:   preview.itens.filter(i => i.status === 'ignored').length,
+    }
+  }, [preview])
 
   const handleArquivo = (file: File) => {
     if (!file.name.endsWith('.pdf')) {
@@ -97,8 +118,8 @@ export function ImportacaoVendasPage() {
         periodoDe: preview.periodoDe,
         periodoAte: preview.periodoAte,
         totalLinhasParseadas: preview.totalLinhasParseadas,
-        totalIgnoradas: preview.totalIgnored,
-        totalNaoEncontradas: preview.totalUnmatched,
+        totalIgnoradas: contagens.ignored,
+        totalNaoEncontradas: contagens.unmatched,
         itens,
       })
       setResultado(res)
@@ -118,6 +139,33 @@ export function ImportacaoVendasPage() {
     setResultado(null)
     setResolucoes({})
     setErro(null)
+  }
+
+  // Ações das linhas da tabela
+  const handleRemoverItem = (item: ItemPreview) => {
+    setItemParaRemover(item)
+  }
+
+  const confirmarRemocao = () => {
+    if (!itemParaRemover || !preview) return
+    setPreview({
+      ...preview,
+      itens: preview.itens.filter(i => i !== itemParaRemover),
+    })
+    // Limpa resolução ambígua se existia
+    if (resolucoes[itemParaRemover.nomeRelatorio]) {
+      setResolucoes(prev => {
+        const next = { ...prev }
+        delete next[itemParaRemover.nomeRelatorio]
+        return next
+      })
+    }
+    setItemParaRemover(null)
+  }
+
+  // Chamado após produto criado com sucesso — estruturado para futura re-vinculação automática
+  const handleProdutoCriado = (_produto: Produto) => {
+    setItemParaAdicionar(null)
   }
 
   const totalConfirmados = preview
@@ -211,13 +259,13 @@ export function ImportacaoVendasPage() {
       {/* Etapa: Preview */}
       {(etapa === 'preview' || etapa === 'confirmando') && preview && (
         <div className="space-y-6">
-          {/* Sumário de contagens */}
+          {/* Sumário de contagens — calculado dinamicamente */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: 'Encontrados',     value: preview.totalMatched,   cor: '#15803D', bg: 'var(--ada-success-bg)', border: 'var(--ada-success-border)' },
-              { label: 'Ambíguos',        value: preview.totalAmbiguous, cor: '#B45309', bg: 'var(--ada-warning-bg)', border: 'var(--ada-warning-border)' },
-              { label: 'Não encontrados', value: preview.totalUnmatched, cor: '#DC2626', bg: 'var(--ada-error-bg)',   border: 'var(--ada-error-border)'   },
-              { label: 'Ignorados',       value: preview.totalIgnored,   cor: 'var(--ada-muted)', bg: 'var(--ada-surface-2)', border: 'var(--ada-border)' },
+              { label: 'Encontrados',     value: contagens.matched,   cor: '#15803D', bg: 'var(--ada-success-bg)', border: 'var(--ada-success-border)' },
+              { label: 'Ambíguos',        value: contagens.ambiguous, cor: '#B45309', bg: 'var(--ada-warning-bg)', border: 'var(--ada-warning-border)' },
+              { label: 'Não encontrados', value: contagens.unmatched, cor: '#DC2626', bg: 'var(--ada-error-bg)',   border: 'var(--ada-error-border)'   },
+              { label: 'Ignorados',       value: contagens.ignored,   cor: 'var(--ada-muted)', bg: 'var(--ada-surface-2)', border: 'var(--ada-border)' },
             ].map(c => (
               <div key={c.label} className="rounded-xl p-4 flex flex-col gap-1" style={{ background: c.bg, border: `1px solid ${c.border}` }}>
                 <span className="text-2xl font-bold" style={{ color: c.cor }}>{c.value}</span>
@@ -230,7 +278,7 @@ export function ImportacaoVendasPage() {
           <div className="rounded-xl border overflow-hidden" style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)' }}>
             <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--ada-border)', background: 'var(--ada-surface-2)' }}>
               <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--ada-muted)', fontFamily: 'Sora, system-ui, sans-serif' }}>
-                {preview.totalLinhasParseadas} linhas parseadas
+                {preview.itens.length} linhas
                 {preview.periodoDe && ` · Período: ${preview.periodoDe} a ${preview.periodoAte}`}
               </p>
             </div>
@@ -238,7 +286,7 @@ export function ImportacaoVendasPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--ada-border)', background: 'var(--ada-surface-2)' }}>
-                    {['Status', 'Grupo', 'Nome no Relatório', 'Produto no Sistema', 'Qtd.', 'Total Venda'].map(h => (
+                    {['Status', 'Grupo', 'Nome no Relatório', 'Produto no Sistema', 'Qtd.', 'Total Venda', 'Ações'].map(h => (
                       <th
                         key={h}
                         className="px-4 py-2.5 text-xs font-semibold"
@@ -259,6 +307,8 @@ export function ImportacaoVendasPage() {
                       item={item}
                       resolucao={resolucoes[item.nomeRelatorio] ?? ''}
                       onResolucao={pid => setResolucoes(prev => ({ ...prev, [item.nomeRelatorio]: pid }))}
+                      onAdicionar={() => setItemParaAdicionar(item)}
+                      onRemover={() => handleRemoverItem(item)}
                     />
                   ))}
                 </tbody>
@@ -335,24 +385,49 @@ export function ImportacaoVendasPage() {
           </button>
         </div>
       )}
+
+      {/* Modal: cadastro rápido de produto */}
+      {itemParaAdicionar && (
+        <QuickCreateProductModal
+          nomeInicial={itemParaAdicionar.nomeRelatorio}
+          onSalvo={handleProdutoCriado}
+          onFechar={() => setItemParaAdicionar(null)}
+        />
+      )}
+
+      {/* Dialog: confirmação de remoção de linha */}
+      {itemParaRemover && (
+        <ConfirmRemoveDialog
+          nomeItem={itemParaRemover.nomeRelatorio}
+          onConfirmar={confirmarRemocao}
+          onCancelar={() => setItemParaRemover(null)}
+        />
+      )}
     </div>
   )
 }
+
+// ─── PreviewRow ─────────────────────────────────────────────────────────────
 
 function PreviewRow({
   item,
   resolucao,
   onResolucao,
+  onAdicionar,
+  onRemover,
 }: {
   item: ItemPreview
   resolucao: string
   onResolucao: (pid: string) => void
+  onAdicionar: () => void
+  onRemover: () => void
 }) {
   const cfg = STATUS_CFG[item.status]
   const { Icon } = cfg
 
   return (
     <tr style={{ borderBottom: '1px solid var(--ada-border-sub)' }}>
+      {/* Status */}
       <td className="px-4 py-2.5">
         <span
           className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold"
@@ -362,9 +437,13 @@ function PreviewRow({
           {cfg.label}
         </span>
       </td>
+
+      {/* Grupo */}
       <td className="px-4 py-2.5 text-xs" style={{ color: 'var(--ada-muted)' }}>
         {item.grupo ?? '—'}
       </td>
+
+      {/* Nome no relatório */}
       <td className="px-4 py-2.5 text-xs" style={{ color: 'var(--ada-body)' }}>
         {item.codigoExterno && (
           <span className="mr-1.5 text-[10px] font-mono px-1.5 py-0.5 rounded" style={{ background: 'var(--ada-surface-2)', color: 'var(--ada-muted)' }}>
@@ -373,6 +452,8 @@ function PreviewRow({
         )}
         {item.nomeRelatorio}
       </td>
+
+      {/* Produto no sistema */}
       <td className="px-4 py-2.5 text-xs">
         {item.status === 'matched' && <span style={{ color: '#15803D' }}>{item.produtoNome}</span>}
         {item.status === 'ambiguous' && (
@@ -391,11 +472,54 @@ function PreviewRow({
         {item.status === 'unmatched' && <span style={{ color: 'var(--ada-muted)' }}>—</span>}
         {item.status === 'ignored' && <span style={{ color: 'var(--ada-muted)', fontStyle: 'italic' }}>item ignorado</span>}
       </td>
+
+      {/* Qtd. */}
       <td className="px-4 py-2.5 text-right text-xs font-mono" style={{ color: 'var(--ada-body)' }}>
         {item.quantidade.toLocaleString('pt-BR')}
       </td>
+
+      {/* Total Venda */}
       <td className="px-4 py-2.5 text-right text-xs font-mono" style={{ color: 'var(--ada-body)' }}>
         {item.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+      </td>
+
+      {/* Ações */}
+      <td className="px-4 py-2.5">
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={onAdicionar}
+            title="Adicionar produto"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium border transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-[#C4870A]/40"
+            style={{
+              background: 'var(--ada-surface-2)',
+              borderColor: 'var(--ada-border)',
+              color: 'var(--ada-body)',
+            }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--ada-bg)'}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'var(--ada-surface-2)'}
+          >
+            <PlusCircleIcon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            <span>Adicionar</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={onRemover}
+            title="Remover da lista"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium border transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-red-400/40"
+            style={{
+              background: 'var(--ada-surface-2)',
+              borderColor: 'var(--ada-border)',
+              color: '#DC2626',
+            }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--ada-error-bg)'}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'var(--ada-surface-2)'}
+          >
+            <TrashIcon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            <span>Remover</span>
+          </button>
+        </div>
       </td>
     </tr>
   )

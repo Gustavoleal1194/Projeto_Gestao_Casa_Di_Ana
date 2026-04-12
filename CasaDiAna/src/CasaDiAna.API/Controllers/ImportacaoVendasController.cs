@@ -29,8 +29,8 @@ public class ImportacaoVendasController : ControllerBase
         if (arquivo == null || arquivo.Length == 0)
             return BadRequest(ApiResponse<object>.Erro("Nenhum arquivo enviado."));
 
-        if (!arquivo.FileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
-            return BadRequest(ApiResponse<object>.Erro("Somente arquivos PDF são aceitos."));
+        if (!arquivo.FileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+            return BadRequest(ApiResponse<object>.Erro("Somente arquivos CSV são aceitos."));
 
         if (arquivo.Length > 10 * 1024 * 1024)
             return BadRequest(ApiResponse<object>.Erro("Arquivo muito grande. Máximo: 10 MB."));
@@ -38,7 +38,7 @@ public class ImportacaoVendasController : ControllerBase
         await using var ms = new MemoryStream();
         await arquivo.CopyToAsync(ms, ct);
 
-        var command = new ProcessarPreviewPdfVendasCommand(ms.ToArray(), arquivo.FileName);
+        var command = new ProcessarPreviewVendasCommand(ms.ToArray(), arquivo.FileName);
         var resultado = await _mediator.Send(command, ct);
         return Ok(ApiResponse<PreviewImportacaoDto>.Ok(resultado));
     }

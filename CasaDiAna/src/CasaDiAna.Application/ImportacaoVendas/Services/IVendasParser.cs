@@ -1,11 +1,11 @@
 namespace CasaDiAna.Application.ImportacaoVendas.Services;
 
-public interface IPdfVendasParser
+public interface IVendasParser
 {
-    PdfParseResult Parse(byte[] pdfBytes);
+    VendasParseResult Parse(byte[] fileBytes);
 }
 
-public record PdfParseResult(
+public record VendasParseResult(
     string? PeriodoDe,
     string? PeriodoAte,
     string Hash,

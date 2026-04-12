@@ -65,8 +65,8 @@ export function ImportacaoVendasPage() {
   }, [preview])
 
   const handleArquivo = (file: File) => {
-    if (!file.name.endsWith('.pdf')) {
-      setErro('Somente arquivos PDF são aceitos.')
+    if (!file.name.endsWith('.csv')) {
+      setErro('Somente arquivos CSV são aceitos.')
       return
     }
     setArquivoSelecionado(file)
@@ -79,7 +79,7 @@ export function ImportacaoVendasPage() {
     if (file) handleArquivo(file)
   }
 
-  const processarPdf = async () => {
+  const processarCsv = async () => {
     if (!arquivoSelecionado) return
     setEtapa('processando')
     setErro(null)
@@ -89,7 +89,7 @@ export function ImportacaoVendasPage() {
       setEtapa('preview')
     } catch (e: unknown) {
       const err = e as { response?: { data?: { erros?: string[] } } }
-      const msg = err?.response?.data?.erros?.[0] ?? 'Erro ao processar o PDF.'
+      const msg = err?.response?.data?.erros?.[0] ?? 'Erro ao processar o CSV.'
       setErro(msg)
       setEtapa('upload')
     }
@@ -180,10 +180,10 @@ export function ImportacaoVendasPage() {
           className="text-xl font-bold tracking-tight"
           style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
         >
-          Importar Vendas via PDF
+          Importar Vendas via CSV
         </h1>
         <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>
-          Importe o relatório "Movimentação de Produtos - Sintético" do PDV para lançar vendas em lote.
+          Importe o relatório CSV do PDV para lançar vendas em lote.
         </p>
       </div>
 
@@ -216,27 +216,27 @@ export function ImportacaoVendasPage() {
             <ArrowUpTrayIcon className="h-10 w-10" style={{ color: 'var(--ada-placeholder)' }} aria-hidden="true" />
             <div className="text-center">
               <p className="text-sm font-medium" style={{ color: 'var(--ada-heading)' }}>
-                {arquivoSelecionado ? arquivoSelecionado.name : 'Clique ou arraste o PDF aqui'}
+                {arquivoSelecionado ? arquivoSelecionado.name : 'Clique ou arraste o CSV aqui'}
               </p>
               <p className="text-xs mt-1" style={{ color: 'var(--ada-muted)' }}>
-                Apenas arquivos PDF · Máximo 10 MB
+                Apenas arquivos CSV · Máximo 10 MB
               </p>
             </div>
           </div>
           <input
             ref={inputRef}
             type="file"
-            accept=".pdf"
+            accept=".csv"
             className="hidden"
             onChange={e => { if (e.target.files?.[0]) handleArquivo(e.target.files[0]) }}
           />
           <button
-            onClick={processarPdf}
+            onClick={processarCsv}
             disabled={!arquivoSelecionado}
             className="w-full py-2.5 rounded-lg text-sm font-semibold text-white transition-opacity disabled:opacity-40"
             style={{ background: 'var(--sb-accent)' }}
           >
-            Processar PDF
+            Processar CSV
           </button>
         </div>
       )}
@@ -279,7 +279,6 @@ export function ImportacaoVendasPage() {
             <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--ada-border)', background: 'var(--ada-surface-2)' }}>
               <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--ada-muted)', fontFamily: 'Sora, system-ui, sans-serif' }}>
                 {preview.itens.length} linhas
-                {preview.periodoDe && ` · Período: ${preview.periodoDe} a ${preview.periodoAte}`}
               </p>
             </div>
             <div className="overflow-x-auto">

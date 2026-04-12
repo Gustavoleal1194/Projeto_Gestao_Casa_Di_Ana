@@ -9,15 +9,15 @@ using MediatR;
 
 namespace CasaDiAna.Application.ImportacaoVendas.Commands.ProcessarPreview;
 
-public class ProcessarPreviewPdfVendasCommandHandler
-    : IRequestHandler<ProcessarPreviewPdfVendasCommand, PreviewImportacaoDto>
+public class ProcessarPreviewVendasCommandHandler
+    : IRequestHandler<ProcessarPreviewVendasCommand, PreviewImportacaoDto>
 {
-    private readonly IPdfVendasParser _parser;
+    private readonly IVendasParser _parser;
     private readonly IProdutoRepository _produtos;
     private readonly IImportacaoVendasRepository _importacoes;
 
-    public ProcessarPreviewPdfVendasCommandHandler(
-        IPdfVendasParser parser,
+    public ProcessarPreviewVendasCommandHandler(
+        IVendasParser parser,
         IProdutoRepository produtos,
         IImportacaoVendasRepository importacoes)
     {
@@ -27,21 +27,21 @@ public class ProcessarPreviewPdfVendasCommandHandler
     }
 
     public async Task<PreviewImportacaoDto> Handle(
-        ProcessarPreviewPdfVendasCommand request,
+        ProcessarPreviewVendasCommand request,
         CancellationToken cancellationToken)
     {
-        PdfParseResult parseResult;
+        VendasParseResult parseResult;
         try
         {
-            parseResult = _parser.Parse(request.PdfBytes);
+            parseResult = _parser.Parse(request.CsvBytes);
         }
         catch (Exception ex)
         {
-            throw new DomainException($"Falha ao processar o PDF: {ex.Message}");
+            throw new DomainException($"Falha ao processar o arquivo CSV: {ex.Message}");
         }
 
         if (parseResult.Linhas.Count == 0)
-            throw new DomainException("Nenhuma linha de produto foi encontrada no PDF. Verifique se o arquivo é um relatório válido.");
+            throw new DomainException("Nenhuma linha de produto foi encontrada no CSV. Verifique se o arquivo é um relatório válido.");
 
         if (await _importacoes.HashExisteAsync(parseResult.Hash, cancellationToken))
             throw new DomainException("Este arquivo já foi importado anteriormente.");
@@ -129,11 +129,9 @@ public class ProcessarPreviewPdfVendasCommandHandler
             @"\s+", " ").Trim();
     }
 
-    private static readonly HashSet<string> _ignorados = new(StringComparer.OrdinalIgnoreCase)
+    private static bool IsIgnorado(string nome)
     {
-        "taxa de servico", "taxa servico", "entrega", "diversos valor",
-        "diversos", "acrescimo", "gorjeta", "desconto", "couvert",
-    };
-
-    private static bool IsIgnorado(string nome) => _ignorados.Contains(Normalizar(nome));
+        var norm = Normalizar(nome);
+        return norm.StartsWith("taxa") || norm.StartsWith("entrega");
+    }
 }

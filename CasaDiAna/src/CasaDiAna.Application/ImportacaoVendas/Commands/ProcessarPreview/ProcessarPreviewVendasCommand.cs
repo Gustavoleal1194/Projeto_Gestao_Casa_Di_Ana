@@ -3,7 +3,7 @@ using MediatR;
 
 namespace CasaDiAna.Application.ImportacaoVendas.Commands.ProcessarPreview;
 
-public record ProcessarPreviewPdfVendasCommand(
-    byte[] PdfBytes,
+public record ProcessarPreviewVendasCommand(
+    byte[] CsvBytes,
     string NomeArquivo
 ) : IRequest<PreviewImportacaoDto>;

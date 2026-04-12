@@ -10,18 +10,18 @@ namespace CasaDiAna.Application.Tests.ImportacaoVendas;
 
 public class ProcessarPreviewHandlerTests
 {
-    private readonly Mock<IPdfVendasParser> _parser = new();
+    private readonly Mock<IVendasParser> _parser = new();
     private readonly Mock<IProdutoRepository> _produtos = new();
     private readonly Mock<IImportacaoVendasRepository> _importacoes = new();
 
-    private ProcessarPreviewPdfVendasCommandHandler CreateHandler() =>
+    private ProcessarPreviewVendasCommandHandler CreateHandler() =>
         new(_parser.Object, _produtos.Object, _importacoes.Object);
 
     [Fact]
     public async Task Handle_ProdutoNomeExato_RetornaMatched()
     {
         _parser.Setup(p => p.Parse(It.IsAny<byte[]>()))
-               .Returns(new PdfParseResult(null, null, "hash123", new List<LinhaRelatorio>
+               .Returns(new VendasParseResult(null, null, "hash123", new List<LinhaRelatorio>
                {
                    new("001", "Croissant", "PADARIA", 10m, 100m)
                }));
@@ -33,7 +33,7 @@ public class ProcessarPreviewHandlerTests
                  .ReturnsAsync(new List<Produto> { produto });
 
         var result = await CreateHandler().Handle(
-            new ProcessarPreviewPdfVendasCommand(Array.Empty<byte>(), "test.pdf"), default);
+            new ProcessarPreviewVendasCommand(Array.Empty<byte>(), "test.csv"), default);
 
         result.Itens.Should().HaveCount(1);
         result.Itens[0].Status.Should().Be(StatusImportacao.Matched);
@@ -45,7 +45,7 @@ public class ProcessarPreviewHandlerTests
     public async Task Handle_HashDuplicado_ThrowsDomainException()
     {
         _parser.Setup(p => p.Parse(It.IsAny<byte[]>()))
-               .Returns(new PdfParseResult(null, null, "hash_dup", new List<LinhaRelatorio>
+               .Returns(new VendasParseResult(null, null, "hash_dup", new List<LinhaRelatorio>
                {
                    new(null, "Produto X", null, 1m, 10m)
                }));
@@ -54,7 +54,7 @@ public class ProcessarPreviewHandlerTests
         _produtos.Setup(r => r.ListarAsync(false, default)).ReturnsAsync(new List<Produto>());
 
         var act = async () => await CreateHandler().Handle(
-            new ProcessarPreviewPdfVendasCommand(Array.Empty<byte>(), "dup.pdf"), default);
+            new ProcessarPreviewVendasCommand(Array.Empty<byte>(), "dup.csv"), default);
 
         await act.Should().ThrowAsync<CasaDiAna.Domain.Exceptions.DomainException>()
             .WithMessage("*já foi importado*");
@@ -64,14 +64,14 @@ public class ProcessarPreviewHandlerTests
     public async Task Handle_NenhumaLinhaNoRelatorio_ThrowsDomainException()
     {
         _parser.Setup(p => p.Parse(It.IsAny<byte[]>()))
-               .Returns(new PdfParseResult(null, null, "hash_empty",
+               .Returns(new VendasParseResult(null, null, "hash_empty",
                    new List<LinhaRelatorio>()));
 
         _importacoes.Setup(r => r.HashExisteAsync(It.IsAny<string>(), default)).ReturnsAsync(false);
         _produtos.Setup(r => r.ListarAsync(false, default)).ReturnsAsync(new List<Produto>());
 
         var act = async () => await CreateHandler().Handle(
-            new ProcessarPreviewPdfVendasCommand(Array.Empty<byte>(), "empty.pdf"), default);
+            new ProcessarPreviewVendasCommand(Array.Empty<byte>(), "empty.csv"), default);
 
         await act.Should().ThrowAsync<CasaDiAna.Domain.Exceptions.DomainException>()
             .WithMessage("*Nenhuma linha*");
@@ -81,7 +81,7 @@ public class ProcessarPreviewHandlerTests
     public async Task Handle_ProdutoSemMatch_RetornaUnmatched()
     {
         _parser.Setup(p => p.Parse(It.IsAny<byte[]>()))
-               .Returns(new PdfParseResult(null, null, "hash_x", new List<LinhaRelatorio>
+               .Returns(new VendasParseResult(null, null, "hash_x", new List<LinhaRelatorio>
                {
                    new(null, "Produto Inexistente", null, 5m, 50m)
                }));
@@ -91,7 +91,7 @@ public class ProcessarPreviewHandlerTests
                  .ReturnsAsync(new List<Produto> { CriarProduto(Guid.NewGuid(), "Outro Produto") });
 
         var result = await CreateHandler().Handle(
-            new ProcessarPreviewPdfVendasCommand(Array.Empty<byte>(), "t.pdf"), default);
+            new ProcessarPreviewVendasCommand(Array.Empty<byte>(), "t.csv"), default);
 
         result.Itens[0].Status.Should().Be(StatusImportacao.Unmatched);
         result.TotalUnmatched.Should().Be(1);

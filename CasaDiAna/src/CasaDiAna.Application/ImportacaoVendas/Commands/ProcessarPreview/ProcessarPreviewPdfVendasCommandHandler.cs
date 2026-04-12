@@ -89,19 +89,6 @@ public class ProcessarPreviewPdfVendasCommandHandler
         if (exatos.Count > 1)
             return Ambiguous(linha, exatos);
 
-        var parciais = produtos
-            .Where(p =>
-            {
-                var pNorm = Normalizar(p.Nome);
-                return pNorm.Contains(nomeNorm) || nomeNorm.Contains(pNorm);
-            })
-            .ToList();
-
-        if (parciais.Count == 1)
-            return Matched(linha, parciais[0]);
-        if (parciais.Count > 1)
-            return Ambiguous(linha, parciais);
-
         return new ItemPreviewDto(
             linha.CodigoExterno, linha.Nome, linha.Grupo,
             linha.Quantidade, linha.ValorTotal,

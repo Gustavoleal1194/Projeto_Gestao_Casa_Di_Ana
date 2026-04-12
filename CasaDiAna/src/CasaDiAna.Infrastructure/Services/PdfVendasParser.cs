@@ -12,8 +12,8 @@ public class PdfVendasParser : IPdfVendasParser
     private static readonly HashSet<string> _ignorados = new(StringComparer.OrdinalIgnoreCase)
     {
         "taxa de servico", "taxa servico", "entrega perto", "entrega longe",
-        "entrega", "diversos valor", "diversos", "acrescimo", "gorjeta",
-        "desconto", "couvert",
+        "entrega", "acrescimo", "gorjeta", "desconto", "couvert",
+        // Bug 3 fix: "diversos" e "diversos valor" removidos — são produtos reais vendidos
     };
 
     public PdfParseResult Parse(byte[] pdfBytes)
@@ -174,6 +174,8 @@ public class PdfVendasParser : IPdfVendasParser
         "dinheiro", "pix", "cartão", "cartao",
         "voucher", "ticket", "convênio", "convenio",
         "ifood", "delivery",
+        // Bug 1 fix: "A" de "A Vista" quebrado em dois tokens pelo PdfPig
+        "a", "à",
     };
 
     // Formato das colunas no PDF: Cód  Nome  Tipo  Val.Unit  Qtde  Total Venda
@@ -228,7 +230,8 @@ public class PdfVendasParser : IPdfVendasParser
         if (nameTokens.Count == 0) return null;
 
         // 6. Descartar código numérico do início (não é necessário no sistema)
-        //    Casos: "65" separado, "159Cissy" colado, "65 Pao" com espaço simples
+        //    Casos: "65" separado, "159Cissy" colado, "65 Pao" com espaço simples,
+        //           "- 167 Pao Fubá" com hífen prefixado (Bug 4 fix)
         string nome;
         if (Regex.IsMatch(nameTokens[0], @"^\d{1,6}$"))
         {
@@ -238,16 +241,23 @@ public class PdfVendasParser : IPdfVendasParser
         else
         {
             nome = string.Join(" ", nameTokens).Trim();
-            // Código colado: "189Brioche" → descartar os dígitos do início
-            var mColado = Regex.Match(nome, @"^(\d{1,6})([A-Za-zÀ-ÖØ-öø-ÿ].*)$");
-            if (mColado.Success)
-                nome = mColado.Groups[2].Value.Trim();
+            // Bug 4 fix: prefixo "- NNN " → descartar
+            var mHifen = Regex.Match(nome, @"^-\s*\d{1,6}\s+(.+)$");
+            if (mHifen.Success)
+                nome = mHifen.Groups[1].Value.Trim();
             else
             {
-                // Código com espaço simples: "65 Pao multigraos" → descartar os dígitos
-                var mEspaco = Regex.Match(nome, @"^(\d{1,6})\s+(.+)$");
-                if (mEspaco.Success)
-                    nome = mEspaco.Groups[2].Value.Trim();
+                // Código colado: "189Brioche" → descartar os dígitos do início
+                var mColado = Regex.Match(nome, @"^(\d{1,6})([A-Za-zÀ-ÖØ-öø-ÿ].*)$");
+                if (mColado.Success)
+                    nome = mColado.Groups[2].Value.Trim();
+                else
+                {
+                    // Código com espaço simples: "65 Pao multigraos" → descartar os dígitos
+                    var mEspaco = Regex.Match(nome, @"^(\d{1,6})\s+(.+)$");
+                    if (mEspaco.Success)
+                        nome = mEspaco.Groups[2].Value.Trim();
+                }
             }
         }
 
@@ -292,10 +302,14 @@ public class PdfVendasParser : IPdfVendasParser
     public static bool IsIgnorado(string nome)
     {
         var norm = Normalizar(nome);
-        return _ignorados.Contains(norm)
-            || norm.StartsWith("entrega")
-            || norm.StartsWith("acrescimo")
-            || norm.StartsWith("taxa");
+        if (_ignorados.Contains(norm)) return true;
+        if (norm.StartsWith("entrega")) return true;
+        if (norm.StartsWith("taxa")) return true;
+        // Bug 2 fix: ignorar só quando o nome inteiro É "acrescimo" (ou variante trivial "- acrescimo")
+        // Não ignorar "Nutella - Acréscimo", "Bacon - Acrescimo" etc.
+        if (norm == "acrescimo") return true;
+        if (Regex.IsMatch(norm, @"^[\-\s]*acrescimo\s*$")) return true;
+        return false;
     }
 
     public static string Normalizar(string s)

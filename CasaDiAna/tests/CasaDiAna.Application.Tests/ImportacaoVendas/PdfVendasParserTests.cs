@@ -238,4 +238,81 @@ public class PdfVendasParserTests
 
         resultado.Should().HaveCount(1);
     }
+
+    // ── Bug fixes ────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void ParseLines_Bug1_TokenA_NaoVazaParaNome()
+    {
+        // PdfPig quebra "A Vista" em dois tokens; "A" (1 char) não deve colar ao nome
+        var linhas = new List<string>
+        {
+            "Bar",
+            "55  Ciabatta  A  Vista  8,50  12  102,00",
+        };
+
+        var resultado = PdfVendasParser.ParseLines(linhas, out _, out _);
+
+        resultado.Should().HaveCount(1);
+        resultado[0].Nome.Should().Be("Ciabatta");
+        resultado[0].Nome.Should().NotEndWith(" A");
+    }
+
+    [Fact]
+    public void ParseLines_Bug2_AcrescimoComNomeProprio_NaoIgnorado()
+    {
+        // "Nutella - Acréscimo" é um produto real — não deve ser ignorado
+        var linhas = new List<string>
+        {
+            "Bar",
+            "92  Nutella - Acréscimo  A Vista  5,00  30  150,00",
+        };
+
+        var resultado = PdfVendasParser.ParseLines(linhas, out _, out _);
+
+        resultado.Should().HaveCount(1);
+        resultado[0].Nome.Should().Be("Nutella - Acréscimo");
+    }
+
+    [Fact]
+    public void IsIgnorado_Bug2_AcrescimoIsolado_Ignorado()
+    {
+        // "Acrescimo" sozinho continua sendo ignorado
+        PdfVendasParser.IsIgnorado("Acréscimo").Should().BeTrue();
+        PdfVendasParser.IsIgnorado("Acrescimo").Should().BeTrue();
+        PdfVendasParser.IsIgnorado("Nutella - Acréscimo").Should().BeFalse();
+        PdfVendasParser.IsIgnorado("Bacon - Acrescimo").Should().BeFalse();
+    }
+
+    [Fact]
+    public void ParseLines_Bug3_DiversosNaoIgnorado()
+    {
+        // "Diversos" é produto real vendido — deve aparecer como item parseado
+        var linhas = new List<string>
+        {
+            "Bar",
+            "88  Diversos - Valor  A Vista  36,05  11  396,57",
+        };
+
+        var resultado = PdfVendasParser.ParseLines(linhas, out _, out _);
+
+        resultado.Should().HaveCount(1);
+        resultado[0].Nome.Should().Be("Diversos - Valor");
+    }
+
+    [Fact]
+    public void ParseLines_Bug4_PrefixoHifenNumero_Stripped()
+    {
+        // Nome reconstruído com prefixo "- 167 Pao Fubá c/erva doce"
+        var linhas = new List<string>
+        {
+            "Padaria",
+            "- 167 Pao Fubá  A Vista  6,50  20  130,00",
+        };
+
+        var resultado = PdfVendasParser.ParseLines(linhas, out _, out _);
+
+        resultado.Should().HaveCount(1);
+        resultado[0].Nome.Should().Be("Pao Fubá");
+    }
 }

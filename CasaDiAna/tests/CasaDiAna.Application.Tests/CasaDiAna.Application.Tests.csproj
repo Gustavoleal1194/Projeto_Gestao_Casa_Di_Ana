@@ -26,6 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\CasaDiAna.Application\CasaDiAna.Application.csproj" />
     <ProjectReference Include="..\..\src\CasaDiAna.Domain\CasaDiAna.Domain.csproj" />
+    <ProjectReference Include="..\..\src\CasaDiAna.Infrastructure\CasaDiAna.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

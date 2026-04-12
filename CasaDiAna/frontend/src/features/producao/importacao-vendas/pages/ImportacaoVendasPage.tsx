@@ -163,8 +163,17 @@ export function ImportacaoVendasPage() {
     setItemParaRemover(null)
   }
 
-  // Chamado após produto criado com sucesso — estruturado para futura re-vinculação automática
-  const handleProdutoCriado = (_produto: Produto) => {
+  const handleProdutoCriado = (produto: Produto) => {
+    if (preview && itemParaAdicionar) {
+      setPreview({
+        ...preview,
+        itens: preview.itens.map(item =>
+          item === itemParaAdicionar
+            ? { ...item, status: 'matched' as const, produtoId: produto.id, produtoNome: produto.nome }
+            : item
+        ),
+      })
+    }
     setItemParaAdicionar(null)
   }
 

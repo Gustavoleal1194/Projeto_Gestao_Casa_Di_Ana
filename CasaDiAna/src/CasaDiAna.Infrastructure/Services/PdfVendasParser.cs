@@ -137,6 +137,14 @@ public class PdfVendasParser : IPdfVendasParser
             && !t.Any(char.IsDigit);
     }
 
+    // Textos de forma de pagamento que aparecem em algumas linhas do relatório
+    private static readonly HashSet<string> _formasPagamento = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "a vista", "à vista", "a prazo", "crédito", "credito", "débito", "debito",
+        "dinheiro", "pix", "cartão", "cartao", "voucher", "ticket", "convênio", "convenio",
+        "ifood", "delivery",
+    };
+
     private static (string? Codigo, string Nome, decimal Quantidade, decimal Valor)?
         TryParseProdutoLine(string linha)
     {
@@ -145,19 +153,40 @@ public class PdfVendasParser : IPdfVendasParser
         var tokens = Regex.Split(linha, @"\s{2,}")
             .Select(t => t.Trim())
             .Where(t => !string.IsNullOrEmpty(t))
+            // Remove tokens de forma de pagamento antes de parsear colunas
+            .Where(t => !_formasPagamento.Contains(t))
             .ToList();
 
         if (tokens.Count < 2) return null;
 
-        if (!TryParseDecimalBR(tokens[^1], out var valor) || valor <= 0) return null;
-        if (!TryParseDecimalBR(tokens[^2], out var qty) || qty <= 0) return null;
+        // Último token deve ser numérico (valor ou quantidade)
+        if (!TryParseDecimalBR(tokens[^1], out var ultimoNum) || ultimoNum <= 0) return null;
 
-        var nameTokens = tokens[..^2];
+        decimal qty;
+        decimal valor;
+        List<string> nameTokens;
+
+        if (tokens.Count >= 3 && TryParseDecimalBR(tokens[^2], out var penultimoNum) && penultimoNum > 0)
+        {
+            // Formato com qty e valor: ... nome  12,000  150,00
+            qty = penultimoNum;
+            valor = ultimoNum;
+            nameTokens = tokens[..^2];
+        }
+        else
+        {
+            // Formato com apenas um número: ... nome  28,00  → usar como quantidade
+            qty = ultimoNum;
+            valor = ultimoNum;
+            nameTokens = tokens[..^1];
+        }
+
         if (nameTokens.Count == 0) return null;
 
         string? codigo = null;
         string nome;
 
+        // Código numérico separado: "001  Nome do Produto"
         if (Regex.IsMatch(nameTokens[0], @"^\d{1,6}$"))
         {
             codigo = nameTokens[0];
@@ -166,11 +195,22 @@ public class PdfVendasParser : IPdfVendasParser
         else
         {
             nome = string.Join(" ", nameTokens).Trim();
-            var m = Regex.Match(nome, @"^(\d{1,6})\s+(.+)$");
-            if (m.Success)
+            // Código colado ao início do nome: "159Cissy - Croissant Casquinha"
+            var mColado = Regex.Match(nome, @"^(\d{1,6})([A-Za-zÀ-ÖØ-öø-ÿ].*)$");
+            if (mColado.Success)
             {
-                codigo = m.Groups[1].Value;
-                nome = m.Groups[2].Value.Trim();
+                codigo = mColado.Groups[1].Value;
+                nome = mColado.Groups[2].Value.Trim();
+            }
+            else
+            {
+                // Código separado por espaço simples: "001 Nome"
+                var m = Regex.Match(nome, @"^(\d{1,6})\s+(.+)$");
+                if (m.Success)
+                {
+                    codigo = m.Groups[1].Value;
+                    nome = m.Groups[2].Value.Trim();
+                }
             }
         }
 

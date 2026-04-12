@@ -152,19 +152,16 @@ public class PdfVendasParser : IPdfVendasParser
     private static bool IsRegistrosLine(string linha)
         => Regex.IsMatch(linha, @"\d+\s+registro[s]?\s*$", RegexOptions.IgnoreCase);
 
-    // Aceita maiúsculas E minúsculas: "Bar", "Cozinha", "Indefinido", "PADARIA"
-    private static readonly Regex SecaoRegex = new(
-        @"^[A-Za-záàâãäéèêëíìîïóòôõöúùûüçÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜÇ\s\-]+$",
-        RegexOptions.Compiled);
+    // Allowlist dos grupos válidos deste PDV — mais seguro que regex genérica
+    // que aceitava "com", "e", "A" como seções
+    private static readonly HashSet<string> _gruposValidos = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Padaria", "Bar", "Cozinha", "Indefinido", "Variados",
+        "Acréscimos", "Acrescimos", "Acréscimo", "Acrescimo",
+    };
 
     private static bool IsSecaoHeader(string linha)
-    {
-        var t = linha.Trim();
-        return t.Length >= 2
-            && t.Length <= 50
-            && SecaoRegex.IsMatch(t)
-            && !t.Any(char.IsDigit);
-    }
+        => _gruposValidos.Contains(linha.Trim());
 
     // Coluna "Tipo" do relatório PDV — remover estes tokens das linhas de produto
     private static readonly HashSet<string> _formasPagamento = new(StringComparer.OrdinalIgnoreCase)

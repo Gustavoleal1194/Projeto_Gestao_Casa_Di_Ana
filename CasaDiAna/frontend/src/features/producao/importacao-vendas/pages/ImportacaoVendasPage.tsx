@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowUpTrayIcon,
   CheckCircleIcon,
@@ -12,6 +12,7 @@ import {
 import { importacaoVendasService } from '../services/importacaoVendasService'
 import { QuickCreateProductModal } from '../components/QuickCreateProductModal'
 import { ConfirmRemoveDialog } from '../components/ConfirmRemoveDialog'
+import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import type {
   PreviewImportacao,
   ItemPreview,
@@ -38,6 +39,12 @@ const STATUS_CFG: Record<StatusImportacao, {
 // Suppress unused import warning — ExclamationTriangleIcon reserved for future use
 void ExclamationTriangleIcon
 
+function precoUnitario(item: ItemPreview): number {
+  return item.quantidade > 0
+    ? Math.round((item.valorTotal / item.quantidade) * 100) / 100
+    : 0
+}
+
 export function ImportacaoVendasPage() {
   const [etapa, setEtapa] = useState<Etapa>('upload')
   const [arquivoSelecionado, setArquivoSelecionado] = useState<File | null>(null)
@@ -46,6 +53,11 @@ export function ImportacaoVendasPage() {
   const [dataVenda, setDataVenda] = useState(new Date().toISOString().split('T')[0])
   const [resultado, setResultado] = useState<ResultadoImportacao | null>(null)
   const [resolucoes, setResolucoes] = useState<Record<string, string>>({})
+
+  // Seleção em lote
+  const [selecionados, setSelecionados] = useState<Set<string>>(new Set())
+  const [criandoEmLote, setCriandoEmLote] = useState(false)
+  const checkboxTodosRef = useRef<HTMLInputElement>(null)
 
   // Estado dos modais de ação por linha
   const [itemParaAdicionar, setItemParaAdicionar] = useState<ItemPreview | null>(null)
@@ -63,6 +75,21 @@ export function ImportacaoVendasPage() {
       ignored:   preview.itens.filter(i => i.status === 'ignored').length,
     }
   }, [preview])
+
+  // Estado indeterminado do checkbox "selecionar todos"
+  useEffect(() => {
+    if (!checkboxTodosRef.current || !preview) return
+    const total = preview.itens.length
+    const sel = selecionados.size
+    checkboxTodosRef.current.indeterminate = sel > 0 && sel < total
+  }, [selecionados, preview])
+
+  const naoEncontradosSelecionados = useMemo(() => {
+    if (!preview) return 0
+    return preview.itens.filter(
+      i => i.status === 'unmatched' && selecionados.has(i.nomeRelatorio)
+    ).length
+  }, [preview, selecionados])
 
   const handleArquivo = (file: File) => {
     if (!file.name.endsWith('.csv')) {
@@ -86,6 +113,7 @@ export function ImportacaoVendasPage() {
     try {
       const data = await importacaoVendasService.preview(arquivoSelecionado)
       setPreview(data)
+      setSelecionados(new Set())
       setEtapa('preview')
     } catch (e: unknown) {
       const err = e as { response?: { data?: { erros?: string[] } } }
@@ -138,13 +166,100 @@ export function ImportacaoVendasPage() {
     setPreview(null)
     setResultado(null)
     setResolucoes({})
+    setSelecionados(new Set())
     setErro(null)
   }
 
-  // Ações das linhas da tabela
-  const handleRemoverItem = (item: ItemPreview) => {
-    setItemParaRemover(item)
+  // ── Seleção ──────────────────────────────────────────────────────────────────
+
+  const toggleSelecionado = (nome: string) => {
+    setSelecionados(prev => {
+      const next = new Set(prev)
+      if (next.has(nome)) next.delete(nome)
+      else next.add(nome)
+      return next
+    })
   }
+
+  const toggleTodos = () => {
+    if (!preview) return
+    const todos = preview.itens.map(i => i.nomeRelatorio)
+    if (selecionados.size === preview.itens.length) {
+      setSelecionados(new Set())
+    } else {
+      setSelecionados(new Set(todos))
+    }
+  }
+
+  // ── Ações em lote ────────────────────────────────────────────────────────────
+
+  const removerSelecionados = () => {
+    if (!preview) return
+    const nomesRemover = selecionados
+    setPreview({
+      ...preview,
+      itens: preview.itens.filter(i => !nomesRemover.has(i.nomeRelatorio)),
+    })
+    setResolucoes(prev => {
+      const next = { ...prev }
+      nomesRemover.forEach(nome => delete next[nome])
+      return next
+    })
+    setSelecionados(new Set())
+  }
+
+  const criarProdutosSelecionados = async () => {
+    if (!preview) return
+    const paraCriar = preview.itens.filter(
+      i => i.status === 'unmatched' && selecionados.has(i.nomeRelatorio)
+    )
+    if (paraCriar.length === 0) return
+
+    setCriandoEmLote(true)
+    setErro(null)
+
+    const resultados = await Promise.allSettled(
+      paraCriar.map(async item => {
+        const produto = await produtosService.criar({
+          nome: item.nomeRelatorio,
+          precoVenda: precoUnitario(item),
+          categoriaProdutoId: null,
+        })
+        return { item, produto }
+      })
+    )
+
+    const criados = new Map<string, Produto>()
+    resultados.forEach(r => {
+      if (r.status === 'fulfilled') criados.set(r.value.item.nomeRelatorio, r.value.produto)
+    })
+
+    setPreview({
+      ...preview,
+      itens: preview.itens.map(item => {
+        const prod = criados.get(item.nomeRelatorio)
+        return prod
+          ? { ...item, status: 'matched' as const, produtoId: prod.id, produtoNome: prod.nome }
+          : item
+      }),
+    })
+
+    setSelecionados(prev => {
+      const next = new Set(prev)
+      criados.forEach((_, nome) => next.delete(nome))
+      return next
+    })
+
+    const falhas = resultados.filter(r => r.status === 'rejected').length
+    if (falhas > 0)
+      setErro(`${falhas} produto(s) não puderam ser criados. Os demais foram criados com sucesso.`)
+
+    setCriandoEmLote(false)
+  }
+
+  // ── Ações individuais ────────────────────────────────────────────────────────
+
+  const handleRemoverItem = (item: ItemPreview) => setItemParaRemover(item)
 
   const confirmarRemocao = () => {
     if (!itemParaRemover || !preview) return
@@ -152,7 +267,6 @@ export function ImportacaoVendasPage() {
       ...preview,
       itens: preview.itens.filter(i => i !== itemParaRemover),
     })
-    // Limpa resolução ambígua se existia
     if (resolucoes[itemParaRemover.nomeRelatorio]) {
       setResolucoes(prev => {
         const next = { ...prev }
@@ -160,6 +274,11 @@ export function ImportacaoVendasPage() {
         return next
       })
     }
+    setSelecionados(prev => {
+      const next = new Set(prev)
+      next.delete(itemParaRemover.nomeRelatorio)
+      return next
+    })
     setItemParaRemover(null)
   }
 
@@ -268,7 +387,7 @@ export function ImportacaoVendasPage() {
       {/* Etapa: Preview */}
       {(etapa === 'preview' || etapa === 'confirmando') && preview && (
         <div className="space-y-6">
-          {/* Sumário de contagens — calculado dinamicamente */}
+          {/* Sumário de contagens */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { label: 'Encontrados',     value: contagens.matched,   cor: '#15803D', bg: 'var(--ada-success-bg)', border: 'var(--ada-success-border)' },
@@ -283,6 +402,52 @@ export function ImportacaoVendasPage() {
             ))}
           </div>
 
+          {/* Barra de ações em lote — visível quando há seleção */}
+          {selecionados.size > 0 && (
+            <div
+              className="rounded-xl px-4 py-3 flex flex-wrap items-center gap-3"
+              style={{ background: 'var(--ada-surface)', border: '1px solid var(--ada-border)' }}
+            >
+              <span className="text-sm font-medium" style={{ color: 'var(--ada-heading)' }}>
+                {selecionados.size} {selecionados.size === 1 ? 'item selecionado' : 'itens selecionados'}
+              </span>
+
+              <div className="flex gap-2 ml-auto flex-wrap">
+                <button
+                  type="button"
+                  onClick={removerSelecionados}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
+                  style={{ background: 'var(--ada-error-bg)', borderColor: 'var(--ada-error-border)', color: '#DC2626' }}
+                >
+                  <TrashIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                  Remover {selecionados.size} {selecionados.size === 1 ? 'item' : 'itens'}
+                </button>
+
+                {naoEncontradosSelecionados > 0 && (
+                  <button
+                    type="button"
+                    onClick={criarProdutosSelecionados}
+                    disabled={criandoEmLote}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors disabled:opacity-50"
+                    style={{ background: 'var(--ada-surface-2)', borderColor: 'var(--ada-border)', color: 'var(--ada-body)' }}
+                  >
+                    {criandoEmLote ? (
+                      <>
+                        <span className="h-3.5 w-3.5 animate-spin rounded-full inline-block" style={{ border: '2px solid var(--ada-border)', borderTopColor: '#C4870A' }} />
+                        Criando…
+                      </>
+                    ) : (
+                      <>
+                        <PlusCircleIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                        Criar {naoEncontradosSelecionados} produto{naoEncontradosSelecionados !== 1 ? 's' : ''} não encontrado{naoEncontradosSelecionados !== 1 ? 's' : ''}
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Tabela */}
           <div className="rounded-xl border overflow-hidden" style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)' }}>
             <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--ada-border)', background: 'var(--ada-surface-2)' }}>
@@ -294,7 +459,19 @@ export function ImportacaoVendasPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--ada-border)', background: 'var(--ada-surface-2)' }}>
-                    {['Status', 'Grupo', 'Nome no Relatório', 'Produto no Sistema', 'Qtd.', 'Total Venda', 'Ações'].map(h => (
+                    {/* Checkbox selecionar todos */}
+                    <th className="pl-4 pr-2 py-2.5 w-8">
+                      <input
+                        ref={checkboxTodosRef}
+                        type="checkbox"
+                        aria-label="Selecionar todos"
+                        checked={selecionados.size === preview.itens.length && preview.itens.length > 0}
+                        onChange={toggleTodos}
+                        className="rounded"
+                        style={{ accentColor: '#C4870A', cursor: 'pointer' }}
+                      />
+                    </th>
+                    {['Status', 'Nome no Relatório', 'Produto no Sistema', 'Qtd.', 'Total Venda', 'Ações'].map(h => (
                       <th
                         key={h}
                         className="px-4 py-2.5 text-xs font-semibold"
@@ -313,6 +490,8 @@ export function ImportacaoVendasPage() {
                     <PreviewRow
                       key={idx}
                       item={item}
+                      selecionado={selecionados.has(item.nomeRelatorio)}
+                      onToggle={() => toggleSelecionado(item.nomeRelatorio)}
                       resolucao={resolucoes[item.nomeRelatorio] ?? ''}
                       onResolucao={pid => setResolucoes(prev => ({ ...prev, [item.nomeRelatorio]: pid }))}
                       onAdicionar={() => setItemParaAdicionar(item)}
@@ -398,11 +577,7 @@ export function ImportacaoVendasPage() {
       {itemParaAdicionar && (
         <QuickCreateProductModal
           nomeInicial={itemParaAdicionar.nomeRelatorio}
-          precoInicial={
-            itemParaAdicionar.quantidade > 0
-              ? Math.round((itemParaAdicionar.valorTotal / itemParaAdicionar.quantidade) * 100) / 100
-              : undefined
-          }
+          precoInicial={precoUnitario(itemParaAdicionar) || undefined}
           onSalvo={handleProdutoCriado}
           onFechar={() => setItemParaAdicionar(null)}
         />
@@ -424,12 +599,16 @@ export function ImportacaoVendasPage() {
 
 function PreviewRow({
   item,
+  selecionado,
+  onToggle,
   resolucao,
   onResolucao,
   onAdicionar,
   onRemover,
 }: {
   item: ItemPreview
+  selecionado: boolean
+  onToggle: () => void
   resolucao: string
   onResolucao: (pid: string) => void
   onAdicionar: () => void
@@ -439,7 +618,24 @@ function PreviewRow({
   const { Icon } = cfg
 
   return (
-    <tr style={{ borderBottom: '1px solid var(--ada-border-sub)' }}>
+    <tr
+      style={{
+        borderBottom: '1px solid var(--ada-border-sub)',
+        background: selecionado ? 'var(--ada-surface-2)' : undefined,
+      }}
+    >
+      {/* Checkbox */}
+      <td className="pl-4 pr-2 py-2.5 w-8">
+        <input
+          type="checkbox"
+          checked={selecionado}
+          onChange={onToggle}
+          aria-label={`Selecionar ${item.nomeRelatorio}`}
+          className="rounded"
+          style={{ accentColor: '#C4870A', cursor: 'pointer' }}
+        />
+      </td>
+
       {/* Status */}
       <td className="px-4 py-2.5">
         <span
@@ -449,11 +645,6 @@ function PreviewRow({
           <Icon className="h-3 w-3" aria-hidden="true" />
           {cfg.label}
         </span>
-      </td>
-
-      {/* Grupo */}
-      <td className="px-4 py-2.5 text-xs" style={{ color: 'var(--ada-muted)' }}>
-        {item.grupo ?? '—'}
       </td>
 
       {/* Nome no relatório */}

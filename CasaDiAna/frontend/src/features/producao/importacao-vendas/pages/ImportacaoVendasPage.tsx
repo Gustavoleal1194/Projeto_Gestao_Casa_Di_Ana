@@ -238,8 +238,17 @@ export function ImportacaoVendasPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--ada-border)', background: 'var(--ada-surface-2)' }}>
-                    {['Status', 'Grupo', 'Nome no Relatório', 'Produto no Sistema', 'Qtd.', 'Total'].map((h, i) => (
-                      <th key={h} className={`px-4 py-2.5 text-xs font-semibold ${i >= 4 ? 'text-right' : 'text-left'}`} style={{ color: 'var(--ada-muted)' }}>{h}</th>
+                    {['Status', 'Grupo', 'Nome no Relatório', 'Produto no Sistema', 'Qtd.', 'Total Venda'].map(h => (
+                      <th
+                        key={h}
+                        className="px-4 py-2.5 text-xs font-semibold"
+                        style={{
+                          color: 'var(--ada-muted)',
+                          textAlign: ['Qtd.', 'Total Venda'].includes(h) ? 'right' : 'left',
+                        }}
+                      >
+                        {h}
+                      </th>
                     ))}
                   </tr>
                 </thead>

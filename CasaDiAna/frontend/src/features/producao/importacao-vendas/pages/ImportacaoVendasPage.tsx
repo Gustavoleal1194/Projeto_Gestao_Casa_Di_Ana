@@ -238,8 +238,8 @@ export function ImportacaoVendasPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--ada-border)', background: 'var(--ada-surface-2)' }}>
-                    {['Status', 'Grupo', 'Nome no Relatório', 'Produto no Sistema', 'Qtd.'].map(h => (
-                      <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold" style={{ color: 'var(--ada-muted)' }}>{h}</th>
+                    {['Status', 'Grupo', 'Nome no Relatório', 'Produto no Sistema', 'Qtd.', 'Total'].map((h, i) => (
+                      <th key={h} className={`px-4 py-2.5 text-xs font-semibold ${i >= 4 ? 'text-right' : 'text-left'}`} style={{ color: 'var(--ada-muted)' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -384,6 +384,9 @@ function PreviewRow({
       </td>
       <td className="px-4 py-2.5 text-right text-xs font-mono" style={{ color: 'var(--ada-body)' }}>
         {item.quantidade.toLocaleString('pt-BR')}
+      </td>
+      <td className="px-4 py-2.5 text-right text-xs font-mono" style={{ color: 'var(--ada-body)' }}>
+        {item.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
       </td>
     </tr>
   )

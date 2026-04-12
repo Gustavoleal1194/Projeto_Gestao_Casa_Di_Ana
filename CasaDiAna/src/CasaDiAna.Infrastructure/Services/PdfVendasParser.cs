@@ -11,73 +11,36 @@ public class PdfVendasParser : IPdfVendasParser
 {
     private static readonly HashSet<string> _ignorados = new(StringComparer.OrdinalIgnoreCase)
     {
-        "taxa de servico",
-        "taxa servico",
-        "entrega",
-        "diversos valor",
-        "diversos",
-        "acrescimo",
-        "gorjeta",
-        "desconto",
-        "couvert",
+        "taxa de servico", "taxa servico", "entrega perto", "entrega longe",
+        "entrega", "diversos valor", "diversos", "acrescimo", "gorjeta",
+        "desconto", "couvert",
     };
 
     public PdfParseResult Parse(byte[] pdfBytes)
     {
         var todasLinhas = new List<string>();
-
         using var document = PdfDocument.Open(pdfBytes);
         foreach (var page in document.GetPages())
-        {
-            var linhasPagina = ReconstruirLinhas(page);
-            todasLinhas.AddRange(linhasPagina);
-        }
+            todasLinhas.AddRange(ReconstruirLinhas(page));
 
         var hash = Convert.ToHexString(SHA256.HashData(pdfBytes)).ToLowerInvariant();
         var linhas = ParseLines(todasLinhas, out var periodoDe, out var periodoAte);
-
         return new PdfParseResult(periodoDe, periodoAte, hash, linhas);
     }
 
-    // Correção 1: gap horizontal para distinguir colunas de palavras do mesmo token
+    // Reconstrói linhas unindo palavras com DUPLO ESPAÇO entre cada uma.
+    // O duplo espaço é o separador de colunas usado pelo TryParseProdutoLine.
     private static IReadOnlyList<string> ReconstruirLinhas(UglyToad.PdfPig.Content.Page page)
     {
         var words = page.GetWords().ToList();
         if (words.Count == 0) return Array.Empty<string>();
 
-        // Tolerância: gap horizontal >= este valor indica nova coluna
-        // Valor calibrado para o relatório PDV da Casa di Ana (colunas bem espaçadas)
-        const double gapColuna = 8.0;
-
-        var linhas = words
+        return words
             .GroupBy(w => Math.Round(w.BoundingBox.Centroid.Y / 2.0) * 2)
             .OrderByDescending(g => g.Key)
-            .Select(g =>
-            {
-                var palavras = g.OrderBy(w => w.BoundingBox.Left).ToList();
-                var sb = new StringBuilder();
-                for (int i = 0; i < palavras.Count; i++)
-                {
-                    if (i == 0)
-                    {
-                        sb.Append(palavras[i].Text);
-                        continue;
-                    }
-                    // Gap entre fim da palavra anterior e início da atual
-                    var gapHorizontal = palavras[i].BoundingBox.Left
-                                      - palavras[i - 1].BoundingBox.Right;
-
-                    // Gap grande = separador de coluna (duplo espaço)
-                    // Gap pequeno = mesma expressão (espaço simples)
-                    sb.Append(gapHorizontal >= gapColuna ? "  " : " ");
-                    sb.Append(palavras[i].Text);
-                }
-                return sb.ToString();
-            })
+            .Select(g => string.Join("  ", g.OrderBy(w => w.BoundingBox.Left).Select(w => w.Text)))
             .Where(l => !string.IsNullOrWhiteSpace(l))
             .ToList();
-
-        return linhas;
     }
 
     public static IReadOnlyList<LinhaRelatorio> ParseLines(
@@ -89,8 +52,6 @@ public class PdfVendasParser : IPdfVendasParser
         periodoAte = null;
         var resultado = new List<LinhaRelatorio>();
         var grupoAtual = string.Empty;
-
-        // Correção 7: suporte a produtos com nome em duas linhas físicas
         string? linhaPendente = null;
 
         foreach (var raw in linhas)
@@ -105,12 +66,14 @@ public class PdfVendasParser : IPdfVendasParser
                 {
                     periodoDe = ParseDataBR(pm.Groups["de"].Value);
                     periodoAte = ParseDataBR(pm.Groups["ate"].Value);
+                    linhaPendente = null;
                     continue;
                 }
             }
 
-            if (IsPageHeader(linha)) continue;
-            if (IsTotalLine(linha)) continue;
+            if (IsPageHeader(linha))    { linhaPendente = null; continue; }
+            if (IsTotalLine(linha))     { linhaPendente = null; continue; }
+            if (IsRegistrosLine(linha)) { linhaPendente = null; continue; }
 
             if (IsSecaoHeader(linha))
             {
@@ -119,8 +82,9 @@ public class PdfVendasParser : IPdfVendasParser
                 continue;
             }
 
+            // Suporte a nomes longos que quebram em duas linhas físicas no PDF
             var linhaParaParsear = linhaPendente != null
-                ? linhaPendente + " " + linha
+                ? linhaPendente + "  " + linha
                 : linha;
 
             var parsed = TryParseProdutoLine(linhaParaParsear);
@@ -131,7 +95,7 @@ public class PdfVendasParser : IPdfVendasParser
                 if (!IsIgnorado(parsed.Value.Nome))
                 {
                     resultado.Add(new LinhaRelatorio(
-                        parsed.Value.Codigo,
+                        null,  // CodigoExterno sempre null — não é necessário no sistema
                         parsed.Value.Nome,
                         string.IsNullOrEmpty(grupoAtual) ? null : grupoAtual,
                         parsed.Value.Quantidade,
@@ -140,8 +104,11 @@ public class PdfVendasParser : IPdfVendasParser
             }
             else
             {
-                // Linha pendente: só guardar se não termina com número (seria linha incompleta de nome)
-                linhaPendente = Regex.IsMatch(linha, @"[\d\.,]+$") ? null : linhaParaParsear;
+                // Guardar como pendente só se a linha não termina com número
+                // (linhas que terminam com número são dados, não continuação de nome)
+                linhaPendente = Regex.IsMatch(linha, @"[\d\.,]+\s*$")
+                    ? null
+                    : linhaParaParsear;
             }
         }
 
@@ -156,29 +123,36 @@ public class PdfVendasParser : IPdfVendasParser
     {
         return linha.Contains("MOVIMENTAÇÃO DE PRODUTOS", StringComparison.OrdinalIgnoreCase)
             || linha.Contains("SINTÉTICO", StringComparison.OrdinalIgnoreCase)
-            || (linha.Contains("Cód", StringComparison.OrdinalIgnoreCase)
-                && linha.Contains("Qtd", StringComparison.OrdinalIgnoreCase))
+            || linha.Contains("Movimentação de Produtos", StringComparison.OrdinalIgnoreCase)
             || (linha.Contains("Val. Unit", StringComparison.OrdinalIgnoreCase)
                 && linha.Contains("Total Venda", StringComparison.OrdinalIgnoreCase))
+            || (linha.Contains("Cód", StringComparison.OrdinalIgnoreCase)
+                && linha.Contains("Produto", StringComparison.OrdinalIgnoreCase)
+                && linha.Contains("Nome", StringComparison.OrdinalIgnoreCase))
             || (linha.Contains("Nome", StringComparison.OrdinalIgnoreCase)
                 && linha.Contains("Tipo", StringComparison.OrdinalIgnoreCase)
                 && linha.Contains("Preço", StringComparison.OrdinalIgnoreCase))
             || linha.StartsWith("Página", StringComparison.OrdinalIgnoreCase)
             || linha.StartsWith("Pág.", StringComparison.OrdinalIgnoreCase)
             || linha.StartsWith("Emitido", StringComparison.OrdinalIgnoreCase)
-            // Correção 6: linhas "Padaria 14 registros", "Bar 57 registros" etc.
-            || Regex.IsMatch(linha, @"^\S.*\d+\s+registro[s]?$", RegexOptions.IgnoreCase);
+            || linha.Contains("34.559.264/0001-00", StringComparison.OrdinalIgnoreCase)
+            || linha.Contains("Casa di Ana", StringComparison.OrdinalIgnoreCase)
+            || linha.Contains("Vereador Francisco", StringComparison.OrdinalIgnoreCase)
+            || linha.Contains("Presidente Prudente", StringComparison.OrdinalIgnoreCase)
+            || linha.Contains("9621-0061", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsTotalLine(string linha)
     {
-        var up = linha.ToUpperInvariant();
-        return up.StartsWith("TOTAL")
-            || up.StartsWith("SUB-TOTAL")
-            || up.StartsWith("SUBTOTAL");
+        var up = linha.ToUpperInvariant().TrimStart();
+        return up.StartsWith("TOTAL") || up.StartsWith("SUB-TOTAL") || up.StartsWith("SUBTOTAL");
     }
 
-    // Correção 4: regex aceita letras minúsculas para "Indefinido", "Bar", "Cozinha" etc.
+    // Linhas como "Padaria 14 registros", "Bar 57 registros", "Acréscimos 1 registro"
+    private static bool IsRegistrosLine(string linha)
+        => Regex.IsMatch(linha, @"\d+\s+registro[s]?\s*$", RegexOptions.IgnoreCase);
+
+    // Aceita maiúsculas E minúsculas: "Bar", "Cozinha", "Indefinido", "PADARIA"
     private static readonly Regex SecaoRegex = new(
         @"^[A-Za-záàâãäéèêëíìîïóòôõöúùûüçÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜÇ\s\-]+$",
         RegexOptions.Compiled);
@@ -192,119 +166,108 @@ public class PdfVendasParser : IPdfVendasParser
             && !t.Any(char.IsDigit);
     }
 
-    // Textos de forma de pagamento que aparecem em algumas linhas do relatório
+    // Coluna "Tipo" do relatório PDV — remover estes tokens das linhas de produto
     private static readonly HashSet<string> _formasPagamento = new(StringComparer.OrdinalIgnoreCase)
     {
-        "a vista", "à vista", "vista", "a prazo", "crédito", "credito", "débito", "debito",
-        "dinheiro", "pix", "cartão", "cartao", "voucher", "ticket", "convênio", "convenio",
+        "a vista", "à vista", "vista", "a prazo", "indefinido",
+        "crédito", "credito", "débito", "debito",
+        "dinheiro", "pix", "cartão", "cartao",
+        "voucher", "ticket", "convênio", "convenio",
         "ifood", "delivery",
-        // Artigo isolado que sobra quando "A Vista" é separado em dois tokens pelo PDF
-        "a", "à",
-        // Correção 5: valor da coluna "Tipo" para itens como TAXA DE SERVIÇO
-        "indefinido",
     };
 
+    // Formato das colunas no PDF: Cód  Nome  Tipo  Val.Unit  Qtde  Total Venda
+    // Após remover R$ e forma de pagamento, tokens restantes:
+    //   [num_codigo]  [nome...]  [preco_unit]  [qtde]  [total]
+    // O código numérico inicial é descartado — não é necessário no sistema.
     private static (string? Codigo, string Nome, decimal Quantidade, decimal Valor)?
         TryParseProdutoLine(string linha)
     {
-        linha = Regex.Replace(linha, @"\bR\$\s*", "").Trim();
+        // 1. Remover "R$"
+        linha = Regex.Replace(linha, @"R\$\s*", "").Trim();
 
+        // 2. Split por 2+ espaços → colunas
         var tokens = Regex.Split(linha, @"\s{2,}")
             .Select(t => t.Trim())
-            .Where(t => !string.IsNullOrEmpty(t))
+            .Where(t => !string.IsNullOrWhiteSpace(t))
             .Where(t => !_formasPagamento.Contains(t))
             .ToList();
 
-        // Correção 2: reagrupar tokens curtos não-numéricos que pertencem ao nome
+        // 3. Reagrupar tokens de 1-2 chars não-numéricos (preposições isoladas: "e", "a", "c/", "-")
         tokens = ReagruparTokensCurtos(tokens);
 
         if (tokens.Count < 2) return null;
 
-        // Último token deve ser numérico (valor ou quantidade)
-        if (!TryParseDecimalBR(tokens[^1], out var ultimoNum) || ultimoNum <= 0) return null;
+        // 4. Último token deve ser numérico (Total Venda)
+        if (!TryParseDecimalBR(tokens[^1], out var totalVenda) || totalVenda <= 0) return null;
 
-        decimal qty;
-        decimal valor;
+        decimal qtde;
         List<string> nameTokens;
 
+        // 5. Detectar formato: 3 números no final = [val_unit] [qtde] [total]
+        //                       2 números no final = [qtde] [total]
         if (tokens.Count >= 4
-            && TryParseDecimalBR(tokens[^3], out var precoUnit) && precoUnit > 0
-            && TryParseDecimalBR(tokens[^2], out var qtd3) && qtd3 > 0)
+            && TryParseDecimalBR(tokens[^3], out _)
+            && TryParseDecimalBR(tokens[^2], out var qtde3) && qtde3 > 0)
         {
-            // Formato real PDV: ... nome  val_unit  qtde  total — descarta val_unit
-            qty = qtd3;
-            valor = ultimoNum;
+            qtde = qtde3;
             nameTokens = tokens[..^3];
         }
-        else if (tokens.Count >= 3 && TryParseDecimalBR(tokens[^2], out var penultimoNum) && penultimoNum > 0)
+        else if (tokens.Count >= 3
+            && TryParseDecimalBR(tokens[^2], out var qtde2) && qtde2 > 0)
         {
-            // Formato com qty e valor: ... nome  12,000  150,00
-            qty = penultimoNum;
-            valor = ultimoNum;
+            qtde = qtde2;
             nameTokens = tokens[..^2];
         }
         else
         {
-            // Formato com apenas um número: ... nome  28,00
-            qty = ultimoNum;
-            valor = ultimoNum;
+            qtde = totalVenda;
             nameTokens = tokens[..^1];
         }
 
         if (nameTokens.Count == 0) return null;
 
-        // Correção 3: extrair e retornar o código do produto
-        string? codigo = null;
+        // 6. Descartar código numérico do início (não é necessário no sistema)
+        //    Casos: "65" separado, "159Cissy" colado, "65 Pao" com espaço simples
         string nome;
-
-        // Código numérico separado por duplo espaço: "001  Nome do Produto"
         if (Regex.IsMatch(nameTokens[0], @"^\d{1,6}$"))
         {
-            codigo = nameTokens[0];
+            // Token puramente numérico → descartar
             nome = string.Join(" ", nameTokens.Skip(1)).Trim();
         }
         else
         {
             nome = string.Join(" ", nameTokens).Trim();
-            // Código colado ao início do nome: "159Cissy - Croissant Casquinha"
+            // Código colado: "189Brioche" → descartar os dígitos do início
             var mColado = Regex.Match(nome, @"^(\d{1,6})([A-Za-zÀ-ÖØ-öø-ÿ].*)$");
             if (mColado.Success)
-            {
-                codigo = mColado.Groups[1].Value;
                 nome = mColado.Groups[2].Value.Trim();
-            }
             else
             {
-                // Código separado por espaço simples: "001 Nome"
-                var m = Regex.Match(nome, @"^(\d{1,6})\s+(.+)$");
-                if (m.Success)
-                {
-                    codigo = m.Groups[1].Value;
-                    nome = m.Groups[2].Value.Trim();
-                }
+                // Código com espaço simples: "65 Pao multigraos" → descartar os dígitos
+                var mEspaco = Regex.Match(nome, @"^(\d{1,6})\s+(.+)$");
+                if (mEspaco.Success)
+                    nome = mEspaco.Groups[2].Value.Trim();
             }
         }
 
         if (string.IsNullOrWhiteSpace(nome) || nome.Length < 2) return null;
 
-        return (codigo, nome, qty, valor);
+        return (null, nome, qtde, totalVenda);
     }
 
-    // Correção 2: une tokens curtos não-numéricos ao token anterior
-    // "de", "e", "c/", "-" etc. que viram tokens separados por falha do PdfPig
+    // Une tokens de 1-2 chars não-numéricos ao token anterior.
+    // Threshold de 2 (não 3) para não capturar palavras como "Pao", "Bar", "152".
     private static List<string> ReagruparTokensCurtos(List<string> tokens)
     {
         if (tokens.Count <= 2) return tokens;
-
         var resultado = new List<string>();
-        for (int i = 0; i < tokens.Count; i++)
+        foreach (var token in tokens)
         {
-            var token = tokens[i];
             bool ehNumerico = TryParseDecimalBR(token, out _);
-            bool ehCurtoNaoNumerico = !ehNumerico && token.Length <= 3;
+            bool ehPreposicaoIsolada = !ehNumerico && token.Length <= 2;
 
-            // Token curto não numérico com algo já no resultado: colar ao anterior
-            if (ehCurtoNaoNumerico && resultado.Count > 0)
+            if (ehPreposicaoIsolada && resultado.Count > 0)
                 resultado[^1] = resultado[^1] + " " + token;
             else
                 resultado.Add(token);
@@ -329,30 +292,25 @@ public class PdfVendasParser : IPdfVendasParser
     public static bool IsIgnorado(string nome)
     {
         var norm = Normalizar(nome);
-        return _ignorados.Contains(norm);
+        return _ignorados.Contains(norm)
+            || norm.StartsWith("entrega")
+            || norm.StartsWith("acrescimo")
+            || norm.StartsWith("taxa");
     }
 
     public static string Normalizar(string s)
     {
         if (string.IsNullOrWhiteSpace(s)) return string.Empty;
-
         var formD = s.Normalize(NormalizationForm.FormD);
         var sb = new StringBuilder(formD.Length);
         foreach (var c in formD)
-        {
             if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
                 sb.Append(c);
-        }
-
         return Regex.Replace(
-            sb.ToString()
-              .Normalize(NormalizationForm.FormC)
+            sb.ToString().Normalize(NormalizationForm.FormC)
               .ToLowerInvariant()
-              .Replace("-", " ")
-              .Replace("/", " ")
-              .Replace("(", "")
-              .Replace(")", "")
-              .Replace(".", ""),
+              .Replace("-", " ").Replace("/", " ")
+              .Replace("(", "").Replace(")", "").Replace(".", ""),
             @"\s+", " ").Trim();
     }
 }

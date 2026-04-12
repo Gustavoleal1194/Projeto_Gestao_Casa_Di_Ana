@@ -18,7 +18,7 @@ public class PdfVendasParserTests
 
         resultado.Should().HaveCount(1);
         resultado[0].Nome.Should().Be("Croissant de Presunto");
-        resultado[0].CodigoExterno.Should().Be("001");
+        resultado[0].CodigoExterno.Should().BeNull();
         resultado[0].Quantidade.Should().Be(12m);
         resultado[0].ValorTotal.Should().Be(150m);
         resultado[0].Grupo.Should().Be("PADARIA");
@@ -133,7 +133,7 @@ public class PdfVendasParserTests
         var resultado = PdfVendasParser.ParseLines(linhas, out _, out _);
 
         resultado.Should().HaveCount(1);
-        resultado[0].CodigoExterno.Should().Be("65");
+        resultado[0].CodigoExterno.Should().BeNull();
         resultado[0].Nome.Should().Be("Pao multigraos - Grande");
         resultado[0].Quantidade.Should().Be(59m);
         resultado[0].ValorTotal.Should().Be(2141.38m);
@@ -152,8 +152,6 @@ public class PdfVendasParserTests
 
         resultado.Should().HaveCount(1);
     }
-
-    // ── Novos testes (Correções 2, 3, 4, 6, 7) ──────────────────────────────
 
     [Fact]
     public void ParseLines_BriocheDeCreme_NomeCompleto()
@@ -176,7 +174,7 @@ public class PdfVendasParserTests
     [Fact]
     public void ParseLines_NomeComPreposicoes_NaoCorta()
     {
-        // Preposições e conectivos curtos devem ser colados ao token anterior
+        // Preposições curtas (≤2 chars) devem ser coladas ao token anterior
         var linhas = new List<string>
         {
             "Bar",
@@ -211,25 +209,10 @@ public class PdfVendasParserTests
     }
 
     [Fact]
-    public void ParseLines_RetornaCodigoExterno()
-    {
-        var linhas = new List<string>
-        {
-            "Padaria",
-            "65  Pao multigraos - Grande  A Vista  36,29  59  2.141,38",
-        };
-
-        var resultado = PdfVendasParser.ParseLines(linhas, out _, out _);
-
-        resultado[0].CodigoExterno.Should().Be("65");
-        resultado[0].Nome.Should().Be("Pao multigraos - Grande");
-    }
-
-    [Fact]
     public void ParseLines_SecaoMinuscula_Reconhecida()
     {
         // "Indefinido" é seção com inicial maiúscula e resto minúsculo
-        // TAXA DE SERVIÇO com tipo "Indefinido" deve ser ignorado (está em _ignorados)
+        // TAXA DE SERVIÇO com tipo "Indefinido" deve ser ignorado (IsIgnorado via StartsWith "taxa")
         var linhas = new List<string>
         {
             "Indefinido",

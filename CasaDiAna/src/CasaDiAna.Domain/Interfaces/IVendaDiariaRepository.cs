@@ -11,5 +11,6 @@ public interface IVendaDiariaRepository
         Guid? produtoId = null,
         CancellationToken ct = default);
     Task AdicionarAsync(VendaDiaria venda, CancellationToken ct = default);
+    Task AdicionarRangeAsync(IEnumerable<VendaDiaria> vendas, CancellationToken ct = default);
     Task<int> SalvarAsync(CancellationToken ct = default);
 }

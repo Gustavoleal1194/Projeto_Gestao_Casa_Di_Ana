@@ -16,6 +16,7 @@ import {
   ChartBarIcon,
   QrCodeIcon,
   Squares2X2Icon,
+  ArrowUpTrayIcon,
 } from '@heroicons/react/24/outline'
 import { useAuthStore } from '@/store/authStore'
 
@@ -61,6 +62,7 @@ const grupos: NavGroup[] = [
       { label: 'Vendas Diárias',        href: '/producao/vendas',              icon: BanknotesIcon,         iconColor: '#D4960C' },
       { label: 'Perdas',                href: '/producao/perdas',              icon: ExclamationCircleIcon, iconColor: '#F87171' },
       { label: 'Etiquetas',             href: '/etiquetas',                    icon: QrCodeIcon,            iconColor: '#D4960C' },
+      { label: 'Importar Vendas',       href: '/producao/importacao-vendas',   icon: ArrowUpTrayIcon,        iconColor: '#D4960C' },
     ],
   },
   {

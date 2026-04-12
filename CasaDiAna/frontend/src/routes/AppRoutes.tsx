@@ -31,6 +31,7 @@ import { RegistrarVendaPage } from '@/features/producao/vendas-diarias/pages/Reg
 import { PerdasPage } from '@/features/producao/perdas/pages/PerdasPage'
 import { NotificacoesPage } from '@/features/notificacoes/pages/NotificacoesPage'
 import { EtiquetasPage } from '@/features/etiquetas/pages/EtiquetasPage'
+import { ImportacaoVendasPage } from '@/features/producao/importacao-vendas/pages/ImportacaoVendasPage'
 
 export function AppRoutes() {
   return (
@@ -73,6 +74,7 @@ export function AppRoutes() {
           <Route path="/producao/vendas" element={<VendasDiariasPage />} />
           <Route path="/producao/vendas/nova" element={<RegistrarVendaPage />} />
           <Route path="/producao/perdas" element={<PerdasPage />} />
+          <Route path="/producao/importacao-vendas" element={<ImportacaoVendasPage />} />
 
           {/* Relatórios */}
           <Route path="/relatorios/estoque-atual" element={<EstoqueAtualPage />} />

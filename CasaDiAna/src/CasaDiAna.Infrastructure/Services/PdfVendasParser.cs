@@ -111,6 +111,11 @@ public class PdfVendasParser : IPdfVendasParser
             || linha.Contains("SINTÉTICO", StringComparison.OrdinalIgnoreCase)
             || (linha.Contains("Cód", StringComparison.OrdinalIgnoreCase)
                 && linha.Contains("Qtd", StringComparison.OrdinalIgnoreCase))
+            || (linha.Contains("Val. Unit", StringComparison.OrdinalIgnoreCase)
+                && linha.Contains("Total Venda", StringComparison.OrdinalIgnoreCase))
+            || (linha.Contains("Nome", StringComparison.OrdinalIgnoreCase)
+                && linha.Contains("Tipo", StringComparison.OrdinalIgnoreCase)
+                && linha.Contains("Preço", StringComparison.OrdinalIgnoreCase))
             || linha.StartsWith("Página", StringComparison.OrdinalIgnoreCase)
             || linha.StartsWith("Pág.", StringComparison.OrdinalIgnoreCase)
             || linha.StartsWith("Emitido", StringComparison.OrdinalIgnoreCase);
@@ -166,7 +171,16 @@ public class PdfVendasParser : IPdfVendasParser
         decimal valor;
         List<string> nameTokens;
 
-        if (tokens.Count >= 3 && TryParseDecimalBR(tokens[^2], out var penultimoNum) && penultimoNum > 0)
+        if (tokens.Count >= 4
+            && TryParseDecimalBR(tokens[^3], out var precoUnit) && precoUnit > 0
+            && TryParseDecimalBR(tokens[^2], out var qtd3) && qtd3 > 0)
+        {
+            // Formato real PDV: ... nome  val_unit  qtde  total — descarta val_unit
+            qty = qtd3;
+            valor = ultimoNum;
+            nameTokens = tokens[..^3];
+        }
+        else if (tokens.Count >= 3 && TryParseDecimalBR(tokens[^2], out var penultimoNum) && penultimoNum > 0)
         {
             // Formato com qty e valor: ... nome  12,000  150,00
             qty = penultimoNum;

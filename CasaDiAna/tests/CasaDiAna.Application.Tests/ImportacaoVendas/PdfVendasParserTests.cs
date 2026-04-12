@@ -119,4 +119,39 @@ public class PdfVendasParserTests
         PdfVendasParser.IsIgnorado("Entrega").Should().BeTrue();
         PdfVendasParser.IsIgnorado("Brigadeiro").Should().BeFalse();
     }
+
+    [Fact]
+    public void ParseLines_FormatoPDVReal_TresNumerosFinal_ParseaCorretamente()
+    {
+        // Linha real do PDV: Cód  Nome  Tipo Preço  Val. Unit  Qtde  Total Venda
+        // Após filtrar "A Vista" e "R$": ["65", "Pao multigraos - Grande", "36,29", "59", "2.141,38"]
+        var linhas = new List<string>
+        {
+            "PADARIA",
+            "65  Pao multigraos - Grande  A Vista  R$ 36,29  59  R$ 2.141,38",
+        };
+
+        var resultado = PdfVendasParser.ParseLines(linhas, out _, out _);
+
+        resultado.Should().HaveCount(1);
+        resultado[0].CodigoExterno.Should().Be("65");
+        resultado[0].Nome.Should().Be("Pao multigraos - Grande");
+        resultado[0].Quantidade.Should().Be(59m);
+        resultado[0].ValorTotal.Should().Be(2141.38m);
+    }
+
+    [Fact]
+    public void ParseLines_CabecalhoColunasPDVIgnorado()
+    {
+        // Linha de cabeçalho de colunas do relatório PDV real
+        var linhas = new List<string>
+        {
+            "Cód Produto  Nome  Tipo Preço  Val. Unit  Qtde  Total Venda",
+            "65  Pao multigraos - Grande  A Vista  R$ 36,29  59  R$ 2.141,38",
+        };
+
+        var resultado = PdfVendasParser.ParseLines(linhas, out _, out _);
+
+        resultado.Should().HaveCount(1);
+    }
 }

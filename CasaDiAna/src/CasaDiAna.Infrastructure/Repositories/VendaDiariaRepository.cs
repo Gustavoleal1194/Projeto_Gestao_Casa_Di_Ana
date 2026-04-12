@@ -39,6 +39,9 @@ public class VendaDiariaRepository : IVendaDiariaRepository
     public async Task AdicionarAsync(VendaDiaria venda, CancellationToken ct = default) =>
         await _db.VendasDiarias.AddAsync(venda, ct);
 
+    public async Task AdicionarRangeAsync(IEnumerable<VendaDiaria> vendas, CancellationToken ct = default) =>
+        await _db.VendasDiarias.AddRangeAsync(vendas, ct);
+
     public Task<int> SalvarAsync(CancellationToken ct = default) =>
         _db.SaveChangesAsync(ct);
 }

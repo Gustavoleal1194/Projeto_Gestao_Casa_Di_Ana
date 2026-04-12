@@ -39,17 +39,45 @@ public class PdfVendasParser : IPdfVendasParser
         return new PdfParseResult(periodoDe, periodoAte, hash, linhas);
     }
 
+    // Correção 1: gap horizontal para distinguir colunas de palavras do mesmo token
     private static IReadOnlyList<string> ReconstruirLinhas(UglyToad.PdfPig.Content.Page page)
     {
         var words = page.GetWords().ToList();
         if (words.Count == 0) return Array.Empty<string>();
 
-        return words
+        // Tolerância: gap horizontal >= este valor indica nova coluna
+        // Valor calibrado para o relatório PDV da Casa di Ana (colunas bem espaçadas)
+        const double gapColuna = 8.0;
+
+        var linhas = words
             .GroupBy(w => Math.Round(w.BoundingBox.Centroid.Y / 2.0) * 2)
             .OrderByDescending(g => g.Key)
-            .Select(g => string.Join("  ", g.OrderBy(w => w.BoundingBox.Left).Select(w => w.Text)))
+            .Select(g =>
+            {
+                var palavras = g.OrderBy(w => w.BoundingBox.Left).ToList();
+                var sb = new StringBuilder();
+                for (int i = 0; i < palavras.Count; i++)
+                {
+                    if (i == 0)
+                    {
+                        sb.Append(palavras[i].Text);
+                        continue;
+                    }
+                    // Gap entre fim da palavra anterior e início da atual
+                    var gapHorizontal = palavras[i].BoundingBox.Left
+                                      - palavras[i - 1].BoundingBox.Right;
+
+                    // Gap grande = separador de coluna (duplo espaço)
+                    // Gap pequeno = mesma expressão (espaço simples)
+                    sb.Append(gapHorizontal >= gapColuna ? "  " : " ");
+                    sb.Append(palavras[i].Text);
+                }
+                return sb.ToString();
+            })
             .Where(l => !string.IsNullOrWhiteSpace(l))
             .ToList();
+
+        return linhas;
     }
 
     public static IReadOnlyList<LinhaRelatorio> ParseLines(
@@ -61,6 +89,9 @@ public class PdfVendasParser : IPdfVendasParser
         periodoAte = null;
         var resultado = new List<LinhaRelatorio>();
         var grupoAtual = string.Empty;
+
+        // Correção 7: suporte a produtos com nome em duas linhas físicas
+        string? linhaPendente = null;
 
         foreach (var raw in linhas)
         {
@@ -83,19 +114,35 @@ public class PdfVendasParser : IPdfVendasParser
 
             if (IsSecaoHeader(linha))
             {
+                linhaPendente = null;
                 grupoAtual = linha.Trim();
                 continue;
             }
 
-            var parsed = TryParseProdutoLine(linha);
-            if (parsed == null) continue;
+            var linhaParaParsear = linhaPendente != null
+                ? linhaPendente + " " + linha
+                : linha;
 
-            resultado.Add(new LinhaRelatorio(
-                parsed.Value.Codigo,
-                parsed.Value.Nome,
-                string.IsNullOrEmpty(grupoAtual) ? null : grupoAtual,
-                parsed.Value.Quantidade,
-                parsed.Value.Valor));
+            var parsed = TryParseProdutoLine(linhaParaParsear);
+
+            if (parsed != null)
+            {
+                linhaPendente = null;
+                if (!IsIgnorado(parsed.Value.Nome))
+                {
+                    resultado.Add(new LinhaRelatorio(
+                        parsed.Value.Codigo,
+                        parsed.Value.Nome,
+                        string.IsNullOrEmpty(grupoAtual) ? null : grupoAtual,
+                        parsed.Value.Quantidade,
+                        parsed.Value.Valor));
+                }
+            }
+            else
+            {
+                // Linha pendente: só guardar se não termina com número (seria linha incompleta de nome)
+                linhaPendente = Regex.IsMatch(linha, @"[\d\.,]+$") ? null : linhaParaParsear;
+            }
         }
 
         return resultado.AsReadOnly();
@@ -118,7 +165,9 @@ public class PdfVendasParser : IPdfVendasParser
                 && linha.Contains("Preço", StringComparison.OrdinalIgnoreCase))
             || linha.StartsWith("Página", StringComparison.OrdinalIgnoreCase)
             || linha.StartsWith("Pág.", StringComparison.OrdinalIgnoreCase)
-            || linha.StartsWith("Emitido", StringComparison.OrdinalIgnoreCase);
+            || linha.StartsWith("Emitido", StringComparison.OrdinalIgnoreCase)
+            // Correção 6: linhas "Padaria 14 registros", "Bar 57 registros" etc.
+            || Regex.IsMatch(linha, @"^\S.*\d+\s+registro[s]?$", RegexOptions.IgnoreCase);
     }
 
     private static bool IsTotalLine(string linha)
@@ -129,8 +178,9 @@ public class PdfVendasParser : IPdfVendasParser
             || up.StartsWith("SUBTOTAL");
     }
 
+    // Correção 4: regex aceita letras minúsculas para "Indefinido", "Bar", "Cozinha" etc.
     private static readonly Regex SecaoRegex = new(
-        @"^[A-ZÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜÇ\s\-]+$",
+        @"^[A-Za-záàâãäéèêëíìîïóòôõöúùûüçÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜÇ\s\-]+$",
         RegexOptions.Compiled);
 
     private static bool IsSecaoHeader(string linha)
@@ -150,6 +200,8 @@ public class PdfVendasParser : IPdfVendasParser
         "ifood", "delivery",
         // Artigo isolado que sobra quando "A Vista" é separado em dois tokens pelo PDF
         "a", "à",
+        // Correção 5: valor da coluna "Tipo" para itens como TAXA DE SERVIÇO
+        "indefinido",
     };
 
     private static (string? Codigo, string Nome, decimal Quantidade, decimal Valor)?
@@ -160,9 +212,11 @@ public class PdfVendasParser : IPdfVendasParser
         var tokens = Regex.Split(linha, @"\s{2,}")
             .Select(t => t.Trim())
             .Where(t => !string.IsNullOrEmpty(t))
-            // Remove tokens de forma de pagamento antes de parsear colunas
             .Where(t => !_formasPagamento.Contains(t))
             .ToList();
+
+        // Correção 2: reagrupar tokens curtos não-numéricos que pertencem ao nome
+        tokens = ReagruparTokensCurtos(tokens);
 
         if (tokens.Count < 2) return null;
 
@@ -191,7 +245,7 @@ public class PdfVendasParser : IPdfVendasParser
         }
         else
         {
-            // Formato com apenas um número: ... nome  28,00  → usar como quantidade
+            // Formato com apenas um número: ... nome  28,00
             qty = ultimoNum;
             valor = ultimoNum;
             nameTokens = tokens[..^1];
@@ -199,11 +253,14 @@ public class PdfVendasParser : IPdfVendasParser
 
         if (nameTokens.Count == 0) return null;
 
+        // Correção 3: extrair e retornar o código do produto
+        string? codigo = null;
         string nome;
 
-        // Código numérico separado: "001  Nome do Produto"
+        // Código numérico separado por duplo espaço: "001  Nome do Produto"
         if (Regex.IsMatch(nameTokens[0], @"^\d{1,6}$"))
         {
+            codigo = nameTokens[0];
             nome = string.Join(" ", nameTokens.Skip(1)).Trim();
         }
         else
@@ -212,19 +269,47 @@ public class PdfVendasParser : IPdfVendasParser
             // Código colado ao início do nome: "159Cissy - Croissant Casquinha"
             var mColado = Regex.Match(nome, @"^(\d{1,6})([A-Za-zÀ-ÖØ-öø-ÿ].*)$");
             if (mColado.Success)
+            {
+                codigo = mColado.Groups[1].Value;
                 nome = mColado.Groups[2].Value.Trim();
+            }
             else
             {
                 // Código separado por espaço simples: "001 Nome"
                 var m = Regex.Match(nome, @"^(\d{1,6})\s+(.+)$");
                 if (m.Success)
+                {
+                    codigo = m.Groups[1].Value;
                     nome = m.Groups[2].Value.Trim();
+                }
             }
         }
 
         if (string.IsNullOrWhiteSpace(nome) || nome.Length < 2) return null;
 
-        return (null, nome, qty, valor);
+        return (codigo, nome, qty, valor);
+    }
+
+    // Correção 2: une tokens curtos não-numéricos ao token anterior
+    // "de", "e", "c/", "-" etc. que viram tokens separados por falha do PdfPig
+    private static List<string> ReagruparTokensCurtos(List<string> tokens)
+    {
+        if (tokens.Count <= 2) return tokens;
+
+        var resultado = new List<string>();
+        for (int i = 0; i < tokens.Count; i++)
+        {
+            var token = tokens[i];
+            bool ehNumerico = TryParseDecimalBR(token, out _);
+            bool ehCurtoNaoNumerico = !ehNumerico && token.Length <= 3;
+
+            // Token curto não numérico com algo já no resultado: colar ao anterior
+            if (ehCurtoNaoNumerico && resultado.Count > 0)
+                resultado[^1] = resultado[^1] + " " + token;
+            else
+                resultado.Add(token);
+        }
+        return resultado;
     }
 
     private static bool TryParseDecimalBR(string s, out decimal value)

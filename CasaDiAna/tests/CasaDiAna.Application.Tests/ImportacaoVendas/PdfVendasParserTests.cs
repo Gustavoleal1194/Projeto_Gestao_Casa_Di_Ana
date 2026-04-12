@@ -18,7 +18,7 @@ public class PdfVendasParserTests
 
         resultado.Should().HaveCount(1);
         resultado[0].Nome.Should().Be("Croissant de Presunto");
-        resultado[0].CodigoExterno.Should().BeNull();
+        resultado[0].CodigoExterno.Should().Be("001");
         resultado[0].Quantidade.Should().Be(12m);
         resultado[0].ValorTotal.Should().Be(150m);
         resultado[0].Grupo.Should().Be("PADARIA");
@@ -124,7 +124,6 @@ public class PdfVendasParserTests
     public void ParseLines_FormatoPDVReal_TresNumerosFinal_ParseaCorretamente()
     {
         // Linha real do PDV: Cód  Nome  Tipo Preço  Val. Unit  Qtde  Total Venda
-        // Após filtrar "A Vista" e "R$": ["65", "Pao multigraos - Grande", "36,29", "59", "2.141,38"]
         var linhas = new List<string>
         {
             "PADARIA",
@@ -134,7 +133,7 @@ public class PdfVendasParserTests
         var resultado = PdfVendasParser.ParseLines(linhas, out _, out _);
 
         resultado.Should().HaveCount(1);
-        resultado[0].CodigoExterno.Should().BeNull();
+        resultado[0].CodigoExterno.Should().Be("65");
         resultado[0].Nome.Should().Be("Pao multigraos - Grande");
         resultado[0].Quantidade.Should().Be(59m);
         resultado[0].ValorTotal.Should().Be(2141.38m);
@@ -143,11 +142,113 @@ public class PdfVendasParserTests
     [Fact]
     public void ParseLines_CabecalhoColunasPDVIgnorado()
     {
-        // Linha de cabeçalho de colunas do relatório PDV real
         var linhas = new List<string>
         {
             "Cód Produto  Nome  Tipo Preço  Val. Unit  Qtde  Total Venda",
             "65  Pao multigraos - Grande  A Vista  R$ 36,29  59  R$ 2.141,38",
+        };
+
+        var resultado = PdfVendasParser.ParseLines(linhas, out _, out _);
+
+        resultado.Should().HaveCount(1);
+    }
+
+    // ── Novos testes (Correções 2, 3, 4, 6, 7) ──────────────────────────────
+
+    [Fact]
+    public void ParseLines_BriocheDeCreme_NomeCompleto()
+    {
+        // "de" e "creme" chegam como tokens separados por duplo espaço do PdfPig
+        var linhas = new List<string>
+        {
+            "Bar",
+            "189  Brioche  de  creme  A Vista  35,00  1  35,00",
+        };
+
+        var resultado = PdfVendasParser.ParseLines(linhas, out _, out _);
+
+        resultado.Should().HaveCount(1);
+        resultado[0].Nome.Should().Be("Brioche de creme");
+        resultado[0].Quantidade.Should().Be(1m);
+        resultado[0].ValorTotal.Should().Be(35m);
+    }
+
+    [Fact]
+    public void ParseLines_NomeComPreposicoes_NaoCorta()
+    {
+        // Preposições e conectivos curtos devem ser colados ao token anterior
+        var linhas = new List<string>
+        {
+            "Bar",
+            "156  Torta  folhada  de  pera  c/amêndoas  A Vista  30,00  14  420,00",
+        };
+
+        var resultado = PdfVendasParser.ParseLines(linhas, out _, out _);
+
+        resultado.Should().HaveCount(1);
+        resultado[0].Nome.Should().Be("Torta folhada de pera c/amêndoas");
+        resultado[0].Quantidade.Should().Be(14m);
+        resultado[0].ValorTotal.Should().Be(420m);
+    }
+
+    [Fact]
+    public void ParseLines_NomeMultilinha_Reconstituido()
+    {
+        // Nome longo quebrado em duas linhas físicas no PDF
+        var linhas = new List<string>
+        {
+            "Bar",
+            "3  Especialidades com Cafe - Dani (Mocha: Espresso, Leite e Ganache",
+            "de Chocolate)  A Vista  16,71  176  2.940,45",
+        };
+
+        var resultado = PdfVendasParser.ParseLines(linhas, out _, out _);
+
+        resultado.Should().HaveCount(1);
+        resultado[0].Nome.Should().Be("Especialidades com Cafe - Dani (Mocha: Espresso, Leite e Ganache de Chocolate)");
+        resultado[0].Quantidade.Should().Be(176m);
+        resultado[0].ValorTotal.Should().Be(2940.45m);
+    }
+
+    [Fact]
+    public void ParseLines_RetornaCodigoExterno()
+    {
+        var linhas = new List<string>
+        {
+            "Padaria",
+            "65  Pao multigraos - Grande  A Vista  36,29  59  2.141,38",
+        };
+
+        var resultado = PdfVendasParser.ParseLines(linhas, out _, out _);
+
+        resultado[0].CodigoExterno.Should().Be("65");
+        resultado[0].Nome.Should().Be("Pao multigraos - Grande");
+    }
+
+    [Fact]
+    public void ParseLines_SecaoMinuscula_Reconhecida()
+    {
+        // "Indefinido" é seção com inicial maiúscula e resto minúsculo
+        // TAXA DE SERVIÇO com tipo "Indefinido" deve ser ignorado (está em _ignorados)
+        var linhas = new List<string>
+        {
+            "Indefinido",
+            "77  TAXA DE SERVIÇO  Indefinido  8,91  371  3.306,70",
+        };
+
+        var resultado = PdfVendasParser.ParseLines(linhas, out _, out _);
+
+        resultado.Should().HaveCount(0);
+    }
+
+    [Fact]
+    public void ParseLines_LinhaRegistrosIgnorada()
+    {
+        // Linhas "Padaria 14 registros" são rodapés de seção, não produtos
+        var linhas = new List<string>
+        {
+            "Padaria 14 registros",
+            "65  Pao multigraos - Grande  A Vista  36,29  59  2.141,38",
         };
 
         var resultado = PdfVendasParser.ParseLines(linhas, out _, out _);

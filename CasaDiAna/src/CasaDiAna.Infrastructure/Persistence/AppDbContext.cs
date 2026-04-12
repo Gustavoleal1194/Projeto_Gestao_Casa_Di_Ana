@@ -22,6 +22,7 @@ public class AppDbContext : DbContext
     public DbSet<ItemFichaTecnica> ItensFichaTecnica => Set<ItemFichaTecnica>();
     public DbSet<ProducaoDiaria> ProducoesDiarias => Set<ProducaoDiaria>();
     public DbSet<VendaDiaria> VendasDiarias => Set<VendaDiaria>();
+    public DbSet<ImportacaoVendas> ImportacoesVendas => Set<ImportacaoVendas>();
     public DbSet<PerdaProduto> PerdasProduto => Set<PerdaProduto>();
     public DbSet<NotificacaoEstoque> NotificacoesEstoque => Set<NotificacaoEstoque>();
     public DbSet<HistoricoImpressaoEtiqueta> HistoricoImpressaoEtiquetas => Set<HistoricoImpressaoEtiqueta>();

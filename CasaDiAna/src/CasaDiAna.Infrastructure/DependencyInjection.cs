@@ -1,4 +1,5 @@
 using CasaDiAna.Application.Common;
+using CasaDiAna.Application.ImportacaoVendas.Services;
 using CasaDiAna.Application.Notificacoes.Services;
 using CasaDiAna.Domain.Interfaces;
 using CasaDiAna.Infrastructure.Persistence;
@@ -39,6 +40,8 @@ public static class DependencyInjection
         services.AddScoped<IProdutoRepository, ProdutoRepository>();
         services.AddScoped<IProducaoDiariaRepository, ProducaoDiariaRepository>();
         services.AddScoped<IVendaDiariaRepository, VendaDiariaRepository>();
+        services.AddScoped<IImportacaoVendasRepository, ImportacaoVendasRepository>();
+        services.AddScoped<IPdfVendasParser, PdfVendasParser>();
         services.AddScoped<IPerdaProdutoRepository, PerdaProdutoRepository>();
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();

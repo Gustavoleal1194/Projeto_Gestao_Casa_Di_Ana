@@ -73,7 +73,7 @@ tests/CasaDiAna.Application.Tests/ImportacaoVendas/ProcessarPreviewHandlerTests.
 - Create: `src/CasaDiAna.Domain/Interfaces/IImportacaoVendasRepository.cs`
 - Modify: `src/CasaDiAna.Domain/Interfaces/IVendaDiariaRepository.cs`
 
-- [ ] **Step 1: Adicionar PdfPig ao projeto Infrastructure**
+- [x] **Step 1: Adicionar PdfPig ao projeto Infrastructure**
 
 Abrir `src/CasaDiAna.Infrastructure/CasaDiAna.Infrastructure.csproj` e adicionar dentro do `<ItemGroup>` existente:
 
@@ -81,7 +81,7 @@ Abrir `src/CasaDiAna.Infrastructure/CasaDiAna.Infrastructure.csproj` e adicionar
 <PackageReference Include="UglyToad.PdfPig" Version="0.1.9" />
 ```
 
-- [ ] **Step 2: Criar a entidade ImportacaoVendas**
+- [x] **Step 2: Criar a entidade ImportacaoVendas**
 
 Criar `src/CasaDiAna.Domain/Entities/ImportacaoVendas.cs`:
 
@@ -133,7 +133,7 @@ public class ImportacaoVendas
 }
 ```
 
-- [ ] **Step 3: Criar IImportacaoVendasRepository**
+- [x] **Step 3: Criar IImportacaoVendasRepository**
 
 Criar `src/CasaDiAna.Domain/Interfaces/IImportacaoVendasRepository.cs`:
 
@@ -150,7 +150,7 @@ public interface IImportacaoVendasRepository
 }
 ```
 
-- [ ] **Step 4: Adicionar AdicionarRangeAsync ao IVendaDiariaRepository**
+- [x] **Step 4: Adicionar AdicionarRangeAsync ao IVendaDiariaRepository**
 
 Abrir `src/CasaDiAna.Domain/Interfaces/IVendaDiariaRepository.cs` e adicionar um método:
 
@@ -179,7 +179,7 @@ public interface IVendaDiariaRepository
 }
 ```
 
-- [ ] **Step 5: Restaurar pacotes e compilar**
+- [x] **Step 5: Restaurar pacotes e compilar**
 
 ```bash
 powershell.exe -Command "Set-Location 'src/CasaDiAna.Infrastructure'; dotnet restore"
@@ -188,7 +188,7 @@ powershell.exe -Command "Set-Location 'src/CasaDiAna.API'; dotnet build"
 
 Esperado: build bem-sucedido (pode haver erro de interface não implementada em VendaDiariaRepository — será corrigido no Task 6).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/CasaDiAna.Infrastructure/CasaDiAna.Infrastructure.csproj \
@@ -210,7 +210,7 @@ git commit -m "feat: domain entity ImportacaoVendas + interfaces + PdfPig depend
 - Create: `src/CasaDiAna.Application/ImportacaoVendas/Dtos/ItemConfirmarDto.cs`
 - Create: `src/CasaDiAna.Application/ImportacaoVendas/Dtos/ResultadoImportacaoDto.cs`
 
-- [ ] **Step 1: Criar IPdfVendasParser com tipos de suporte**
+- [x] **Step 1: Criar IPdfVendasParser com tipos de suporte**
 
 Criar `src/CasaDiAna.Application/ImportacaoVendas/Services/IPdfVendasParser.cs`:
 
@@ -236,7 +236,7 @@ public record LinhaRelatorio(
     decimal ValorTotal);
 ```
 
-- [ ] **Step 2: Criar StatusImportacao enum**
+- [x] **Step 2: Criar StatusImportacao enum**
 
 Criar `src/CasaDiAna.Application/ImportacaoVendas/Dtos/StatusImportacao.cs`:
 
@@ -252,7 +252,7 @@ public enum StatusImportacao
 }
 ```
 
-- [ ] **Step 3: Criar ItemPreviewDto**
+- [x] **Step 3: Criar ItemPreviewDto**
 
 Criar `src/CasaDiAna.Application/ImportacaoVendas/Dtos/ItemPreviewDto.cs`:
 
@@ -273,7 +273,7 @@ public record ItemPreviewDto(
 public record SugestaoMatchDto(Guid ProdutoId, string ProdutoNome);
 ```
 
-- [ ] **Step 4: Criar PreviewImportacaoDto**
+- [x] **Step 4: Criar PreviewImportacaoDto**
 
 Criar `src/CasaDiAna.Application/ImportacaoVendas/Dtos/PreviewImportacaoDto.cs`:
 
@@ -292,7 +292,7 @@ public record PreviewImportacaoDto(
     IReadOnlyList<ItemPreviewDto> Itens);
 ```
 
-- [ ] **Step 5: Criar ItemConfirmarDto e ResultadoImportacaoDto**
+- [x] **Step 5: Criar ItemConfirmarDto e ResultadoImportacaoDto**
 
 Criar `src/CasaDiAna.Application/ImportacaoVendas/Dtos/ItemConfirmarDto.cs`:
 
@@ -315,7 +315,7 @@ public record ResultadoImportacaoDto(
     int TotalNaoEncontradas);
 ```
 
-- [ ] **Step 6: Build para validar**
+- [x] **Step 6: Build para validar**
 
 ```bash
 powershell.exe -Command "Set-Location 'src/CasaDiAna.API'; dotnet build"
@@ -323,7 +323,7 @@ powershell.exe -Command "Set-Location 'src/CasaDiAna.API'; dotnet build"
 
 Esperado: build bem-sucedido.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/CasaDiAna.Application/ImportacaoVendas/
@@ -340,7 +340,7 @@ git commit -m "feat: application DTOs and IPdfVendasParser interface"
 
 O parser tem duas partes separáveis: extração de linhas do PDF (depende de PdfPig) e a lógica de parse das linhas (pura, testável). O método `ParseLines` é `internal static` para permitir teste direto.
 
-- [ ] **Step 1: Criar PdfVendasParser**
+- [x] **Step 1: Criar PdfVendasParser**
 
 Criar `src/CasaDiAna.Infrastructure/Services/PdfVendasParser.cs`:
 
@@ -590,7 +590,7 @@ public class PdfVendasParser : IPdfVendasParser
 }
 ```
 
-- [ ] **Step 2: Escrever testes do parser**
+- [x] **Step 2: Escrever testes do parser**
 
 Criar `tests/CasaDiAna.Application.Tests/ImportacaoVendas/PdfVendasParserTests.cs`:
 
@@ -719,7 +719,7 @@ public class PdfVendasParserTests
 }
 ```
 
-- [ ] **Step 3: Rodar testes (devem passar)**
+- [x] **Step 3: Rodar testes (devem passar)**
 
 ```bash
 powershell.exe -Command "Set-Location 'tests/CasaDiAna.Application.Tests'; dotnet test --filter 'PdfVendasParserTests' -v normal"
@@ -727,7 +727,7 @@ powershell.exe -Command "Set-Location 'tests/CasaDiAna.Application.Tests'; dotne
 
 Esperado: 7 testes passando.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/CasaDiAna.Infrastructure/Services/PdfVendasParser.cs \
@@ -744,7 +744,7 @@ git commit -m "feat: PdfVendasParser implementation with unit tests"
 - Create: `src/CasaDiAna.Application/ImportacaoVendas/Commands/ProcessarPreview/ProcessarPreviewPdfVendasCommandHandler.cs`
 - Create: `tests/CasaDiAna.Application.Tests/ImportacaoVendas/ProcessarPreviewHandlerTests.cs`
 
-- [ ] **Step 1: Criar ProcessarPreviewPdfVendasCommand**
+- [x] **Step 1: Criar ProcessarPreviewPdfVendasCommand**
 
 Criar `src/CasaDiAna.Application/ImportacaoVendas/Commands/ProcessarPreview/ProcessarPreviewPdfVendasCommand.cs`:
 
@@ -760,7 +760,7 @@ public record ProcessarPreviewPdfVendasCommand(
 ) : IRequest<PreviewImportacaoDto>;
 ```
 
-- [ ] **Step 2: Criar ProcessarPreviewPdfVendasCommandHandler**
+- [x] **Step 2: Criar ProcessarPreviewPdfVendasCommandHandler**
 
 Criar `src/CasaDiAna.Application/ImportacaoVendas/Commands/ProcessarPreview/ProcessarPreviewPdfVendasCommandHandler.cs`:
 
@@ -928,7 +928,7 @@ public class ProcessarPreviewPdfVendasCommandHandler
 }
 ```
 
-- [ ] **Step 3: Escrever testes do handler**
+- [x] **Step 3: Escrever testes do handler**
 
 Criar `tests/CasaDiAna.Application.Tests/ImportacaoVendas/ProcessarPreviewHandlerTests.cs`:
 
@@ -1057,7 +1057,7 @@ public class ProcessarPreviewHandlerTests
 }
 ```
 
-- [ ] **Step 4: Rodar testes**
+- [x] **Step 4: Rodar testes**
 
 ```bash
 powershell.exe -Command "Set-Location 'tests/CasaDiAna.Application.Tests'; dotnet test --filter 'ProcessarPreviewHandlerTests' -v normal"
@@ -1065,7 +1065,7 @@ powershell.exe -Command "Set-Location 'tests/CasaDiAna.Application.Tests'; dotne
 
 Esperado: 4 testes passando.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/CasaDiAna.Application/ImportacaoVendas/Commands/ProcessarPreview/ \
@@ -1082,7 +1082,7 @@ git commit -m "feat: ProcessarPreviewPdfVendas command handler with tests"
 - Create: `src/CasaDiAna.Application/ImportacaoVendas/Commands/ConfirmarImportacao/ConfirmarImportacaoCommandValidator.cs`
 - Create: `src/CasaDiAna.Application/ImportacaoVendas/Commands/ConfirmarImportacao/ConfirmarImportacaoCommandHandler.cs`
 
-- [ ] **Step 1: Criar ConfirmarImportacaoCommand**
+- [x] **Step 1: Criar ConfirmarImportacaoCommand**
 
 Criar `src/CasaDiAna.Application/ImportacaoVendas/Commands/ConfirmarImportacao/ConfirmarImportacaoCommand.cs`:
 
@@ -1105,7 +1105,7 @@ public record ConfirmarImportacaoCommand(
 ) : IRequest<ResultadoImportacaoDto>;
 ```
 
-- [ ] **Step 2: Criar ConfirmarImportacaoCommandValidator**
+- [x] **Step 2: Criar ConfirmarImportacaoCommandValidator**
 
 Criar `src/CasaDiAna.Application/ImportacaoVendas/Commands/ConfirmarImportacao/ConfirmarImportacaoCommandValidator.cs`:
 
@@ -1144,7 +1144,7 @@ public class ConfirmarImportacaoCommandValidator
 }
 ```
 
-- [ ] **Step 3: Criar ConfirmarImportacaoCommandHandler**
+- [x] **Step 3: Criar ConfirmarImportacaoCommandHandler**
 
 Criar `src/CasaDiAna.Application/ImportacaoVendas/Commands/ConfirmarImportacao/ConfirmarImportacaoCommandHandler.cs`:
 
@@ -1240,7 +1240,7 @@ public class ConfirmarImportacaoCommandHandler
 }
 ```
 
-- [ ] **Step 4: Build**
+- [x] **Step 4: Build**
 
 ```bash
 powershell.exe -Command "Set-Location 'src/CasaDiAna.API'; dotnet build"
@@ -1248,7 +1248,7 @@ powershell.exe -Command "Set-Location 'src/CasaDiAna.API'; dotnet build"
 
 Esperado: build bem-sucedido.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/CasaDiAna.Application/ImportacaoVendas/Commands/ConfirmarImportacao/
@@ -1266,7 +1266,7 @@ git commit -m "feat: ConfirmarImportacao command validator and handler"
 - Modify: `src/CasaDiAna.Infrastructure/Persistence/AppDbContext.cs`
 - Modify: `src/CasaDiAna.Infrastructure/DependencyInjection.cs`
 
-- [ ] **Step 1: Criar ImportacaoVendasRepository**
+- [x] **Step 1: Criar ImportacaoVendasRepository**
 
 Criar `src/CasaDiAna.Infrastructure/Repositories/ImportacaoVendasRepository.cs`:
 
@@ -1297,7 +1297,7 @@ public class ImportacaoVendasRepository : IImportacaoVendasRepository
 }
 ```
 
-- [ ] **Step 2: Criar ImportacaoVendasConfiguration**
+- [x] **Step 2: Criar ImportacaoVendasConfiguration**
 
 Criar `src/CasaDiAna.Infrastructure/Persistence/Configurations/ImportacaoVendasConfiguration.cs`:
 
@@ -1330,7 +1330,7 @@ public class ImportacaoVendasConfiguration : IEntityTypeConfiguration<Importacao
 }
 ```
 
-- [ ] **Step 3: Implementar AdicionarRangeAsync no VendaDiariaRepository**
+- [x] **Step 3: Implementar AdicionarRangeAsync no VendaDiariaRepository**
 
 Abrir `src/CasaDiAna.Infrastructure/Repositories/VendaDiariaRepository.cs` e adicionar o método:
 
@@ -1391,7 +1391,7 @@ public class VendaDiariaRepository : IVendaDiariaRepository
 }
 ```
 
-- [ ] **Step 4: Adicionar DbSet<ImportacaoVendas> ao AppDbContext**
+- [x] **Step 4: Adicionar DbSet<ImportacaoVendas> ao AppDbContext**
 
 Abrir `src/CasaDiAna.Infrastructure/Persistence/AppDbContext.cs` e adicionar a propriedade após `VendasDiarias`:
 
@@ -1399,7 +1399,7 @@ Abrir `src/CasaDiAna.Infrastructure/Persistence/AppDbContext.cs` e adicionar a p
 public DbSet<ImportacaoVendas> ImportacoesVendas => Set<ImportacaoVendas>();
 ```
 
-- [ ] **Step 5: Registrar no DependencyInjection.cs**
+- [x] **Step 5: Registrar no DependencyInjection.cs**
 
 Abrir `src/CasaDiAna.Infrastructure/DependencyInjection.cs` e adicionar os registros após `IVendaDiariaRepository`:
 
@@ -1414,7 +1414,7 @@ O `using` para `Services` já está incluído no arquivo. Adicionar também:
 using CasaDiAna.Application.ImportacaoVendas.Services;
 ```
 
-- [ ] **Step 6: Build completo**
+- [x] **Step 6: Build completo**
 
 ```bash
 powershell.exe -Command "Set-Location 'src/CasaDiAna.API'; dotnet build"
@@ -1422,7 +1422,7 @@ powershell.exe -Command "Set-Location 'src/CasaDiAna.API'; dotnet build"
 
 Esperado: sem erros.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/CasaDiAna.Infrastructure/Repositories/ImportacaoVendasRepository.cs \
@@ -1440,13 +1440,13 @@ git commit -m "feat: infrastructure repositories, EF config, DI for importacao-v
 **Files:**
 - Migration gerada automaticamente em `src/CasaDiAna.Infrastructure/Migrations/`
 
-- [ ] **Step 1: Parar a API se estiver rodando**
+- [x] **Step 1: Parar a API se estiver rodando**
 
 ```bash
 powershell.exe -Command "Stop-Process -Name 'CasaDiAna.API' -Force -ErrorAction SilentlyContinue; Start-Sleep 1"
 ```
 
-- [ ] **Step 2: Gerar a migration**
+- [x] **Step 2: Gerar a migration**
 
 ```bash
 dotnet ef migrations add AdicionarImportacaoVendas \
@@ -1463,7 +1463,7 @@ migrationBuilder.CreateTable(name: "importacoes_vendas", schema: "producao", ...
 
 Se o EF gerou `CREATE TABLE importacoes_vendas` sem o schema `producao`, verificar `ImportacaoVendasConfiguration.cs`.
 
-- [ ] **Step 3: Aplicar a migration**
+- [x] **Step 3: Aplicar a migration**
 
 ```bash
 dotnet ef database update \
@@ -1473,7 +1473,7 @@ dotnet ef database update \
 
 Esperado: `Done.`
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/CasaDiAna.Infrastructure/Migrations/
@@ -1487,7 +1487,7 @@ git commit -m "feat: migration AdicionarImportacaoVendas"
 **Files:**
 - Create: `src/CasaDiAna.API/Controllers/ImportacaoVendasController.cs`
 
-- [ ] **Step 1: Criar ImportacaoVendasController**
+- [x] **Step 1: Criar ImportacaoVendasController**
 
 Criar `src/CasaDiAna.API/Controllers/ImportacaoVendasController.cs`:
 
@@ -1565,7 +1565,7 @@ public class ImportacaoVendasController : ControllerBase
 
 > **Nota:** O `ExceptionHandlingMiddleware` existente já mapeia `DomainException` para HTTP 422. Para o erro de hash duplicado, o frontend deve verificar a mensagem de erro. Se quiser HTTP 409 específico para duplicatas, o middleware pode ser ajustado ou o controller pode fazer o try/catch explicitamente. Por simplicidade, o 422 da DomainException é aceitável.
 
-- [ ] **Step 2: Build + Rodar API**
+- [x] **Step 2: Build + Rodar API**
 
 ```bash
 powershell.exe -Command "Set-Location 'src/CasaDiAna.API'; dotnet build"
@@ -1573,7 +1573,7 @@ powershell.exe -Command "Set-Location 'src/CasaDiAna.API'; dotnet build"
 
 Esperado: sem erros.
 
-- [ ] **Step 3: Testar preview via curl**
+- [x] **Step 3: Testar preview via curl**
 
 Com a API rodando (`dotnet run --project src/CasaDiAna.API`), fazer login e testar:
 
@@ -1591,7 +1591,7 @@ curl -s http://localhost:5130/api/importacao-vendas/preview \
 
 Esperado: JSON com `sucesso: true` e objeto `dados` com `itens` e contagens.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/CasaDiAna.API/Controllers/ImportacaoVendasController.cs
@@ -1607,7 +1607,7 @@ git commit -m "feat: ImportacaoVendasController with preview and confirmar endpo
 - Create: `frontend/src/features/producao/importacao-vendas/services/importacaoVendasService.ts`
 - Create: `frontend/src/features/producao/importacao-vendas/pages/ImportacaoVendasPage.tsx`
 
-- [ ] **Step 1: Criar tipos**
+- [x] **Step 1: Criar tipos**
 
 Criar `frontend/src/types/importacao.ts`:
 
@@ -1667,7 +1667,7 @@ export interface ResultadoImportacao {
 }
 ```
 
-- [ ] **Step 2: Criar service**
+- [x] **Step 2: Criar service**
 
 Criar `frontend/src/features/producao/importacao-vendas/services/importacaoVendasService.ts`:
 
@@ -1702,7 +1702,7 @@ export const importacaoVendasService = {
 }
 ```
 
-- [ ] **Step 3: Criar ImportacaoVendasPage**
+- [x] **Step 3: Criar ImportacaoVendasPage**
 
 Criar `frontend/src/features/producao/importacao-vendas/pages/ImportacaoVendasPage.tsx`:
 
@@ -2129,7 +2129,7 @@ function PreviewRow({
 }
 ```
 
-- [ ] **Step 4: TypeScript check**
+- [x] **Step 4: TypeScript check**
 
 ```bash
 cd frontend && npx tsc --noEmit
@@ -2137,7 +2137,7 @@ cd frontend && npx tsc --noEmit
 
 Esperado: sem erros.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/types/importacao.ts \
@@ -2153,7 +2153,7 @@ git commit -m "feat: frontend types, service and ImportacaoVendasPage"
 - Modify: `frontend/src/routes/AppRoutes.tsx`
 - Modify: `frontend/src/components/layout/Sidebar.tsx`
 
-- [ ] **Step 1: Adicionar rota em AppRoutes.tsx**
+- [x] **Step 1: Adicionar rota em AppRoutes.tsx**
 
 Adicionar o import no bloco de imports:
 
@@ -2167,7 +2167,7 @@ Adicionar a rota dentro do `<Route element={<MainLayout />}>`, perto das outras 
 <Route path="/producao/importacao-vendas" element={<ImportacaoVendasPage />} />
 ```
 
-- [ ] **Step 2: Adicionar item na Sidebar**
+- [x] **Step 2: Adicionar item na Sidebar**
 
 Abrir `frontend/src/components/layout/Sidebar.tsx`.
 
@@ -2183,7 +2183,7 @@ Adicionar `ArrowUpTrayIcon` no import do heroicons (já deve existir ou adiciona
 import { ArrowUpTrayIcon } from '@heroicons/react/24/outline'
 ```
 
-- [ ] **Step 3: TypeScript check**
+- [x] **Step 3: TypeScript check**
 
 ```bash
 cd frontend && npx tsc --noEmit
@@ -2191,7 +2191,7 @@ cd frontend && npx tsc --noEmit
 
 Esperado: sem erros.
 
-- [ ] **Step 4: Build final**
+- [x] **Step 4: Build final**
 
 ```bash
 powershell.exe -Command "Set-Location 'src/CasaDiAna.API'; dotnet build"
@@ -2200,7 +2200,7 @@ cd frontend && npm run build
 
 Esperado: ambos sem erros.
 
-- [ ] **Step 5: Commit final**
+- [x] **Step 5: Commit final**
 
 ```bash
 git add frontend/src/routes/AppRoutes.tsx \

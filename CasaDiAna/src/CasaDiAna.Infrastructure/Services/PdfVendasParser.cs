@@ -145,7 +145,7 @@ public class PdfVendasParser : IPdfVendasParser
     // Textos de forma de pagamento que aparecem em algumas linhas do relatório
     private static readonly HashSet<string> _formasPagamento = new(StringComparer.OrdinalIgnoreCase)
     {
-        "a vista", "à vista", "a prazo", "crédito", "credito", "débito", "debito",
+        "a vista", "à vista", "vista", "a prazo", "crédito", "credito", "débito", "debito",
         "dinheiro", "pix", "cartão", "cartao", "voucher", "ticket", "convênio", "convenio",
         "ifood", "delivery",
     };
@@ -197,13 +197,11 @@ public class PdfVendasParser : IPdfVendasParser
 
         if (nameTokens.Count == 0) return null;
 
-        string? codigo = null;
         string nome;
 
         // Código numérico separado: "001  Nome do Produto"
         if (Regex.IsMatch(nameTokens[0], @"^\d{1,6}$"))
         {
-            codigo = nameTokens[0];
             nome = string.Join(" ", nameTokens.Skip(1)).Trim();
         }
         else
@@ -212,25 +210,19 @@ public class PdfVendasParser : IPdfVendasParser
             // Código colado ao início do nome: "159Cissy - Croissant Casquinha"
             var mColado = Regex.Match(nome, @"^(\d{1,6})([A-Za-zÀ-ÖØ-öø-ÿ].*)$");
             if (mColado.Success)
-            {
-                codigo = mColado.Groups[1].Value;
                 nome = mColado.Groups[2].Value.Trim();
-            }
             else
             {
                 // Código separado por espaço simples: "001 Nome"
                 var m = Regex.Match(nome, @"^(\d{1,6})\s+(.+)$");
                 if (m.Success)
-                {
-                    codigo = m.Groups[1].Value;
                     nome = m.Groups[2].Value.Trim();
-                }
             }
         }
 
         if (string.IsNullOrWhiteSpace(nome) || nome.Length < 2) return null;
 
-        return (codigo, nome, qty, valor);
+        return (null, nome, qty, valor);
     }
 
     private static bool TryParseDecimalBR(string s, out decimal value)

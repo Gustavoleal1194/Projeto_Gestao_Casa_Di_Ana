@@ -18,7 +18,7 @@ public class PdfVendasParserTests
 
         resultado.Should().HaveCount(1);
         resultado[0].Nome.Should().Be("Croissant de Presunto");
-        resultado[0].CodigoExterno.Should().Be("001");
+        resultado[0].CodigoExterno.Should().BeNull();
         resultado[0].Quantidade.Should().Be(12m);
         resultado[0].ValorTotal.Should().Be(150m);
         resultado[0].Grupo.Should().Be("PADARIA");
@@ -134,7 +134,7 @@ public class PdfVendasParserTests
         var resultado = PdfVendasParser.ParseLines(linhas, out _, out _);
 
         resultado.Should().HaveCount(1);
-        resultado[0].CodigoExterno.Should().Be("65");
+        resultado[0].CodigoExterno.Should().BeNull();
         resultado[0].Nome.Should().Be("Pao multigraos - Grande");
         resultado[0].Quantidade.Should().Be(59m);
         resultado[0].ValorTotal.Should().Be(2141.38m);

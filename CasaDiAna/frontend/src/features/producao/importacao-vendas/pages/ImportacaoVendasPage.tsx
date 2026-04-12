@@ -398,6 +398,11 @@ export function ImportacaoVendasPage() {
       {itemParaAdicionar && (
         <QuickCreateProductModal
           nomeInicial={itemParaAdicionar.nomeRelatorio}
+          precoInicial={
+            itemParaAdicionar.quantidade > 0
+              ? Math.round((itemParaAdicionar.valorTotal / itemParaAdicionar.quantidade) * 100) / 100
+              : undefined
+          }
           onSalvo={handleProdutoCriado}
           onFechar={() => setItemParaAdicionar(null)}
         />

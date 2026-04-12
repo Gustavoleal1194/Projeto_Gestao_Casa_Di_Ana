@@ -24,11 +24,12 @@ type FormValues = z.infer<typeof schema>
 
 interface Props {
   nomeInicial: string
+  precoInicial?: number
   onSalvo: (produto: Produto) => void
   onFechar: () => void
 }
 
-export function QuickCreateProductModal({ nomeInicial, onSalvo, onFechar }: Props) {
+export function QuickCreateProductModal({ nomeInicial, precoInicial, onSalvo, onFechar }: Props) {
   const [salvando, setSalvando] = useState(false)
   const [erroApi, setErroApi] = useState<string | null>(null)
   const [categorias, setCategorias] = useState<CategoriaProduto[]>([])
@@ -36,7 +37,11 @@ export function QuickCreateProductModal({ nomeInicial, onSalvo, onFechar }: Prop
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(schema) as any,
-    defaultValues: { nome: nomeInicial, precoVenda: '', categoriaProdutoId: '' },
+    defaultValues: {
+      nome: nomeInicial,
+      precoVenda: precoInicial != null ? precoInicial.toFixed(2).replace('.', ',') : '',
+      categoriaProdutoId: '',
+    },
   })
 
   useEffect(() => {

@@ -148,6 +148,8 @@ public class PdfVendasParser : IPdfVendasParser
         "a vista", "à vista", "vista", "a prazo", "crédito", "credito", "débito", "debito",
         "dinheiro", "pix", "cartão", "cartao", "voucher", "ticket", "convênio", "convenio",
         "ifood", "delivery",
+        // Artigo isolado que sobra quando "A Vista" é separado em dois tokens pelo PDF
+        "a", "à",
     };
 
     private static (string? Codigo, string Nome, decimal Quantidade, decimal Valor)?

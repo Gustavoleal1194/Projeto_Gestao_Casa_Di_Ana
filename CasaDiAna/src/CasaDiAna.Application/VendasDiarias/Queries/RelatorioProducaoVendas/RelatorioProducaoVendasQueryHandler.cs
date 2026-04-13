@@ -78,8 +78,12 @@ public class RelatorioProducaoVendasQueryHandler
             var receitaEstimada = totalVendido * precoVenda;
 
             // Margem de lucro por unidade: (preço - custo médio) / preço × 100
-            decimal? margemLucro = precoVenda > 0 && custoMedioUnitario > 0
-                ? ((precoVenda - custoMedioUnitario) / precoVenda) * 100
+            // Quando não há custo (sem produção ou sem ficha técnica), mas há vendas,
+            // toda a receita é lucro → margem 100%. null só quando não há venda ou preço.
+            decimal? margemLucro = precoVenda > 0 && totalVendido > 0
+                ? custoMedioUnitario > 0
+                    ? ((precoVenda - custoMedioUnitario) / precoVenda) * 100
+                    : 100m
                 : null;
 
             // Margem de perda: custo da perda / custo total de produção × 100

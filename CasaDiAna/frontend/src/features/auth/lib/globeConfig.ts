@@ -16,41 +16,33 @@ export interface GlobeMarker {
   size: number                 // raio relativo (0..1)
 }
 
-// Capitais estratégicas distribuídas globalmente para sugerir alcance internacional.
-// SP fica maior por ser a "base" da Casa di Ana; as demais são coadjuvantes discretas.
-// Limitação do cobe: todos os markers compartilham a cor `markerColor` global —
-// a hierarquia é feita por tamanho.
-export const GLOBE_CAPITAIS: GlobeMarker[] = [
-  { location: [-23.5505, -46.6333], size: 0.085 }, // São Paulo (destaque)
-  { location: [ 40.7128, -74.0060], size: 0.030 }, // Nova York
-  { location: [ 51.5074,  -0.1278], size: 0.030 }, // Londres
-  { location: [ 25.2048,  55.2708], size: 0.030 }, // Dubai
-  { location: [ 35.6762, 139.6503], size: 0.030 }, // Tóquio
-  { location: [-33.8688, 151.2093], size: 0.030 }, // Sydney
-  { location: [ 19.4326, -99.1332], size: 0.030 }, // Cidade do México
-  { location: [-33.9249,  18.4241], size: 0.030 }, // Cidade do Cabo
-]
-
-// Arcos HUD sobrepostos ao globo em coordenadas de tela (% do viewBox 100x100).
-// Não seguem a rotação do globo por design: compõem uma camada "HUD/interface"
-// flutuante sobre o mapa, reforçando a sensação de dashboard futurista.
-export interface ArcoConexao {
-  id: string
-  x1: number
-  y1: number
-  x2: number
-  y2: number
-  curvatura: number  // -1..1, offset do ponto de controle perpendicular à linha
-  duracao: number    // segundos para a partícula percorrer o arco
-  delay: number      // offset inicial em segundos
+// Nós de ativação distribuídos uniformemente pela esfera — não correspondem
+// a cidades. Geração determinística via PRNG (seed fixa) para manter o mesmo
+// layout entre recargas. São "pontos quentes" da malha neural visíveis através
+// da superfície dot-matrix do globo.
+function gerarNosGlobais(quantidade: number, seed: number): GlobeMarker[] {
+  let s = seed | 0
+  const rng = () => {
+    s = (s + 0x6d2b79f5) | 0
+    let t = Math.imul(s ^ (s >>> 15), 1 | s)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+  const nos: GlobeMarker[] = []
+  for (let i = 0; i < quantidade; i++) {
+    // z uniforme em [-1, 1] → latitude com distribuição uniforme por área
+    const z = rng() * 2 - 1
+    const lat = (Math.asin(z) * 180) / Math.PI
+    const lng = (rng() * 2 - 1) * 180
+    nos.push({
+      location: [lat, lng],
+      size: 0.022 + rng() * 0.028,
+    })
+  }
+  return nos
 }
 
-export const CONEXOES_HUD: ArcoConexao[] = [
-  { id: 'sp-nyc',  x1: 42, y1: 60, x2: 38, y2: 38, curvatura: -0.35, duracao: 4.2, delay: 0    },
-  { id: 'nyc-lon', x1: 38, y1: 38, x2: 52, y2: 30, curvatura: -0.30, duracao: 3.8, delay: 0.9  },
-  { id: 'lon-tok', x1: 52, y1: 30, x2: 72, y2: 42, curvatura: -0.38, duracao: 5.4, delay: 1.6  },
-  { id: 'tok-syd', x1: 72, y1: 42, x2: 72, y2: 64, curvatura:  0.28, duracao: 3.6, delay: 0.4  },
-]
+export const GLOBE_NODES: GlobeMarker[] = gerarNosGlobais(18, 8472)
 
 // Velocidade de auto-rotação (incremento de phi por frame).
 export const AUTO_ROTATE_SPEED = 0.003

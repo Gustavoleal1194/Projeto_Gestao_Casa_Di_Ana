@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react'
 import {
   AUTO_ROTATE_SPEED,
   DRAG_SENSITIVITY,
-  GLOBE_CAPITAIS,
+  GLOBE_NODES,
   GLOBE_TOKENS,
   THETA_MAX,
 } from '../../lib/globeConfig'
@@ -16,8 +16,8 @@ interface Globe3DSceneProps {
 /**
  * Renderiza o globo 3D dot-matrix (cobe) + parallax + drag.
  *
- * Os markers são capitais estratégicas estáticas (GLOBE_CAPITAIS) — como a
- * referência ao array é estável, o globo é criado uma única vez e vive o ciclo
+ * Os markers são nós gerados deterministicamente na esfera (GLOBE_NODES) —
+ * como a referência é estável, o globo é criado uma única vez e vive o ciclo
  * todo do componente (sem recriação periódica).
  *
  * Durante arrasto (pointerdown → pointermove → pointerup), auto-rotação e
@@ -62,7 +62,7 @@ export default function Globe3DScene({ interactive = true }: Globe3DSceneProps) 
       baseColor:     GLOBE_TOKENS.baseColor,
       markerColor:   GLOBE_TOKENS.markerBrand,
       glowColor:     GLOBE_TOKENS.glowColor,
-      markers:       GLOBE_CAPITAIS,
+      markers:       GLOBE_NODES,
       onRender: (state) => {
         const arrastando = draggingRef.current
         if (interactive && !document.hidden && !arrastando) {

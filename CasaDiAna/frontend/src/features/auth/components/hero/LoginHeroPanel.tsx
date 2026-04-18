@@ -2,10 +2,10 @@ import { Component, lazy, Suspense } from 'react'
 import type { ErrorInfo, ReactNode } from 'react'
 import { useHeroMode } from '../../hooks/useHeroMode'
 import { BrandBlock } from './BrandBlock'
-import { ConnectionArcs } from './ConnectionArcs'
 import { Globe3DFallback } from './Globe3DFallback'
 import { GlowHalo } from './GlowHalo'
 import { MobileHeroFallback } from './MobileHeroFallback'
+import { NeuralMesh } from './NeuralMesh'
 import { ParticleField } from './ParticleField'
 import { ScanLine } from './ScanLine'
 
@@ -50,7 +50,7 @@ export function LoginHeroPanel() {
       style={{ background: 'linear-gradient(145deg, #0D1117 0%, #111827 100%)' }}
     >
       {/* Camadas decorativas em background.
-          Ordem: halo (fundo) → globo → arcos HUD → partículas → scan → marca (topo) */}
+          Ordem: halo (fundo) → globo → malha neural → partículas → scan → marca (topo) */}
       {modo === 'desktop-3d' && (
         <>
           <GlowHalo ativo={true} />
@@ -59,7 +59,7 @@ export function LoginHeroPanel() {
               <Globe3DScene interactive={true} />
             </Suspense>
           </HeroErrorBoundary>
-          <ConnectionArcs ativo={true} />
+          <NeuralMesh ativo={true} />
           <ParticleField ativo={true} />
           <ScanLine ativo={true} />
         </>

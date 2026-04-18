@@ -1,22 +1,27 @@
 import createGlobe from 'cobe'
 import { useEffect, useRef } from 'react'
-import { AUTO_ROTATE_SPEED, DRAG_SENSITIVITY, GLOBE_TOKENS, THETA_MAX } from '../../lib/globeConfig'
+import {
+  AUTO_ROTATE_SPEED,
+  DRAG_SENSITIVITY,
+  GLOBE_CAPITAIS,
+  GLOBE_TOKENS,
+  THETA_MAX,
+} from '../../lib/globeConfig'
 import { useCursorParallax } from '../../hooks/useCursorParallax'
-import { useRandomPings } from '../../hooks/useRandomPings'
 
 interface Globe3DSceneProps {
   interactive?: boolean  // false em reduced-motion: congela rotação e parallax
 }
 
 /**
- * Renderiza o globo 3D dot-matrix (cobe) + parallax de cursor + drag + pings.
+ * Renderiza o globo 3D dot-matrix (cobe) + parallax + drag.
  *
- * cobe recebe markers apenas na criação; para animar os pings, recriamos o globo
- * a cada refresh do hook useRandomPings (2.5s) — custo de recreate é pequeno
- * porque cobe destroy() libera o canvas WebGL imediatamente.
+ * Os markers são capitais estratégicas estáticas (GLOBE_CAPITAIS) — como a
+ * referência ao array é estável, o globo é criado uma única vez e vive o ciclo
+ * todo do componente (sem recriação periódica).
  *
- * Durante arrasto (pointerdown → pointermove → pointerup), a auto-rotação e o
- * parallax são suspensos; ao soltar, retomam.
+ * Durante arrasto (pointerdown → pointermove → pointerup), auto-rotação e
+ * parallax ficam suspensos; ao soltar, retomam naturalmente.
  *
  * Export default para casar com React.lazy() do consumidor.
  */
@@ -24,7 +29,6 @@ export default function Globe3DScene({ interactive = true }: Globe3DSceneProps) 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const parallaxRef = useCursorParallax(containerRef)
-  const markers = useRandomPings(interactive)
 
   const phiRef = useRef(0)
   const thetaOffsetRef = useRef(0)  // offset acumulado pelo drag vertical
@@ -58,7 +62,7 @@ export default function Globe3DScene({ interactive = true }: Globe3DSceneProps) 
       baseColor:     GLOBE_TOKENS.baseColor,
       markerColor:   GLOBE_TOKENS.markerBrand,
       glowColor:     GLOBE_TOKENS.glowColor,
-      markers,
+      markers:       GLOBE_CAPITAIS,
       onRender: (state) => {
         const arrastando = draggingRef.current
         if (interactive && !document.hidden && !arrastando) {
@@ -124,8 +128,8 @@ export default function Globe3DScene({ interactive = true }: Globe3DSceneProps) 
       canvas.removeEventListener('pointercancel', onPointerUp)
       globe.destroy()
     }
-    // Recria o globo quando markers mudam (pings renovados) ou interactive muda.
-  }, [markers, interactive, parallaxRef])
+    // Recria apenas quando o modo interactive muda — markers são estáticos.
+  }, [interactive, parallaxRef])
 
   return (
     <div

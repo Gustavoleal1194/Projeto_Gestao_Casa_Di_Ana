@@ -17,7 +17,9 @@ O foco é **percepção de qualidade**, não gamificação — o globo é decora
 
 - **Globo terrestre dot-matrix** em projeção esférica, cor base cyan `[0.22, 0.6, 0.8]` (≈ `#38BDF8` em hex aproximado, convertido para o range [0,1] do `cobe`), glow cyan escuro `[0.12, 0.35, 0.55]`.
 - **Pin fixo em São Paulo** `[-23.5505, -46.6333]`, `size: 0.1`, cor âmbar `[0.83, 0.59, 0.05]` (≈ `#D4960C`). É o "herói" visual.
-- **Pings aleatórios** — 3 a 5 marcadores secundários em coordenadas mundiais aleatórias, `size: 0.04`, alternando cyan e âmbar. Renovados a cada 2.5s para criar sensação de "atividade global".
+- **Pings aleatórios** — 3 a 5 marcadores secundários em coordenadas mundiais aleatórias, `size: 0.04`, em âmbar (mesma cor de SP, por limitação do cobe — ver nota abaixo). Renovados a cada 2.5s para criar sensação de "atividade global". A diferenciação visual entre SP e pings é feita pelo **tamanho** (SP 2.5× maior).
+
+> **Limitação do cobe:** a API de markers aceita apenas `{ location, size }` — a cor vem do parâmetro global `markerColor`. Alternância de cores por ping não é suportada nativamente. Mantemos todos os markers em âmbar para reforçar a marca sobre a base cyan do globo. Se no futuro quisermos alternância real, a opção é desenhar os pings como overlay DOM via Framer Motion posicionado sobre o canvas (fora do escopo).
 - **Auto-rotação** contínua (~20s por volta completa).
 - **Parallax de cursor** sutil — globo inclina até ±0.3 rad em phi/theta conforme o mouse se move sobre o painel, com interpolação suave.
 - **Camada de partículas** flutuantes (24 em desktop) com `mix-blend-mode: screen`, drift vertical lento, opacity pulsando.
@@ -50,8 +52,7 @@ Adicionados em `globeConfig.ts` (não em `index.css`, pois `cobe` lê arrays RGB
 export const GLOBE_TOKENS = {
   baseColor:   [0.22, 0.60, 0.80],  // cyan frio, casca do globo
   glowColor:   [0.12, 0.35, 0.55],  // cyan escuro, brilho atmosférico
-  markerBrand: [0.83, 0.59, 0.05],  // âmbar Casa di Ana, SP + alguns pings
-  markerCool:  [0.45, 0.85, 0.95],  // cyan claro, pings alternados
+  markerBrand: [0.83, 0.59, 0.05],  // âmbar Casa di Ana (todos os markers)
   dark:        1,
   diffuse:     1.2,
   mapSamples:  16000,
@@ -243,7 +244,7 @@ Verificação é manual via `npm run dev` + build check. Checklist de aceitaçã
    - [ ] Globo renderiza em <500ms após login page montar
    - [ ] Rotação automática suave (~20s/volta)
    - [ ] Pin SP sempre visível em âmbar
-   - [ ] Pings secundários aparecem/somem a cada ~2.5s alternando cyan/âmbar
+   - [ ] Pings secundários aparecem/somem a cada ~2.5s em âmbar (menores que SP)
    - [ ] Parallax reage a movimento do mouse
    - [ ] Partículas flutuando no fundo do painel esquerdo
    - [ ] Scan line passando de cima pra baixo em loop

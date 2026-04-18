@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useReducedMotion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 
 interface NeuralMeshProps {
   ativo: boolean
@@ -8,13 +8,15 @@ interface NeuralMeshProps {
 /**
  * Malha neural sobreposta ao globo: nós distribuídos uniformemente sobre o
  * hemisfério frontal de uma esfera unitária, conectados aos vizinhos mais
- * próximos em distância 3D (conexões curtas → densidade sináptica, nunca
- * rotas continentais). Cada sinapse pulsa independentemente via SMIL
- * (dispara → brilha → escurece), simulando atividade neuronal.
+ * próximos em distância 3D (conexões curtas → sinapses, nunca rotas).
  *
- * A profundidade (z da amostragem esférica) modula tamanho do neurônio,
- * espessura e opacidade da sinapse — criando volume tridimensional em SVG
- * puro, sem custo de JS por frame.
+ * Cada aresta pulsa com perfil de *spike* (rise rápido → pico → decay longo)
+ * em vez de onda senoidal — fica com cara de disparo neuronal, não de
+ * gradiente pulsante.
+ *
+ * A profundidade z modula tamanho, espessura e opacidade, criando volume
+ * tridimensional em SVG puro — zero JS por frame. Todo o grupo respira em
+ * ciclo lento (scale 1 ↔ 1.012) para não ficar estático entre disparos.
  */
 export function NeuralMesh({ ativo }: NeuralMeshProps) {
   const motionReduzido = useReducedMotion()
@@ -25,43 +27,46 @@ export function NeuralMesh({ ativo }: NeuralMeshProps) {
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
       <div style={{ width: '100%', maxWidth: 560, aspectRatio: '1' }}>
-        <svg
+        <motion.svg
           viewBox="0 0 100 100"
           preserveAspectRatio="xMidYMid meet"
           className="w-full h-full"
           aria-hidden="true"
-          style={{ mixBlendMode: 'screen' }}
+          style={{ mixBlendMode: 'screen', isolation: 'isolate' }}
+          animate={motionReduzido ? undefined : { scale: [1, 1.012, 1] }}
+          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
         >
           <defs>
             <radialGradient id="glow-neuron" cx="50%" cy="50%" r="50%">
-              <stop offset="0%"   stopColor="rgba(190, 230, 255, 0.95)" />
-              <stop offset="55%"  stopColor="rgba(80, 180, 230, 0.38)"  />
+              <stop offset="0%"   stopColor="rgba(200, 235, 255, 0.95)" />
+              <stop offset="55%"  stopColor="rgba(90, 185, 230, 0.35)"  />
               <stop offset="100%" stopColor="rgba(56, 153, 204, 0)"     />
             </radialGradient>
           </defs>
 
-          {/* Sinapses — pulsam independentemente */}
+          {/* Sinapses — spike com rise rápido, pico curto, decay longo */}
           <g>
             {malha.arestas.map((a, idx) => {
               const na = malha.nos[a.i]
               const nb = malha.nos[a.j]
               const profMedia = ((na.z + nb.z) / 2 + 1) / 2
-              const baseOp = 0.06 + profMedia * 0.12
-              const peakOp = a.opacidadePico * (0.4 + profMedia * 0.6)
+              const baseOp = 0.05 + profMedia * 0.10
+              const peakOp = a.opacidadePico * (0.35 + profMedia * 0.60)
               return (
                 <line
                   key={idx}
                   x1={projX(na.x)} y1={projY(na.y)}
                   x2={projX(nb.x)} y2={projY(nb.y)}
-                  stroke="rgb(140, 215, 245)"
-                  strokeWidth={0.08 + profMedia * 0.14}
+                  stroke="rgb(150, 220, 250)"
+                  strokeWidth={0.05 + profMedia * 0.09}
                   strokeOpacity={motionReduzido ? (baseOp + peakOp) / 2 : baseOp}
                   strokeLinecap="round"
                 >
                   {!motionReduzido && (
                     <animate
                       attributeName="stroke-opacity"
-                      values={`${baseOp};${peakOp};${baseOp}`}
+                      values={`${baseOp};${peakOp};${peakOp * 0.7};${baseOp}`}
+                      keyTimes="0;0.12;0.22;1"
                       dur={`${a.duracao}s`}
                       begin={`${a.atraso}s`}
                       repeatCount="indefinite"
@@ -72,14 +77,14 @@ export function NeuralMesh({ ativo }: NeuralMeshProps) {
             })}
           </g>
 
-          {/* Neurônios — glow + core */}
+          {/* Neurônios — glow volumétrico + core discreto */}
           <g>
             {malha.nos.map((n, i) => {
               const prof = (n.z + 1) / 2
-              const rGlow = 0.55 + prof * 0.75
-              const rCore = 0.16 + prof * 0.22
-              const opBase = 0.22 + prof * 0.30
-              const opPico = 0.55 + prof * 0.40
+              const rGlow = 0.45 + prof * 0.60
+              const rCore = 0.11 + prof * 0.17
+              const opBase = 0.18 + prof * 0.28
+              const opPico = 0.55 + prof * 0.38
               const pulse = malha.pulsosNo[i]
               return (
                 <g key={i}>
@@ -92,7 +97,8 @@ export function NeuralMesh({ ativo }: NeuralMeshProps) {
                     {!motionReduzido && (
                       <animate
                         attributeName="opacity"
-                        values={`${opBase};${opPico};${opBase}`}
+                        values={`${opBase};${opPico};${(opBase + opPico) / 2};${opBase}`}
+                        keyTimes="0;0.15;0.35;1"
                         dur={`${pulse.duracao}s`}
                         begin={`${pulse.atraso}s`}
                         repeatCount="indefinite"
@@ -102,13 +108,13 @@ export function NeuralMesh({ ativo }: NeuralMeshProps) {
                   <circle
                     cx={projX(n.x)} cy={projY(n.y)}
                     r={rCore}
-                    fill="rgba(225, 245, 255, 0.92)"
+                    fill="rgba(210, 240, 255, 0.78)"
                   />
                 </g>
               )
             })}
           </g>
-        </svg>
+        </motion.svg>
       </div>
     </div>
   )
@@ -136,15 +142,15 @@ interface DadosMalha {
   pulsosNo: Array<{ duracao: number; atraso: number }>
 }
 
-const RAIO_VB = 41          // raio em % do viewBox 100 (casa com silhueta visível do globo)
-const NUM_NOS_ALVO = 62
-const MAX_AMOSTRAS = 260
-const Z_MIN = -0.18         // permite alguns nós na borda da silhueta
-const DIST_MIN_3D = 0.26    // separação mínima entre nós (evita aglomeração)
+const RAIO_VB = 42          // raio em % do viewBox 100 — casa com silhueta visível do globo
+const NUM_NOS_ALVO = 74     // densidade alta: densidade ~1 nó por 24 u² de disco
+const MAX_AMOSTRAS = 360
+const Z_MIN = -0.22         // inclui nós na borda → mesh "envolve" a esfera
+const DIST_MIN_3D = 0.23    // separação mínima 3D (evita aglomeração)
 const K_VIZINHOS = 3
-const DIST_MAX_ARESTA = 0.46 // conexões curtas: mantém feel sináptico, não rota
+const DIST_MAX_ARESTA = 0.42 // conexões curtas: feel sináptico, nunca rota
 
-// Mulberry32 — PRNG deterministico, 32 bits, rápido
+// Mulberry32 — PRNG determinístico, 32 bits, rápido
 function criarPrng(seed: number): () => number {
   let s = seed | 0
   return () => {
@@ -156,7 +162,6 @@ function criarPrng(seed: number): () => number {
 }
 
 function amostrarEsfera(rng: () => number): No3D {
-  // Distribuição uniforme em área de esfera
   const z = rng() * 2 - 1
   const theta = rng() * Math.PI * 2
   const r = Math.sqrt(1 - z * z)
@@ -207,25 +212,24 @@ function gerarMalha(): DadosMalha {
       arestas.push({
         i: a,
         j: b,
-        duracao: 1.8 + rng() * 3.4,
-        atraso: rng() * 6,
-        opacidadePico: 0.4 + rng() * 0.55,
+        duracao: 2.0 + rng() * 3.6,
+        atraso: rng() * 7,
+        opacidadePico: 0.45 + rng() * 0.50,
       })
     }
   })
 
   const pulsosNo = nos.map(() => ({
-    duracao: 2 + rng() * 2.5,
-    atraso: rng() * 4,
+    duracao: 2.2 + rng() * 2.8,
+    atraso: rng() * 5,
   }))
 
   return { nos, arestas, pulsosNo }
 }
 
-// Projeção esfera → viewBox (SVG y cresce pra baixo; invertemos)
 function projX(x: number): number {
   return 50 + x * RAIO_VB
 }
 function projY(y: number): number {
-  return 50 - y * RAIO_VB
+  return 50 - y * RAIO_VB  // SVG y cresce pra baixo; inverte
 }

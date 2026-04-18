@@ -1,7 +1,8 @@
-import { Component, lazy, Suspense } from 'react'
+import { Component, lazy, Suspense, useRef } from 'react'
 import type { ErrorInfo, ReactNode } from 'react'
 import { useHeroMode } from '../../hooks/useHeroMode'
 import { BrandBlock } from './BrandBlock'
+import type { RotacaoGlobo } from './Globe3DScene'
 import { Globe3DFallback } from './Globe3DFallback'
 import { GlowHalo } from './GlowHalo'
 import { MobileHeroFallback } from './MobileHeroFallback'
@@ -43,6 +44,9 @@ class HeroErrorBoundary extends Component<HeroErrorBoundaryProps, HeroErrorBound
  */
 export function LoginHeroPanel() {
   const modo = useHeroMode()
+  // Ref compartilhada: Globe3DScene escreve a rotação a cada frame,
+  // NeuralMesh lê pra rotacionar sua malha 3D em sincronia perfeita.
+  const rotacaoRef = useRef<RotacaoGlobo>({ phi: 0, theta: 0.25 })
 
   return (
     <div
@@ -56,10 +60,10 @@ export function LoginHeroPanel() {
           <GlowHalo ativo={true} />
           <HeroErrorBoundary fallback={<Globe3DFallback />}>
             <Suspense fallback={<Globe3DFallback />}>
-              <Globe3DScene interactive={true} />
+              <Globe3DScene interactive={true} rotationRef={rotacaoRef} />
             </Suspense>
           </HeroErrorBoundary>
-          <NeuralMesh ativo={true} />
+          <NeuralMesh ativo={true} rotationRef={rotacaoRef} />
           <ParticleField ativo={true} />
           <ScanLine ativo={true} />
         </>

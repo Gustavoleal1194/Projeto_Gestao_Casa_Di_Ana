@@ -1,131 +1,232 @@
-import { useMemo } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { useEffect, useMemo, useRef } from 'react'
+import type { RefObject } from 'react'
+import type { RotacaoGlobo } from './Globe3DScene'
 
 interface NeuralMeshProps {
   ativo: boolean
+  rotationRef: RefObject<RotacaoGlobo>
 }
 
 /**
- * Malha neural sobreposta ao globo: nós distribuídos uniformemente sobre o
- * hemisfério frontal de uma esfera unitária, conectados aos vizinhos mais
- * próximos em distância 3D (conexões curtas → sinapses, nunca rotas).
+ * Malha neural ancorada à superfície da esfera.
  *
- * Cada aresta pulsa com perfil de *spike* (rise rápido → pico → decay longo)
- * em vez de onda senoidal — fica com cara de disparo neuronal, não de
- * gradiente pulsante.
+ * Os nós são gerados na esfera INTEIRA (Fibonacci sphere + jitter para
+ * organicidade), e a cada frame são rotacionados pelo mesmo phi/theta que
+ * o cobe usa no globo — rotação fica perfeitamente sincronizada.
  *
- * A profundidade z modula tamanho, espessura e opacidade, criando volume
- * tridimensional em SVG puro — zero JS por frame. Todo o grupo respira em
- * ciclo lento (scale 1 ↔ 1.012) para não ficar estático entre disparos.
+ * Após a rotação, a coordenada z de cada nó determina profundidade real:
+ *  • z > +0.25  → nítido, nos "cume" do hemisfério frontal
+ *  • z entre ±0.25 → fade progressivo pela silhueta
+ *  • z < -0.25 → oculto, atrás do globo
+ *
+ * Arestas e nós são z-ordenados antes de desenhar, então elementos da
+ * frente se sobrepõem aos de trás naturalmente — sem overlay 2D, sem
+ * deslizar por cima da esfera.
+ *
+ * Pulsos de sinapse são calculados por tempo absoluto (não SMIL), com
+ * perfil de spike (rise rápido, decay longo).
  */
-export function NeuralMesh({ ativo }: NeuralMeshProps) {
-  const motionReduzido = useReducedMotion()
+export function NeuralMesh({ ativo, rotationRef }: NeuralMeshProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const malha = useMemo(() => gerarMalha(), [])
+
+  useEffect(() => {
+    if (!ativo) return
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    let largCss = 0
+    let altCss = 0
+
+    const ajustarTamanho = () => {
+      const dpr = window.devicePixelRatio || 1
+      largCss = canvas.clientWidth
+      altCss = canvas.clientHeight
+      canvas.width = Math.max(1, Math.round(largCss * dpr))
+      canvas.height = Math.max(1, Math.round(altCss * dpr))
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    }
+
+    ajustarTamanho()
+    const obs = new ResizeObserver(ajustarTamanho)
+    obs.observe(canvas)
+
+    const t0 = performance.now()
+    let rafId = 0
+
+    const desenhar = (agora: number) => {
+      rafId = requestAnimationFrame(desenhar)
+      const t = (agora - t0) / 1000
+
+      const rot = rotationRef.current ?? { phi: 0, theta: 0.25 }
+      const cosP = Math.cos(rot.phi)
+      const sinP = Math.sin(rot.phi)
+      const cosT = Math.cos(rot.theta)
+      const sinT = Math.sin(rot.theta)
+
+      // Respiração sutil da malha inteira — 0.6% de amplitude
+      const respirando = 1 + Math.sin(t * 0.85) * 0.006
+      const raio = Math.min(largCss, altCss) * 0.42 * respirando
+      const cx = largCss / 2
+      const cy = altCss / 2
+
+      ctx.clearRect(0, 0, largCss, altCss)
+
+      // Rotaciona todos os nós uma vez por frame
+      const rotacionados = new Array<NoRotacionado>(malha.nos.length)
+      for (let i = 0; i < malha.nos.length; i++) {
+        const n = malha.nos[i]
+        // Rotação em torno de Y (phi) depois em torno de X (theta)
+        const x1 =  n.x * cosP + n.z * sinP
+        const z1 = -n.x * sinP + n.z * cosP
+        const y2 =  n.y * cosT + z1 * sinT
+        const z2 = -n.y * sinT + z1 * cosT
+        rotacionados[i] = {
+          x: cx + x1 * raio,
+          y: cy - y2 * raio,   // SVG-like: y cresce pra baixo
+          z: z2,
+          vis: visibilidade(z2),
+        }
+      }
+
+      // Arestas z-ordenadas (atrás primeiro)
+      const arestasComZ = malha.arestas.map((a) => ({
+        a,
+        zm: (rotacionados[a.i].z + rotacionados[a.j].z) / 2,
+      }))
+      arestasComZ.sort((p, q) => p.zm - q.zm)
+
+      for (const { a } of arestasComZ) {
+        const na = rotacionados[a.i]
+        const nb = rotacionados[a.j]
+        const visMedia = (na.vis + nb.vis) / 2
+        if (visMedia < 0.02) continue
+
+        const profMedia = ((na.z + nb.z) / 2 + 1) / 2  // 0..1
+        const intensidade = spike(t, a.duracao, a.atraso)
+
+        const baseOp = (0.05 + profMedia * 0.12) * visMedia
+        const peakOp = a.opacidadePico * (0.40 + profMedia * 0.55) * visMedia
+        const op = baseOp + (peakOp - baseOp) * intensidade
+
+        ctx.strokeStyle = `rgba(150, 220, 250, ${op})`
+        ctx.lineWidth = 0.55 + profMedia * 0.95
+        ctx.lineCap = 'round'
+        ctx.beginPath()
+        ctx.moveTo(na.x, na.y)
+        ctx.lineTo(nb.x, nb.y)
+        ctx.stroke()
+      }
+
+      // Nós z-ordenados (atrás primeiro)
+      const nosSort = rotacionados
+        .map((n, i) => ({ n, i }))
+        .sort((p, q) => p.n.z - q.n.z)
+
+      for (const { n, i } of nosSort) {
+        if (n.vis < 0.02) continue
+
+        const profNorm = (n.z + 1) / 2
+        const pulse = malha.pulsosNo[i]
+        const intensidade = spikeNo(t, pulse.duracao, pulse.atraso)
+        const opBase = 0.20 + profNorm * 0.30
+        const opPico = 0.58 + profNorm * 0.38
+        const op = (opBase + (opPico - opBase) * intensidade) * n.vis
+
+        const dim = Math.min(largCss, altCss)
+        const rGlow = (0.55 + profNorm * 0.70) / 100 * dim
+        const rCore = (0.14 + profNorm * 0.20) / 100 * dim
+
+        const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, rGlow)
+        grad.addColorStop(0,    `rgba(200, 235, 255, ${0.95 * op})`)
+        grad.addColorStop(0.55, `rgba(90, 185, 230, ${0.35 * op})`)
+        grad.addColorStop(1,    'rgba(56, 153, 204, 0)')
+        ctx.fillStyle = grad
+        ctx.beginPath()
+        ctx.arc(n.x, n.y, rGlow, 0, Math.PI * 2)
+        ctx.fill()
+
+        ctx.fillStyle = `rgba(210, 240, 255, ${0.82 * n.vis})`
+        ctx.beginPath()
+        ctx.arc(n.x, n.y, rCore, 0, Math.PI * 2)
+        ctx.fill()
+      }
+    }
+
+    rafId = requestAnimationFrame(desenhar)
+
+    return () => {
+      cancelAnimationFrame(rafId)
+      obs.disconnect()
+    }
+  }, [ativo, rotationRef, malha])
 
   if (!ativo) return null
 
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-      <div style={{ width: '100%', maxWidth: 560, aspectRatio: '1' }}>
-        <motion.svg
-          viewBox="0 0 100 100"
-          preserveAspectRatio="xMidYMid meet"
-          className="w-full h-full"
-          aria-hidden="true"
-          style={{ mixBlendMode: 'screen', isolation: 'isolate' }}
-          animate={motionReduzido ? undefined : { scale: [1, 1.012, 1] }}
-          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-        >
-          <defs>
-            <radialGradient id="glow-neuron" cx="50%" cy="50%" r="50%">
-              <stop offset="0%"   stopColor="rgba(200, 235, 255, 0.95)" />
-              <stop offset="55%"  stopColor="rgba(90, 185, 230, 0.35)"  />
-              <stop offset="100%" stopColor="rgba(56, 153, 204, 0)"     />
-            </radialGradient>
-          </defs>
-
-          {/* Sinapses — spike com rise rápido, pico curto, decay longo */}
-          <g>
-            {malha.arestas.map((a, idx) => {
-              const na = malha.nos[a.i]
-              const nb = malha.nos[a.j]
-              const profMedia = ((na.z + nb.z) / 2 + 1) / 2
-              const baseOp = 0.05 + profMedia * 0.10
-              const peakOp = a.opacidadePico * (0.35 + profMedia * 0.60)
-              return (
-                <line
-                  key={idx}
-                  x1={projX(na.x)} y1={projY(na.y)}
-                  x2={projX(nb.x)} y2={projY(nb.y)}
-                  stroke="rgb(150, 220, 250)"
-                  strokeWidth={0.05 + profMedia * 0.09}
-                  strokeOpacity={motionReduzido ? (baseOp + peakOp) / 2 : baseOp}
-                  strokeLinecap="round"
-                >
-                  {!motionReduzido && (
-                    <animate
-                      attributeName="stroke-opacity"
-                      values={`${baseOp};${peakOp};${peakOp * 0.7};${baseOp}`}
-                      keyTimes="0;0.12;0.22;1"
-                      dur={`${a.duracao}s`}
-                      begin={`${a.atraso}s`}
-                      repeatCount="indefinite"
-                    />
-                  )}
-                </line>
-              )
-            })}
-          </g>
-
-          {/* Neurônios — glow volumétrico + core discreto */}
-          <g>
-            {malha.nos.map((n, i) => {
-              const prof = (n.z + 1) / 2
-              const rGlow = 0.45 + prof * 0.60
-              const rCore = 0.11 + prof * 0.17
-              const opBase = 0.18 + prof * 0.28
-              const opPico = 0.55 + prof * 0.38
-              const pulse = malha.pulsosNo[i]
-              return (
-                <g key={i}>
-                  <circle
-                    cx={projX(n.x)} cy={projY(n.y)}
-                    r={rGlow}
-                    fill="url(#glow-neuron)"
-                    opacity={motionReduzido ? (opBase + opPico) / 2 : opBase}
-                  >
-                    {!motionReduzido && (
-                      <animate
-                        attributeName="opacity"
-                        values={`${opBase};${opPico};${(opBase + opPico) / 2};${opBase}`}
-                        keyTimes="0;0.15;0.35;1"
-                        dur={`${pulse.duracao}s`}
-                        begin={`${pulse.atraso}s`}
-                        repeatCount="indefinite"
-                      />
-                    )}
-                  </circle>
-                  <circle
-                    cx={projX(n.x)} cy={projY(n.y)}
-                    r={rCore}
-                    fill="rgba(210, 240, 255, 0.78)"
-                  />
-                </g>
-              )
-            })}
-          </g>
-        </motion.svg>
-      </div>
+      <canvas
+        ref={canvasRef}
+        aria-hidden="true"
+        style={{
+          width:       '100%',
+          maxWidth:    '560px',
+          aspectRatio: '1',
+          mixBlendMode: 'screen',
+          isolation: 'isolate',
+        }}
+      />
     </div>
   )
 }
 
-// ─── Geração da malha (uma vez, determinística via PRNG com seed fixa) ─────
+// ── Visibilidade e perfis temporais ───────────────────────────────────
+
+/**
+ * Converte z rotacionado em visibilidade perceptual:
+ *   z >= 0.25  →  1.0 (front-center, nítido)
+ *   z = 0      →  ~0.5 (silhueta, meio-fade)
+ *   z <= -0.25 →  0.0 (back, oculto)
+ * Curva quadrática pro meio → fade mais suave perto da silhueta.
+ */
+function visibilidade(z: number): number {
+  if (z >= 0.25) return 1
+  if (z <= -0.25) return 0
+  const t = (z + 0.25) / 0.5  // 0..1
+  return t * t * (3 - 2 * t)  // smoothstep
+}
+
+// Spike para sinapses: rise 12% → pico breve → decay 78%
+function spike(t: number, dur: number, atraso: number): number {
+  const fase = (((t - atraso) / dur) % 1 + 1) % 1
+  if (fase < 0.12) return fase / 0.12
+  if (fase < 0.22) return 1
+  return Math.max(0, 1 - (fase - 0.22) / 0.78)
+}
+
+// Spike para nós: rise um pouco mais lento, decay mais amplo
+function spikeNo(t: number, dur: number, atraso: number): number {
+  const fase = (((t - atraso) / dur) % 1 + 1) % 1
+  if (fase < 0.15) return fase / 0.15
+  if (fase < 0.30) return 1 - (fase - 0.15) / 0.15 * 0.5
+  return 0.5 * Math.max(0, 1 - (fase - 0.30) / 0.70)
+}
+
+// ── Geração da malha (Fibonacci jittered + k-nearest 3D) ──────────────
 
 interface No3D {
-  x: number  // -1..1
-  y: number  // -1..1
-  z: number  // -1..1 (>0 = frente, <0 = atrás, -ZMIN..1 = hemisfério frontal)
+  x: number
+  y: number
+  z: number
+}
+
+interface NoRotacionado {
+  x: number  // CSS px
+  y: number  // CSS px
+  z: number  // -1..1 após rotação
+  vis: number // 0..1
 }
 
 interface Sinapse {
@@ -142,15 +243,11 @@ interface DadosMalha {
   pulsosNo: Array<{ duracao: number; atraso: number }>
 }
 
-const RAIO_VB = 42          // raio em % do viewBox 100 — casa com silhueta visível do globo
-const NUM_NOS_ALVO = 74     // densidade alta: densidade ~1 nó por 24 u² de disco
-const MAX_AMOSTRAS = 360
-const Z_MIN = -0.22         // inclui nós na borda → mesh "envolve" a esfera
-const DIST_MIN_3D = 0.23    // separação mínima 3D (evita aglomeração)
+const NUM_NOS = 110            // esfera inteira (mais densa que a versão 2D)
 const K_VIZINHOS = 3
-const DIST_MAX_ARESTA = 0.42 // conexões curtas: feel sináptico, nunca rota
+const DIST_MAX_ARESTA = 0.40   // conexões curtas → sinapses, nunca rotas
+const JITTER = 0.09            // organicidade sobre Fibonacci perfeito
 
-// Mulberry32 — PRNG determinístico, 32 bits, rápido
 function criarPrng(seed: number): () => number {
   let s = seed | 0
   return () => {
@@ -161,11 +258,26 @@ function criarPrng(seed: number): () => number {
   }
 }
 
-function amostrarEsfera(rng: () => number): No3D {
-  const z = rng() * 2 - 1
-  const theta = rng() * Math.PI * 2
-  const r = Math.sqrt(1 - z * z)
-  return { x: r * Math.cos(theta), y: r * Math.sin(theta), z }
+function fibonacciEsfera(n: number, rng: () => number): No3D[] {
+  const goldenAngle = Math.PI * (3 - Math.sqrt(5))
+  const pontos: No3D[] = []
+  for (let i = 0; i < n; i++) {
+    // Amostragem Fibonacci (distribuição quase-uniforme)
+    const y = 1 - (i / (n - 1)) * 2
+    const r = Math.sqrt(Math.max(0, 1 - y * y))
+    const theta = goldenAngle * i
+    let px = r * Math.cos(theta)
+    let py = y
+    let pz = r * Math.sin(theta)
+    // Jitter → organicidade (o usuário pediu malha não mecânica)
+    px += (rng() - 0.5) * JITTER
+    py += (rng() - 0.5) * JITTER
+    pz += (rng() - 0.5) * JITTER
+    // Re-normaliza pra manter na superfície da esfera unitária
+    const len = Math.sqrt(px * px + py * py + pz * pz) || 1
+    pontos.push({ x: px / len, y: py / len, z: pz / len })
+  }
+  return pontos
 }
 
 function dist3D(a: No3D, b: No3D): number {
@@ -177,22 +289,8 @@ function dist3D(a: No3D, b: No3D): number {
 
 function gerarMalha(): DadosMalha {
   const rng = criarPrng(1337)
-  const nos: No3D[] = []
+  const nos = fibonacciEsfera(NUM_NOS, rng)
 
-  for (let t = 0; t < MAX_AMOSTRAS && nos.length < NUM_NOS_ALVO; t++) {
-    const candidato = amostrarEsfera(rng)
-    if (candidato.z < Z_MIN) continue
-    let colide = false
-    for (const existente of nos) {
-      if (dist3D(existente, candidato) < DIST_MIN_3D) {
-        colide = true
-        break
-      }
-    }
-    if (!colide) nos.push(candidato)
-  }
-
-  // Arestas: k vizinhos mais próximos em 3D, limitadas por DIST_MAX_ARESTA
   const chaves = new Set<string>()
   const arestas: Sinapse[] = []
 
@@ -225,11 +323,4 @@ function gerarMalha(): DadosMalha {
   }))
 
   return { nos, arestas, pulsosNo }
-}
-
-function projX(x: number): number {
-  return 50 + x * RAIO_VB
-}
-function projY(y: number): number {
-  return 50 - y * RAIO_VB  // SVG y cresce pra baixo; inverte
 }

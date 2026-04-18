@@ -1,5 +1,6 @@
 import createGlobe from 'cobe'
 import { useEffect, useRef } from 'react'
+import type { RefObject } from 'react'
 import {
   AUTO_ROTATE_SPEED,
   DRAG_SENSITIVITY,
@@ -9,8 +10,14 @@ import {
 } from '../../lib/globeConfig'
 import { useCursorParallax } from '../../hooks/useCursorParallax'
 
+export interface RotacaoGlobo {
+  phi: number
+  theta: number
+}
+
 interface Globe3DSceneProps {
   interactive?: boolean  // false em reduced-motion: congela rotação e parallax
+  rotationRef?: RefObject<RotacaoGlobo>  // exposto pra NeuralMesh rotacionar junto
 }
 
 /**
@@ -25,7 +32,7 @@ interface Globe3DSceneProps {
  *
  * Export default para casar com React.lazy() do consumidor.
  */
-export default function Globe3DScene({ interactive = true }: Globe3DSceneProps) {
+export default function Globe3DScene({ interactive = true, rotationRef }: Globe3DSceneProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const parallaxRef = useCursorParallax(containerRef)
@@ -80,6 +87,12 @@ export default function Globe3DScene({ interactive = true }: Globe3DSceneProps) 
         state.theta  = currentThetaRef.current
         state.width  = width * 2
         state.height = width * 2
+
+        // Expõe rotação atual para a malha neural rotacionar em sincronia
+        if (rotationRef?.current) {
+          rotationRef.current.phi   = currentPhiRef.current
+          rotationRef.current.theta = currentThetaRef.current
+        }
       },
     })
 
@@ -129,7 +142,7 @@ export default function Globe3DScene({ interactive = true }: Globe3DSceneProps) 
       globe.destroy()
     }
     // Recria apenas quando o modo interactive muda — markers são estáticos.
-  }, [interactive, parallaxRef])
+  }, [interactive, parallaxRef, rotationRef])
 
   return (
     <div

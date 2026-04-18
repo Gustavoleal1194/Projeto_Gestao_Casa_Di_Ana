@@ -29,10 +29,20 @@ export function useCursorParallax(
       return
     }
 
+    // Listener no window porque o container tem pointer-events: none
+    // (ele fica atrás do conteúdo de marca). Eventos no próprio elemento
+    // nunca disparariam. Calculamos a posição relativa ao bounding rect.
     const handleMove = (e: MouseEvent) => {
       const rect = container.getBoundingClientRect()
-      const x = (e.clientX - rect.left) / rect.width  // 0..1
-      const y = (e.clientY - rect.top) / rect.height  // 0..1
+      const x = (e.clientX - rect.left) / rect.width   // 0..1
+      const y = (e.clientY - rect.top) / rect.height   // 0..1
+
+      // Cursor fora do container: reseta para neutro (equivalente ao mouseleave).
+      if (x < 0 || x > 1 || y < 0 || y > 1) {
+        deltaRef.current = { phiOffset: 0, thetaOffset: 0 }
+        return
+      }
+
       const normX = x * 2 - 1   // -1..1
       const normY = y * 2 - 1   // -1..1
 
@@ -42,16 +52,10 @@ export function useCursorParallax(
       }
     }
 
-    const handleLeave = () => {
-      deltaRef.current = { phiOffset: 0, thetaOffset: 0 }
-    }
-
-    container.addEventListener('mousemove', handleMove)
-    container.addEventListener('mouseleave', handleLeave)
+    window.addEventListener('mousemove', handleMove)
 
     return () => {
-      container.removeEventListener('mousemove', handleMove)
-      container.removeEventListener('mouseleave', handleLeave)
+      window.removeEventListener('mousemove', handleMove)
     }
   }, [containerRef])
 

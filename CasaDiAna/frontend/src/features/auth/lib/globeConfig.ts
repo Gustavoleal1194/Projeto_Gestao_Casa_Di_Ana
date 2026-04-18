@@ -22,3 +22,9 @@ export const PING_REFRESH_MS = 2500
 
 // Amplitude máxima do parallax de cursor, em radianos.
 export const PARALLAX_MAX_DELTA = 0.3
+
+// Sensibilidade do drag (radianos por pixel de movimento do ponteiro).
+export const DRAG_SENSITIVITY = 0.005
+
+// Limite do theta no drag vertical — evita virar o globo de cabeça pra baixo.
+export const THETA_MAX = 1.0

@@ -11,34 +11,34 @@ function CoffeeIcon() {
 export function BrandBlock() {
   return (
     <>
-      {/* Logo */}
-      <div className="relative z-10">
+      {/* Bloco superior — logo + título + subtítulo agrupados no topo,
+          liberando o centro do painel para o globo respirar sem colisão. */}
+      <div className="relative z-10 flex items-center gap-4 max-w-sm">
         <div
-          className="w-12 h-12 rounded-2xl flex items-center justify-center"
+          className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
           style={{ background: '#D4960C' }}
         >
           <CoffeeIcon />
         </div>
-      </div>
-
-      {/* Texto central */}
-      <div className="relative z-10 space-y-6">
         <div>
           <h1
-            className="text-4xl font-bold text-white leading-tight tracking-tight"
+            className="text-2xl font-bold text-white leading-tight tracking-tight"
             style={{ fontFamily: 'Sora, system-ui, sans-serif' }}
           >
             Casa di Ana
           </h1>
           <p
-            className="mt-3 text-base leading-relaxed"
-            style={{ color: '#6B7280', fontFamily: 'DM Sans, system-ui, sans-serif' }}
+            className="text-xs leading-relaxed"
+            style={{ color: '#9CA3AF', fontFamily: 'DM Sans, system-ui, sans-serif' }}
           >
-            Sistema de Gestão Operacional para controle de estoque, produção e vendas.
+            Sistema de Gestão Operacional
           </p>
         </div>
+      </div>
 
-        <div className="space-y-3">
+      {/* Bloco inferior — features + rodapé, abaixo do globo */}
+      <div className="relative z-10 space-y-5 max-w-sm">
+        <div className="space-y-2.5">
           {[
             'Controle completo de estoque e ingredientes',
             'Produção diária com rastreamento de perdas',
@@ -50,15 +50,12 @@ export function BrandBlock() {
                 style={{ background: '#D4960C' }}
                 aria-hidden="true"
               />
-              <p className="text-sm" style={{ color: '#6B7280' }}>{feat}</p>
+              <p className="text-sm" style={{ color: '#9CA3AF' }}>{feat}</p>
             </div>
           ))}
         </div>
-      </div>
 
-      {/* Rodapé */}
-      <div className="relative z-10">
-        <p className="text-xs" style={{ color: '#374151' }}>
+        <p className="text-xs pt-4 border-t border-white/5" style={{ color: '#4B5563' }}>
           © {new Date().getFullYear()} Casa di Ana — Todos os direitos reservados
         </p>
       </div>

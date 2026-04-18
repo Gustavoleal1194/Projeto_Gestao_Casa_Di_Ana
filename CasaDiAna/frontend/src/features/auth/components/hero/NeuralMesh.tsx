@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react'
 import type { RefObject } from 'react'
+import { CAPITAIS } from '../../lib/globeConfig'
 import type { RotacaoGlobo } from './Globe3DScene'
 
 interface NeuralMeshProps {
@@ -88,6 +89,7 @@ export function NeuralMesh({ ativo, rotationRef }: NeuralMeshProps) {
           y: cy - y2 * raio,   // SVG-like: y cresce pra baixo
           z: z2,
           vis: visibilidade(z2),
+          primario: n.primario,
         }
       }
 
@@ -125,33 +127,66 @@ export function NeuralMesh({ ativo, rotationRef }: NeuralMeshProps) {
         .map((n, i) => ({ n, i }))
         .sort((p, q) => p.n.z - q.n.z)
 
+      const dim = Math.min(largCss, altCss)
+
       for (const { n, i } of nosSort) {
         if (n.vis < 0.02) continue
 
         const profNorm = (n.z + 1) / 2
         const pulse = malha.pulsosNo[i]
         const intensidade = spikeNo(t, pulse.duracao, pulse.atraso)
-        const opBase = 0.20 + profNorm * 0.30
-        const opPico = 0.58 + profNorm * 0.38
-        const op = (opBase + (opPico - opBase) * intensidade) * n.vis
 
-        const dim = Math.min(largCss, altCss)
-        const rGlow = (0.55 + profNorm * 0.70) / 100 * dim
-        const rCore = (0.14 + profNorm * 0.20) / 100 * dim
+        if (n.primario) {
+          // Nó principal: glow amplo, núcleo âmbar-branco com coroa cyan
+          const opBase = 0.42 + profNorm * 0.30
+          const opPico = 0.82 + profNorm * 0.18
+          const op = (opBase + (opPico - opBase) * intensidade) * n.vis
 
-        const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, rGlow)
-        grad.addColorStop(0,    `rgba(200, 235, 255, ${0.95 * op})`)
-        grad.addColorStop(0.55, `rgba(90, 185, 230, ${0.35 * op})`)
-        grad.addColorStop(1,    'rgba(56, 153, 204, 0)')
-        ctx.fillStyle = grad
-        ctx.beginPath()
-        ctx.arc(n.x, n.y, rGlow, 0, Math.PI * 2)
-        ctx.fill()
+          const rGlow = (1.45 + profNorm * 0.95) / 100 * dim
+          const rCore = (0.30 + profNorm * 0.26) / 100 * dim
 
-        ctx.fillStyle = `rgba(210, 240, 255, ${0.82 * n.vis})`
-        ctx.beginPath()
-        ctx.arc(n.x, n.y, rCore, 0, Math.PI * 2)
-        ctx.fill()
+          const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, rGlow)
+          grad.addColorStop(0,    `rgba(255, 225, 160, ${0.92 * op})`)
+          grad.addColorStop(0.28, `rgba(200, 235, 255, ${0.55 * op})`)
+          grad.addColorStop(0.65, `rgba(80, 180, 230, ${0.25 * op})`)
+          grad.addColorStop(1,    'rgba(56, 153, 204, 0)')
+          ctx.fillStyle = grad
+          ctx.beginPath()
+          ctx.arc(n.x, n.y, rGlow, 0, Math.PI * 2)
+          ctx.fill()
+
+          // Núcleo quente — âmbar com punch de branco
+          const gradCore = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, rCore)
+          gradCore.addColorStop(0,   `rgba(255, 250, 230, ${0.95 * n.vis})`)
+          gradCore.addColorStop(0.6, `rgba(255, 215, 140, ${0.88 * n.vis})`)
+          gradCore.addColorStop(1,   `rgba(255, 180, 80, 0)`)
+          ctx.fillStyle = gradCore
+          ctx.beginPath()
+          ctx.arc(n.x, n.y, rCore, 0, Math.PI * 2)
+          ctx.fill()
+        } else {
+          // Nó sináptico secundário
+          const opBase = 0.20 + profNorm * 0.30
+          const opPico = 0.58 + profNorm * 0.38
+          const op = (opBase + (opPico - opBase) * intensidade) * n.vis
+
+          const rGlow = (0.55 + profNorm * 0.70) / 100 * dim
+          const rCore = (0.14 + profNorm * 0.20) / 100 * dim
+
+          const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, rGlow)
+          grad.addColorStop(0,    `rgba(200, 235, 255, ${0.95 * op})`)
+          grad.addColorStop(0.55, `rgba(90, 185, 230, ${0.35 * op})`)
+          grad.addColorStop(1,    'rgba(56, 153, 204, 0)')
+          ctx.fillStyle = grad
+          ctx.beginPath()
+          ctx.arc(n.x, n.y, rGlow, 0, Math.PI * 2)
+          ctx.fill()
+
+          ctx.fillStyle = `rgba(210, 240, 255, ${0.82 * n.vis})`
+          ctx.beginPath()
+          ctx.arc(n.x, n.y, rCore, 0, Math.PI * 2)
+          ctx.fill()
+        }
       }
     }
 
@@ -222,11 +257,16 @@ interface No3D {
   z: number
 }
 
+interface NoMalha extends No3D {
+  primario: boolean
+}
+
 interface NoRotacionado {
   x: number  // CSS px
   y: number  // CSS px
   z: number  // -1..1 após rotação
   vis: number // 0..1
+  primario: boolean
 }
 
 interface Sinapse {
@@ -238,15 +278,16 @@ interface Sinapse {
 }
 
 interface DadosMalha {
-  nos: No3D[]
+  nos: NoMalha[]
   arestas: Sinapse[]
   pulsosNo: Array<{ duracao: number; atraso: number }>
 }
 
-const NUM_NOS = 110            // esfera inteira (mais densa que a versão 2D)
+const NUM_FILLER = 100         // malha sináptica de fundo (Fibonacci jittered)
 const K_VIZINHOS = 3
 const DIST_MAX_ARESTA = 0.40   // conexões curtas → sinapses, nunca rotas
 const JITTER = 0.09            // organicidade sobre Fibonacci perfeito
+const DIST_MIN_PRIMARIO = 0.17 // distância mínima de filler a uma capital (evita sobreposição)
 
 function criarPrng(seed: number): () => number {
   let s = seed | 0
@@ -287,10 +328,46 @@ function dist3D(a: No3D, b: No3D): number {
   return Math.sqrt(dx * dx + dy * dy + dz * dz)
 }
 
+function latLngPara3D(lat: number, lng: number): No3D {
+  // cobe usa phi para rotação em torno do eixo Y; longitude 0 fica na frente
+  // a phi=0. Convenção resultante: x = cosφ·sinλ, y = sinφ, z = cosφ·cosλ
+  // (φ = lat, λ = lng, tudo em radianos).
+  const latR = (lat * Math.PI) / 180
+  const lngR = (lng * Math.PI) / 180
+  const cosLat = Math.cos(latR)
+  return {
+    x: cosLat * Math.sin(lngR),
+    y: Math.sin(latR),
+    z: cosLat * Math.cos(lngR),
+  }
+}
+
 function gerarMalha(): DadosMalha {
   const rng = criarPrng(1337)
-  const nos = fibonacciEsfera(NUM_NOS, rng)
 
+  // Nós principais: capitais reais, ancorados em lat/lng fixos
+  const nos: NoMalha[] = CAPITAIS.map((c) => ({
+    ...latLngPara3D(c.lat, c.lng),
+    primario: true,
+  }))
+
+  // Malha sináptica de fundo: Fibonacci + jitter, mas rejeita pontos muito
+  // próximos de qualquer capital (evita que a capital vire apenas "bola"
+  // sobre um nó sináptico que está colado embaixo)
+  const filler = fibonacciEsfera(NUM_FILLER, rng)
+  for (const p of filler) {
+    let muitoProximo = false
+    for (const n of nos) {
+      if (n.primario && dist3D(n, p) < DIST_MIN_PRIMARIO) {
+        muitoProximo = true
+        break
+      }
+    }
+    if (!muitoProximo) nos.push({ ...p, primario: false })
+  }
+
+  // Arestas k-nearest no grafo combinado — capitais naturalmente se tornam
+  // "hubs" quando há nós filler próximos, reforçando o feel de rede
   const chaves = new Set<string>()
   const arestas: Sinapse[] = []
 
@@ -317,9 +394,10 @@ function gerarMalha(): DadosMalha {
     }
   })
 
-  const pulsosNo = nos.map(() => ({
-    duracao: 2.2 + rng() * 2.8,
-    atraso: rng() * 5,
+  // Pulsos: primários batem mais devagar e deliberadamente; filler mais rápido
+  const pulsosNo = nos.map((n) => ({
+    duracao: n.primario ? 3.4 + rng() * 2.4 : 2.2 + rng() * 2.8,
+    atraso: rng() * 6,
   }))
 
   return { nos, arestas, pulsosNo }

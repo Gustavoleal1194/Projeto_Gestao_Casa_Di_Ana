@@ -16,33 +16,46 @@ export interface GlobeMarker {
   size: number                 // raio relativo (0..1)
 }
 
-// Nós de ativação distribuídos uniformemente pela esfera — não correspondem
-// a cidades. Geração determinística via PRNG (seed fixa) para manter o mesmo
-// layout entre recargas. São "pontos quentes" da malha neural visíveis através
-// da superfície dot-matrix do globo.
-function gerarNosGlobais(quantidade: number, seed: number): GlobeMarker[] {
-  let s = seed | 0
-  const rng = () => {
-    s = (s + 0x6d2b79f5) | 0
-    let t = Math.imul(s ^ (s >>> 15), 1 | s)
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-  const nos: GlobeMarker[] = []
-  for (let i = 0; i < quantidade; i++) {
-    // z uniforme em [-1, 1] → latitude com distribuição uniforme por área
-    const z = rng() * 2 - 1
-    const lat = (Math.asin(z) * 180) / Math.PI
-    const lng = (rng() * 2 - 1) * 180
-    nos.push({
-      location: [lat, lng],
-      size: 0.022 + rng() * 0.028,
-    })
-  }
-  return nos
+export interface Capital {
+  nome: string
+  lat: number
+  lng: number
+  destaque?: boolean  // SP é destaque por ser base da Casa di Ana
 }
 
-export const GLOBE_NODES: GlobeMarker[] = gerarNosGlobais(18, 8472)
+/**
+ * Nós principais da rede — capitais globais reais, distribuídas nos
+ * continentes para equilíbrio estético. Brasil representado por São Paulo
+ * (não Brasília) por ser a base operacional da Casa di Ana.
+ * São fixos: mesmas coordenadas geográficas sempre, rotacionam com o globo.
+ */
+export const CAPITAIS: Capital[] = [
+  // Américas
+  { nome: 'São Paulo',        lat: -23.5505, lng:  -46.6333, destaque: true },
+  { nome: 'Nova York',        lat:  40.7128, lng:  -74.0060 },
+  { nome: 'Cidade do México', lat:  19.4326, lng:  -99.1332 },
+  { nome: 'Buenos Aires',     lat: -34.6037, lng:  -58.3816 },
+  // Europa
+  { nome: 'Londres',          lat:  51.5074, lng:   -0.1278 },
+  { nome: 'Paris',            lat:  48.8566, lng:    2.3522 },
+  { nome: 'Moscou',           lat:  55.7558, lng:   37.6173 },
+  // África
+  { nome: 'Cairo',            lat:  30.0444, lng:   31.2357 },
+  { nome: 'Cidade do Cabo',   lat: -33.9249, lng:   18.4241 },
+  // Oriente Médio / Ásia / Oceania
+  { nome: 'Dubai',            lat:  25.2048, lng:   55.2708 },
+  { nome: 'Mumbai',           lat:  19.0760, lng:   72.8777 },
+  { nome: 'Singapura',        lat:   1.3521, lng:  103.8198 },
+  { nome: 'Pequim',           lat:  39.9042, lng:  116.4074 },
+  { nome: 'Tóquio',           lat:  35.6762, lng:  139.6503 },
+  { nome: 'Sydney',           lat: -33.8688, lng:  151.2093 },
+]
+
+// Markers do cobe: derivados das capitais, com São Paulo em destaque
+export const GLOBE_NODES: GlobeMarker[] = CAPITAIS.map((c) => ({
+  location: [c.lat, c.lng],
+  size: c.destaque ? 0.06 : 0.035,
+}))
 
 // Velocidade de auto-rotação (incremento de phi por frame).
 export const AUTO_ROTATE_SPEED = 0.003

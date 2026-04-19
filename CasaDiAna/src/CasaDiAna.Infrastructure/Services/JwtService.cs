@@ -19,7 +19,7 @@ public class JwtService : IJwtService
         _chave = config["Jwt:Chave"]
             ?? throw new InvalidOperationException("Jwt:Chave não configurada.");
         _emissor = config["Jwt:Emissor"] ?? "CasaDiAna";
-        _expiracaoMinutos = int.Parse(config["Jwt:ExpiracaoMinutos"] ?? "60");
+        _expiracaoMinutos = int.TryParse(config["Jwt:ExpiracaoMinutos"], out var exp) ? exp : 60;
     }
 
     public string GerarToken(Usuario usuario)

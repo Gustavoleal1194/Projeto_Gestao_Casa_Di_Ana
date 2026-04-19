@@ -25,7 +25,6 @@ public class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>
         builder.Property(u => u.CriadoEm).HasColumnName("criado_em").IsRequired();
         builder.Property(u => u.AtualizadoEm).HasColumnName("atualizado_em").IsRequired();
 
-        // 2FA
         builder.Property(u => u.Telefone).HasColumnName("telefone").HasMaxLength(20);
         builder.Property(u => u.TwoFactorHabilitado)
             .HasColumnName("two_factor_habilitado")

@@ -109,19 +109,11 @@ export function NeuralMesh({ ativo, rotationRef }: NeuralMeshProps) {
         const profMedia = ((na.z + nb.z) / 2 + 1) / 2  // 0..1
         const intensidade = spike(t, a.duracao, a.atraso)
 
-        if (a.hubToHub) {
-          const baseOp = (0.08 + profMedia * 0.18) * visMedia
-          const peakOp = a.opacidadePico * (0.55 + profMedia * 0.45) * visMedia
-          const op = baseOp + (peakOp - baseOp) * intensidade
-          ctx.strokeStyle = `rgba(200, 230, 255, ${op})`
-          ctx.lineWidth = 0.90 + profMedia * 1.10
-        } else {
-          const baseOp = (0.03 + profMedia * 0.08) * visMedia
-          const peakOp = a.opacidadePico * (0.28 + profMedia * 0.40) * visMedia
-          const op = baseOp + (peakOp - baseOp) * intensidade
-          ctx.strokeStyle = `rgba(150, 220, 250, ${op})`
-          ctx.lineWidth = 0.45 + profMedia * 0.65
-        }
+        const baseOp = (0.08 + profMedia * 0.18) * visMedia
+        const peakOp = a.opacidadePico * (0.55 + profMedia * 0.45) * visMedia
+        const op = baseOp + (peakOp - baseOp) * intensidade
+        ctx.strokeStyle = `rgba(200, 230, 255, ${op})`
+        ctx.lineWidth = 0.90 + profMedia * 1.10
 
         ctx.beginPath()
         ctx.moveTo(na.x, na.y)
@@ -209,28 +201,6 @@ export function NeuralMesh({ ativo, rotationRef }: NeuralMeshProps) {
           ctx.beginPath()
           ctx.arc(n.x, n.y, rCore, 0, Math.PI * 2)
           ctx.fill()
-        } else {
-          // Nó sináptico secundário
-          const opBase = 0.20 + profNorm * 0.30
-          const opPico = 0.58 + profNorm * 0.38
-          const op = (opBase + (opPico - opBase) * intensidade) * n.vis
-
-          const rGlow = (0.55 + profNorm * 0.70) / 100 * dim
-          const rCore = (0.14 + profNorm * 0.20) / 100 * dim
-
-          const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, rGlow)
-          grad.addColorStop(0,    `rgba(200, 235, 255, ${0.95 * op})`)
-          grad.addColorStop(0.55, `rgba(90, 185, 230, ${0.35 * op})`)
-          grad.addColorStop(1,    'rgba(56, 153, 204, 0)')
-          ctx.fillStyle = grad
-          ctx.beginPath()
-          ctx.arc(n.x, n.y, rGlow, 0, Math.PI * 2)
-          ctx.fill()
-
-          ctx.fillStyle = `rgba(210, 240, 255, ${0.82 * n.vis})`
-          ctx.beginPath()
-          ctx.arc(n.x, n.y, rCore, 0, Math.PI * 2)
-          ctx.fill()
         }
       }
     }
@@ -295,14 +265,7 @@ function spikeNo(t: number, dur: number, atraso: number): number {
   return 0.5 * Math.max(0, 1 - (fase - 0.30) / 0.70)
 }
 
-// ── Geração da malha (Fibonacci jittered + k-nearest 3D) ──────────────
-
-// ── Parâmetros ajustáveis ─────────────────────────────────────────────
-const NUM_FILLER        = 100    // nós sinápticos de fundo
-const K_VIZINHOS        = 3      // conexões k-nearest por nó filler
-const DIST_MAX_ARESTA   = 0.40   // distância máxima para conexão filler
-const JITTER            = 0.09   // organicidade da esfera Fibonacci
-const DIST_MIN_PRIMARIO = 0.17   // clearance mínimo entre filler e hub
+// ── Geração da malha ──────────────────────────────────────────────────
 
 interface No3D {
   x: number
@@ -330,7 +293,6 @@ interface Sinapse {
   duracao: number
   atraso: number
   opacidadePico: number
-  hubToHub: boolean
 }
 
 interface DadosMalha {
@@ -347,35 +309,6 @@ function criarPrng(seed: number): () => number {
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296
   }
-}
-
-function fibonacciEsfera(n: number, rng: () => number): No3D[] {
-  const goldenAngle = Math.PI * (3 - Math.sqrt(5))
-  const pontos: No3D[] = []
-  for (let i = 0; i < n; i++) {
-    // Amostragem Fibonacci (distribuição quase-uniforme)
-    const y = 1 - (i / (n - 1)) * 2
-    const r = Math.sqrt(Math.max(0, 1 - y * y))
-    const theta = goldenAngle * i
-    let px = r * Math.cos(theta)
-    let py = y
-    let pz = r * Math.sin(theta)
-    // Jitter → organicidade (o usuário pediu malha não mecânica)
-    px += (rng() - 0.5) * JITTER
-    py += (rng() - 0.5) * JITTER
-    pz += (rng() - 0.5) * JITTER
-    // Re-normaliza pra manter na superfície da esfera unitária
-    const len = Math.sqrt(px * px + py * py + pz * pz) || 1
-    pontos.push({ x: px / len, y: py / len, z: pz / len })
-  }
-  return pontos
-}
-
-function dist3D(a: No3D, b: No3D): number {
-  const dx = a.x - b.x
-  const dy = a.y - b.y
-  const dz = a.z - b.z
-  return Math.sqrt(dx * dx + dy * dy + dz * dz)
 }
 
 function latLngPara3D(lat: number, lng: number): No3D {
@@ -436,25 +369,9 @@ function gerarMalha(): DadosMalha {
     sp: idx === 0,
   }))
 
-  // Malha sináptica de fundo: Fibonacci + jitter, mas rejeita pontos muito
-  // próximos de qualquer capital (evita que a capital vire apenas "bola"
-  // sobre um nó sináptico que está colado embaixo)
-  const filler = fibonacciEsfera(NUM_FILLER, rng)
-  for (const p of filler) {
-    let muitoProximo = false
-    for (const n of nos) {
-      if (n.primario && dist3D(n, p) < DIST_MIN_PRIMARIO) {
-        muitoProximo = true
-        break
-      }
-    }
-    if (!muitoProximo) nos.push({ ...p, primario: false, sp: false })
-  }
-
   const chaves = new Set<string>()
   const arestas: Sinapse[] = []
 
-  // Fase 1 — Hub-to-hub explícito entre os 15 CAPITAIS
   for (const [i, j] of CONEXOES_HUB) {
     const a = Math.min(i, j)
     const b = Math.max(i, j)
@@ -467,40 +384,11 @@ function gerarMalha(): DadosMalha {
       duracao: 2.5 + rng() * 2.5,
       atraso: rng() * 8,
       opacidadePico: 0.65 + rng() * 0.35,
-      hubToHub: true,
     })
   }
 
-  // Fase 2 — Filler k-nearest (apenas nós não-primários → fillers e filler→primário)
-  const numCapitais = CAPITAIS.length
-  for (let i = numCapitais; i < nos.length; i++) {
-    const no = nos[i]
-    const vizinhos = nos
-      .map((outro, j) => ({ j, d: i === j ? Infinity : dist3D(no, outro) }))
-      .filter((v) => v.d <= DIST_MAX_ARESTA)
-      .sort((a, b) => a.d - b.d)
-      .slice(0, K_VIZINHOS)
-
-    for (const { j } of vizinhos) {
-      const a = Math.min(i, j)
-      const b = Math.max(i, j)
-      const chave = `${a}-${b}`
-      if (chaves.has(chave)) continue
-      chaves.add(chave)
-      arestas.push({
-        i: a,
-        j: b,
-        duracao: 2.0 + rng() * 3.6,
-        atraso: rng() * 7,
-        opacidadePico: 0.30 + rng() * 0.35,
-        hubToHub: false,
-      })
-    }
-  }
-
-  // Pulsos: primários batem mais devagar e deliberadamente; filler mais rápido
-  const pulsosNo = nos.map((n) => ({
-    duracao: n.primario ? 3.4 + rng() * 2.4 : 2.2 + rng() * 2.8,
+  const pulsosNo = nos.map(() => ({
+    duracao: 3.4 + rng() * 2.4,
     atraso: rng() * 6,
   }))
 

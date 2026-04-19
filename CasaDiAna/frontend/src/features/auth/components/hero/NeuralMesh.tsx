@@ -67,9 +67,7 @@ export function NeuralMesh({ ativo, rotationRef }: NeuralMeshProps) {
       const cosT = Math.cos(rot.theta)
       const sinT = Math.sin(rot.theta)
 
-      // Respiração sutil da malha inteira — 0.6% de amplitude
-      const respirando = 1 + Math.sin(t * 0.85) * 0.006
-      const raio = Math.min(largCss, altCss) * 0.42 * respirando
+      const raio = Math.min(largCss, altCss) * 0.40
       const cx = largCss / 2
       const cy = altCss / 2
 
@@ -82,8 +80,8 @@ export function NeuralMesh({ ativo, rotationRef }: NeuralMeshProps) {
         // Rotação em torno de Y (phi) depois em torno de X (theta)
         const x1 =  n.x * cosP + n.z * sinP
         const z1 = -n.x * sinP + n.z * cosP
-        const y2 =  n.y * cosT + z1 * sinT
-        const z2 = -n.y * sinT + z1 * cosT
+        const y2 =  n.y * cosT - z1 * sinT
+        const z2 =  n.y * sinT + z1 * cosT
         rotacionados[i] = {
           x: cx + x1 * raio,
           y: cy - y2 * raio,   // SVG-like: y cresce pra baixo
@@ -329,16 +327,17 @@ function dist3D(a: No3D, b: No3D): number {
 }
 
 function latLngPara3D(lat: number, lng: number): No3D {
-  // cobe usa phi para rotação em torno do eixo Y; longitude 0 fica na frente
-  // a phi=0. Convenção resultante: x = cosφ·sinλ, y = sinφ, z = cosφ·cosλ
-  // (φ = lat, λ = lng, tudo em radianos).
+  // Convenção do cobe (lida do shader WebGL):
+  // marcador em (lat, lng) é armazenado como (cos·cosλ, sinφ, -cos·sinλ).
+  // Rotação: m = l * J(theta, phi) — multiplicação à direita, right-handed Y→X.
+  // Raio do globo no canvas CSS = 0.40 × css_width (círculo c≤0.64 em a-space).
   const latR = (lat * Math.PI) / 180
   const lngR = (lng * Math.PI) / 180
   const cosLat = Math.cos(latR)
   return {
-    x: cosLat * Math.sin(lngR),
-    y: Math.sin(latR),
-    z: cosLat * Math.cos(lngR),
+    x:  cosLat * Math.cos(lngR),
+    y:  Math.sin(latR),
+    z: -cosLat * Math.sin(lngR),
   }
 }
 

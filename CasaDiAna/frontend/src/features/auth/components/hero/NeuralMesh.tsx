@@ -88,6 +88,7 @@ export function NeuralMesh({ ativo, rotationRef }: NeuralMeshProps) {
           z: z2,
           vis: visibilidade(z2),
           primario: n.primario,
+          sp: n.sp,
         }
       }
 
@@ -107,12 +108,20 @@ export function NeuralMesh({ ativo, rotationRef }: NeuralMeshProps) {
         const profMedia = ((na.z + nb.z) / 2 + 1) / 2  // 0..1
         const intensidade = spike(t, a.duracao, a.atraso)
 
-        const baseOp = (0.05 + profMedia * 0.12) * visMedia
-        const peakOp = a.opacidadePico * (0.40 + profMedia * 0.55) * visMedia
-        const op = baseOp + (peakOp - baseOp) * intensidade
+        if (a.hubToHub) {
+          const baseOp = (0.08 + profMedia * 0.18) * visMedia
+          const peakOp = a.opacidadePico * (0.55 + profMedia * 0.45) * visMedia
+          const op = baseOp + (peakOp - baseOp) * intensidade
+          ctx.strokeStyle = `rgba(200, 230, 255, ${op})`
+          ctx.lineWidth = 0.90 + profMedia * 1.10
+        } else {
+          const baseOp = (0.03 + profMedia * 0.08) * visMedia
+          const peakOp = a.opacidadePico * (0.28 + profMedia * 0.40) * visMedia
+          const op = baseOp + (peakOp - baseOp) * intensidade
+          ctx.strokeStyle = `rgba(150, 220, 250, ${op})`
+          ctx.lineWidth = 0.45 + profMedia * 0.65
+        }
 
-        ctx.strokeStyle = `rgba(150, 220, 250, ${op})`
-        ctx.lineWidth = 0.55 + profMedia * 0.95
         ctx.lineCap = 'round'
         ctx.beginPath()
         ctx.moveTo(na.x, na.y)
@@ -134,7 +143,45 @@ export function NeuralMesh({ ativo, rotationRef }: NeuralMeshProps) {
         const pulse = malha.pulsosNo[i]
         const intensidade = spikeNo(t, pulse.duracao, pulse.atraso)
 
-        if (n.primario) {
+        if (n.sp) {
+          // São Paulo — hub principal: glow dominante âmbar-dourado + anel pulsante
+          const opBase = 0.60 + profNorm * 0.30
+          const opPico = 1.00
+          const op = (opBase + (opPico - opBase) * intensidade) * n.vis
+
+          // Anel externo pulsante (expande e some no ritmo do spike)
+          const rAnel = (2.8 + profNorm * 1.2 + intensidade * 1.8) / 100 * dim
+          ctx.strokeStyle = `rgba(255, 200, 60, ${0.28 * intensidade * n.vis})`
+          ctx.lineWidth = 0.8
+          ctx.beginPath()
+          ctx.arc(n.x, n.y, rAnel, 0, Math.PI * 2)
+          ctx.stroke()
+
+          // Glow amplo dourado
+          const rGlow = (2.80 + profNorm * 1.40) / 100 * dim
+          const rCore = (0.52 + profNorm * 0.36) / 100 * dim
+          const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, rGlow)
+          grad.addColorStop(0,    `rgba(255, 230, 120, ${0.98 * op})`)
+          grad.addColorStop(0.22, `rgba(255, 200,  80, ${0.80 * op})`)
+          grad.addColorStop(0.55, `rgba(220, 140,  40, ${0.35 * op})`)
+          grad.addColorStop(0.82, `rgba(150,  90,  20, ${0.12 * op})`)
+          grad.addColorStop(1,    'rgba(80, 40, 0, 0)')
+          ctx.fillStyle = grad
+          ctx.beginPath()
+          ctx.arc(n.x, n.y, rGlow, 0, Math.PI * 2)
+          ctx.fill()
+
+          // Núcleo quase-branco intenso
+          const gradCore = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, rCore)
+          gradCore.addColorStop(0,   `rgba(255, 255, 240, ${1.00 * n.vis})`)
+          gradCore.addColorStop(0.5, `rgba(255, 235, 160, ${0.95 * n.vis})`)
+          gradCore.addColorStop(1,   `rgba(255, 200,  80, 0)`)
+          ctx.fillStyle = gradCore
+          ctx.beginPath()
+          ctx.arc(n.x, n.y, rCore, 0, Math.PI * 2)
+          ctx.fill()
+
+        } else if (n.primario) {
           // Nó principal: glow amplo, núcleo âmbar-branco com coroa cyan
           const opBase = 0.42 + profNorm * 0.30
           const opPico = 0.82 + profNorm * 0.18
@@ -249,6 +296,13 @@ function spikeNo(t: number, dur: number, atraso: number): number {
 
 // ── Geração da malha (Fibonacci jittered + k-nearest 3D) ──────────────
 
+// ── Parâmetros ajustáveis ─────────────────────────────────────────────
+const NUM_FILLER        = 100    // nós sinápticos de fundo
+const K_VIZINHOS        = 3      // conexões k-nearest por nó filler
+const DIST_MAX_ARESTA   = 0.40   // distância máxima para conexão filler
+const JITTER            = 0.09   // organicidade da esfera Fibonacci
+const DIST_MIN_PRIMARIO = 0.17   // clearance mínimo entre filler e hub
+
 interface No3D {
   x: number
   y: number
@@ -257,6 +311,7 @@ interface No3D {
 
 interface NoMalha extends No3D {
   primario: boolean
+  sp: boolean        // true apenas para São Paulo
 }
 
 interface NoRotacionado {
@@ -265,6 +320,7 @@ interface NoRotacionado {
   z: number  // -1..1 após rotação
   vis: number // 0..1
   primario: boolean
+  sp: boolean        // propagado para o render
 }
 
 interface Sinapse {
@@ -273,6 +329,7 @@ interface Sinapse {
   duracao: number
   atraso: number
   opacidadePico: number
+  hubToHub: boolean
 }
 
 interface DadosMalha {
@@ -280,12 +337,6 @@ interface DadosMalha {
   arestas: Sinapse[]
   pulsosNo: Array<{ duracao: number; atraso: number }>
 }
-
-const NUM_FILLER = 100         // malha sináptica de fundo (Fibonacci jittered)
-const K_VIZINHOS = 3
-const DIST_MAX_ARESTA = 0.40   // conexões curtas → sinapses, nunca rotas
-const JITTER = 0.09            // organicidade sobre Fibonacci perfeito
-const DIST_MIN_PRIMARIO = 0.17 // distância mínima de filler a uma capital (evita sobreposição)
 
 function criarPrng(seed: number): () => number {
   let s = seed | 0
@@ -341,13 +392,47 @@ function latLngPara3D(lat: number, lng: number): No3D {
   }
 }
 
+// Conexões hub-to-hub explícitas entre os 15 CAPITAIS (índices 0–14)
+// 0: São Paulo      1: Nova York      2: Cidade do México  3: Buenos Aires
+// 4: Londres        5: Paris          6: Moscou            7: Cairo
+// 8: Cidade do Cabo 9: Dubai          10: Mumbai           11: Singapura
+// 12: Pequim        13: Tóquio        14: Sydney
+const CONEXOES_HUB: [number, number][] = [
+  // SP(0)
+  [0, 1], [0, 2], [0, 3], [0, 4], [0, 9], [0, 10], [0, 11], [0, 13], [0, 14],
+  // NY(1)
+  [1, 4], [1, 2],
+  // BuenosAires(3)
+  [3, 1],
+  // Londres(4)
+  [4, 5], [4, 6], [4, 7], [4, 9],
+  // Paris(5)
+  [5, 6],
+  // Moscou(6)
+  [6, 12], [6, 9],
+  // Cairo(7)
+  [7, 8], [7, 9],
+  // Dubai(9)
+  [9, 10], [9, 11],
+  // Mumbai(10)
+  [10, 11], [10, 12],
+  // Singapura(11)
+  [11, 12], [11, 13], [11, 14],
+  // Pequim(12)
+  [12, 13],
+  // Tóquio(13)
+  [13, 14],
+]
+
 function gerarMalha(): DadosMalha {
   const rng = criarPrng(1337)
 
   // Nós principais: capitais reais, ancorados em lat/lng fixos
-  const nos: NoMalha[] = CAPITAIS.map((c) => ({
+  // São Paulo é sempre o índice 0
+  const nos: NoMalha[] = CAPITAIS.map((c, idx) => ({
     ...latLngPara3D(c.lat, c.lng),
     primario: true,
+    sp: idx === 0,
   }))
 
   // Malha sináptica de fundo: Fibonacci + jitter, mas rejeita pontos muito
@@ -362,15 +447,33 @@ function gerarMalha(): DadosMalha {
         break
       }
     }
-    if (!muitoProximo) nos.push({ ...p, primario: false })
+    if (!muitoProximo) nos.push({ ...p, primario: false, sp: false })
   }
 
-  // Arestas k-nearest no grafo combinado — capitais naturalmente se tornam
-  // "hubs" quando há nós filler próximos, reforçando o feel de rede
   const chaves = new Set<string>()
   const arestas: Sinapse[] = []
 
-  nos.forEach((no, i) => {
+  // Fase 1 — Hub-to-hub explícito entre os 15 CAPITAIS
+  for (const [i, j] of CONEXOES_HUB) {
+    const a = Math.min(i, j)
+    const b = Math.max(i, j)
+    const chave = `${a}-${b}`
+    if (chaves.has(chave)) continue
+    chaves.add(chave)
+    arestas.push({
+      i: a,
+      j: b,
+      duracao: 2.5 + rng() * 2.5,
+      atraso: rng() * 8,
+      opacidadePico: 0.65 + rng() * 0.35,
+      hubToHub: true,
+    })
+  }
+
+  // Fase 2 — Filler k-nearest (apenas nós não-primários → fillers e filler→primário)
+  const numCapitais = CAPITAIS.length
+  for (let i = numCapitais; i < nos.length; i++) {
+    const no = nos[i]
     const vizinhos = nos
       .map((outro, j) => ({ j, d: i === j ? Infinity : dist3D(no, outro) }))
       .filter((v) => v.d <= DIST_MAX_ARESTA)
@@ -388,10 +491,11 @@ function gerarMalha(): DadosMalha {
         j: b,
         duracao: 2.0 + rng() * 3.6,
         atraso: rng() * 7,
-        opacidadePico: 0.45 + rng() * 0.50,
+        opacidadePico: 0.30 + rng() * 0.35,
+        hubToHub: false,
       })
     }
-  })
+  }
 
   // Pulsos: primários batem mais devagar e deliberadamente; filler mais rápido
   const pulsosNo = nos.map((n) => ({

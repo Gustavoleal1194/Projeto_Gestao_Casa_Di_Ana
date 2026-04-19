@@ -27,12 +27,21 @@ public class TwilioSmsService : ISmsService
 
     public async Task EnviarAsync(string telefone, string codigo, CancellationToken ct = default)
     {
-        var message = await MessageResource.CreateAsync(
-            body: $"Seu código de verificação Casa di Ana: {codigo}. Válido por 5 minutos.",
-            from: new PhoneNumber(_numeroDe),
-            to: new PhoneNumber(telefone));
+        try
+        {
+            var message = await MessageResource.CreateAsync(
+                body: $"Seu código de verificação Casa di Ana: {codigo}. Válido por 5 minutos.",
+                from: new PhoneNumber(_numeroDe),
+                to: new PhoneNumber(telefone));
 
-        _logger.LogInformation("SMS 2FA enviado para {Telefone}. SID: {Sid}",
-            Usuario.MascararTelefone(telefone), message.Sid);
+            _logger.LogInformation("SMS 2FA enviado para {Telefone}. SID: {Sid}",
+                Usuario.MascararTelefone(telefone), message.Sid);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Falha ao enviar SMS 2FA para {Telefone}.",
+                Usuario.MascararTelefone(telefone));
+            throw;
+        }
     }
 }

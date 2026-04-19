@@ -11,7 +11,6 @@ public class VerificarOtpCommandValidator : AbstractValidator<VerificarOtpComman
 
         RuleFor(x => x.Codigo)
             .NotEmpty().WithMessage("Código é obrigatório.")
-            .Length(6).WithMessage("Código deve ter 6 dígitos.")
-            .Matches(@"^\d{6}$").WithMessage("Código deve conter apenas dígitos.");
+            .Matches(@"^\d{6}$").WithMessage("Código deve ter 6 dígitos numéricos.");
     }
 }

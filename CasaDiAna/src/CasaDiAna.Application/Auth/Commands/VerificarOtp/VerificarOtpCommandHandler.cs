@@ -23,7 +23,10 @@ public class VerificarOtpCommandHandler : IRequestHandler<VerificarOtpCommand, T
         if (!usuario.TwoFactorHabilitado)
             throw new UnauthorizedAccessException("Sessão inválida.");
 
-        if (usuario.CodigoOtpExpiraEm is null || DateTime.UtcNow > usuario.CodigoOtpExpiraEm)
+        if (usuario.CodigoOtpExpiraEm is null)
+            throw new UnauthorizedAccessException("Sessão inválida.");
+
+        if (DateTime.UtcNow > usuario.CodigoOtpExpiraEm)
             throw new UnauthorizedAccessException("Código expirado. Faça login novamente.");
 
         if (usuario.CodigoOtpTentativas >= 3)

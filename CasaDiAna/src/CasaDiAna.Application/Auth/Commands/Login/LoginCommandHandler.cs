@@ -38,10 +38,10 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResultDto>
             var tokenTemp = _jwtService.GerarTokenTemporario(usuario.Id);
             return new LoginResultDto(
                 Requer2Fa: true,
+                TokenTemporario: tokenTemp,
                 Token: null,
                 Nome: null,
                 Papel: null,
-                TokenTemporario: tokenTemp,
                 TelefoneMascarado: Usuario.MascararTelefone(usuario.Telefone!));
         }
 

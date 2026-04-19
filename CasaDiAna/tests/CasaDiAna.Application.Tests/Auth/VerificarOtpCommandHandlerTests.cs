@@ -57,13 +57,31 @@ public class VerificarOtpCommandHandlerTests
     }
 
     [Fact]
-    public async Task DeveLancarExcecao_QuandoCodigoExpirado()
+    public async Task DeveLancarExcecao_QuandoOtpNuncaGerado()
     {
         var usuarioSemOtp = CriarUsuarioCom2Fa(); // CodigoOtpExpiraEm = null
         _repositorio.Setup(r => r.ObterPorIdAsync(usuarioSemOtp.Id, default)).ReturnsAsync(usuarioSemOtp);
 
         var acao = () => _handler.Handle(
             new VerificarOtpCommand(usuarioSemOtp.Id, "123456"), CancellationToken.None);
+
+        await acao.Should().ThrowAsync<UnauthorizedAccessException>()
+            .WithMessage("Sessão inválida.");
+    }
+
+    [Fact]
+    public async Task DeveLancarExcecao_QuandoCodigoExpirado()
+    {
+        var usuario = CriarUsuarioCom2Fa();
+        usuario.GerarOtp();
+        // Simula expiração forçando CodigoOtpExpiraEm para o passado via reflexão
+        typeof(Domain.Entities.Usuario)
+            .GetProperty("CodigoOtpExpiraEm")!
+            .SetValue(usuario, DateTime.UtcNow.AddMinutes(-1));
+        _repositorio.Setup(r => r.ObterPorIdAsync(usuario.Id, default)).ReturnsAsync(usuario);
+
+        var acao = () => _handler.Handle(
+            new VerificarOtpCommand(usuario.Id, "123456"), CancellationToken.None);
 
         await acao.Should().ThrowAsync<UnauthorizedAccessException>()
             .WithMessage("Código expirado. Faça login novamente.");

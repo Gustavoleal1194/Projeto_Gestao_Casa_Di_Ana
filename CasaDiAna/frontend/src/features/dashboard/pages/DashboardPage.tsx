@@ -810,7 +810,6 @@ export function DashboardPage() {
             Atualizar
           </button>
         </div>
-      </div>
 
       {/* ── Ações Rápidas ─────────────────────────────────────────────── */}
       <div>

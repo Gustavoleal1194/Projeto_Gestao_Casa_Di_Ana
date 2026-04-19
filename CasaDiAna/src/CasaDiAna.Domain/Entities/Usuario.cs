@@ -72,7 +72,7 @@ public class Usuario
     // Gera OTP de 6 dígitos, armazena hash, expira em 5 min; retorna código limpo para SMS.
     public string GerarOtp()
     {
-        var codigo = Random.Shared.Next(100000, 999999).ToString("D6");
+        var codigo = System.Security.Cryptography.RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
         CodigoOtpHash = BCrypt.Net.BCrypt.HashPassword(codigo);
         CodigoOtpExpiraEm = DateTime.UtcNow.AddMinutes(5);
         CodigoOtpTentativas = 0;

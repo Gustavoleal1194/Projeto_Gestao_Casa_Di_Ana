@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams, Link } from 'react-router-dom'
-import { ChevronLeftIcon } from '@heroicons/react/24/outline'
+import { useNavigate, useParams } from 'react-router-dom'
+import { PageHeader } from '@/components/ui/PageHeader'
 import { useProdutoForm, produtoParaForm, formParaInput } from '../hooks/useProdutoForm'
 import { produtosService } from '../services/produtosService'
 import { categoriasProdutoService } from '@/features/producao/categorias-produto/services/categoriasProdutoService'
@@ -62,17 +62,10 @@ export function ProdutoFormPage() {
     <div className="ada-page max-w-2xl">
       {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
 
-      <Link to="/producao/produtos" className="back-link">
-        <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
-        Produtos
-      </Link>
-
-      <h1
-        className="text-xl font-bold tracking-tight mb-6"
-        style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
-      >
-        {isEdicao ? 'Editar Produto' : 'Novo Produto'}
-      </h1>
+      <PageHeader
+        titulo={isEdicao ? 'Editar Produto' : 'Novo Produto'}
+        breadcrumb={['Produção', 'Produtos']}
+      />
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormCard>

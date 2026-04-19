@@ -1,10 +1,10 @@
 // frontend/src/features/producao/vendas-diarias/pages/RegistrarVendaPage.tsx
 import { useEffect, useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ChevronLeftIcon } from '@heroicons/react/24/outline'
+import { PageHeader } from '@/components/ui/PageHeader'
 import { vendasDiariasService } from '../services/vendasDiariasService'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import { CampoTexto } from '@/features/estoque/ingredientes/components/CampoTexto'
@@ -62,17 +62,10 @@ export function RegistrarVendaPage() {
     <div className="ada-page max-w-lg">
       {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
 
-      <Link to="/producao/vendas" className="back-link">
-        <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
-        Vendas Diárias
-      </Link>
-
-      <h1
-        className="text-xl font-bold tracking-tight mb-6"
-        style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
-      >
-        Registrar Venda
-      </h1>
+      <PageHeader
+        titulo="Registrar Venda"
+        breadcrumb={['Produção', 'Vendas Diárias']}
+      />
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormCard>

@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ChevronLeftIcon } from '@heroicons/react/24/outline'
+import { PageHeader } from '@/components/ui/PageHeader'
 import { inventariosService } from '../services/inventariosService'
 import { CampoTexto } from '@/features/estoque/ingredientes/components/CampoTexto'
 import { FormTextarea } from '@/components/form/FormTextarea'
@@ -57,17 +57,10 @@ export function InventarioFormPage() {
     <div className="ada-page max-w-lg">
       {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
 
-      <Link to="/inventarios" className="back-link">
-        <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
-        Inventários
-      </Link>
-
-      <h1
-        className="text-xl font-bold tracking-tight mb-6"
-        style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
-      >
-        Novo Inventário
-      </h1>
+      <PageHeader
+        titulo="Novo Inventário"
+        breadcrumb={['Movimentações', 'Inventários']}
+      />
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormCard>

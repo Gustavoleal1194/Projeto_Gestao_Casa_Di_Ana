@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams, Link } from 'react-router-dom'
-import { ChevronLeftIcon } from '@heroicons/react/24/outline'
+import { useNavigate, useParams } from 'react-router-dom'
+import { PageHeader } from '@/components/ui/PageHeader'
 import { useFornecedorForm, fornecedorParaForm, formParaInput } from '../hooks/useFornecedorForm'
 import { fornecedoresService } from '../services/fornecedoresService'
 import { CampoTexto } from '@/features/estoque/ingredientes/components/CampoTexto'
@@ -58,17 +58,10 @@ export function FornecedorFormPage() {
     <div className="ada-page max-w-2xl">
       {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
 
-      <Link to="/fornecedores" className="back-link">
-        <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
-        Fornecedores
-      </Link>
-
-      <h1
-        className="text-xl font-bold tracking-tight mb-6"
-        style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
-      >
-        {isEdicao ? 'Editar Fornecedor' : 'Novo Fornecedor'}
-      </h1>
+      <PageHeader
+        titulo={isEdicao ? 'Editar Fornecedor' : 'Novo Fornecedor'}
+        breadcrumb={['Cadastros', 'Fornecedores']}
+      />
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormCard>

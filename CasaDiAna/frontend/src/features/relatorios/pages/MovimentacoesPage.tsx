@@ -8,7 +8,20 @@ import { LoadingState } from '@/components/ui/LoadingState'
 import { EmptyState } from '@/components/ui/EmptyState'
 import type { MovimentacaoRelatorio, IngredienteResumo } from '@/types/estoque'
 
-const TIPOS = ['', 'Entrada', 'AjustePositivo', 'AjusteNegativo', 'SaidaProducao']
+const TIPOS: { valor: string; rotulo: string }[] = [
+  { valor: '',               rotulo: 'Todos' },
+  { valor: 'Entrada',        rotulo: 'Entrada' },
+  { valor: 'AjustePositivo', rotulo: 'Ajuste Positivo' },
+  { valor: 'AjusteNegativo', rotulo: 'Ajuste Negativo' },
+  { valor: 'SaidaProducao',  rotulo: 'Saída — Produção' },
+]
+
+const TIPO_LABEL: Record<string, string> = {
+  Entrada:        'Entrada',
+  AjustePositivo: 'Ajuste Positivo',
+  AjusteNegativo: 'Ajuste Negativo',
+  SaidaProducao:  'Saída — Produção',
+}
 
 function hoje(): string { return new Date().toISOString().split('T')[0] }
 function ha30Dias(): string {
@@ -75,7 +88,7 @@ export function MovimentacoesPage() {
         <div>
           <label className="filter-label">Tipo</label>
           <select value={tipo} onChange={e => setTipo(e.target.value)} className="filter-input">
-            {TIPOS.map(t => <option key={t} value={t}>{t || 'Todos'}</option>)}
+            {TIPOS.map(t => <option key={t.valor} value={t.valor}>{t.rotulo}</option>)}
           </select>
         </div>
         <div>
@@ -127,7 +140,7 @@ export function MovimentacoesPage() {
                       <span className="text-xs ml-1" style={{ color: 'var(--ada-placeholder)' }}>({m.unidadeMedidaCodigo})</span>
                     </td>
                     <td className="table-td">
-                      <span className="text-sm" style={{ color: 'var(--ada-body)' }}>{m.tipo}</span>
+                      <span className="text-sm" style={{ color: 'var(--ada-body)' }}>{TIPO_LABEL[m.tipo] ?? m.tipo}</span>
                     </td>
                     <td className="table-td" style={{ textAlign: 'right' }}>
                       <span
@@ -140,8 +153,14 @@ export function MovimentacoesPage() {
                     <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
                       <span className="text-sm" style={{ color: 'var(--ada-body)' }}>{m.saldoApos}</span>
                     </td>
-                    <td className="table-td">
-                      <span className="text-xs" style={{ color: 'var(--ada-muted)' }}>{m.referenciaTipo ?? '—'}</span>
+                    <td className="table-td" style={{ maxWidth: '140px' }}>
+                      <span
+                        className="text-xs cell-truncate block"
+                        style={{ color: 'var(--ada-muted)' }}
+                        title={m.referenciaTipo ?? ''}
+                      >
+                        {m.referenciaTipo ?? '—'}
+                      </span>
                     </td>
                   </tr>
                 ))}

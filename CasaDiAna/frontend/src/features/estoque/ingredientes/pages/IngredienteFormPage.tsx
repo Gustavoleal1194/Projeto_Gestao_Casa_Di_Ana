@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { ChevronLeftIcon } from '@heroicons/react/20/solid'
+import { PageHeader } from '@/components/ui/PageHeader'
 import { useIngredienteForm, ingredienteParaForm } from '../hooks/useIngredienteForm'
 import { ingredientesService } from '../services/ingredientesService'
 import { useCategorias } from '@/features/estoque/categorias/hooks/useCategorias'
@@ -103,18 +104,10 @@ export function IngredienteFormPage() {
     <div className="ada-page max-w-3xl">
       {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={fecharToast} />}
 
-      {/* Breadcrumb */}
-      <Link to="/estoque/ingredientes" className="back-link">
-        <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
-        Ingredientes
-      </Link>
-
-      <h1
-        className="text-xl font-bold tracking-tight mb-6"
-        style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
-      >
-        {modoEdicao ? `Editar: ${ingrediente?.nome ?? ''}` : 'Novo Ingrediente'}
-      </h1>
+      <PageHeader
+        titulo={modoEdicao ? `Editar: ${ingrediente?.nome ?? ''}` : 'Novo Ingrediente'}
+        breadcrumb={['Cadastros', 'Ingredientes']}
+      />
 
       <form onSubmit={onSubmit}>
         <FormCard>

@@ -12,6 +12,7 @@ import { relatoriosService } from '@/features/relatorios/services/relatoriosServ
 import type { EstoqueAtualItem } from '@/types/estoque'
 import type { RelatorioProducaoVendasItem } from '@/types/producao'
 import { useTheme } from '@/hooks/useTheme'
+import { PageHeader } from '@/components/ui/PageHeader'
 
 // ─── Paleta de cores ────────────────────────────────────────────────────────
 const COR = {
@@ -158,14 +159,8 @@ function DashboardCard({ titulo, valor, subtexto, variante = 'default', icone }:
 
   return (
     <div
-      className="rounded-2xl p-5 transition-all duration-200"
-      style={{
-        background: 'var(--ada-surface)',
-        border: `1px solid ${v.border}`,
-        boxShadow: 'var(--shadow-sm)',
-      }}
-      onMouseEnter={e => (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-md)'}
-      onMouseLeave={e => (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-sm)'}
+      className="dashboard-card"
+      style={{ border: `1px solid ${v.border}` }}
     >
       <div className="flex items-start justify-between mb-4">
         <p
@@ -760,17 +755,11 @@ export function DashboardPage() {
     <div className="ada-page space-y-6 max-w-[1280px] mx-auto">
 
       {/* ── Cabeçalho ─────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1
-            className="font-bold tracking-tight"
-            style={{ fontSize: '1.375rem', color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif', letterSpacing: '-0.025em' }}
-          >
-            Dashboard
-          </h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--ada-muted)' }}>Visão geral do período selecionado</p>
-        </div>
-        <div
+      <PageHeader
+        titulo="Dashboard"
+        subtitulo="Resumo operacional do período"
+      />
+      <div
           className="flex flex-col gap-2.5 sm:flex-row sm:items-end sm:gap-3 p-3 rounded-xl"
           style={{ background: 'var(--ada-surface)', border: '1px solid var(--ada-border)', boxShadow: 'var(--shadow-xs)' }}
         >

@@ -58,7 +58,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(opt =>
+{
+    opt.AddPolicy("Pre2Fa", policy =>
+        policy.RequireAuthenticatedUser()
+              .RequireClaim("tipo", "pre2fa"));
+});
 builder.Services.AddControllers()
     .AddJsonOptions(opts =>
         opts.JsonSerializerOptions.Converters.Add(
@@ -74,6 +79,13 @@ builder.Services.AddRateLimiter(options =>
     options.AddFixedWindowLimiter("login", opt =>
     {
         opt.PermitLimit = 10;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0;
+    });
+    options.AddFixedWindowLimiter("reenvio2fa", opt =>
+    {
+        opt.PermitLimit = 1;
         opt.Window = TimeSpan.FromMinutes(1);
         opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
         opt.QueueLimit = 0;

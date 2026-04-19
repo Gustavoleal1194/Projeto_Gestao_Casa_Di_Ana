@@ -24,5 +24,18 @@ public class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>
         builder.Property(u => u.Ativo).HasColumnName("ativo").IsRequired();
         builder.Property(u => u.CriadoEm).HasColumnName("criado_em").IsRequired();
         builder.Property(u => u.AtualizadoEm).HasColumnName("atualizado_em").IsRequired();
+
+        // 2FA
+        builder.Property(u => u.Telefone).HasColumnName("telefone").HasMaxLength(20);
+        builder.Property(u => u.TwoFactorHabilitado)
+            .HasColumnName("two_factor_habilitado")
+            .IsRequired()
+            .HasDefaultValue(false);
+        builder.Property(u => u.CodigoOtpHash).HasColumnName("codigo_otp_hash");
+        builder.Property(u => u.CodigoOtpExpiraEm).HasColumnName("codigo_otp_expira_em");
+        builder.Property(u => u.CodigoOtpTentativas)
+            .HasColumnName("codigo_otp_tentativas")
+            .IsRequired()
+            .HasDefaultValue(0);
     }
 }

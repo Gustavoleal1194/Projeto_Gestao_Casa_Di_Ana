@@ -8,6 +8,8 @@ export interface UsuarioDto {
   papel: string
   ativo: boolean
   criadoEm: string
+  twoFactorHabilitado: boolean
+  telefoneMascarado: string | null
 }
 
 export interface CriarUsuarioInput {
@@ -34,5 +36,13 @@ export const usuariosService = {
 
   redefinirSenha: async (id: string, novaSenha: string): Promise<void> => {
     await api.patch(`/usuarios/${id}/senha`, { novaSenha })
+  },
+
+  habilitar2Fa: async (id: string, telefone: string): Promise<void> => {
+    await api.post(`/usuarios/${id}/2fa/habilitar`, { telefone })
+  },
+
+  desabilitar2Fa: async (id: string): Promise<void> => {
+    await api.delete(`/usuarios/${id}/2fa`)
   },
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { PlusIcon } from '@heroicons/react/20/solid'
-import { KeyIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { KeyIcon, ShieldCheckIcon, ShieldExclamationIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { usuariosService, type UsuarioDto, type CriarUsuarioInput } from '../services/usuariosService'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
 import { Spinner } from '@/components/form/Spinner'
@@ -25,7 +25,7 @@ const PAPEL_LABEL: Record<string, string> = {
   Compras: 'Compras',
 }
 
-type ModalTipo = 'criar' | 'senha' | null
+type ModalTipo = 'criar' | 'senha' | '2fa' | null
 
 // ─── Campo de formulário interno ────────────────────────────────────────────
 function Campo({
@@ -76,6 +76,8 @@ export function UsuariosPage() {
   const [formErros, setFormErros] = useState<Partial<Record<keyof CriarUsuarioInput, string>>>({})
   const [novaSenha, setNovaSenha] = useState('')
   const [senhaErro, setSenhaErro] = useState('')
+  const [telefone2Fa, setTelefone2Fa] = useState('')
+  const [telefone2FaErro, setTelefone2FaErro] = useState('')
 
   const carregar = async () => {
     setLoading(true)
@@ -102,6 +104,13 @@ export function UsuariosPage() {
     setNovaSenha('')
     setSenhaErro('')
     setModal('senha')
+  }
+
+  const abrirHabilitar2Fa = (u: UsuarioDto) => {
+    setUsuarioSelecionado(u)
+    setTelefone2Fa('')
+    setTelefone2FaErro('')
+    setModal('2fa')
   }
 
   const validarForm = (): boolean => {
@@ -149,6 +158,40 @@ export function UsuariosPage() {
     }
   }
 
+  const handleHabilitar2Fa = async () => {
+    if (!telefone2Fa.trim()) {
+      setTelefone2FaErro('Telefone obrigatório.')
+      return
+    }
+    if (!/^\+55\d{10,11}$/.test(telefone2Fa)) {
+      setTelefone2FaErro('Formato inválido. Use +55 seguido de DDD e número (ex: +5511999998888).')
+      return
+    }
+    if (!usuarioSelecionado) return
+    setSalvando(true)
+    try {
+      await usuariosService.habilitar2Fa(usuarioSelecionado.id, telefone2Fa)
+      setModal(null)
+      setToast({ tipo: 'sucesso', mensagem: '2FA habilitado com sucesso.' })
+      carregar()
+    } catch {
+      setToast({ tipo: 'erro', mensagem: 'Erro ao habilitar 2FA.' })
+    } finally {
+      setSalvando(false)
+    }
+  }
+
+  const handleDesabilitar2Fa = async (u: UsuarioDto) => {
+    if (!confirm(`Desabilitar 2FA para "${u.nome}"?`)) return
+    try {
+      await usuariosService.desabilitar2Fa(u.id)
+      setToast({ tipo: 'sucesso', mensagem: '2FA desabilitado.' })
+      carregar()
+    } catch {
+      setToast({ tipo: 'erro', mensagem: 'Erro ao desabilitar 2FA.' })
+    }
+  }
+
   const handleDesativar = async (u: UsuarioDto) => {
     if (!confirm(`Desativar o usuário "${u.nome}"?`)) return
     try {
@@ -177,7 +220,7 @@ export function UsuariosPage() {
       />
 
       {/* ── Estados ────────────────────────────────────────────────────── */}
-      {loading && <SkeletonTable colunas={4} linhas={4} />}
+      {loading && <SkeletonTable colunas={5} linhas={4} />}
       {!loading && erro && (
         <div className="state-error" role="alert">{erro}</div>
       )}
@@ -209,6 +252,7 @@ export function UsuariosPage() {
                     <th className="table-th" scope="col">E-mail</th>
                     <th className="table-th" scope="col">Papel</th>
                     <th className="table-th" scope="col">Status</th>
+                    <th className="table-th" scope="col">2FA</th>
                     <th className="table-th table-th-right" scope="col">
                       <span className="sr-only">Ações</span>
                     </th>
@@ -238,6 +282,13 @@ export function UsuariosPage() {
                           {u.ativo ? 'Ativo' : 'Inativo'}
                         </span>
                       </td>
+                      <td className="table-td">
+                        {u.twoFactorHabilitado ? (
+                          <span className="badge badge-active">Ativo</span>
+                        ) : (
+                          <span className="badge badge-inactive">Inativo</span>
+                        )}
+                      </td>
                       <td className="table-td" style={{ textAlign: 'right' }}>
                         <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
                           <button
@@ -248,6 +299,26 @@ export function UsuariosPage() {
                           >
                             <KeyIcon className="h-4 w-4" aria-hidden="true" />
                           </button>
+                          {u.ativo && !u.twoFactorHabilitado && (
+                            <button
+                              onClick={() => abrirHabilitar2Fa(u)}
+                              aria-label={`Habilitar 2FA para ${u.nome}`}
+                              title="Habilitar 2FA"
+                              className="row-action-btn"
+                            >
+                              <ShieldCheckIcon className="h-4 w-4" aria-hidden="true" />
+                            </button>
+                          )}
+                          {u.ativo && u.twoFactorHabilitado && (
+                            <button
+                              onClick={() => handleDesabilitar2Fa(u)}
+                              aria-label={`Desabilitar 2FA de ${u.nome}`}
+                              title="Desabilitar 2FA"
+                              className="row-action-btn"
+                            >
+                              <ShieldExclamationIcon className="h-4 w-4" aria-hidden="true" />
+                            </button>
+                          )}
                           {u.ativo && (
                             <button
                               onClick={() => handleDesativar(u)}
@@ -279,7 +350,6 @@ export function UsuariosPage() {
           onClick={e => { if (e.target === e.currentTarget && !salvando) setModal(null) }}
         >
           <div className="modal-card max-w-md">
-            {/* Header */}
             <div className="modal-header">
               <h2
                 id="modal-criar-titulo"
@@ -302,7 +372,6 @@ export function UsuariosPage() {
               </button>
             </div>
 
-            {/* Body */}
             <div className="px-6 py-5 space-y-4">
               <Campo label="Nome" obrigatorio erro={formErros.nome}>
                 <input
@@ -344,20 +413,11 @@ export function UsuariosPage() {
               </Campo>
             </div>
 
-            {/* Footer */}
             <div className="modal-footer">
-              <button
-                onClick={() => setModal(null)}
-                disabled={salvando}
-                className="btn-secondary"
-              >
+              <button onClick={() => setModal(null)} disabled={salvando} className="btn-secondary">
                 Cancelar
               </button>
-              <button
-                onClick={handleCriar}
-                disabled={salvando}
-                className="btn-primary"
-              >
+              <button onClick={handleCriar} disabled={salvando} className="btn-primary">
                 {salvando && <Spinner />}
                 {salvando ? 'Criando…' : 'Criar Usuário'}
               </button>
@@ -376,7 +436,6 @@ export function UsuariosPage() {
           onClick={e => { if (e.target === e.currentTarget && !salvando) setModal(null) }}
         >
           <div className="modal-card max-w-sm">
-            {/* Header */}
             <div className="modal-header">
               <div>
                 <h2
@@ -404,7 +463,6 @@ export function UsuariosPage() {
               </button>
             </div>
 
-            {/* Body */}
             <div className="px-6 py-5">
               <Campo label="Nova Senha" obrigatorio erro={senhaErro}>
                 <input
@@ -418,22 +476,79 @@ export function UsuariosPage() {
               </Campo>
             </div>
 
-            {/* Footer */}
             <div className="modal-footer">
+              <button onClick={() => setModal(null)} disabled={salvando} className="btn-secondary">
+                Cancelar
+              </button>
+              <button onClick={handleRedefinirSenha} disabled={salvando} className="btn-primary">
+                {salvando && <Spinner />}
+                {salvando ? 'Salvando…' : 'Redefinir'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal — Habilitar 2FA ───────────────────────────────────────── */}
+      {modal === '2fa' && usuarioSelecionado && (
+        <div
+          className="modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-2fa-titulo"
+          onClick={e => { if (e.target === e.currentTarget && !salvando) setModal(null) }}
+        >
+          <div className="modal-card max-w-sm">
+            <div className="modal-header">
+              <div>
+                <h2
+                  id="modal-2fa-titulo"
+                  className="text-[15px] font-semibold"
+                  style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
+                >
+                  Habilitar 2FA
+                </h2>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--ada-muted)' }}>
+                  {usuarioSelecionado.nome}
+                </p>
+              </div>
               <button
                 onClick={() => setModal(null)}
                 disabled={salvando}
-                className="btn-secondary"
+                className="p-1.5 rounded-lg transition-colors duration-150 outline-none
+                           focus-visible:ring-2 focus-visible:ring-[#C4870A]/40 disabled:opacity-40"
+                aria-label="Fechar"
+                style={{ color: 'var(--ada-muted)' }}
+                onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--ada-bg)'}
+                onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
               >
+                <XMarkIcon className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </div>
+
+            <div className="px-6 py-5">
+              <Campo label="Telefone (WhatsApp)" obrigatorio erro={telefone2FaErro}>
+                <input
+                  type="tel"
+                  className={fieldCls}
+                  value={telefone2Fa}
+                  onChange={e => { setTelefone2Fa(e.target.value); setTelefone2FaErro('') }}
+                  placeholder="+5511999998888"
+                  autoFocus
+                />
+              </Campo>
+              <p className="mt-2 text-xs" style={{ color: 'var(--ada-muted)' }}>
+                Formato: +55 + DDD + número (sem espaços ou traços)
+              </p>
+            </div>
+
+            <div className="modal-footer">
+              <button onClick={() => setModal(null)} disabled={salvando} className="btn-secondary">
                 Cancelar
               </button>
-              <button
-                onClick={handleRedefinirSenha}
-                disabled={salvando}
-                className="btn-primary"
-              >
+              <button onClick={handleHabilitar2Fa} disabled={salvando} className="btn-primary">
                 {salvando && <Spinner />}
-                {salvando ? 'Salvando…' : 'Redefinir'}
+                {salvando ? 'Salvando…' : 'Habilitar 2FA'}
               </button>
             </div>
           </div>

@@ -15,16 +15,16 @@ public class AuthController : ControllerBase
 
     public AuthController(IMediator mediator) => _mediator = mediator;
 
-    /// <summary>Realiza login e retorna o token JWT.</summary>
+    /// <summary>Realiza login. Retorna token JWT ou inicia fluxo 2FA.</summary>
     [HttpPost("login")]
     [EnableRateLimiting("login")]
-    [ProducesResponseType(typeof(ApiResponse<TokenDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<LoginResultDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Login(
         [FromBody] LoginCommand command, CancellationToken ct)
     {
-        var token = await _mediator.Send(command, ct);
-        return Ok(ApiResponse<TokenDto>.Ok(token));
+        var resultado = await _mediator.Send(command, ct);
+        return Ok(ApiResponse<LoginResultDto>.Ok(resultado));
     }
 }

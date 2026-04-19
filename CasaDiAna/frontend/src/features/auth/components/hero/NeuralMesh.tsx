@@ -99,6 +99,7 @@ export function NeuralMesh({ ativo, rotationRef }: NeuralMeshProps) {
       }))
       arestasComZ.sort((p, q) => p.zm - q.zm)
 
+      ctx.lineCap = 'round'
       for (const { a } of arestasComZ) {
         const na = rotacionados[a.i]
         const nb = rotacionados[a.j]
@@ -122,7 +123,6 @@ export function NeuralMesh({ ativo, rotationRef }: NeuralMeshProps) {
           ctx.lineWidth = 0.45 + profMedia * 0.65
         }
 
-        ctx.lineCap = 'round'
         ctx.beginPath()
         ctx.moveTo(na.x, na.y)
         ctx.lineTo(nb.x, nb.y)
@@ -291,6 +291,7 @@ function spikeNo(t: number, dur: number, atraso: number): number {
   const fase = (((t - atraso) / dur) % 1 + 1) % 1
   if (fase < 0.15) return fase / 0.15
   if (fase < 0.30) return 1 - (fase - 0.15) / 0.15 * 0.5
+  // cotovelo de derivada intencional: decay rápido 0.15→0.30, lento 0.30→1.0
   return 0.5 * Math.max(0, 1 - (fase - 0.30) / 0.70)
 }
 

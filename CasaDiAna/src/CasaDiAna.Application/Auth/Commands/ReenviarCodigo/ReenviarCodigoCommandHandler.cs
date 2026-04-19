@@ -1,3 +1,4 @@
+using CasaDiAna.Domain.Exceptions;
 using CasaDiAna.Domain.Interfaces;
 using MediatR;
 
@@ -25,7 +26,14 @@ public class ReenviarCodigoCommandHandler : IRequestHandler<ReenviarCodigoComman
         var codigo = usuario.GerarOtp();
         _usuarios.Atualizar(usuario);
         await _usuarios.SalvarAsync(cancellationToken);
-        await _smsService.EnviarAsync(usuario.Telefone, codigo, cancellationToken);
+        try
+        {
+            await _smsService.EnviarAsync(usuario.Telefone, codigo, cancellationToken);
+        }
+        catch (Exception)
+        {
+            throw new DomainException("Não foi possível enviar o código por SMS. Verifique o número cadastrado ou contate o administrador.");
+        }
 
         return Unit.Value;
     }

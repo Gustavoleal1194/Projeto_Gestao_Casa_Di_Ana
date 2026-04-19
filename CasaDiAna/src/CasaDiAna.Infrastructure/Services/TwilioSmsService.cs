@@ -10,23 +10,29 @@ namespace CasaDiAna.Infrastructure.Services;
 
 public class TwilioSmsService : ISmsService
 {
-    private readonly string _numeroDe;
+    private readonly string? _sid;
+    private readonly string? _token;
+    private readonly string? _numeroDe;
     private readonly ILogger<TwilioSmsService> _logger;
 
     public TwilioSmsService(IConfiguration config, ILogger<TwilioSmsService> logger)
     {
         _logger = logger;
-        var sid = config["Twilio:AccountSid"]
-            ?? throw new InvalidOperationException("Twilio:AccountSid não configurado.");
-        var token = config["Twilio:AuthToken"]
-            ?? throw new InvalidOperationException("Twilio:AuthToken não configurado.");
-        _numeroDe = config["Twilio:NumeroDe"]
-            ?? throw new InvalidOperationException("Twilio:NumeroDe não configurado.");
-        TwilioClient.Init(sid, token);
+        _sid      = config["Twilio:AccountSid"];
+        _token    = config["Twilio:AuthToken"];
+        _numeroDe = config["Twilio:NumeroDe"];
+
+        if (string.IsNullOrWhiteSpace(_sid) || string.IsNullOrWhiteSpace(_token) || string.IsNullOrWhiteSpace(_numeroDe))
+            _logger.LogWarning("Twilio não configurado: SMS 2FA não funcionará até que AccountSid, AuthToken e NumeroDe sejam definidos.");
+        else
+            TwilioClient.Init(_sid, _token);
     }
 
     public async Task EnviarAsync(string telefone, string codigo, CancellationToken ct = default)
     {
+        if (string.IsNullOrWhiteSpace(_sid) || string.IsNullOrWhiteSpace(_token) || string.IsNullOrWhiteSpace(_numeroDe))
+            throw new InvalidOperationException("Serviço de SMS não configurado. Configure as variáveis Twilio no servidor.");
+
         try
         {
             var message = await MessageResource.CreateAsync(

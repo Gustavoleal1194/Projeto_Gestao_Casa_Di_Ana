@@ -116,8 +116,8 @@ Mapeamento de exceções via `ExceptionHandlingMiddleware`:
 
 PostgreSQL, EF Core 8, Npgsql. Schemas:
 - `auth` — `usuarios`
-- `estoque` — ingredientes, categorias, fornecedores, unidades_medida, movimentacoes, entradas_mercadoria, itens_entrada, inventarios, itens_inventario
-- `producao` — produtos, categorias_produto, itens_ficha_tecnica, producoes_diarias, vendas_diarias, perdas_produto
+- `estoque` — ingredientes, categorias, fornecedores, unidades_medida, movimentacoes, entradas_mercadoria, itens_entrada, inventarios, itens_inventario, notificacoes_estoque, historico_impressao_etiquetas
+- `producao` — produtos, categorias_produto, itens_ficha_tecnica, producoes_diarias, vendas_diarias, perdas_produto, modelos_etiqueta_nutricional
 
 **Todas as colunas mapeadas explicitamente** via `HasColumnName()` em snake_case nas classes `IEntityTypeConfiguration<T>` em `Infrastructure/Persistence/Configurations/`. Não confiar em convenções automáticas do EF.
 
@@ -151,6 +151,19 @@ Ao registrar uma entrada de mercadoria, chamar **tanto** `ingrediente.AtualizarE
 
 Produção diária **não valida estoque suficiente** — é registrada após o fato. Estoque pode ficar negativo.
 
+### Autenticação 2FA (SMS via Twilio)
+
+Fluxo de login com 2FA habilitado:
+1. `POST /api/auth/login` → valida credenciais → gera OTP → envia SMS via `ISmsService` → retorna `Requer2Fa: true` + `TokenTemporario`
+2. `POST /api/auth/verificar-otp` → valida OTP com token temporário → retorna JWT completo
+3. `POST /api/auth/reenviar-codigo` → regenera e reenvia OTP
+
+O `TokenTemporario` tem vida curta (configurável) e claim `tipo=temp` — o `VerificarOtpCommandHandler` o valida via `IJwtService.GerarTokenTemporario`. O OTP é armazenado como BCrypt hash com expiração de 5 min e máximo de 5 tentativas.
+
+**`TwilioSmsService` não lança no construtor** se as vars não estiverem configuradas — loga warning e falha em `EnviarAsync`. Handlers que chamam `ISmsService` capturam exceções e lançam `DomainException` (422) em vez de propagar 500.
+
+Variáveis obrigatórias no Render: `Twilio__AccountSid`, `Twilio__AuthToken`, `Twilio__NumeroDe` (formato E.164, ex: `+17403135781`).
+
 ### Segurança implementada
 
 - **Rate limiting:** `[EnableRateLimiting("login")]` no `AuthController` — máx. 10 tentativas/min por IP (HTTP 429)
@@ -167,7 +180,7 @@ Produção diária **não valida estoque suficiente** — é registrada após o 
 
 | Módulo | Endpoints principais |
 |---|---|
-| Auth | `POST /api/auth/login` |
+| Auth | `POST /api/auth/login`, `POST /api/auth/verificar-otp`, `POST /api/auth/reenviar-codigo` |
 | Categorias Ingrediente | `GET/POST /api/categorias`, `PUT/DELETE /api/categorias/{id}` |
 | Unidades de Medida | `GET /api/unidades-medida` |
 | Ingredientes | `GET/POST /api/ingredientes`, `GET/PUT/DELETE /api/ingredientes/{id}` |
@@ -180,7 +193,9 @@ Produção diária **não valida estoque suficiente** — é registrada após o 
 | Vendas Diárias | `GET/POST /api/vendas-diarias` |
 | Perdas | `GET/POST /api/perdas` |
 | Estoque (Correção) | `POST /api/estoque/correcoes` |
-| Usuários | `GET/POST /api/usuarios`, `DELETE /api/usuarios/{id}`, `PATCH /api/usuarios/{id}/senha` (Admin only) |
+| Usuários | `GET/POST /api/usuarios`, `DELETE /api/usuarios/{id}`, `PATCH /api/usuarios/{id}/senha`, `POST /api/usuarios/{id}/habilitar-2fa`, `POST /api/usuarios/{id}/desabilitar-2fa` |
+| Notificações | `GET /api/notificacoes`, `PATCH /api/notificacoes/{id}/lida`, `POST /api/notificacoes/marcar-todas-lidas` |
+| Etiquetas | `POST /api/etiquetas/historico`, `GET /api/etiquetas/historico/{produtoId}`, `GET /api/produtos/{id}/modelo-etiqueta-nutricional`, `PUT /api/produtos/{id}/modelo-etiqueta-nutricional` |
 | Relatórios | `GET /api/relatorios/estoque-atual\|movimentacoes\|entradas\|producao-vendas\|insumos-producao` |
 
 ---
@@ -221,7 +236,7 @@ Vite substitui `import.meta.env.VITE_*` em **tempo de build**, não em runtime. 
 
 ### Stack
 
-React 18, TypeScript, Vite, Tailwind CSS v4, React Router v6, Zustand (auth), Axios, React Hook Form + Zod, Recharts (gráficos), jsPDF + jspdf-autotable (PDF).
+React 18, TypeScript, Vite, Tailwind CSS v4, React Router v6, Zustand (auth), Axios, React Hook Form + Zod, Recharts + ECharts (gráficos), jsPDF + jspdf-autotable (PDF).
 
 ### Estrutura de features
 
@@ -229,6 +244,8 @@ React 18, TypeScript, Vite, Tailwind CSS v4, React Router v6, Zustand (auth), Ax
 frontend/src/
   features/
     auth/
+      components/hero/   ← Globe3DScene, NeuralMesh (animação da tela de login)
+      lib/globeConfig.ts ← tokens do globo, CAPITAIS[], GLOBE_NODES, constantes de rotação
     dashboard/
     estoque/
       ingredientes/   ← módulo de referência para novos módulos
@@ -244,8 +261,13 @@ frontend/src/
       vendas-diarias/
       perdas/
     relatorios/
+    notificacoes/
     usuarios/
-  components/layout/  ← MainLayout (Sidebar + Outlet), Sidebar
+    etiquetas/
+  components/
+    layout/  ← MainLayout (Sidebar + Outlet), Sidebar, TopHeader
+    ui/      ← PageHeader, EmptyState, SkeletonTable, LoadingState
+    form/    ← FormCard, FormSection, CampoTexto, SelectCampo, FormTextarea, FormActions, Spinner
   lib/
     api.ts            ← instância Axios com JWT interceptor
     pdf.ts            ← funções de export PDF (jsPDF + autotable)
@@ -259,11 +281,38 @@ frontend/src/
 ### Padrões frontend
 
 - **Módulo de referência:** `src/features/estoque/ingredientes/` — copiar estrutura para novos módulos
-- **Componentes reutilizáveis** em `features/estoque/ingredientes/components/`: `Toast`, `CampoTexto`, `SelectCampo`, `ModalDesativar`, `Paginacao`
+- **Componentes reutilizáveis** em `src/components/ui/`: `PageHeader`, `EmptyState`, `SkeletonTable`, `LoadingState`
+- **Cabeçalho de página:** sempre usar `<PageHeader titulo="..." breadcrumb={[...]} subtitulo={...} actions={...} />` — nunca `h1` solto
+- **Estado vazio:** usar `<EmptyState icon={...} iconColor="..." titulo="..." descricao="..." action={...} />` dentro de `ada-surface-card`
+- **Estado de carregamento:** usar `<SkeletonTable colunas={N} linhas={5} />` enquanto `loading === true`
 - **Formulários:** React Hook Form + Zod com `resolver: zodResolver(schema) as any` (cast necessário por conflito de tipos com campos opcionais)
-- **Autenticação:** `useAuthStore()` expõe `usuario`, `logout`, `temPapel(...papeis)`. Papéis: `Admin`, `Coordenador`, `Compras`, `Operador` (somente leitura)
-- **Design:** tema "Café Rústico Refinado" — `amber-700` primário, `stone-900` sidebar, `stone-50` fundo
+- **Autenticação:** `useAuthStore()` expõe `usuario`, `logout`, `temPapel(...papeis)`. Papéis: `Admin`, `Coordenador`, `Compras`, `OperadorCozinha`, `OperadorPanificacao`, `OperadorBar`
+- **Design tokens:** definidos em `src/index.css` como CSS custom properties (`--ada-bg`, `--ada-surface`, `--ada-border`, etc.) — usar via `style={{ color: 'var(--ada-heading)' }}` ou classes `.btn-primary`, `.ada-surface-card`, `.table-th`, `.table-td`, etc.
 - **Datas da API:** o backend retorna datas como `"2026-03-28T00:00:00"`. Usar `new Date(valor)` diretamente — **não concatenar** `'T12:00:00'` (gera Invalid Date)
+
+### Componentes CSS globais (index.css)
+
+Classes utilitárias prontas para uso:
+
+| Classe | Uso |
+|---|---|
+| `.ada-page` | Container de página com padding responsivo e max-width |
+| `.ada-surface-card` | Card com borda, fundo e sombra padrão |
+| `.btn-primary` | Botão CTA âmbar |
+| `.btn-secondary` | Botão secundário com borda |
+| `.btn-danger` | Botão de ação destrutiva |
+| `.filter-bar` | Container de filtros com borda e padding |
+| `.filter-input` | Input/select de filtro |
+| `.table-th` / `.table-td` | Células de tabela com density ERP compacto |
+| `.table-head-row` | Linha de cabeçalho de tabela |
+| `.table-row` | Linha de dados com hover |
+| `.badge-active/inactive/warning/danger` | Badges de status |
+| `.row-action-btn` | Botão de ação em linha de tabela |
+| `.dashboard-card` | Card do dashboard com hover via CSS |
+| `.page-header` | Container do PageHeader |
+| `.notification-panel` | Painel dropdown de notificações |
+| `.skeleton` | Elemento com animação shimmer |
+| `.cell-truncate` | Célula com truncate + ellipsis |
 
 ### Responsividade mobile
 
@@ -272,21 +321,25 @@ frontend/src/
 - Overlay escuro + `Sidebar` com `fixed` e `translate-x` condicional
 - Sidebar recebe props `aberta` e `onFechar`; cada `NavLink` chama `onFechar` ao navegar
 
-Ao adicionar novas tabelas, sempre envolver com `<div className="overflow-x-auto">`. Cabeçalhos de página com título + botões devem usar `flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`.
+Ao adicionar novas tabelas, sempre envolver com `<div className="overflow-x-auto">`. Cabeçalhos de página com título + botões devem usar `<PageHeader>`.
+
+### Notificações — TopHeader dropdown
+
+O sino no `TopHeader` abre um dropdown inline (`notification-panel`) que carrega as últimas 8 notificações não lidas via `notificacoesService.listar(false)`. Não navega para `/notificacoes` no clique — a navegação só ocorre no botão "Ver todas" dentro do painel.
 
 ### Dashboard
 
-`DashboardPage.tsx` contém dois componentes reutilizáveis internos:
-- `DashboardCard` — KPI card com 4 variantes (`default`, `positivo`, `negativo`, `alerta`)
-- `ChartContainer` — wrapper de gráfico com título, subtítulo, rodapé de legenda e estado vazio
+`DashboardPage.tsx` usa `DashboardCard` (componente interno) com hover via classe `.dashboard-card` — sem `onMouseEnter`/`onMouseLeave` inline.
 
-Paleta semântica dos gráficos (aplicar consistentemente em novos gráficos):
-- `#22c55e` verde → vendido / positivo
-- `#ef4444` vermelho → perda / negativo
-- `#f97316` laranja → produção
-- `#3b82f6` azul → neutro / estoque
+Paleta semântica dos gráficos:
+- `#10b981` verde → vendido / positivo
+- `#f43f5e` vermelho → perda / negativo
+- `#f59e0b` âmbar → produção
+- `#60a5fa` azul → neutro / tendência
 
-O gráfico de Produção vs Vendas é stacked bar: **Vendido + Perda + Restante = total produzido**. `LabelList.formatter` deve ser tipado como `(v: unknown) => string` para compatibilidade com Recharts.
+### Temas (claro/escuro)
+
+Tokens em `:root` e `[data-theme="dark"]` em `index.css`. Não usar classes Tailwind como `bg-white` ou `text-stone-900` diretamente — usar `var(--ada-surface)` e `var(--ada-heading)` para que o tema escuro funcione corretamente.
 
 ### Testes (backend)
 

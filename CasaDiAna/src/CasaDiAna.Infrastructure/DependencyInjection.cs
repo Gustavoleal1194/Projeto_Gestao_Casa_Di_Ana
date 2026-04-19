@@ -44,6 +44,7 @@ public static class DependencyInjection
         services.AddScoped<IVendasParser, CsvVendasParser>();
         services.AddScoped<IPerdaProdutoRepository, PerdaProdutoRepository>();
         services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<ISmsService, TwilioSmsService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<INotificacaoEstoqueRepository, NotificacaoEstoqueRepository>();
         services.AddScoped<INotificacaoEstoqueService, NotificacaoEstoqueService>();

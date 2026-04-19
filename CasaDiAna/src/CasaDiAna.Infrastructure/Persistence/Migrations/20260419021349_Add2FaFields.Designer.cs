@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CasaDiAna.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260419020259_Add2FaFields")]
+    [Migration("20260419021349_Add2FaFields")]
     partial class Add2FaFields
     {
         /// <inheritdoc />
@@ -1058,7 +1058,7 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnName("atualizado_em");
 
                     b.Property<DateTime?>("CodigoOtpExpiraEm")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamptz")
                         .HasColumnName("codigo_otp_expira_em");
 
                     b.Property<string>("CodigoOtpHash")

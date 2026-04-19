@@ -32,7 +32,7 @@ public class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>
             .IsRequired()
             .HasDefaultValue(false);
         builder.Property(u => u.CodigoOtpHash).HasColumnName("codigo_otp_hash");
-        builder.Property(u => u.CodigoOtpExpiraEm).HasColumnName("codigo_otp_expira_em");
+        builder.Property(u => u.CodigoOtpExpiraEm).HasColumnName("codigo_otp_expira_em").HasColumnType("timestamptz");
         builder.Property(u => u.CodigoOtpTentativas)
             .HasColumnName("codigo_otp_tentativas")
             .IsRequired()

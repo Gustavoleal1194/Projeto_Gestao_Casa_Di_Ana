@@ -15,7 +15,7 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                 name: "codigo_otp_expira_em",
                 schema: "auth",
                 table: "usuarios",
-                type: "timestamp without time zone",
+                type: "timestamptz",
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(

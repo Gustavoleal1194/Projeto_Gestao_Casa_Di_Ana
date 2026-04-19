@@ -1055,7 +1055,7 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnName("atualizado_em");
 
                     b.Property<DateTime?>("CodigoOtpExpiraEm")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamptz")
                         .HasColumnName("codigo_otp_expira_em");
 
                     b.Property<string>("CodigoOtpHash")

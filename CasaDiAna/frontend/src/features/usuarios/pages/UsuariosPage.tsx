@@ -163,14 +163,14 @@ export function UsuariosPage() {
       setTelefone2FaErro('Telefone obrigatório.')
       return
     }
-    if (!/^\+55\d{10,11}$/.test(telefone2Fa)) {
-      setTelefone2FaErro('Formato inválido. Use +55 seguido de DDD e número (ex: +5511999998888).')
+    if (!/^\d{10,11}$/.test(telefone2Fa)) {
+      setTelefone2FaErro('Digite DDD + número (10 ou 11 dígitos, ex: 11999998888).')
       return
     }
     if (!usuarioSelecionado) return
     setSalvando(true)
     try {
-      await usuariosService.habilitar2Fa(usuarioSelecionado.id, telefone2Fa)
+      await usuariosService.habilitar2Fa(usuarioSelecionado.id, '+55' + telefone2Fa)
       setModal(null)
       setToast({ tipo: 'sucesso', mensagem: '2FA habilitado com sucesso.' })
       carregar()
@@ -528,17 +528,32 @@ export function UsuariosPage() {
 
             <div className="px-6 py-5">
               <Campo label="Telefone (WhatsApp)" obrigatorio erro={telefone2FaErro}>
-                <input
-                  type="tel"
-                  className={fieldCls}
-                  value={telefone2Fa}
-                  onChange={e => { setTelefone2Fa(e.target.value); setTelefone2FaErro('') }}
-                  placeholder="+5511999998888"
-                  autoFocus
-                />
+                <div className={`flex items-center gap-0 ${telefone2FaErro ? 'ring-2 ring-red-400' : ''} rounded-lg overflow-hidden`}
+                     style={{ border: '1px solid var(--ada-border)' }}>
+                  <span
+                    className="px-3 py-2 text-sm font-medium select-none shrink-0"
+                    style={{ background: 'var(--ada-surface-2)', color: 'var(--ada-muted)', borderRight: '1px solid var(--ada-border)' }}
+                  >
+                    +55
+                  </span>
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    className="flex-1 px-3 py-2 text-sm bg-transparent outline-none"
+                    style={{ color: 'var(--ada-body)' }}
+                    value={telefone2Fa}
+                    onChange={e => {
+                      setTelefone2Fa(e.target.value.replace(/\D/g, '').slice(0, 11))
+                      setTelefone2FaErro('')
+                    }}
+                    placeholder="11999998888"
+                    maxLength={11}
+                    autoFocus
+                  />
+                </div>
               </Campo>
               <p className="mt-2 text-xs" style={{ color: 'var(--ada-muted)' }}>
-                Formato: +55 + DDD + número (sem espaços ou traços)
+                DDD + número, somente dígitos (ex: 11999998888)
               </p>
             </div>
 

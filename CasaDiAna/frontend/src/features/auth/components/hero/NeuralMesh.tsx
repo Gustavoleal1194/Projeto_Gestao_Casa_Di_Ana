@@ -326,36 +326,30 @@ function latLngPara3D(lat: number, lng: number): No3D {
   }
 }
 
-// Conexões hub-to-hub explícitas entre os 15 CAPITAIS (índices 0–14)
-// 0: São Paulo      1: Nova York      2: Cidade do México  3: Buenos Aires
-// 4: Londres        5: Paris          6: Moscou            7: Cairo
-// 8: Cidade do Cabo 9: Dubai          10: Mumbai           11: Singapura
-// 12: Pequim        13: Tóquio        14: Sydney
+// 30 conexões entre as capitais das 20 maiores potências (índices 0–19).
+// 0:SP  1:Washington  2:Toronto     3:Cidade do México
+// 4:Londres  5:Paris  6:Berlim      7:Roma       8:Madri
+// 9:Amsterdã 10:Zurique 11:Moscou   12:Istambul  13:Riade
+// 14:Nova Déli  15:Pequim  16:Seul  17:Tóquio    18:Jacarta  19:Sydney
 const CONEXOES_HUB: [number, number][] = [
-  // SP(0)
-  [0, 1], [0, 2], [0, 3], [0, 4], [0, 9], [0, 10], [0, 11], [0, 13], [0, 14],
-  // NY(1)
-  [1, 4], [1, 2],
-  // BuenosAires(3)
-  [3, 1],
-  // Londres(4)
-  [4, 5], [4, 6], [4, 7], [4, 9],
-  // Paris(5)
-  [5, 6],
-  // Moscou(6)
-  [6, 12], [6, 9],
-  // Cairo(7)
-  [7, 8], [7, 9],
-  // Dubai(9)
-  [9, 10], [9, 11],
-  // Mumbai(10)
-  [10, 11], [10, 12],
-  // Singapura(11)
-  [11, 12], [11, 13], [11, 14],
-  // Pequim(12)
+  // SP(0) — hub principal: 9 conexões
+  [0,  1], [0,  2], [0,  4], [0,  5], [0, 10], [0, 13], [0, 15], [0, 17], [0, 19],
+  // Corredor Americano
+  [1,  2], [1,  3], [1,  4],
+  // Europa Ocidental
+  [4,  5], [4,  6], [4, 11], [4, 12],
+  [5,  6],
+  [6,  9], [9, 10],
+  // Europa → Oriente Médio
+  [11, 12], [11, 15],
   [12, 13],
-  // Tóquio(13)
   [13, 14],
+  // Sul da Ásia / Ásia Oriental
+  [14, 15], [14, 18],
+  [15, 16], [15, 17],
+  [16, 17],
+  [17, 19],
+  [18, 19],
 ]
 
 function gerarMalha(): DadosMalha {

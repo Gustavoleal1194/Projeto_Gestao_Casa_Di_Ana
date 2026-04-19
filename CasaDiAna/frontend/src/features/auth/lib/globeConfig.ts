@@ -24,30 +24,39 @@ export interface Capital {
 }
 
 /**
- * Nós principais da rede — capitais globais reais, distribuídas nos
- * continentes para equilíbrio estético. Brasil representado por São Paulo
- * (não Brasília) por ser a base operacional da Casa di Ana.
- * São fixos: mesmas coordenadas geográficas sempre, rotacionam com o globo.
+ * Capitais das 20 maiores potências econômicas (PIB nominal).
+ * Brasil representado por São Paulo (base da Casa di Ana) como hub principal.
+ * Índices fixos — alterar a ordem quebra CONEXOES_HUB em NeuralMesh.tsx.
+ *
+ * 0:SP  1:Washington  2:Toronto     3:Cidade do México
+ * 4:Londres  5:Paris  6:Berlim      7:Roma       8:Madri
+ * 9:Amsterdã 10:Zurique 11:Moscou   12:Istambul  13:Riade
+ * 14:Nova Déli  15:Pequim  16:Seul  17:Tóquio    18:Jacarta  19:Sydney
  */
 export const CAPITAIS: Capital[] = [
   // Américas
   { nome: 'São Paulo',        lat: -23.5505, lng:  -46.6333, destaque: true },
-  { nome: 'Nova York',        lat:  40.7128, lng:  -74.0060 },
+  { nome: 'Washington D.C.',  lat:  38.9072, lng:  -77.0369 },
+  { nome: 'Toronto',          lat:  43.6532, lng:  -79.3832 },
   { nome: 'Cidade do México', lat:  19.4326, lng:  -99.1332 },
-  { nome: 'Buenos Aires',     lat: -34.6037, lng:  -58.3816 },
   // Europa
   { nome: 'Londres',          lat:  51.5074, lng:   -0.1278 },
   { nome: 'Paris',            lat:  48.8566, lng:    2.3522 },
+  { nome: 'Berlim',           lat:  52.5200, lng:   13.4050 },
+  { nome: 'Roma',             lat:  41.9028, lng:   12.4964 },
+  { nome: 'Madri',            lat:  40.4168, lng:   -3.7038 },
+  { nome: 'Amsterdã',         lat:  52.3676, lng:    4.9041 },
+  { nome: 'Zurique',          lat:  47.3769, lng:    8.5417 },
   { nome: 'Moscou',           lat:  55.7558, lng:   37.6173 },
-  // África
-  { nome: 'Cairo',            lat:  30.0444, lng:   31.2357 },
-  { nome: 'Cidade do Cabo',   lat: -33.9249, lng:   18.4241 },
-  // Oriente Médio / Ásia / Oceania
-  { nome: 'Dubai',            lat:  25.2048, lng:   55.2708 },
-  { nome: 'Mumbai',           lat:  19.0760, lng:   72.8777 },
-  { nome: 'Singapura',        lat:   1.3521, lng:  103.8198 },
+  // Oriente Médio
+  { nome: 'Istambul',         lat:  41.0082, lng:   28.9784 },
+  { nome: 'Riade',            lat:  24.7136, lng:   46.6753 },
+  // Sul / Leste da Ásia / Oceania
+  { nome: 'Nova Déli',        lat:  28.6139, lng:   77.2090 },
   { nome: 'Pequim',           lat:  39.9042, lng:  116.4074 },
+  { nome: 'Seul',             lat:  37.5665, lng:  126.9780 },
   { nome: 'Tóquio',           lat:  35.6762, lng:  139.6503 },
+  { nome: 'Jacarta',          lat:  -6.2088, lng:  106.8456 },
   { nome: 'Sydney',           lat: -33.8688, lng:  151.2093 },
 ]
 

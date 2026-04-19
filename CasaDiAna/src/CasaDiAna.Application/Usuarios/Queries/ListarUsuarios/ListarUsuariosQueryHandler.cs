@@ -17,6 +17,13 @@ public class ListarUsuariosQueryHandler : IRequestHandler<ListarUsuariosQuery, I
         return lista.Select(ToDto).ToList();
     }
 
-    internal static UsuarioDto ToDto(Usuario u) =>
-        new(u.Id, u.Nome, u.Email, u.Papel.ToString(), u.Ativo, u.CriadoEm);
+    internal static UsuarioDto ToDto(Usuario u) => new(
+        u.Id,
+        u.Nome,
+        u.Email,
+        u.Papel.ToString(),
+        u.Ativo,
+        u.CriadoEm,
+        u.TwoFactorHabilitado,
+        u.Telefone is null ? null : Usuario.MascararTelefone(u.Telefone));
 }

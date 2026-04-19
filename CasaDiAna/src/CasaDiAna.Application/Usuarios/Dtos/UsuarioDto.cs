@@ -6,4 +6,6 @@ public record UsuarioDto(
     string Email,
     string Papel,
     bool Ativo,
-    DateTime CriadoEm);
+    DateTime CriadoEm,
+    bool TwoFactorHabilitado,
+    string? TelefoneMascarado);

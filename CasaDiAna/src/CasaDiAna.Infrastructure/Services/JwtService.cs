@@ -32,17 +32,31 @@ public class JwtService : IJwtService
             new Claim(ClaimTypes.Name, usuario.Nome),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
+        return CriarToken(claims, _expiracaoMinutos);
+    }
 
+    // Token de curta duração usado apenas para confirmar o OTP. Não carrega Role nem Email.
+    public string GerarTokenTemporario(Guid usuarioId)
+    {
+        var claims = new[]
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, usuarioId.ToString()),
+            new Claim("tipo", "pre2fa"),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
+        return CriarToken(claims, expiracaoMinutos: 5);
+    }
+
+    private string CriarToken(IEnumerable<Claim> claims, int expiracaoMinutos)
+    {
         var chave = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_chave));
         var credenciais = new SigningCredentials(chave, SecurityAlgorithms.HmacSha256);
-
         var token = new JwtSecurityToken(
             issuer: _emissor,
             audience: _emissor,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(_expiracaoMinutos),
+            expires: DateTime.UtcNow.AddMinutes(expiracaoMinutos),
             signingCredentials: credenciais);
-
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

@@ -6,26 +6,71 @@ interface LoginInput {
   senha: string
 }
 
+export interface LoginResultDto {
+  requer2Fa: boolean
+  tokenTemporario: string | null
+  token: string | null
+  nome: string | null
+  papel: string | null
+  telefoneMascarado: string | null
+}
+
 interface TokenDto {
   token: string
   nome: string
   papel: string
 }
 
-// Chamada direta — sem interceptor, usuário ainda não tem token
 export const authService = {
-  login: async (input: LoginInput): Promise<TokenDto> => {
+  login: async (input: LoginInput): Promise<LoginResultDto> => {
     try {
-      const resp = await api.post<ApiResponse<TokenDto>>('/auth/login', input)
+      const resp = await api.post<ApiResponse<LoginResultDto>>('/auth/login', input)
       if (!resp.data.sucesso) {
         throw new Error(resp.data.erros?.[0] ?? 'Credenciais inválidas.')
       }
       return resp.data.dados
     } catch (e: unknown) {
+      const err = e as { response?: { status?: number; data?: ApiResponse<LoginResultDto> } }
+      if (err?.response?.status === 401) {
+        const erros = err.response?.data?.erros
+        throw new Error(erros?.[0] ?? 'E-mail ou senha incorretos.')
+      }
+      throw e
+    }
+  },
+
+  verificarOtp: async (codigo: string, tokenTemporario: string): Promise<TokenDto> => {
+    try {
+      const resp = await api.post<ApiResponse<TokenDto>>(
+        '/auth/verificar-2fa',
+        { codigo },
+        { headers: { Authorization: `Bearer ${tokenTemporario}` } }
+      )
+      if (!resp.data.sucesso) {
+        throw new Error(resp.data.erros?.[0] ?? 'Código inválido.')
+      }
+      return resp.data.dados
+    } catch (e: unknown) {
       const err = e as { response?: { status?: number; data?: ApiResponse<TokenDto> } }
       if (err?.response?.status === 401) {
-        const erros = err.response.data?.erros
-        throw new Error(erros?.[0] ?? 'E-mail ou senha incorretos.')
+        const erros = err.response?.data?.erros
+        throw new Error(erros?.[0] ?? 'Código inválido ou expirado.')
+      }
+      throw e
+    }
+  },
+
+  reenviarCodigo: async (tokenTemporario: string): Promise<void> => {
+    try {
+      await api.post(
+        '/auth/reenviar-codigo',
+        {},
+        { headers: { Authorization: `Bearer ${tokenTemporario}` } }
+      )
+    } catch (e: unknown) {
+      const err = e as { response?: { status?: number } }
+      if (err?.response?.status === 429) {
+        throw new Error('Aguarde antes de solicitar um novo código.')
       }
       throw e
     }

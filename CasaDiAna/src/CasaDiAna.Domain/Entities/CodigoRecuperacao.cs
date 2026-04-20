@@ -29,4 +29,7 @@ public class CodigoRecuperacao
 
     public bool VerificarCodigo(string codigo) =>
         BCrypt.Net.BCrypt.Verify(codigo, CodigoHash);
+
+    public static string HashCodigo(string codigo) =>
+        BCrypt.Net.BCrypt.HashPassword(codigo);
 }

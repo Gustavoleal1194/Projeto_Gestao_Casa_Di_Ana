@@ -2,7 +2,6 @@ using CasaDiAna.Application.Common;
 using CasaDiAna.Application.Usuarios.Commands.CriarUsuario;
 using CasaDiAna.Application.Usuarios.Commands.Desabilitar2Fa;
 using CasaDiAna.Application.Usuarios.Commands.DesativarUsuario;
-using CasaDiAna.Application.Usuarios.Commands.Habilitar2Fa;
 using CasaDiAna.Application.Usuarios.Commands.RedefinirSenha;
 using CasaDiAna.Application.Usuarios.Dtos;
 using CasaDiAna.Application.Usuarios.Queries.ListarUsuarios;
@@ -59,17 +58,6 @@ public class UsuariosController : ControllerBase
         return NoContent();
     }
 
-    [HttpPost("{id:guid}/2fa/habilitar")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> Habilitar2Fa(
-        Guid id, [FromBody] Habilitar2FaRequest request, CancellationToken ct)
-    {
-        await _mediator.Send(new Habilitar2FaCommand(id, request.Telefone), ct);
-        return NoContent();
-    }
-
     [HttpDelete("{id:guid}/2fa")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status422UnprocessableEntity)]
@@ -79,5 +67,3 @@ public class UsuariosController : ControllerBase
         return NoContent();
     }
 }
-
-public record Habilitar2FaRequest(string Telefone);

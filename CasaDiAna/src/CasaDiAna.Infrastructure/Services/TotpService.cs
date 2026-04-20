@@ -25,7 +25,16 @@ public class TotpService : ITotpService
         if (string.IsNullOrWhiteSpace(secret) || string.IsNullOrWhiteSpace(codigo))
             return false;
 
-        var secretBytes = Base32Encoding.ToBytes(secret);
+        byte[] secretBytes;
+        try
+        {
+            secretBytes = Base32Encoding.ToBytes(secret);
+        }
+        catch (ArgumentException)
+        {
+            return false;
+        }
+
         var totp = new Totp(secretBytes);
         return totp.VerifyTotp(codigo.Trim(), out _, new VerificationWindow(1, 1));
     }

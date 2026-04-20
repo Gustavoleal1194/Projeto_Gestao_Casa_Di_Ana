@@ -25,12 +25,6 @@ services:
         value: CasaDiAna
       - key: CorsOrigins
         value: https://casadiana-frontend.onrender.com
-      - key: Twilio__AccountSid
-        sync: false
-      - key: Twilio__AuthToken
-        sync: false
-      - key: Twilio__NumeroDe
-        sync: false
 
   # ── Frontend ───────────────────────────────────────────────────────────────
   - type: web

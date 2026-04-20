@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { PlusIcon } from '@heroicons/react/20/solid'
-import { KeyIcon, ShieldCheckIcon, ShieldExclamationIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { KeyIcon, ShieldExclamationIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { usuariosService, type UsuarioDto, type CriarUsuarioInput } from '../services/usuariosService'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
 import { Spinner } from '@/components/form/Spinner'
@@ -25,7 +25,7 @@ const PAPEL_LABEL: Record<string, string> = {
   Compras: 'Compras',
 }
 
-type ModalTipo = 'criar' | 'senha' | '2fa' | null
+type ModalTipo = 'criar' | 'senha' | null
 
 // ─── Campo de formulário interno ────────────────────────────────────────────
 function Campo({
@@ -76,9 +76,6 @@ export function UsuariosPage() {
   const [formErros, setFormErros] = useState<Partial<Record<keyof CriarUsuarioInput, string>>>({})
   const [novaSenha, setNovaSenha] = useState('')
   const [senhaErro, setSenhaErro] = useState('')
-  const [telefone2Fa, setTelefone2Fa] = useState('')
-  const [telefone2FaErro, setTelefone2FaErro] = useState('')
-
   const carregar = async () => {
     setLoading(true)
     setErro(null)
@@ -104,13 +101,6 @@ export function UsuariosPage() {
     setNovaSenha('')
     setSenhaErro('')
     setModal('senha')
-  }
-
-  const abrirHabilitar2Fa = (u: UsuarioDto) => {
-    setUsuarioSelecionado(u)
-    setTelefone2Fa('')
-    setTelefone2FaErro('')
-    setModal('2fa')
   }
 
   const validarForm = (): boolean => {
@@ -153,29 +143,6 @@ export function UsuariosPage() {
       setToast({ tipo: 'sucesso', mensagem: 'Senha redefinida com sucesso.' })
     } catch {
       setToast({ tipo: 'erro', mensagem: 'Erro ao redefinir senha.' })
-    } finally {
-      setSalvando(false)
-    }
-  }
-
-  const handleHabilitar2Fa = async () => {
-    if (!telefone2Fa.trim()) {
-      setTelefone2FaErro('Telefone obrigatório.')
-      return
-    }
-    if (!/^\d{10,11}$/.test(telefone2Fa)) {
-      setTelefone2FaErro('Digite DDD + número (10 ou 11 dígitos, ex: 11999998888).')
-      return
-    }
-    if (!usuarioSelecionado) return
-    setSalvando(true)
-    try {
-      await usuariosService.habilitar2Fa(usuarioSelecionado.id, '+55' + telefone2Fa)
-      setModal(null)
-      setToast({ tipo: 'sucesso', mensagem: '2FA habilitado com sucesso.' })
-      carregar()
-    } catch {
-      setToast({ tipo: 'erro', mensagem: 'Erro ao habilitar 2FA.' })
     } finally {
       setSalvando(false)
     }
@@ -299,16 +266,6 @@ export function UsuariosPage() {
                           >
                             <KeyIcon className="h-4 w-4" aria-hidden="true" />
                           </button>
-                          {u.ativo && !u.twoFactorHabilitado && (
-                            <button
-                              onClick={() => abrirHabilitar2Fa(u)}
-                              aria-label={`Habilitar 2FA para ${u.nome}`}
-                              title="Habilitar 2FA"
-                              className="row-action-btn"
-                            >
-                              <ShieldCheckIcon className="h-4 w-4" aria-hidden="true" />
-                            </button>
-                          )}
                           {u.ativo && u.twoFactorHabilitado && (
                             <button
                               onClick={() => handleDesabilitar2Fa(u)}
@@ -483,87 +440,6 @@ export function UsuariosPage() {
               <button onClick={handleRedefinirSenha} disabled={salvando} className="btn-primary">
                 {salvando && <Spinner />}
                 {salvando ? 'Salvando…' : 'Redefinir'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Modal — Habilitar 2FA ───────────────────────────────────────── */}
-      {modal === '2fa' && usuarioSelecionado && (
-        <div
-          className="modal-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="modal-2fa-titulo"
-          onClick={e => { if (e.target === e.currentTarget && !salvando) setModal(null) }}
-        >
-          <div className="modal-card max-w-sm">
-            <div className="modal-header">
-              <div>
-                <h2
-                  id="modal-2fa-titulo"
-                  className="text-[15px] font-semibold"
-                  style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
-                >
-                  Habilitar 2FA
-                </h2>
-                <p className="text-xs mt-0.5" style={{ color: 'var(--ada-muted)' }}>
-                  {usuarioSelecionado.nome}
-                </p>
-              </div>
-              <button
-                onClick={() => setModal(null)}
-                disabled={salvando}
-                className="p-1.5 rounded-lg transition-colors duration-150 outline-none
-                           focus-visible:ring-2 focus-visible:ring-[#C4870A]/40 disabled:opacity-40"
-                aria-label="Fechar"
-                style={{ color: 'var(--ada-muted)' }}
-                onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--ada-bg)'}
-                onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
-              >
-                <XMarkIcon className="h-4 w-4" aria-hidden="true" />
-              </button>
-            </div>
-
-            <div className="px-6 py-5">
-              <Campo label="Telefone (WhatsApp)" obrigatorio erro={telefone2FaErro}>
-                <div className={`flex items-center gap-0 ${telefone2FaErro ? 'ring-2 ring-red-400' : ''} rounded-lg overflow-hidden`}
-                     style={{ border: '1px solid var(--ada-border)' }}>
-                  <span
-                    className="px-3 py-2 text-sm font-medium select-none shrink-0"
-                    style={{ background: 'var(--ada-surface-2)', color: 'var(--ada-muted)', borderRight: '1px solid var(--ada-border)' }}
-                  >
-                    +55
-                  </span>
-                  <input
-                    type="tel"
-                    inputMode="numeric"
-                    className="flex-1 px-3 py-2 text-sm bg-transparent outline-none"
-                    style={{ color: 'var(--ada-body)' }}
-                    value={telefone2Fa}
-                    onChange={e => {
-                      setTelefone2Fa(e.target.value.replace(/\D/g, '').slice(0, 11))
-                      setTelefone2FaErro('')
-                    }}
-                    placeholder="11999998888"
-                    maxLength={11}
-                    autoFocus
-                  />
-                </div>
-              </Campo>
-              <p className="mt-2 text-xs" style={{ color: 'var(--ada-muted)' }}>
-                DDD + número, somente dígitos (ex: 11999998888)
-              </p>
-            </div>
-
-            <div className="modal-footer">
-              <button onClick={() => setModal(null)} disabled={salvando} className="btn-secondary">
-                Cancelar
-              </button>
-              <button onClick={handleHabilitar2Fa} disabled={salvando} className="btn-primary">
-                {salvando && <Spinner />}
-                {salvando ? 'Salvando…' : 'Habilitar 2FA'}
               </button>
             </div>
           </div>

@@ -30,9 +30,9 @@ public class Desabilitar2FaCommandHandlerTests
 
         usuario.TwoFactorHabilitado.Should().BeFalse();
         usuario.TotpSecret.Should().BeNull();
-        _codigos.Verify(c => c.DeletarPorUsuarioAsync(usuario.Id, default), Times.Once);
+        _codigos.Verify(c => c.DeletarPorUsuarioAsync(usuario.Id, CancellationToken.None), Times.Once);
         _repositorio.Verify(r => r.Atualizar(usuario), Times.Once);
-        _repositorio.Verify(r => r.SalvarAsync(default), Times.Once);
+        _repositorio.Verify(r => r.SalvarAsync(CancellationToken.None), Times.Once);
     }
 
     [Fact]

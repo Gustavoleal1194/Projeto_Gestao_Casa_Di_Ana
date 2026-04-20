@@ -55,7 +55,7 @@ public class VerificarOtpCommandHandlerTests
         var codigoEntity = CodigoRecuperacao.Criar(usuario.Id, codigoHash);
 
         _repositorio.Setup(r => r.ObterPorIdAsync(usuario.Id, default)).ReturnsAsync(usuario);
-        _totp.Setup(t => t.ValidarCodigo(It.IsAny<string>(), codigoPlain)).Returns(false);
+        _totp.Setup(t => t.ValidarCodigo("JBSWY3DPEHPK3PXP", codigoPlain)).Returns(false);
         _codigos.Setup(c => c.ObterAtivosPorUsuarioAsync(usuario.Id, default))
                 .ReturnsAsync(new List<CodigoRecuperacao> { codigoEntity });
         _jwtService.Setup(j => j.GerarToken(usuario)).Returns("jwt-recovery");

@@ -8,6 +8,7 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<Usuario> Usuarios => Set<Usuario>();
+    public DbSet<CodigoRecuperacao> CodigosRecuperacao => Set<CodigoRecuperacao>();
     public DbSet<UnidadeMedida> UnidadesMedida => Set<UnidadeMedida>();
     public DbSet<CategoriaIngrediente> CategoriasIngrediente => Set<CategoriaIngrediente>();
     public DbSet<Ingrediente> Ingredientes => Set<Ingrediente>();

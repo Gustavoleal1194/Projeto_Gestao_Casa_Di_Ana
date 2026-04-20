@@ -15,7 +15,6 @@ public class CodigoRecuperacaoRepository : ICodigoRecuperacaoRepository
     public async Task AdicionarAsync(IEnumerable<CodigoRecuperacao> codigos, CancellationToken ct = default)
     {
         await _db.CodigosRecuperacao.AddRangeAsync(codigos, ct);
-        await _db.SaveChangesAsync(ct);
     }
 
     public async Task<IReadOnlyList<CodigoRecuperacao>> ObterAtivosPorUsuarioAsync(
@@ -31,7 +30,6 @@ public class CodigoRecuperacaoRepository : ICodigoRecuperacaoRepository
         var codigo = await _db.CodigosRecuperacao.FindAsync([id], ct);
         if (codigo is null) return;
         codigo.MarcarUsado();
-        await _db.SaveChangesAsync(ct);
     }
 
     public async Task DeletarPorUsuarioAsync(Guid usuarioId, CancellationToken ct = default)
@@ -40,4 +38,7 @@ public class CodigoRecuperacaoRepository : ICodigoRecuperacaoRepository
             .Where(c => c.UsuarioId == usuarioId)
             .ExecuteDeleteAsync(ct);
     }
+
+    public Task SalvarAsync(CancellationToken ct = default) =>
+        _db.SaveChangesAsync(ct);
 }

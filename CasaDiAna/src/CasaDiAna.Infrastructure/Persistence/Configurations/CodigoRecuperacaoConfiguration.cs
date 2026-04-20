@@ -15,7 +15,7 @@ public class CodigoRecuperacaoConfiguration : IEntityTypeConfiguration<CodigoRec
         builder.Property(c => c.UsuarioId).HasColumnName("usuario_id").IsRequired();
         builder.Property(c => c.CodigoHash).HasColumnName("codigo_hash").IsRequired();
         builder.Property(c => c.UsadoEm).HasColumnName("usado_em").HasColumnType("timestamptz");
-        builder.Property(c => c.CriadoEm).HasColumnName("criado_em").IsRequired();
+        builder.Property(c => c.CriadoEm).HasColumnName("criado_em").HasColumnType("timestamptz").IsRequired();
 
         builder.HasIndex(c => c.UsuarioId);
     }

@@ -1,3 +1,4 @@
+// frontend/src/features/auth/components/form/LoginForm.tsx
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authService } from '../../services/authService'
@@ -26,20 +27,12 @@ export function LoginForm() {
 
   const [etapa, setEtapa] = useState<Etapa>('credenciais')
   const [tokenTemporario, setTokenTemporario] = useState<string | null>(null)
-  const [telefoneMascarado, setTelefoneMascarado] = useState<string | null>(null)
   const [otp, setOtp] = useState('')
-  const [reenvioCountdown, setReenvioCountdown] = useState(0)
 
   const [erro, setErro] = useState<string | null>(null)
   const [carregando, setCarregando] = useState(false)
 
   const otpInputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    if (reenvioCountdown <= 0) return
-    const t = setTimeout(() => setReenvioCountdown(c => c - 1), 1000)
-    return () => clearTimeout(t)
-  }, [reenvioCountdown])
 
   useEffect(() => {
     if (etapa === 'otp') {
@@ -59,8 +52,6 @@ export function LoginForm() {
       const dados = await authService.login({ email, senha })
       if (dados.requer2Fa) {
         setTokenTemporario(dados.tokenTemporario)
-        setTelefoneMascarado(dados.telefoneMascarado)
-        setReenvioCountdown(60)
         setEtapa('otp')
       } else {
         login(dados.token!, { nome: dados.nome!, papel: dados.papel! })
@@ -75,14 +66,14 @@ export function LoginForm() {
 
   const handleVerificarOtp = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (otp.length !== 6) {
-      setErro('Digite os 6 dígitos do código.')
+    if (!otp.trim()) {
+      setErro('Digite o código.')
       return
     }
     setCarregando(true)
     setErro(null)
     try {
-      const dados = await authService.verificarOtp(otp, tokenTemporario!)
+      const dados = await authService.verificarOtp(otp.trim(), tokenTemporario!)
       login(dados.token, { nome: dados.nome, papel: dados.papel })
       navigate('/', { replace: true })
     } catch (e: unknown) {
@@ -95,17 +86,6 @@ export function LoginForm() {
       }
     } finally {
       setCarregando(false)
-    }
-  }
-
-  const handleReenviar = async () => {
-    if (!tokenTemporario || reenvioCountdown > 0) return
-    try {
-      await authService.reenviarCodigo(tokenTemporario)
-      setReenvioCountdown(60)
-      setErro(null)
-    } catch (e: unknown) {
-      setErro((e as Error)?.message ?? 'Erro ao reenviar código.')
     }
   }
 
@@ -198,10 +178,7 @@ export function LoginForm() {
               Verificação em dois fatores
             </h2>
             <p className="mt-1.5 text-sm" style={{ color: 'var(--ada-muted)' }}>
-              Código enviado para{' '}
-              <span className="font-semibold" style={{ color: 'var(--ada-heading)' }}>
-                {telefoneMascarado}
-              </span>
+              Digite o código do app autenticador ou um código de recuperação.
             </p>
           </div>
 
@@ -218,19 +195,16 @@ export function LoginForm() {
                 ref={otpInputRef}
                 id="otp"
                 type="text"
-                inputMode="numeric"
-                pattern="\d{6}"
-                maxLength={6}
+                maxLength={10}
                 value={otp}
                 onChange={e => {
-                  const v = e.target.value.replace(/\D/g, '').slice(0, 6)
-                  setOtp(v)
+                  setOtp(e.target.value.slice(0, 10))
                   if (erro) setErro(null)
                 }}
                 autoComplete="one-time-code"
                 disabled={carregando}
-                placeholder="000000"
-                className="w-full rounded-xl px-4 py-3 text-center text-2xl tracking-[0.5em] font-bold
+                placeholder="000000 ou XXXX-XXXX"
+                className="w-full rounded-xl px-4 py-3 text-center text-xl tracking-widest font-bold
                            text-[var(--ada-heading)] bg-white border border-[var(--ada-border)]
                            outline-none transition-all duration-200
                            focus-visible:border-[#C4870A] focus-visible:ring-2 focus-visible:ring-[#C4870A]/20
@@ -257,26 +231,6 @@ export function LoginForm() {
             <AnimatedButton type="submit" carregando={carregando}>
               {carregando ? 'Verificando…' : 'Verificar código'}
             </AnimatedButton>
-
-            <div className="text-center">
-              {reenvioCountdown > 0 ? (
-                <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>
-                  Reenviar código em{' '}
-                  <span className="font-semibold" style={{ color: 'var(--ada-heading)' }}>
-                    {reenvioCountdown}s
-                  </span>
-                </p>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleReenviar}
-                  className="text-sm font-medium underline underline-offset-2 transition-opacity hover:opacity-70"
-                  style={{ color: '#C4870A' }}
-                >
-                  Reenviar código
-                </button>
-              )}
-            </div>
 
             <div className="text-center">
               <button

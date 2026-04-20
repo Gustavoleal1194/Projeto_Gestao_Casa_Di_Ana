@@ -1,3 +1,4 @@
+// frontend/src/features/auth/services/authService.ts
 import api from '@/lib/api'
 import type { ApiResponse } from '@/types/estoque'
 
@@ -12,13 +13,18 @@ export interface LoginResultDto {
   token: string | null
   nome: string | null
   papel: string | null
-  telefoneMascarado: string | null
 }
 
 interface TokenDto {
   token: string
   nome: string
   papel: string
+}
+
+export interface IniciarSetup2FaResultDto {
+  qrCodeUrl: string
+  secretManual: string
+  codigosRecuperacao: string[]
 }
 
 export const authService = {
@@ -52,7 +58,7 @@ export const authService = {
       return resp.data.dados
     } catch (e: unknown) {
       const err = e as { response?: { status?: number; data?: ApiResponse<TokenDto> } }
-      if (err?.response?.status === 401) {
+      if (err?.response?.status === 401 || err?.response?.status === 422) {
         const erros = err.response?.data?.erros
         throw new Error(erros?.[0] ?? 'Código inválido ou expirado.')
       }
@@ -60,19 +66,22 @@ export const authService = {
     }
   },
 
-  reenviarCodigo: async (tokenTemporario: string): Promise<void> => {
-    try {
-      await api.post(
-        '/auth/reenviar-codigo',
-        {},
-        { headers: { Authorization: `Bearer ${tokenTemporario}` } }
-      )
-    } catch (e: unknown) {
-      const err = e as { response?: { status?: number } }
-      if (err?.response?.status === 429) {
-        throw new Error('Aguarde antes de solicitar um novo código.')
-      }
-      throw e
-    }
+  iniciarSetup2Fa: async (): Promise<IniciarSetup2FaResultDto> => {
+    const resp = await api.post<ApiResponse<IniciarSetup2FaResultDto>>('/auth/iniciar-setup-2fa')
+    if (!resp.data.sucesso) throw new Error(resp.data.erros?.[0] ?? 'Erro ao iniciar setup.')
+    return resp.data.dados
+  },
+
+  confirmarSetup2Fa: async (
+    secret: string,
+    codigo: string,
+    codigosRecuperacao: string[]
+  ): Promise<void> => {
+    const resp = await api.post<ApiResponse<null>>('/auth/confirmar-setup-2fa', {
+      secret,
+      codigo,
+      codigosRecuperacao,
+    })
+    if (!resp.data.sucesso) throw new Error(resp.data.erros?.[0] ?? 'Código inválido.')
   },
 }

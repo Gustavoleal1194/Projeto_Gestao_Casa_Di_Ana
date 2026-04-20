@@ -11,13 +11,11 @@ public class LoginCommandHandlerTests
 {
     private readonly Mock<IUsuarioRepository> _repositorio = new();
     private readonly Mock<IJwtService> _jwtService = new();
-    private readonly Mock<ISmsService> _smsService = new();
     private readonly LoginCommandHandler _handler;
 
     public LoginCommandHandlerTests()
     {
-        _handler = new LoginCommandHandler(
-            _repositorio.Object, _jwtService.Object, _smsService.Object);
+        _handler = new LoginCommandHandler(_repositorio.Object, _jwtService.Object);
     }
 
     [Fact]
@@ -43,12 +41,10 @@ public class LoginCommandHandlerTests
     {
         var senhaHash = BCrypt.Net.BCrypt.HashPassword("senha123");
         var usuario = Usuario.Criar("Ana", "ana@casa.com", senhaHash, PapelUsuario.Admin);
-        usuario.HabilitarDoisFatores("+5511999998888");
+        usuario.HabilitarTotp("JBSWY3DPEHPK3PXP");
         _repositorio.Setup(r => r.ObterPorEmailAsync("ana@casa.com", default))
                     .ReturnsAsync(usuario);
         _jwtService.Setup(j => j.GerarTokenTemporario(usuario.Id)).Returns("token-temp");
-        _smsService.Setup(s => s.EnviarAsync(It.IsAny<string>(), It.IsAny<string>(), default))
-                   .Returns(Task.CompletedTask);
 
         var resultado = await _handler.Handle(
             new LoginCommand("ana@casa.com", "senha123"), CancellationToken.None);
@@ -56,8 +52,6 @@ public class LoginCommandHandlerTests
         resultado.Requer2Fa.Should().BeTrue();
         resultado.TokenTemporario.Should().Be("token-temp");
         resultado.Token.Should().BeNull();
-        resultado.TelefoneMascarado.Should().Be("(**) *****-8888");
-        _smsService.Verify(s => s.EnviarAsync("+5511999998888", It.IsAny<string>(), default), Times.Once);
     }
 
     [Fact]

@@ -32,6 +32,7 @@ import { PerdasPage } from '@/features/producao/perdas/pages/PerdasPage'
 import { NotificacoesPage } from '@/features/notificacoes/pages/NotificacoesPage'
 import { EtiquetasPage } from '@/features/etiquetas/pages/EtiquetasPage'
 import { ImportacaoVendasPage } from '@/features/producao/importacao-vendas/pages/ImportacaoVendasPage'
+import { MinhaContaPage } from '@/features/minha-conta/pages/MinhaContaPage'
 
 export function AppRoutes() {
   return (
@@ -94,6 +95,9 @@ export function AppRoutes() {
 
           {/* Etiquetas */}
           <Route path="/etiquetas" element={<EtiquetasPage />} />
+
+          {/* Minha Conta */}
+          <Route path="/minha-conta" element={<MinhaContaPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -352,9 +352,19 @@ export function TopHeader({ onMobileMenuOpen }: Props) {
         <Divider />
 
         {/* Perfil do usuário */}
-        <div
-          className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg select-none"
-          title={`${usuario?.nome ?? ''} · ${usuario?.papel ?? ''}`}
+        <button
+          onClick={() => navigate('/minha-conta')}
+          className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg transition-colors duration-150
+                     outline-none focus-visible:ring-2 focus-visible:ring-[#C4870A]/40"
+          title={`${usuario?.nome ?? ''} · ${usuario?.papel ?? ''} — Minha Conta`}
+          onMouseEnter={e => {
+            const el = e.currentTarget as HTMLElement
+            el.style.background = 'var(--topbar-hover)'
+          }}
+          onMouseLeave={e => {
+            const el = e.currentTarget as HTMLElement
+            el.style.background = 'transparent'
+          }}
         >
           {/* Avatar */}
           <div
@@ -380,7 +390,7 @@ export function TopHeader({ onMobileMenuOpen }: Props) {
               {usuario?.papel ?? ''}
             </p>
           </div>
-        </div>
+        </button>
 
         <Divider />
 

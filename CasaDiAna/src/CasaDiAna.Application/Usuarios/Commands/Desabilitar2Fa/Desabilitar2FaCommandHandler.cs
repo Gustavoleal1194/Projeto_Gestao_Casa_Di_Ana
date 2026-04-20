@@ -15,7 +15,7 @@ public class Desabilitar2FaCommandHandler : IRequestHandler<Desabilitar2FaComman
         var usuario = await _usuarios.ObterPorIdAsync(request.UsuarioId, cancellationToken)
             ?? throw new DomainException("Usuário não encontrado.");
 
-        usuario.DesabilitarDoisFatores();
+        usuario.DesabilitarTotp();
         _usuarios.Atualizar(usuario);
         await _usuarios.SalvarAsync(cancellationToken);
 

@@ -46,6 +46,7 @@ public class AuthController : ControllerBase
     [HttpPost("iniciar-setup-2fa")]
     [Authorize]
     [ProducesResponseType(typeof(ApiResponse<IniciarSetup2FaResultDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> IniciarSetup2Fa(CancellationToken ct)
     {
         var usuarioId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -56,6 +57,7 @@ public class AuthController : ControllerBase
     [HttpPost("confirmar-setup-2fa")]
     [Authorize]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> ConfirmarSetup2Fa(
         [FromBody] ConfirmarSetup2FaRequest request, CancellationToken ct)

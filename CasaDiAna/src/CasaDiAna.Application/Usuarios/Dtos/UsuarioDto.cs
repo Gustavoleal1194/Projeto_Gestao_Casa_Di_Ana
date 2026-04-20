@@ -7,5 +7,4 @@ public record UsuarioDto(
     string Papel,
     bool Ativo,
     DateTime CriadoEm,
-    bool TwoFactorHabilitado,
-    string? TelefoneMascarado);
+    bool TwoFactorHabilitado);

@@ -24,6 +24,5 @@ public class ListarUsuariosQueryHandler : IRequestHandler<ListarUsuariosQuery, I
         u.Papel.ToString(),
         u.Ativo,
         u.CriadoEm,
-        u.TwoFactorHabilitado,
-        TelefoneMascarado: null); // Telefone removido no refactor TOTP (Task 5)
+        u.TwoFactorHabilitado);
 }

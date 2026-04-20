@@ -5,16 +5,23 @@ using MediatR;
 
 namespace CasaDiAna.Application.Auth.Commands.VerificarOtp;
 
-// TODO (Task 6+): substituir pela verificação TOTP real.
 public class VerificarOtpCommandHandler : IRequestHandler<VerificarOtpCommand, TokenDto>
 {
     private readonly IUsuarioRepository _usuarios;
     private readonly IJwtService _jwtService;
+    private readonly ITotpService _totp;
+    private readonly ICodigoRecuperacaoRepository _codigosRecuperacao;
 
-    public VerificarOtpCommandHandler(IUsuarioRepository usuarios, IJwtService jwtService)
+    public VerificarOtpCommandHandler(
+        IUsuarioRepository usuarios,
+        IJwtService jwtService,
+        ITotpService totp,
+        ICodigoRecuperacaoRepository codigosRecuperacao)
     {
         _usuarios = usuarios;
         _jwtService = jwtService;
+        _totp = totp;
+        _codigosRecuperacao = codigosRecuperacao;
     }
 
     public async Task<TokenDto> Handle(VerificarOtpCommand request, CancellationToken cancellationToken)
@@ -22,11 +29,34 @@ public class VerificarOtpCommandHandler : IRequestHandler<VerificarOtpCommand, T
         var usuario = await _usuarios.ObterPorIdAsync(request.UsuarioId, cancellationToken)
             ?? throw new UnauthorizedAccessException("Sessão inválida.");
 
-        if (!usuario.TwoFactorHabilitado || usuario.TotpSecret is null)
+        if (!usuario.TwoFactorHabilitado)
             throw new UnauthorizedAccessException("Sessão inválida.");
 
-        // Verificação TOTP real será implementada na Task 6.
-        // Por enquanto lança erro indicando que o fluxo precisa ser atualizado.
-        throw new DomainException("Verificação TOTP ainda não implementada. Aguardando Task 6.");
+        if (usuario.TotpSecret is null)
+            throw new DomainException("2FA não configurado.");
+
+        // Tenta validar como TOTP
+        if (_totp.ValidarCodigo(usuario.TotpSecret, request.Codigo))
+        {
+            var token = _jwtService.GerarToken(usuario);
+            return new TokenDto(token, usuario.Nome, usuario.Papel.ToString());
+        }
+
+        // Tenta validar como recovery code
+        var ativos = await _codigosRecuperacao.ObterAtivosPorUsuarioAsync(
+            usuario.Id, cancellationToken);
+
+        foreach (var codigo in ativos)
+        {
+            if (codigo.VerificarCodigo(request.Codigo))
+            {
+                await _codigosRecuperacao.MarcarUsadoAsync(codigo.Id, cancellationToken);
+                await _codigosRecuperacao.SalvarAsync(cancellationToken);
+                var token = _jwtService.GerarToken(usuario);
+                return new TokenDto(token, usuario.Nome, usuario.Papel.ToString());
+            }
+        }
+
+        throw new DomainException("Código inválido. Verifique o app ou use um código de recuperação.");
     }
 }

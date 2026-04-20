@@ -5,5 +5,4 @@ public record LoginResultDto(
     string? TokenTemporario,
     string? Token,
     string? Nome,
-    string? Papel,
-    string? TelefoneMascarado);
+    string? Papel);

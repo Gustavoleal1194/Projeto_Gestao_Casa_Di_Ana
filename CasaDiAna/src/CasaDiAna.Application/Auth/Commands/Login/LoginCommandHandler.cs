@@ -9,9 +9,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResultDto>
     private readonly IUsuarioRepository _usuarios;
     private readonly IJwtService _jwtService;
 
-    public LoginCommandHandler(
-        IUsuarioRepository usuarios,
-        IJwtService jwtService)
+    public LoginCommandHandler(IUsuarioRepository usuarios, IJwtService jwtService)
     {
         _usuarios = usuarios;
         _jwtService = jwtService;
@@ -33,8 +31,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResultDto>
                 TokenTemporario: tokenTemp,
                 Token: null,
                 Nome: null,
-                Papel: null,
-                TelefoneMascarado: null);
+                Papel: null);
         }
 
         var token = _jwtService.GerarToken(usuario);
@@ -43,7 +40,6 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResultDto>
             Token: token,
             Nome: usuario.Nome,
             Papel: usuario.Papel.ToString(),
-            TokenTemporario: null,
-            TelefoneMascarado: null);
+            TokenTemporario: null);
     }
 }

@@ -26,4 +26,7 @@ public class CodigoRecuperacao
     {
         UsadoEm = DateTime.UtcNow;
     }
+
+    public bool VerificarCodigo(string codigo) =>
+        BCrypt.Net.BCrypt.Verify(codigo, CodigoHash);
 }

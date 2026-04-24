@@ -31,5 +31,19 @@ public class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>
             .IsRequired()
             .HasDefaultValue(false);
         builder.Property(u => u.TotpSecret).HasColumnName("totp_secret");
+
+        builder.Property(u => u.UltimoLogin)
+            .HasColumnName("ultimo_login")
+            .HasColumnType("timestamptz");
+        builder.Property(u => u.IpUltimoLogin)
+            .HasColumnName("ip_ultimo_login")
+            .HasMaxLength(45);
+        builder.Property(u => u.UserAgentUltimoLogin)
+            .HasColumnName("user_agent_ultimo_login")
+            .HasMaxLength(512);
+        builder.Property(u => u.TotalLogins)
+            .HasColumnName("total_logins")
+            .HasDefaultValue(0)
+            .IsRequired();
     }
 }

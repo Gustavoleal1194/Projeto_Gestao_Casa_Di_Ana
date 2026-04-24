@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { PlusIcon } from '@heroicons/react/20/solid'
 import { KeyIcon, ShieldExclamationIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { usuariosService, type UsuarioDto, type CriarUsuarioInput } from '../services/usuariosService'
+import { RelativeTime } from '@/components/ui/RelativeTime'
+import { StatusBadge2Fa } from '@/components/ui/StatusBadge2Fa'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
 import { Spinner } from '@/components/form/Spinner'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -220,6 +222,7 @@ export function UsuariosPage() {
                     <th className="table-th" scope="col">Papel</th>
                     <th className="table-th" scope="col">Status</th>
                     <th className="table-th" scope="col">2FA</th>
+                    <th className="table-th" scope="col">Último Login</th>
                     <th className="table-th table-th-right" scope="col">
                       <span className="sr-only">Ações</span>
                     </th>
@@ -250,11 +253,10 @@ export function UsuariosPage() {
                         </span>
                       </td>
                       <td className="table-td">
-                        {u.twoFactorHabilitado ? (
-                          <span className="badge badge-active">Ativo</span>
-                        ) : (
-                          <span className="badge badge-inactive">Inativo</span>
-                        )}
+                        <StatusBadge2Fa status={u.twoFactorHabilitado ? 'ativo' : 'inativo'} />
+                      </td>
+                      <td className="table-td">
+                        <RelativeTime date={u.ultimoLogin} />
                       </td>
                       <td className="table-td" style={{ textAlign: 'right' }}>
                         <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">

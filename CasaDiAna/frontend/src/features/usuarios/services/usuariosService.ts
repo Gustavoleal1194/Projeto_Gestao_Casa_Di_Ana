@@ -10,6 +10,7 @@ export interface UsuarioDto {
   criadoEm: string
   twoFactorHabilitado: boolean
   telefoneMascarado: string | null
+  ultimoLogin: string | null
 }
 
 export interface CriarUsuarioInput {

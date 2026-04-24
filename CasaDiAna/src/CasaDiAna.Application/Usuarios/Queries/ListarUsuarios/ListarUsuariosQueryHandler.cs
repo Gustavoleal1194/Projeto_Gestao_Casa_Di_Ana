@@ -24,5 +24,6 @@ public class ListarUsuariosQueryHandler : IRequestHandler<ListarUsuariosQuery, I
         u.Papel.ToString(),
         u.Ativo,
         u.CriadoEm,
-        u.TwoFactorHabilitado);
+        u.TwoFactorHabilitado,
+        u.UltimoLogin);
 }

@@ -1,3 +1,4 @@
+// src/CasaDiAna.Application/Auth/Commands/Login/LoginCommandHandler.cs
 using CasaDiAna.Application.Auth.Dtos;
 using CasaDiAna.Domain.Interfaces;
 using MediatR;
@@ -33,6 +34,10 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResultDto>
                 Nome: null,
                 Papel: null);
         }
+
+        usuario.RegistrarLogin(request.Ip, request.UserAgent);
+        _usuarios.Atualizar(usuario);
+        await _usuarios.SalvarAsync(cancellationToken);
 
         var token = _jwtService.GerarToken(usuario);
         return new LoginResultDto(

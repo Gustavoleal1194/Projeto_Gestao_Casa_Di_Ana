@@ -1,3 +1,4 @@
+// src/CasaDiAna.API/Controllers/AuthController.cs
 using CasaDiAna.Application.Auth.Commands.ConfirmarSetup2Fa;
 using CasaDiAna.Application.Auth.Commands.IniciarSetup2Fa;
 using CasaDiAna.Application.Auth.Commands.Login;
@@ -25,9 +26,11 @@ public class AuthController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<LoginResultDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Login(
-        [FromBody] LoginCommand command, CancellationToken ct)
+        [FromBody] LoginRequest req, CancellationToken ct)
     {
-        var resultado = await _mediator.Send(command, ct);
+        var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
+        var ua = Request.Headers.UserAgent.FirstOrDefault();
+        var resultado = await _mediator.Send(new LoginCommand(req.Email, req.Senha, ip, ua), ct);
         return Ok(ApiResponse<LoginResultDto>.Ok(resultado));
     }
 
@@ -39,7 +42,10 @@ public class AuthController : ControllerBase
         [FromBody] VerificarOtpRequest request, CancellationToken ct)
     {
         var usuarioId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var token = await _mediator.Send(new VerificarOtpCommand(usuarioId, request.Codigo), ct);
+        var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
+        var ua = Request.Headers.UserAgent.FirstOrDefault();
+        var token = await _mediator.Send(
+            new VerificarOtpCommand(usuarioId, request.Codigo, ip, ua), ct);
         return Ok(ApiResponse<TokenDto>.Ok(token));
     }
 
@@ -69,6 +75,7 @@ public class AuthController : ControllerBase
     }
 }
 
+public record LoginRequest(string Email, string Senha);
 public record VerificarOtpRequest(string Codigo);
 public record ConfirmarSetup2FaRequest(
     string Secret,

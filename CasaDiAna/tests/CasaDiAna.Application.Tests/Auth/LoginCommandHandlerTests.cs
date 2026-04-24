@@ -1,3 +1,4 @@
+// tests/CasaDiAna.Application.Tests/Auth/LoginCommandHandlerTests.cs
 using CasaDiAna.Application.Auth.Commands.Login;
 using CasaDiAna.Domain.Entities;
 using CasaDiAna.Domain.Enums;
@@ -25,6 +26,7 @@ public class LoginCommandHandlerTests
         var usuario = Usuario.Criar("Ana", "ana@casa.com", senhaHash, PapelUsuario.Admin);
         _repositorio.Setup(r => r.ObterPorEmailAsync("ana@casa.com", default))
                     .ReturnsAsync(usuario);
+        _repositorio.Setup(r => r.SalvarAsync(default)).ReturnsAsync(1);
         _jwtService.Setup(j => j.GerarToken(usuario)).Returns("token-jwt");
 
         var resultado = await _handler.Handle(
@@ -34,6 +36,9 @@ public class LoginCommandHandlerTests
         resultado.Token.Should().Be("token-jwt");
         resultado.Nome.Should().Be("Ana");
         resultado.Papel.Should().Be("Admin");
+        _repositorio.Verify(r => r.Atualizar(usuario), Times.Once);
+        _repositorio.Verify(r => r.SalvarAsync(default), Times.Once);
+        usuario.TotalLogins.Should().Be(1);
     }
 
     [Fact]
@@ -52,6 +57,7 @@ public class LoginCommandHandlerTests
         resultado.Requer2Fa.Should().BeTrue();
         resultado.TokenTemporario.Should().Be("token-temp");
         resultado.Token.Should().BeNull();
+        _repositorio.Verify(r => r.Atualizar(It.IsAny<Usuario>()), Times.Never);
     }
 
     [Fact]
@@ -80,5 +86,25 @@ public class LoginCommandHandlerTests
 
         await acao.Should().ThrowAsync<UnauthorizedAccessException>()
             .WithMessage("E-mail ou senha inválidos.");
+    }
+
+    [Fact]
+    public async Task DeveRegistrarIpEUserAgent_QuandoLoginSemDoisFatores()
+    {
+        var senhaHash = BCrypt.Net.BCrypt.HashPassword("senha123");
+        var usuario = Usuario.Criar("Ana", "ana@casa.com", senhaHash, PapelUsuario.Admin);
+        _repositorio.Setup(r => r.ObterPorEmailAsync("ana@casa.com", default))
+                    .ReturnsAsync(usuario);
+        _repositorio.Setup(r => r.SalvarAsync(default)).ReturnsAsync(1);
+        _jwtService.Setup(j => j.GerarToken(usuario)).Returns("token-jwt");
+
+        await _handler.Handle(
+            new LoginCommand("ana@casa.com", "senha123", "192.168.1.1", "Mozilla/5.0"),
+            CancellationToken.None);
+
+        usuario.IpUltimoLogin.Should().Be("192.168.1.1");
+        usuario.UserAgentUltimoLogin.Should().Be("Mozilla/5.0");
+        usuario.UltimoLogin.Should().NotBeNull();
+        usuario.TotalLogins.Should().Be(1);
     }
 }

@@ -1,3 +1,4 @@
+// src/CasaDiAna.Application/Auth/Commands/VerificarOtp/VerificarOtpCommandHandler.cs
 using CasaDiAna.Application.Auth.Dtos;
 using CasaDiAna.Domain.Exceptions;
 using CasaDiAna.Domain.Interfaces;
@@ -35,14 +36,15 @@ public class VerificarOtpCommandHandler : IRequestHandler<VerificarOtpCommand, T
         if (usuario.TotpSecret is null)
             throw new DomainException("2FA não configurado.");
 
-        // Tenta validar como TOTP
         if (_totp.ValidarCodigo(usuario.TotpSecret, request.Codigo))
         {
+            usuario.RegistrarLogin(request.Ip, request.UserAgent);
+            _usuarios.Atualizar(usuario);
+            await _usuarios.SalvarAsync(cancellationToken);
             var token = _jwtService.GerarToken(usuario);
             return new TokenDto(token, usuario.Nome, usuario.Papel.ToString());
         }
 
-        // Tenta validar como recovery code
         var ativos = await _codigosRecuperacao.ObterAtivosPorUsuarioAsync(
             usuario.Id, cancellationToken);
 
@@ -52,6 +54,9 @@ public class VerificarOtpCommandHandler : IRequestHandler<VerificarOtpCommand, T
             {
                 await _codigosRecuperacao.MarcarUsadoAsync(codigo.Id, cancellationToken);
                 await _codigosRecuperacao.SalvarAsync(cancellationToken);
+                usuario.RegistrarLogin(request.Ip, request.UserAgent);
+                _usuarios.Atualizar(usuario);
+                await _usuarios.SalvarAsync(cancellationToken);
                 var token = _jwtService.GerarToken(usuario);
                 return new TokenDto(token, usuario.Nome, usuario.Papel.ToString());
             }

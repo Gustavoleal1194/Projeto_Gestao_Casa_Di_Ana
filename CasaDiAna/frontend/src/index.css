@@ -754,3 +754,28 @@
   box-shadow: var(--shadow-md);
   transform: translateY(-1px);
 }
+
+/* ─── 2FA Animated Panel ────────────────────────────────────────────────── */
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  10%,50%,90% { transform: translateX(-8px) rotate(-0.3deg); }
+  30%,70%     { transform: translateX(8px)  rotate(0.3deg); }
+}
+
+@keyframes scanLoop {
+  0%   { top: 8px;  opacity: 0; }
+  5%   { opacity: 1; }
+  90%  { top: 60px; opacity: 1; }
+  95%  { opacity: 0; }
+  100% { top: 60px; opacity: 0; }
+}
+
+@keyframes dotPulse {
+  from { transform: scale(1);   opacity: 1; }
+  to   { transform: scale(1.4); opacity: 0.8; }
+}
+
+@keyframes pulseRing {
+  0%   { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(2.4); opacity: 0; }
+}

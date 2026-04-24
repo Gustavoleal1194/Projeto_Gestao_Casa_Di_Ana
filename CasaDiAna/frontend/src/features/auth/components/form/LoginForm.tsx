@@ -1,10 +1,11 @@
 // frontend/src/features/auth/components/form/LoginForm.tsx
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authService } from '../../services/authService'
 import { useAuthStore } from '@/store/authStore'
 import { AnimatedInput } from './AnimatedInput'
 import { AnimatedButton } from './AnimatedButton'
+import { TwoFactorPanel } from './TwoFactorPanel'
 
 function CoffeeIcon() {
   return (
@@ -27,18 +28,9 @@ export function LoginForm() {
 
   const [etapa, setEtapa] = useState<Etapa>('credenciais')
   const [tokenTemporario, setTokenTemporario] = useState<string | null>(null)
-  const [otp, setOtp] = useState('')
 
   const [erro, setErro] = useState<string | null>(null)
   const [carregando, setCarregando] = useState(false)
-
-  const otpInputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    if (etapa === 'otp') {
-      setTimeout(() => otpInputRef.current?.focus(), 100)
-    }
-  }, [etapa])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -64,35 +56,9 @@ export function LoginForm() {
     }
   }
 
-  const handleVerificarOtp = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!otp.trim()) {
-      setErro('Digite o código.')
-      return
-    }
-    setCarregando(true)
-    setErro(null)
-    try {
-      const dados = await authService.verificarOtp(otp.trim(), tokenTemporario!)
-      login(dados.token, { nome: dados.nome, papel: dados.papel })
-      navigate('/', { replace: true })
-    } catch (e: unknown) {
-      const msg = (e as Error)?.message ?? 'Código inválido.'
-      setErro(msg)
-      if (msg.toLowerCase().includes('tentativas') || msg.toLowerCase().includes('login novamente')) {
-        setEtapa('credenciais')
-        setTokenTemporario(null)
-        setOtp('')
-      }
-    } finally {
-      setCarregando(false)
-    }
-  }
-
   const voltarParaCredenciais = () => {
     setEtapa('credenciais')
     setTokenTemporario(null)
-    setOtp('')
     setErro(null)
   }
 
@@ -169,81 +135,17 @@ export function LoginForm() {
           </form>
         </>
       ) : (
-        <>
-          <div className="mb-8">
-            <h2
-              className="text-2xl font-bold text-[var(--ada-heading)] tracking-tight"
-              style={{ fontFamily: 'Sora, system-ui, sans-serif' }}
-            >
-              Verificação em dois fatores
-            </h2>
-            <p className="mt-1.5 text-sm" style={{ color: 'var(--ada-muted)' }}>
-              Digite o código do app autenticador ou um código de recuperação.
-            </p>
-          </div>
-
-          <form onSubmit={handleVerificarOtp} className="space-y-5" noValidate>
-            <div className="relative">
-              <label
-                htmlFor="otp"
-                className="block text-sm font-medium mb-1.5"
-                style={{ color: 'var(--ada-muted)' }}
-              >
-                Código de verificação
-              </label>
-              <input
-                ref={otpInputRef}
-                id="otp"
-                type="text"
-                maxLength={10}
-                value={otp}
-                onChange={e => {
-                  setOtp(e.target.value.slice(0, 10))
-                  if (erro) setErro(null)
-                }}
-                autoComplete="one-time-code"
-                disabled={carregando}
-                placeholder="000000 ou XXXX-XXXX"
-                className="w-full rounded-xl px-4 py-3 text-center text-xl tracking-widest font-bold
-                           text-[var(--ada-heading)] bg-white border border-[var(--ada-border)]
-                           outline-none transition-all duration-200
-                           focus-visible:border-[#C4870A] focus-visible:ring-2 focus-visible:ring-[#C4870A]/20
-                           disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ boxShadow: 'var(--shadow-xs)' }}
-              />
-            </div>
-
-            {erro && (
-              <div
-                className="rounded-xl px-4 py-3 text-sm"
-                style={{
-                  background: 'var(--ada-error-bg)',
-                  border: '1px solid var(--ada-error-border)',
-                  color: '#DC2626',
-                }}
-                role="alert"
-                aria-live="polite"
-              >
-                {erro}
-              </div>
-            )}
-
-            <AnimatedButton type="submit" carregando={carregando}>
-              {carregando ? 'Verificando…' : 'Verificar código'}
-            </AnimatedButton>
-
-            <div className="text-center">
-              <button
-                type="button"
-                onClick={voltarParaCredenciais}
-                className="text-sm transition-opacity hover:opacity-70"
-                style={{ color: 'var(--ada-muted)' }}
-              >
-                ← Voltar ao login
-              </button>
-            </div>
-          </form>
-        </>
+        tokenTemporario && (
+          <TwoFactorPanel
+            tokenTemporario={tokenTemporario}
+            verificarOtp={authService.verificarOtp}
+            onSuccess={(token, nome, papel) => {
+              login(token, { nome, papel })
+              navigate('/', { replace: true })
+            }}
+            onVoltar={voltarParaCredenciais}
+          />
+        )
       )}
     </div>
   )

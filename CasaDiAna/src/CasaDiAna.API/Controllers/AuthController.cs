@@ -5,6 +5,8 @@ using CasaDiAna.Application.Auth.Commands.Login;
 using CasaDiAna.Application.Auth.Commands.VerificarOtp;
 using CasaDiAna.Application.Auth.Dtos;
 using CasaDiAna.Application.Common;
+using CasaDiAna.Application.Usuarios.Dtos;
+using CasaDiAna.Application.Usuarios.Queries.ObterMeuPerfil;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -72,6 +74,16 @@ public class AuthController : ControllerBase
         await _mediator.Send(
             new ConfirmarSetup2FaCommand(usuarioId, request.Secret, request.Codigo, request.CodigosRecuperacao), ct);
         return Ok(ApiResponse<object>.Ok(null!));
+    }
+
+    [HttpGet("me")]
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResponse<MeuPerfilDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> MeuPerfil(CancellationToken ct)
+    {
+        var usuarioId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var resultado = await _mediator.Send(new ObterMeuPerfilQuery(usuarioId), ct);
+        return Ok(ApiResponse<MeuPerfilDto>.Ok(resultado));
     }
 }
 

@@ -18,6 +18,12 @@ public class Usuario
     public bool TwoFactorHabilitado { get; private set; }
     public string? TotpSecret { get; private set; }
 
+    // Auditoria de login
+    public DateTime? UltimoLogin { get; private set; }
+    public string? IpUltimoLogin { get; private set; }
+    public string? UserAgentUltimoLogin { get; private set; }
+    public int TotalLogins { get; private set; }
+
     private Usuario() { }
 
     public static Usuario Criar(string nome, string email, string senhaHash, PapelUsuario papel)
@@ -64,6 +70,15 @@ public class Usuario
     {
         TotpSecret = null;
         TwoFactorHabilitado = false;
+        AtualizadoEm = DateTime.UtcNow;
+    }
+
+    public void RegistrarLogin(string? ip, string? userAgent)
+    {
+        UltimoLogin = DateTime.UtcNow;
+        IpUltimoLogin = ip;
+        UserAgentUltimoLogin = userAgent;
+        TotalLogins++;
         AtualizadoEm = DateTime.UtcNow;
     }
 }

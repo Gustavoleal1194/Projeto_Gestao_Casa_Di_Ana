@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { ConfirmacaoProducaoModal, type DadosConfirmacaoProducao } from '../components/ConfirmacaoProducaoModal'
 import { producaoDiariaService } from '../services/producaoDiariaService'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import { CampoTexto } from '@/features/estoque/ingredientes/components/CampoTexto'
@@ -30,8 +31,9 @@ export function RegistrarProducaoPage() {
   const navigate = useNavigate()
   const [produtos, setProdutos] = useState<ProdutoResumo[]>([])
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
+  const [confirma, setConfirma] = useState<DadosConfirmacaoProducao | null>(null)
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } =
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } =
     useForm<ProducaoFormValues>({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       resolver: zodResolver(producaoSchema) as any,
@@ -49,14 +51,20 @@ export function RegistrarProducaoPage() {
 
   const onSubmit = async (values: ProducaoFormValues) => {
     try {
-      await producaoDiariaService.registrar({
+      const resultado = await producaoDiariaService.registrar({
         produtoId: values.produtoId,
         data: values.data,
         quantidadeProduzida: Number(values.quantidadeProduzida),
         observacoes: values.observacoes || null,
       })
-      setToast({ tipo: 'sucesso', mensagem: 'Produção registrada com sucesso.' })
-      setTimeout(() => navigate('/producao/diaria'), 1200)
+      const quantidade = Number(values.quantidadeProduzida)
+      setConfirma({
+        produtoNome: resultado.produtoNome,
+        quantidade,
+        custoTotal: resultado.custoTotal,
+        custoUnitario: quantidade > 0 ? resultado.custoTotal / quantidade : 0,
+        horario: new Date(resultado.criadoEm).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+      })
     } catch (err: unknown) {
       const erros = (err as { response?: { data?: { erros?: string[] } } })?.response?.data?.erros
       setToast({ tipo: 'erro', mensagem: erros?.[0] ?? 'Erro ao registrar produção.' })
@@ -124,6 +132,15 @@ export function RegistrarProducaoPage() {
           />
         </FormCard>
       </form>
+
+      {confirma && (
+        <ConfirmacaoProducaoModal
+          aberto
+          dados={confirma}
+          onFechar={() => { setConfirma(null); reset() }}
+          onVerRelatorio={() => { setConfirma(null); navigate('/producao/diaria') }}
+        />
+      )}
     </div>
   )
 }

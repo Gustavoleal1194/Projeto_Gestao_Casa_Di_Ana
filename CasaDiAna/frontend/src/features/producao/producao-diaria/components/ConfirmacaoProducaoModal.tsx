@@ -23,15 +23,22 @@ function useCountUp(target: number, duration: number, enabled: boolean): number 
     if (!enabled) return
     setValue(0)
     let start: number | null = null
+    let rafId: number
+    let cancelled = false
     const step = (ts: number) => {
-      if (!start) start = ts
+      if (cancelled) return
+      if (start === null) start = ts
       const progress = Math.min((ts - start) / duration, 1)
       const eased = 1 - Math.pow(1 - progress, 3)
       setValue(eased * target)
-      if (progress < 1) requestAnimationFrame(step)
+      if (progress < 1) rafId = requestAnimationFrame(step)
       else setValue(target)
     }
-    requestAnimationFrame(step)
+    rafId = requestAnimationFrame(step)
+    return () => {
+      cancelled = true
+      cancelAnimationFrame(rafId)
+    }
   }, [target, duration, enabled])
   return value
 }
@@ -119,7 +126,7 @@ export function ConfirmacaoProducaoModal({ aberto, onFechar, onVerRelatorio, dad
       >
         <div style={{ height: 4, background: 'linear-gradient(90deg, #D4960C, #E8A520)' }} />
 
-        <button onClick={onFechar} style={{
+        <button type="button" onClick={onFechar} style={{
           position: 'absolute', top: 16, right: 16,
           width: 32, height: 32, borderRadius: 8,
           background: 'transparent', border: '1px solid var(--ada-border)',
@@ -201,7 +208,7 @@ export function ConfirmacaoProducaoModal({ aberto, onFechar, onVerRelatorio, dad
           </div>
 
           <div style={{ display: 'flex', gap: 10, animation: 'fadeUp 300ms 1100ms ease both' }}>
-            <button onClick={onFechar} style={{
+            <button type="button" onClick={onFechar} style={{
               flex: 1, padding: '11px 0', borderRadius: 10,
               fontFamily: 'Sora, system-ui, sans-serif', fontSize: 13.5, fontWeight: 600,
               color: 'var(--ada-heading)', background: 'var(--ada-surface-2)',
@@ -209,7 +216,7 @@ export function ConfirmacaoProducaoModal({ aberto, onFechar, onVerRelatorio, dad
             }}>
               Novo Lote
             </button>
-            <button onClick={onVerRelatorio} style={{
+            <button type="button" onClick={onVerRelatorio} style={{
               flex: 2, padding: '11px 0', borderRadius: 10,
               fontFamily: 'Sora, system-ui, sans-serif', fontSize: 13.5, fontWeight: 600,
               color: '#fff', background: 'linear-gradient(135deg, #D4960C, #B87D0A)',

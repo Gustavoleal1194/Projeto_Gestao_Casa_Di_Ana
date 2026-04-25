@@ -21,6 +21,7 @@ const entradaSchema = z.object({
   fornecedorId: z.string().min(1, 'Selecione um fornecedor.'),
   dataEntrada: z.string().min(1, 'Informe a data da entrada.'),
   numeroNotaFiscal: z.string().max(60),
+  recebidoPor: z.string().max(100),
   observacoes: z.string(),
   itens: z
     .array(
@@ -48,6 +49,7 @@ export function EntradaFormPage() {
         fornecedorId: '',
         dataEntrada: new Date().toISOString().split('T')[0],
         numeroNotaFiscal: '',
+        recebidoPor: '',
         observacoes: '',
         itens: [{ ingredienteId: '', quantidade: '', custoUnitario: '' }],
       },
@@ -66,6 +68,7 @@ export function EntradaFormPage() {
         fornecedorId: values.fornecedorId,
         dataEntrada: values.dataEntrada,
         numeroNotaFiscal: values.numeroNotaFiscal || null,
+        recebidoPor: values.recebidoPor || null,
         observacoes: values.observacoes || null,
         itens: values.itens.map(item => ({
           ingredienteId: item.ingredienteId,
@@ -128,6 +131,12 @@ export function EntradaFormPage() {
               label="Nota Fiscal"
               placeholder="Número da NF (opcional)"
               {...register('numeroNotaFiscal')}
+            />
+            <CampoTexto
+              label="Recebido por"
+              placeholder="Nome de quem recebeu (opcional)"
+              {...register('recebidoPor')}
+              erro={errors.recebidoPor?.message}
             />
             <CampoTexto
               label="Observações"

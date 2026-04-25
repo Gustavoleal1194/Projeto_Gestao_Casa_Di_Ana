@@ -8,4 +8,5 @@ public record RegistrarEntradaCommand(
     DateTime DataEntrada,
     IReadOnlyList<ItemEntradaInputDto> Itens,
     string? NumeroNotaFiscal = null,
+    string? RecebidoPor = null,
     string? Observacoes = null) : IRequest<EntradaMercadoriaDto>;

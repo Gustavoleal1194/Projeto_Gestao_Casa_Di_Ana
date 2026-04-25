@@ -15,6 +15,7 @@ public class EntradaMercadoriaConfiguration : IEntityTypeConfiguration<EntradaMe
         builder.Property(e => e.FornecedorId).HasColumnName("fornecedor_id").IsRequired();
         builder.Property(e => e.NumeroNotaFiscal).HasColumnName("numero_nota_fiscal").HasMaxLength(60);
         builder.Property(e => e.DataEntrada).HasColumnName("data_entrada").IsRequired();
+        builder.Property(e => e.RecebidoPor).HasColumnName("recebido_por").HasMaxLength(100);
         builder.Property(e => e.Observacoes).HasColumnName("observacoes");
         builder.Property(e => e.Status)
             .HasColumnName("status")

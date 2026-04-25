@@ -9,6 +9,7 @@ public class EntradaMercadoria
     public Guid FornecedorId { get; private set; }
     public string? NumeroNotaFiscal { get; private set; }
     public DateTime DataEntrada { get; private set; }
+    public string? RecebidoPor { get; private set; }
     public string? Observacoes { get; private set; }
     public StatusEntrada Status { get; private set; }
     public DateTime CriadoEm { get; private set; }
@@ -27,6 +28,7 @@ public class EntradaMercadoria
         DateTime dataEntrada,
         Guid criadoPor,
         string? numeroNotaFiscal = null,
+        string? recebidoPor = null,
         string? observacoes = null)
     {
         return new EntradaMercadoria
@@ -35,6 +37,7 @@ public class EntradaMercadoria
             FornecedorId = fornecedorId,
             NumeroNotaFiscal = numeroNotaFiscal,
             DataEntrada = dataEntrada,
+            RecebidoPor = recebidoPor,
             Observacoes = observacoes,
             Status = StatusEntrada.Confirmada,
             CriadoEm = DateTime.UtcNow,

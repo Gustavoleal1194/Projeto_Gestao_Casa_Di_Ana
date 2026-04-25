@@ -48,6 +48,7 @@ public class RegistrarEntradaCommandHandler : IRequestHandler<RegistrarEntradaCo
             request.DataEntrada,
             _currentUser.UsuarioId,
             request.NumeroNotaFiscal,
+            request.RecebidoPor,
             request.Observacoes);
 
         // Carrega todos os ingredientes de uma vez
@@ -113,6 +114,7 @@ public class RegistrarEntradaCommandHandler : IRequestHandler<RegistrarEntradaCo
             e.NumeroNotaFiscal,
             e.DataEntrada,
             e.Status.ToString(),
+            e.RecebidoPor,
             e.Observacoes,
             itens,
             itens.Sum(i => i.CustoTotal),

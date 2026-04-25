@@ -113,12 +113,18 @@ export function EntradaDetalhePage() {
         </div>
       </div>
 
-      {entrada.observacoes && (
+      {(entrada.recebidoPor || entrada.observacoes) && (
         <div
-          className="rounded-xl px-4 py-3 text-sm mb-4"
+          className="rounded-xl px-4 py-3 text-sm mb-4 flex flex-col gap-1.5"
           style={{ background: 'var(--ada-warning-badge)', border: '1px solid var(--ada-warning-border)', color: 'var(--ada-body)' }}
         >
-          {entrada.observacoes}
+          {entrada.recebidoPor && (
+            <p>
+              <span className="font-semibold" style={{ color: 'var(--ada-muted)' }}>Recebido por: </span>
+              {entrada.recebidoPor}
+            </p>
+          )}
+          {entrada.observacoes && <p>{entrada.observacoes}</p>}
         </div>
       )}
 

@@ -7,6 +7,7 @@ public record EntradaMercadoriaDto(
     string? NumeroNotaFiscal,
     DateTime DataEntrada,
     string Status,
+    string? RecebidoPor,
     string? Observacoes,
     IReadOnlyList<ItemEntradaDto> Itens,
     decimal CustoTotal,

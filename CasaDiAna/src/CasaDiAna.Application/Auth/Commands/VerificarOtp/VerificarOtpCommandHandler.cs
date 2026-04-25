@@ -11,18 +11,15 @@ public class VerificarOtpCommandHandler : IRequestHandler<VerificarOtpCommand, T
     private readonly IUsuarioRepository _usuarios;
     private readonly IJwtService _jwtService;
     private readonly ITotpService _totp;
-    private readonly ICodigoRecuperacaoRepository _codigosRecuperacao;
 
     public VerificarOtpCommandHandler(
         IUsuarioRepository usuarios,
         IJwtService jwtService,
-        ITotpService totp,
-        ICodigoRecuperacaoRepository codigosRecuperacao)
+        ITotpService totp)
     {
         _usuarios = usuarios;
         _jwtService = jwtService;
         _totp = totp;
-        _codigosRecuperacao = codigosRecuperacao;
     }
 
     public async Task<TokenDto> Handle(VerificarOtpCommand request, CancellationToken cancellationToken)
@@ -36,32 +33,13 @@ public class VerificarOtpCommandHandler : IRequestHandler<VerificarOtpCommand, T
         if (usuario.TotpSecret is null)
             throw new DomainException("2FA não configurado.");
 
-        if (_totp.ValidarCodigo(usuario.TotpSecret, request.Codigo))
-        {
-            usuario.RegistrarLogin(request.Ip, request.UserAgent);
-            _usuarios.Atualizar(usuario);
-            await _usuarios.SalvarAsync(cancellationToken);
-            var token = _jwtService.GerarToken(usuario);
-            return new TokenDto(token, usuario.Nome, usuario.Papel.ToString());
-        }
+        if (!_totp.ValidarCodigo(usuario.TotpSecret, request.Codigo))
+            throw new DomainException("Código inválido. Verifique o app autenticador.");
 
-        var ativos = await _codigosRecuperacao.ObterAtivosPorUsuarioAsync(
-            usuario.Id, cancellationToken);
-
-        foreach (var codigo in ativos)
-        {
-            if (codigo.VerificarCodigo(request.Codigo))
-            {
-                await _codigosRecuperacao.MarcarUsadoAsync(codigo.Id, cancellationToken);
-                await _codigosRecuperacao.SalvarAsync(cancellationToken);
-                usuario.RegistrarLogin(request.Ip, request.UserAgent);
-                _usuarios.Atualizar(usuario);
-                await _usuarios.SalvarAsync(cancellationToken);
-                var token = _jwtService.GerarToken(usuario);
-                return new TokenDto(token, usuario.Nome, usuario.Papel.ToString());
-            }
-        }
-
-        throw new DomainException("Código inválido. Verifique o app ou use um código de recuperação.");
+        usuario.RegistrarLogin(request.Ip, request.UserAgent);
+        _usuarios.Atualizar(usuario);
+        await _usuarios.SalvarAsync(cancellationToken);
+        var token = _jwtService.GerarToken(usuario);
+        return new TokenDto(token, usuario.Nome, usuario.Papel.ToString());
     }
 }

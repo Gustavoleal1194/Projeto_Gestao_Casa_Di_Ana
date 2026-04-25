@@ -14,6 +14,8 @@ import { FormActions } from '@/components/form/FormActions'
 import { FormCard } from '@/components/form/FormCard'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
 import type { ProdutoResumo, VendaFormValues } from '@/types/producao'
+import { useAuthStore } from '@/store/authStore'
+import { ConfirmacaoVendaModal, type DadosConfirmacaoVenda } from '../components/ConfirmacaoVendaModal'
 
 const vendaSchema = z.object({
   produtoId: z.string().min(1, 'Selecione um produto.'),
@@ -26,10 +28,12 @@ const vendaSchema = z.object({
 
 export function RegistrarVendaPage() {
   const navigate = useNavigate()
+  const { usuario } = useAuthStore()
   const [produtos, setProdutos] = useState<ProdutoResumo[]>([])
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
+  const [confirma, setConfirma] = useState<DadosConfirmacaoVenda | null>(null)
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } =
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } =
     useForm<VendaFormValues>({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       resolver: zodResolver(vendaSchema) as any,
@@ -46,13 +50,22 @@ export function RegistrarVendaPage() {
 
   const onSubmit = async (values: VendaFormValues) => {
     try {
-      await vendasDiariasService.registrar({
+      const resultado = await vendasDiariasService.registrar({
         produtoId: values.produtoId,
         data: values.data,
         quantidadeVendida: Number(values.quantidadeVendida),
       })
-      setToast({ tipo: 'sucesso', mensagem: 'Venda registrada com sucesso.' })
-      setTimeout(() => navigate('/producao/vendas'), 1200)
+      const produto = produtos.find(p => p.id === values.produtoId)
+      const valorUnitario = produto?.precoVenda ?? 0
+      const quantidade = Number(values.quantidadeVendida)
+      setConfirma({
+        produtoNome: resultado.produtoNome,
+        quantidade,
+        valorUnitario,
+        total: quantidade * valorUnitario,
+        operador: usuario?.nome ?? '—',
+        horario: new Date(resultado.criadoEm).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+      })
     } catch {
       setToast({ tipo: 'erro', mensagem: 'Erro ao registrar venda.' })
     }
@@ -106,6 +119,15 @@ export function RegistrarVendaPage() {
           />
         </FormCard>
       </form>
+
+      {confirma && (
+        <ConfirmacaoVendaModal
+          aberto
+          dados={confirma}
+          onFechar={() => { setConfirma(null); reset() }}
+          onVerRelatorio={() => { setConfirma(null); navigate('/producao/vendas') }}
+        />
+      )}
     </div>
   )
 }

@@ -130,6 +130,7 @@ export interface EntradaMercadoriaResumo {
   numeroNotaFiscal: string | null
   dataEntrada: string
   status: string
+  recebidoPor: string | null
   totalItens: number
   custoTotal: number
   criadoEm: string
@@ -169,8 +170,8 @@ export interface RegistrarEntradaInput {
   fornecedorId: string
   dataEntrada: string
   itens: ItemEntradaInput[]
+  recebidoPor: string
   numeroNotaFiscal?: string | null
-  recebidoPor?: string | null
   observacoes?: string | null
 }
 

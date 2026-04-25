@@ -31,7 +31,7 @@ public class RegistrarEntradaCommandValidator : AbstractValidator<RegistrarEntra
             .WithMessage("Número da nota fiscal deve ter no máximo 60 caracteres.");
 
         RuleFor(x => x.RecebidoPor)
-            .MaximumLength(100).When(x => x.RecebidoPor != null)
-            .WithMessage("Nome de quem recebeu deve ter no máximo 100 caracteres.");
+            .NotEmpty().WithMessage("Informe quem recebeu os produtos.")
+            .MaximumLength(100).WithMessage("Nome de quem recebeu deve ter no máximo 100 caracteres.");
     }
 }

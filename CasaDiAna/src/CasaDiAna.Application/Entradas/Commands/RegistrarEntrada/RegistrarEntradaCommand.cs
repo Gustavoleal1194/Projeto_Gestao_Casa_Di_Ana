@@ -7,6 +7,6 @@ public record RegistrarEntradaCommand(
     Guid FornecedorId,
     DateTime DataEntrada,
     IReadOnlyList<ItemEntradaInputDto> Itens,
+    string RecebidoPor,
     string? NumeroNotaFiscal = null,
-    string? RecebidoPor = null,
     string? Observacoes = null) : IRequest<EntradaMercadoriaDto>;

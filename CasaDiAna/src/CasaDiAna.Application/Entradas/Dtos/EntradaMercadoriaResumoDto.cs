@@ -6,6 +6,7 @@ public record EntradaMercadoriaResumoDto(
     string? NumeroNotaFiscal,
     DateTime DataEntrada,
     string Status,
+    string? RecebidoPor,
     int TotalItens,
     decimal CustoTotal,
     DateTime CriadoEm);

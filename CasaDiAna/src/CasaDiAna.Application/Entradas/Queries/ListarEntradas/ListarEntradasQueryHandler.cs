@@ -24,6 +24,7 @@ public class ListarEntradasQueryHandler : IRequestHandler<ListarEntradasQuery, I
             e.NumeroNotaFiscal,
             e.DataEntrada,
             e.Status.ToString(),
+            e.RecebidoPor,
             e.Itens.Count,
             e.Itens.Sum(i => i.CustoTotal),
             e.CriadoEm)).ToList().AsReadOnly();

@@ -78,7 +78,7 @@ export function EntradasPage() {
       </form>
 
       {/* ── Estados ────────────────────────────────────────────────────── */}
-      {loading && <SkeletonTable colunas={5} linhas={5} />}
+      {loading && <SkeletonTable colunas={6} linhas={5} />}
       {!loading && erro && (
         <div className="state-error" role="alert">{erro}</div>
       )}
@@ -101,6 +101,7 @@ export function EntradasPage() {
                     <th className="table-th" scope="col">Fornecedor</th>
                     <th className="table-th" scope="col">Nota Fiscal</th>
                     <th className="table-th" scope="col">Data</th>
+                    <th className="table-th" scope="col">Recebido por</th>
                     <th className="table-th" scope="col">Itens</th>
                     <th className="table-th table-th-right" scope="col">Custo Total</th>
                     <th className="table-th" scope="col">Status</th>
@@ -126,6 +127,11 @@ export function EntradasPage() {
                       <td className="table-td">
                         <span className="text-sm" style={{ color: 'var(--ada-body)' }}>
                           {formatarData(e.dataEntrada)}
+                        </span>
+                      </td>
+                      <td className="table-td">
+                        <span className="text-sm" style={{ color: e.recebidoPor ? 'var(--ada-body)' : 'var(--ada-placeholder)' }}>
+                          {e.recebidoPor ?? '—'}
                         </span>
                       </td>
                       <td className="table-td">

@@ -21,7 +21,7 @@ const entradaSchema = z.object({
   fornecedorId: z.string().min(1, 'Selecione um fornecedor.'),
   dataEntrada: z.string().min(1, 'Informe a data da entrada.'),
   numeroNotaFiscal: z.string().max(60),
-  recebidoPor: z.string().max(100),
+  recebidoPor: z.string().min(1, 'Informe quem recebeu os produtos.').max(100),
   observacoes: z.string(),
   itens: z
     .array(
@@ -67,8 +67,8 @@ export function EntradaFormPage() {
       const resultado: EntradaMercadoria = await entradasService.registrar({
         fornecedorId: values.fornecedorId,
         dataEntrada: values.dataEntrada,
+        recebidoPor: values.recebidoPor,
         numeroNotaFiscal: values.numeroNotaFiscal || null,
-        recebidoPor: values.recebidoPor || null,
         observacoes: values.observacoes || null,
         itens: values.itens.map(item => ({
           ingredienteId: item.ingredienteId,
@@ -134,7 +134,8 @@ export function EntradaFormPage() {
             />
             <CampoTexto
               label="Recebido por"
-              placeholder="Nome de quem recebeu (opcional)"
+              obrigatorio
+              placeholder="Nome do funcionário que recebeu"
               {...register('recebidoPor')}
               erro={errors.recebidoPor?.message}
             />

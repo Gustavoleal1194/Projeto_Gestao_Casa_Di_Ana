@@ -14,12 +14,12 @@ Sistema de Gestão Operacional para a cafeteria **Casa di Ana**. Backend ASP.NET
 
 ```bash
 # Buildar — SEMPRE pelo projeto API (evita lock de DLL)
-powershell.exe -Command "Set-Location 'src/CasaDiAna.API'; dotnet build"
+dotnet build src/CasaDiAna.API
 
 # Rodar (porta 5130)
-powershell.exe -Command "dotnet run --project src/CasaDiAna.API"
+dotnet run --project src/CasaDiAna.API
 
-# Parar processos dotnet antes de rebuildar
+# Parar processos dotnet antes de rebuildar (Windows)
 powershell.exe -Command "Stop-Process -Name 'CasaDiAna.API' -Force; Start-Sleep 1"
 ```
 
@@ -29,17 +29,15 @@ powershell.exe -Command "Stop-Process -Name 'CasaDiAna.API' -Force; Start-Sleep 
 
 ```bash
 cd frontend
-npm install
-npm run dev   # Vite dev server — porta 5173
-npm run build
-npx tsc --noEmit  # checagem de tipos sem build
+npm run dev      # Vite dev server — porta 5173
+npx tsc --noEmit # checagem de tipos sem build
 ```
 
 ### Testes
 
 ```bash
-powershell.exe -Command "Set-Location 'tests/CasaDiAna.Application.Tests'; dotnet test"
-powershell.exe -Command "Set-Location 'tests/CasaDiAna.Application.Tests'; dotnet test --filter 'NomeDoTeste'"
+dotnet test tests/CasaDiAna.Application.Tests
+dotnet test tests/CasaDiAna.Application.Tests --filter 'NomeDoTeste'
 ```
 
 ### Migrations (EF Core)
@@ -49,7 +47,7 @@ dotnet ef migrations add NomeDaMigration --project src/CasaDiAna.Infrastructure 
 dotnet ef database update --project src/CasaDiAna.Infrastructure --startup-project src/CasaDiAna.API
 ```
 
-Para remover constraints PostgreSQL que o EF não rastreia (ex: CHECK constraints criadas via SQL puro), criar a migration manualmente e usar `migrationBuilder.Sql("ALTER TABLE ... DROP CONSTRAINT IF EXISTS ...")`.
+Para remover constraints PostgreSQL que o EF não rastreia (ex: CHECK constraints criadas via SQL puro), criar a migration manualmente com `migrationBuilder.Sql("ALTER TABLE ... DROP CONSTRAINT IF EXISTS ...")`.
 
 ### Autenticação manual
 
@@ -63,7 +61,7 @@ No Swagger: colar **apenas o token** (sem `Bearer `), pois o scheme `SecuritySch
 
 **Usuário seed:** `admin@casadiana.com` / `Admin@123` criado automaticamente na inicialização se o banco estiver vazio (`Program.cs`).
 
-**Swagger em produção:** desabilitado por padrão. Para habilitar no Render, adicionar env var `Swagger__Habilitado=true` no serviço `casadiana-api`.
+**Swagger em produção:** desabilitado por padrão. Habilitar via env var `Swagger__Habilitado=true` no Render.
 
 ---
 
@@ -121,11 +119,9 @@ PostgreSQL, EF Core 8, Npgsql. Schemas:
 
 **Todas as colunas mapeadas explicitamente** via `HasColumnName()` em snake_case nas classes `IEntityTypeConfiguration<T>` em `Infrastructure/Persistence/Configurations/`. Não confiar em convenções automáticas do EF.
 
-### Armadilha: coleções readonly em entidades
+### Armadilhas conhecidas
 
-Entidades com `private readonly List<T>` (ex: `Inventario`) **não podem receber filhos via `_db.Update()`** após a criação. O EF gera `DbUpdateConcurrencyException`.
-
-**Solução:** método específico no repositório para inserir o filho diretamente:
+**Coleções readonly em entidades:** Entidades com `private readonly List<T>` (ex: `Inventario`) **não podem receber filhos via `_db.Update()`** após a criação — o EF gera `DbUpdateConcurrencyException`. Inserir o filho diretamente:
 ```csharp
 inventario.AdicionarItem(...);
 var novoItem = inventario.Itens.Last();
@@ -133,13 +129,11 @@ await _inventarios.AdicionarItemAsync(novoItem, ct);
 await _inventarios.SalvarAsync(ct);
 ```
 
-### ICurrentUserService
+**ICurrentUserService:** O ASP.NET Core remapeia o claim `sub` para `ClaimTypes.NameIdentifier`. **Nunca usar `JwtRegisteredClaimNames.Sub`** no `CurrentUserService`.
 
-O ASP.NET Core remapeia o claim `sub` para `ClaimTypes.NameIdentifier`. **Nunca usar `JwtRegisteredClaimNames.Sub`** no `CurrentUserService`.
+**Soft delete:** Métodos `NomeExisteAsync` **devem filtrar por `ativo = true`** — caso contrário bloqueiam criação de registros com nome de entidade desativada.
 
-### Soft delete
-
-Entidades com `Ativo` usam soft delete. Métodos `NomeExisteAsync` **devem filtrar por `ativo = true`** — caso contrário bloqueiam criação de registros com nome de entidade desativada.
+**Filtros de data em relatórios:** Usar `m.CriadoEm < ate.Date.AddDays(1)` (exclusivo no limite superior) para incluir registros do dia inteiro.
 
 ### Estoque e movimentações
 
@@ -149,38 +143,37 @@ Toda alteração de `EstoqueAtual` gera obrigatoriamente um `Movimentacao` com:
 
 Ao registrar uma entrada de mercadoria, chamar **tanto** `ingrediente.AtualizarEstoque()` **quanto** `ingrediente.AtualizarCusto()` — sem o custo, o cálculo de custo de produção via ficha técnica retorna zero.
 
-Produção diária **não valida estoque suficiente** — é registrada após o fato. O estoque é clampado em 0 pelo domínio (`Math.Max(0, novoSaldo)` em `Ingrediente.AtualizarEstoque`) — nunca fica negativo.
+Estoque é clampado em 0 pelo domínio (`Math.Max(0, novoSaldo)` em `Ingrediente.AtualizarEstoque`) — nunca fica negativo. Produção diária **não valida estoque suficiente** — é registrada após o fato.
 
-### Autenticação 2FA (SMS via Twilio)
+### Autenticação 2FA (TOTP)
 
-Fluxo de login com 2FA habilitado:
-1. `POST /api/auth/login` → valida credenciais → gera OTP → envia SMS via `ISmsService` → retorna `Requer2Fa: true` + `TokenTemporario`
-2. `POST /api/auth/verificar-otp` → valida OTP com token temporário → retorna JWT completo
-3. `POST /api/auth/reenviar-codigo` → regenera e reenvia OTP
+O 2FA usa **TOTP** (Time-based One-Time Password) via app autenticador (Google Authenticator, Authy etc.) — **não SMS**.
 
-O `TokenTemporario` tem vida curta (configurável) e claim `tipo=temp` — o `VerificarOtpCommandHandler` o valida via `IJwtService.GerarTokenTemporario`. O OTP é armazenado como BCrypt hash com expiração de 5 min e máximo de 5 tentativas.
+**Fluxo de setup:**
+1. `POST /api/auth/iniciar-setup-2fa` → gera secret TOTP + QR code URL + 8 códigos de recuperação (formato `XXXX-XXXX`)
+2. `POST /api/auth/confirmar-setup-2fa` → valida código do app, salva secret (`TotpSecret`) e hashes dos códigos de recuperação
 
-**`TwilioSmsService` não lança no construtor** se as vars não estiverem configuradas — loga warning e falha em `EnviarAsync`. Handlers que chamam `ISmsService` capturam exceções e lançam `DomainException` (422) em vez de propagar 500.
+**Fluxo de login com 2FA habilitado:**
+1. `POST /api/auth/login` → valida credenciais → retorna `Requer2Fa: true` + `TokenTemporario`
+2. `POST /api/auth/verificar-2fa` → valida código TOTP com `ITotpService.ValidarCodigo()` → retorna JWT completo
 
-Variáveis obrigatórias no Render: `Twilio__AccountSid`, `Twilio__AuthToken`, `Twilio__NumeroDe` (formato E.164, ex: `+17403135781`).
+O `TokenTemporario` tem claim `tipo=temp` e vida curta. O `VerificarOtpCommandValidator` aceita **apenas** `^\d{6}$` (6 dígitos numéricos) — códigos de recuperação (`XXXX-XXXX`) precisam de endpoint separado se implementados no futuro.
+
+Códigos de recuperação são armazenados como BCrypt hashes em `auth.codigos_recuperacao`. **Não verificar BCrypt em loop dentro do handler de TOTP** — BCrypt é lento (~200ms/chamada) e isso causa latência visível no caminho de erro.
 
 ### Segurança implementada
 
 - **Rate limiting:** `[EnableRateLimiting("login")]` no `AuthController` — máx. 10 tentativas/min por IP (HTTP 429)
-- **Security headers:** `X-Content-Type-Options`, `X-Frame-Options`, `X-XSS-Protection`, `Referrer-Policy` adicionados via middleware em `Program.cs`
+- **Security headers:** `X-Content-Type-Options`, `X-Frame-Options`, `X-XSS-Protection`, `Referrer-Policy` em `Program.cs`
 - **CORS:** restrito a `Authorization`, `Content-Type`, `Accept` e métodos `GET/POST/PUT/DELETE/PATCH/OPTIONS`
-- **Senha:** mínimo 8 chars + maiúscula + minúscula + número + especial (validator em `CriarUsuarioCommandValidator`)
+- **Senha:** mínimo 8 chars + maiúscula + minúscula + número + especial (`CriarUsuarioCommandValidator`)
 - **JWT:** expiração configurável via `Jwt:ExpiracaoMinutos` (padrão: 60 min)
-
-### Filtros de data em relatórios
-
-`MovimentacaoRepository.ListarAsync` usa `m.CriadoEm < ate.Date.AddDays(1)` (exclusivo). Todos os novos filtros por data devem seguir o mesmo padrão para incluir registros do dia inteiro.
 
 ### Módulos implementados
 
 | Módulo | Endpoints principais |
 |---|---|
-| Auth | `POST /api/auth/login`, `POST /api/auth/verificar-otp`, `POST /api/auth/reenviar-codigo` |
+| Auth | `POST /api/auth/login`, `POST /api/auth/verificar-2fa`, `POST /api/auth/iniciar-setup-2fa`, `POST /api/auth/confirmar-setup-2fa` |
 | Categorias Ingrediente | `GET/POST /api/categorias`, `PUT/DELETE /api/categorias/{id}` |
 | Unidades de Medida | `GET /api/unidades-medida` |
 | Ingredientes | `GET/POST /api/ingredientes`, `GET/PUT/DELETE /api/ingredientes/{id}` |
@@ -195,7 +188,7 @@ Variáveis obrigatórias no Render: `Twilio__AccountSid`, `Twilio__AuthToken`, `
 | Estoque (Correção) | `POST /api/estoque/correcoes` |
 | Usuários | `GET/POST /api/usuarios`, `DELETE /api/usuarios/{id}`, `PATCH /api/usuarios/{id}/senha`, `POST /api/usuarios/{id}/habilitar-2fa`, `POST /api/usuarios/{id}/desabilitar-2fa` |
 | Notificações | `GET /api/notificacoes`, `PATCH /api/notificacoes/{id}/lida`, `POST /api/notificacoes/marcar-todas-lidas` |
-| Etiquetas | `POST /api/etiquetas/historico`, `GET /api/etiquetas/historico/{produtoId}`, `GET /api/produtos/{id}/modelo-etiqueta-nutricional`, `PUT /api/produtos/{id}/modelo-etiqueta-nutricional` |
+| Etiquetas | `POST /api/etiquetas/historico`, `GET /api/etiquetas/historico/{produtoId}`, `GET/PUT /api/produtos/{id}/modelo-etiqueta-nutricional` |
 | Relatórios | `GET /api/relatorios/estoque-atual\|movimentacoes\|entradas\|producao-vendas\|insumos-producao` |
 
 ---
@@ -222,6 +215,7 @@ dockerContext:  ./CasaDiAna/frontend             # frontend
 - `.dockerignore` na raiz (`CasaDiAna/.dockerignore`) é o que o Render usa para o build do frontend — `frontend/` estava excluindo tudo inclusive `.env.production`
 - `dotnet restore` deve apontar para o `.csproj` da API, não para a `.sln` (que referencia projeto de testes não copiado)
 - `DATABASE_URL` do Render não tem porta explícita → `uri.Port == -1` → usar `5432` como fallback em `DependencyInjection.cs`
+- Builds no plano free levam 10–18 minutos — não há cache de layers entre deploys
 
 ### Variável VITE_API_URL
 
@@ -245,6 +239,7 @@ frontend/src/
   features/
     auth/
       components/hero/   ← Globe3DScene, NeuralMesh (animação da tela de login)
+      components/form/   ← LoginForm, TwoFactorPanel (painel TOTP animado)
       lib/globeConfig.ts ← tokens do globo, CAPITAIS[], GLOBE_NODES, constantes de rotação
     dashboard/
     estoque/
@@ -273,7 +268,7 @@ frontend/src/
     pdf.ts            ← funções de export PDF (jsPDF + autotable)
   store/authStore.ts  ← Zustand com persist, expõe temPapel()
   types/
-    estoque.ts        ← tipos de ingredientes, movimentações, relatórios
+    estoque.ts        ← tipos de ingredientes, movimentações, entradas, relatórios
     producao.ts       ← tipos de produtos, produção, vendas, perdas
   routes/AppRoutes.tsx
 ```
@@ -289,10 +284,9 @@ frontend/src/
 - **Autenticação:** `useAuthStore()` expõe `usuario`, `logout`, `temPapel(...papeis)`. Papéis: `Admin`, `Coordenador`, `Compras`, `OperadorCozinha`, `OperadorPanificacao`, `OperadorBar`
 - **Design tokens:** definidos em `src/index.css` como CSS custom properties (`--ada-bg`, `--ada-surface`, `--ada-border`, etc.) — usar via `style={{ color: 'var(--ada-heading)' }}` ou classes `.btn-primary`, `.ada-surface-card`, `.table-th`, `.table-td`, etc.
 - **Datas da API:** o backend retorna datas como `"2026-03-28T00:00:00"`. Usar `new Date(valor)` diretamente — **não concatenar** `'T12:00:00'` (gera Invalid Date)
+- **Temas:** não usar classes Tailwind como `bg-white` ou `text-stone-900` diretamente — usar `var(--ada-surface)` e `var(--ada-heading)` para que tema escuro funcione
 
 ### Componentes CSS globais (index.css)
-
-Classes utilitárias prontas para uso:
 
 | Classe | Uso |
 |---|---|
@@ -309,7 +303,6 @@ Classes utilitárias prontas para uso:
 | `.badge-active/inactive/warning/danger` | Badges de status |
 | `.row-action-btn` | Botão de ação em linha de tabela |
 | `.dashboard-card` | Card do dashboard com hover via CSS |
-| `.page-header` | Container do PageHeader |
 | `.notification-panel` | Painel dropdown de notificações |
 | `.skeleton` | Elemento com animação shimmer |
 | `.cell-truncate` | Célula com truncate + ellipsis |
@@ -321,7 +314,7 @@ Classes utilitárias prontas para uso:
 - Overlay escuro + `Sidebar` com `fixed` e `translate-x` condicional
 - Sidebar recebe props `aberta` e `onFechar`; cada `NavLink` chama `onFechar` ao navegar
 
-Ao adicionar novas tabelas, sempre envolver com `<div className="overflow-x-auto">`. Cabeçalhos de página com título + botões devem usar `<PageHeader>`.
+Ao adicionar novas tabelas, sempre envolver com `<div className="overflow-x-auto">`.
 
 ### Notificações — TopHeader dropdown
 
@@ -336,10 +329,6 @@ Paleta semântica dos gráficos:
 - `#f43f5e` vermelho → perda / negativo
 - `#f59e0b` âmbar → produção
 - `#60a5fa` azul → neutro / tendência
-
-### Temas (claro/escuro)
-
-Tokens em `:root` e `[data-theme="dark"]` em `index.css`. Não usar classes Tailwind como `bg-white` ou `text-stone-900` diretamente — usar `var(--ada-surface)` e `var(--ada-heading)` para que o tema escuro funcione corretamente.
 
 ### Testes (backend)
 

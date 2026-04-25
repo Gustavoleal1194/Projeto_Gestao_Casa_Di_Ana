@@ -781,3 +781,14 @@
   0%   { transform: scale(0.8); opacity: 0.6; }
   100% { transform: scale(2.4); opacity: 0; }
 }
+
+/* ─── Confirmation Modals ──────────────────────────────────────────────── */
+@keyframes overlayIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cardIn     { from { opacity: 0; transform: scale(0.92) translateY(16px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes fadeUp     { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn     { from { opacity: 0; } to { opacity: 1; } }
+@keyframes checkDraw  { from { stroke-dashoffset: 60; } to { stroke-dashoffset: 0; } }
+@keyframes circleDraw { from { stroke-dashoffset: 163; } to { stroke-dashoffset: 0; } }
+@keyframes sparkle    { 0% { transform: scale(0) rotate(0deg); opacity: 0; } 50% { opacity: 1; } 100% { transform: scale(1) rotate(45deg); opacity: 0; } }
+@keyframes float      { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes ripple     { from { transform: scale(0.6); opacity: 0.6; } to { transform: scale(2.2); opacity: 0; } }

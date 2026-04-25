@@ -87,7 +87,7 @@ public class RegistrarProducaoCommandHandler
                 item.IngredienteId,
                 TipoMovimentacao.SaidaProducao,
                 quantidadeUsada,
-                novoSaldo,
+                ingrediente.EstoqueAtual,
                 _currentUser.UsuarioId,
                 referenciaTipo: "ProducaoDiaria",
                 referenciaId: producao.Id);

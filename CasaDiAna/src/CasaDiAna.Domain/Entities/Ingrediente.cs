@@ -94,7 +94,7 @@ public class Ingrediente
 
     public void AtualizarEstoque(decimal novoSaldo, Guid atualizadoPor)
     {
-        EstoqueAtual = novoSaldo;
+        EstoqueAtual = Math.Max(0, novoSaldo);
         AtualizadoEm = DateTime.UtcNow;
         AtualizadoPor = atualizadoPor;
     }

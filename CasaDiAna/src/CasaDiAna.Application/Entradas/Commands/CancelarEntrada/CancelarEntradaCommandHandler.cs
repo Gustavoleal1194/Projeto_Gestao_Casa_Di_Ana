@@ -49,7 +49,7 @@ public class CancelarEntradaCommandHandler : IRequestHandler<CancelarEntradaComm
                 item.IngredienteId,
                 TipoMovimentacao.AjusteNegativo,
                 item.Quantidade,
-                novoSaldo,
+                ingrediente.EstoqueAtual,
                 _currentUser.UsuarioId,
                 referenciaTipo: "CancelamentoEntrada",
                 referenciaId: entrada.Id);

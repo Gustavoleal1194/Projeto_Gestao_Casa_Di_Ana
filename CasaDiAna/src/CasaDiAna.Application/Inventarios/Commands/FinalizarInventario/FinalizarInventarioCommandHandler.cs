@@ -54,7 +54,7 @@ public class FinalizarInventarioCommandHandler : IRequestHandler<FinalizarInvent
                 item.IngredienteId,
                 tipo,
                 Math.Abs(item.Diferenca),
-                novoSaldo,
+                ingrediente.EstoqueAtual,
                 _currentUser.UsuarioId,
                 referenciaTipo: "Inventario",
                 referenciaId: inventario.Id);

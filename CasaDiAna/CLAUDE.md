@@ -149,7 +149,7 @@ Toda alteração de `EstoqueAtual` gera obrigatoriamente um `Movimentacao` com:
 
 Ao registrar uma entrada de mercadoria, chamar **tanto** `ingrediente.AtualizarEstoque()` **quanto** `ingrediente.AtualizarCusto()` — sem o custo, o cálculo de custo de produção via ficha técnica retorna zero.
 
-Produção diária **não valida estoque suficiente** — é registrada após o fato. Estoque pode ficar negativo.
+Produção diária **não valida estoque suficiente** — é registrada após o fato. O estoque é clampado em 0 pelo domínio (`Math.Max(0, novoSaldo)` em `Ingrediente.AtualizarEstoque`) — nunca fica negativo.
 
 ### Autenticação 2FA (SMS via Twilio)
 

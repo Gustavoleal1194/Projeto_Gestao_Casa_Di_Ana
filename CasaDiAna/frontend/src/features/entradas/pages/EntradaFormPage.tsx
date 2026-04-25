@@ -14,7 +14,8 @@ import { FormSection } from '@/components/form/FormSection'
 import { FormActions } from '@/components/form/FormActions'
 import { FormCard } from '@/components/form/FormCard'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
-import type { Fornecedor, IngredienteResumo, EntradaFormValues } from '@/types/estoque'
+import { ConfirmacaoEntradaModal, type DadosConfirmacaoEntrada } from '../components/ConfirmacaoEntradaModal'
+import type { Fornecedor, IngredienteResumo, EntradaFormValues, EntradaMercadoria } from '@/types/estoque'
 
 const entradaSchema = z.object({
   fornecedorId: z.string().min(1, 'Selecione um fornecedor.'),
@@ -37,8 +38,9 @@ export function EntradaFormPage() {
   const [fornecedores, setFornecedores] = useState<Fornecedor[]>([])
   const [ingredientes, setIngredientes] = useState<IngredienteResumo[]>([])
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
+  const [confirma, setConfirma] = useState<DadosConfirmacaoEntrada | null>(null)
 
-  const { register, control, handleSubmit, formState: { errors, isSubmitting } } =
+  const { register, control, handleSubmit, reset, formState: { errors, isSubmitting } } =
     useForm<EntradaFormValues>({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       resolver: zodResolver(entradaSchema) as any,
@@ -60,7 +62,7 @@ export function EntradaFormPage() {
 
   const onSubmit = async (values: EntradaFormValues) => {
     try {
-      await entradasService.registrar({
+      const resultado = await entradasService.registrar({
         fornecedorId: values.fornecedorId,
         dataEntrada: values.dataEntrada,
         numeroNotaFiscal: values.numeroNotaFiscal || null,
@@ -71,8 +73,18 @@ export function EntradaFormPage() {
           custoUnitario: Number(item.custoUnitario),
         })),
       })
-      setToast({ tipo: 'sucesso', mensagem: 'Entrada registrada com sucesso.' })
-      setTimeout(() => navigate('/entradas'), 1200)
+      setConfirma({
+        fornecedorNome: resultado.fornecedorNome,
+        numeroNotaFiscal: resultado.numeroNotaFiscal,
+        custoTotal: resultado.custoTotal,
+        horario: new Date(resultado.criadoEm).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        itens: resultado.itens.map(item => ({
+          ingredienteNome: item.ingredienteNome,
+          unidadeMedidaCodigo: item.unidadeMedidaCodigo,
+          quantidade: item.quantidade,
+          custoTotal: item.custoTotal,
+        })),
+      })
     } catch {
       setToast({ tipo: 'erro', mensagem: 'Erro ao registrar entrada.' })
     }
@@ -210,6 +222,15 @@ export function EntradaFormPage() {
           />
         </FormCard>
       </form>
+
+      {confirma && (
+        <ConfirmacaoEntradaModal
+          aberto
+          dados={confirma}
+          onFechar={() => { setConfirma(null); reset() }}
+          onVerEntradas={() => { setConfirma(null); navigate('/entradas') }}
+        />
+      )}
     </div>
   )
 }

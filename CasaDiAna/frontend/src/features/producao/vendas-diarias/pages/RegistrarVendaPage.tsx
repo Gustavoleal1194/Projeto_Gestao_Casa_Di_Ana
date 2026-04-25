@@ -56,7 +56,11 @@ export function RegistrarVendaPage() {
         quantidadeVendida: Number(values.quantidadeVendida),
       })
       const produto = produtos.find(p => p.id === values.produtoId)
-      const valorUnitario = produto?.precoVenda ?? 0
+      if (!produto) {
+        setToast({ tipo: 'erro', mensagem: 'Produto não encontrado. Recarregue a página.' })
+        return
+      }
+      const valorUnitario = produto.precoVenda
       const quantidade = Number(values.quantidadeVendida)
       setConfirma({
         produtoNome: resultado.produtoNome,

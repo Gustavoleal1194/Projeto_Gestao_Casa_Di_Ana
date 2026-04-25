@@ -62,7 +62,7 @@ export function EntradaFormPage() {
 
   const onSubmit = async (values: EntradaFormValues) => {
     try {
-      const resultado = await entradasService.registrar({
+      const resultado: EntradaMercadoria = await entradasService.registrar({
         fornecedorId: values.fornecedorId,
         dataEntrada: values.dataEntrada,
         numeroNotaFiscal: values.numeroNotaFiscal || null,

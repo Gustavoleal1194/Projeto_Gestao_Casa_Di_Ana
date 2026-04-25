@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   ArrowUpTrayIcon,
   CheckCircleIcon,
@@ -12,7 +13,9 @@ import {
 import { importacaoVendasService } from '../services/importacaoVendasService'
 import { QuickCreateProductModal } from '../components/QuickCreateProductModal'
 import { ConfirmRemoveDialog } from '../components/ConfirmRemoveDialog'
+import { ConfirmacaoImportacaoModal, type DadosConfirmacaoImportacao, type ItemConfirmacaoImportacao } from '../components/ConfirmacaoImportacaoModal'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
+import { useAuthStore } from '@/store/authStore'
 import type {
   PreviewImportacao,
   ItemPreview,
@@ -46,6 +49,8 @@ function precoUnitario(item: ItemPreview): number {
 }
 
 export function ImportacaoVendasPage() {
+  const navigate = useNavigate()
+  const { usuario } = useAuthStore()
   const [etapa, setEtapa] = useState<Etapa>('upload')
   const [arquivoSelecionado, setArquivoSelecionado] = useState<File | null>(null)
   const [erro, setErro] = useState<string | null>(null)
@@ -53,6 +58,7 @@ export function ImportacaoVendasPage() {
   const [dataVenda, setDataVenda] = useState(new Date().toISOString().split('T')[0])
   const [resultado, setResultado] = useState<ResultadoImportacao | null>(null)
   const [resolucoes, setResolucoes] = useState<Record<string, string>>({})
+  const [dadosConfirmacao, setDadosConfirmacao] = useState<DadosConfirmacaoImportacao | null>(null)
 
   // Seleção em lote
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set())
@@ -128,15 +134,13 @@ export function ImportacaoVendasPage() {
     setEtapa('confirmando')
     setErro(null)
 
-    const itensMatched = preview.itens
-      .filter(i => i.status === 'matched')
-      .map(i => ({ produtoId: i.produtoId!, quantidade: i.quantidade }))
+    const matched = preview.itens.filter(i => i.status === 'matched')
+    const resolvidos = preview.itens.filter(i => i.status === 'ambiguous' && !!resolucoes[i.nomeRelatorio])
 
-    const itensResolvidos = preview.itens
-      .filter(i => i.status === 'ambiguous' && !!resolucoes[i.nomeRelatorio])
-      .map(i => ({ produtoId: resolucoes[i.nomeRelatorio], quantidade: i.quantidade }))
-
-    const itens = [...itensMatched, ...itensResolvidos]
+    const itens = [
+      ...matched.map(i => ({ produtoId: i.produtoId!, quantidade: i.quantidade })),
+      ...resolvidos.map(i => ({ produtoId: resolucoes[i.nomeRelatorio], quantidade: i.quantidade })),
+    ]
 
     try {
       const res = await importacaoVendasService.confirmar({
@@ -149,6 +153,30 @@ export function ImportacaoVendasPage() {
         totalIgnoradas: contagens.ignored,
         totalNaoEncontradas: contagens.unmatched,
         itens,
+      })
+
+      const itensModal: ItemConfirmacaoImportacao[] = [
+        ...matched.map(i => ({
+          produtoNome: i.produtoNome ?? i.nomeRelatorio,
+          quantidade: i.quantidade,
+          valorTotal: i.valorTotal,
+        })),
+        ...resolvidos.map(i => ({
+          produtoNome: i.sugestoes.find(s => s.produtoId === resolucoes[i.nomeRelatorio])?.produtoNome ?? i.nomeRelatorio,
+          quantidade: i.quantidade,
+          valorTotal: i.valorTotal,
+        })),
+      ]
+
+      setDadosConfirmacao({
+        totalImportadas: res.totalImportadas,
+        totalIgnoradas: res.totalIgnoradas,
+        totalNaoEncontradas: res.totalNaoEncontradas,
+        valorTotal: itensModal.reduce((sum, i) => sum + i.valorTotal, 0),
+        dataVenda,
+        operador: usuario?.nome ?? '—',
+        nomeArquivo: arquivoSelecionado.name,
+        itens: itensModal,
       })
       setResultado(res)
       setEtapa('resultado')
@@ -168,6 +196,7 @@ export function ImportacaoVendasPage() {
     setResolucoes({})
     setSelecionados(new Set())
     setErro(null)
+    setDadosConfirmacao(null)
   }
 
   // ── Seleção ──────────────────────────────────────────────────────────────────
@@ -544,34 +573,8 @@ export function ImportacaoVendasPage() {
         </div>
       )}
 
-      {/* Etapa: Resultado */}
-      {etapa === 'resultado' && resultado && (
-        <div
-          className="rounded-xl border p-8 flex flex-col items-center gap-4 text-center"
-          style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)' }}
-        >
-          <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: 'var(--ada-success-bg)' }}>
-            <CheckCircleIcon className="h-8 w-8" style={{ color: '#15803D' }} aria-hidden="true" />
-          </div>
-          <div>
-            <p className="text-lg font-bold" style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}>
-              Importação concluída!
-            </p>
-            <p className="text-sm mt-1" style={{ color: 'var(--ada-muted)' }}>
-              <strong style={{ color: 'var(--ada-body)' }}>{resultado.totalImportadas}</strong> vendas importadas ·{' '}
-              <strong style={{ color: 'var(--ada-body)' }}>{resultado.totalIgnoradas}</strong> ignoradas ·{' '}
-              <strong style={{ color: 'var(--ada-body)' }}>{resultado.totalNaoEncontradas}</strong> não encontradas
-            </p>
-          </div>
-          <button
-            onClick={reiniciar}
-            className="mt-2 px-5 py-2 rounded-lg text-sm font-semibold text-white"
-            style={{ background: 'var(--sb-accent)' }}
-          >
-            Nova Importação
-          </button>
-        </div>
-      )}
+      {/* Etapa: Resultado — tratado pelo modal abaixo */}
+      {etapa === 'resultado' && resultado && null}
 
       {/* Modal: cadastro rápido de produto */}
       {itemParaAdicionar && (
@@ -589,6 +592,16 @@ export function ImportacaoVendasPage() {
           nomeItem={itemParaRemover.nomeRelatorio}
           onConfirmar={confirmarRemocao}
           onCancelar={() => setItemParaRemover(null)}
+        />
+      )}
+
+      {/* Modal: confirmação de importação concluída */}
+      {dadosConfirmacao && (
+        <ConfirmacaoImportacaoModal
+          aberto
+          dados={dadosConfirmacao}
+          onFechar={reiniciar}
+          onVerRelatorio={() => { setDadosConfirmacao(null); navigate('/producao/vendas') }}
         />
       )}
     </div>

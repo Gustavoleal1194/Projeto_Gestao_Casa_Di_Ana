@@ -282,3 +282,44 @@ export interface InsumoProducaoDia {
   unidadeMedidaCodigo: string
   quantidade: number
 }
+
+// ─── Comparação de Preços de Ingredientes ─────────────────────────────────────
+export interface HistoricoPrecoItem {
+  entradaId: string
+  numeroNotaFiscal: string | null
+  dataEntrada: string
+  fornecedorId: string
+  fornecedorNome: string
+  custoUnitario: number
+  quantidade: number
+}
+
+export interface PrecoFornecedor {
+  fornecedorId: string
+  fornecedorNome: string
+  precoMinimo: number
+  precoMaximo: number
+  precoMedio: number
+  ultimoPreco: number
+  ultimaCompra: string
+  totalCompras: number
+}
+
+export interface ComparacaoPrecoIngrediente {
+  ingredienteId: string
+  ingredienteNome: string
+  unidadeMedidaCodigo: string
+  historico: HistoricoPrecoItem[]
+  porFornecedor: PrecoFornecedor[]
+  ultimoPreco: number | null
+  precoAnterior: number | null
+  variacaoValor: number | null
+  variacaoPercentual: number | null
+  tendenciaPreco: 'aumento' | 'reducao' | 'estavel' | 'sem_historico'
+}
+
+export interface ComparacaoPreco {
+  ingredientes: ComparacaoPrecoIngrediente[]
+  maioresAumentos: ComparacaoPrecoIngrediente[]
+  maioresReducoes: ComparacaoPrecoIngrediente[]
+}

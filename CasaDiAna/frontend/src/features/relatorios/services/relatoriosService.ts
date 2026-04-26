@@ -5,6 +5,7 @@ import type {
   MovimentacaoRelatorio,
   EntradaRelatorioResumo,
   InsumoProducaoDia,
+  ComparacaoPreco,
 } from '@/types/estoque'
 import type { RelatorioProducaoVendas } from '@/types/producao'
 
@@ -59,6 +60,22 @@ export const relatoriosService = {
     if (produtoId) params.set('produtoId', produtoId)
     const resp = await api.get<ApiResponse<InsumoProducaoDia[]>>(
       `/relatorios/insumos-producao?${params.toString()}`
+    )
+    return resp.data.dados
+  },
+
+  comparacaoPrecos: async (
+    de?: string,
+    ate?: string,
+    ingredienteId?: string
+  ): Promise<ComparacaoPreco> => {
+    const params = new URLSearchParams()
+    if (de) params.set('de', de)
+    if (ate) params.set('ate', ate)
+    if (ingredienteId) params.set('ingredienteId', ingredienteId)
+    const qs = params.toString()
+    const resp = await api.get<ApiResponse<ComparacaoPreco>>(
+      `/relatorios/comparacao-precos${qs ? `?${qs}` : ''}`
     )
     return resp.data.dados
   },

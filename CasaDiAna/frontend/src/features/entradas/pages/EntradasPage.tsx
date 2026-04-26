@@ -33,7 +33,7 @@ export function EntradasPage() {
 
   useEffect(() => { carregar() }, [carregar])
 
-  const handleFiltrar = (e: React.FormEvent) => { e.preventDefault(); carregar() }
+  const handleFiltrar = (e?: React.FormEvent) => { e?.preventDefault(); carregar() }
 
   return (
     <div className="ada-page">

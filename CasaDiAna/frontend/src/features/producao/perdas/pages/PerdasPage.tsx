@@ -13,6 +13,7 @@ import { Spinner } from '@/components/form/Spinner'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
 import type { PerdaProduto } from '@/types/producao'
 import type { ProdutoResumo } from '@/types/producao'
 
@@ -76,7 +77,10 @@ export function PerdasPage() {
     carregar(primeiroDoMes(), hoje())
   }, [carregar])
 
-  const handleFiltrar = () => carregar(de, ate)
+  const handleFiltrar = (e?: React.FormEvent) => {
+    e?.preventDefault()
+    carregar(de, ate)
+  }
 
   const onSubmitPerda = async (values: PerdaFormValues) => {
     try {
@@ -118,7 +122,7 @@ export function PerdasPage() {
       />
 
       {/* ── Filtros ─────────────────────────────────────────────────────── */}
-      <div className="filter-bar" role="search" aria-label="Filtrar perdas">
+      <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar perdas">
         <div>
           <label htmlFor="perdas-de" className="filter-label">De</label>
           <input id="perdas-de" type="date" value={de} onChange={e => setDe(e.target.value)} className="filter-input" />
@@ -127,9 +131,13 @@ export function PerdasPage() {
           <label htmlFor="perdas-ate" className="filter-label">Até</label>
           <input id="perdas-ate" type="date" value={ate} onChange={e => setAte(e.target.value)} className="filter-input" />
         </div>
-        <button type="button" onClick={handleFiltrar} className="btn-secondary">
-          Filtrar
-        </button>
+        <FilterBarActions
+          loading={loading}
+          chips={[
+            ...(de ? [{ label: `De: ${de.split('-').reverse().join('/')}`, onRemove: () => setDe('') }] : []),
+            ...(ate ? [{ label: `Até: ${ate.split('-').reverse().join('/')}`, onRemove: () => setAte('') }] : []),
+          ]}
+        />
         {perdas.length > 0 && (
           <span className="ml-auto text-sm" style={{ color: 'var(--ada-muted)' }}>
             {perdas.length} registro(s) — total de{' '}
@@ -138,7 +146,7 @@ export function PerdasPage() {
             </span>
           </span>
         )}
-      </div>
+      </FilterBar>
 
       {/* ── Estados ────────────────────────────────────────────────────── */}
       {loading && <LoadingState mensagem="Carregando registros…" />}

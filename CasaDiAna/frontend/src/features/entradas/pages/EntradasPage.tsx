@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/authStore'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { SkeletonTable } from '@/components/ui/SkeletonTable'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
 
@@ -50,7 +51,7 @@ export function EntradasPage() {
       />
 
       {/* ── Filtro de período ───────────────────────────────────────────── */}
-      <form onSubmit={handleFiltrar} className="filter-bar" aria-label="Filtrar entradas">
+      <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar entradas">
         <CalendarIcon className="h-4 w-4 shrink-0" style={{ color: 'var(--ada-placeholder)' }} aria-hidden="true" />
         <div>
           <label htmlFor="entrada-de" className="filter-label">De</label>
@@ -72,10 +73,14 @@ export function EntradasPage() {
             className="filter-input"
           />
         </div>
-        <button type="submit" className="btn-secondary">
-          Filtrar
-        </button>
-      </form>
+        <FilterBarActions
+          loading={loading}
+          chips={[
+            ...(de ? [{ label: `De: ${de.split('-').reverse().join('/')}`, onRemove: () => atualizarDe('') }] : []),
+            ...(ate ? [{ label: `Até: ${ate.split('-').reverse().join('/')}`, onRemove: () => atualizarAte('') }] : []),
+          ]}
+        />
+      </FilterBar>
 
       {/* ── Estados ────────────────────────────────────────────────────── */}
       {loading && <SkeletonTable colunas={6} linhas={5} />}

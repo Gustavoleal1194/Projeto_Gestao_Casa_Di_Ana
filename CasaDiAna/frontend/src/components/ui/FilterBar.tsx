@@ -52,8 +52,8 @@ export function FilterBarActions({
       </button>
       {chips.length > 0 && (
         <div className="filter-chips-row">
-          {chips.map((chip, i) => (
-            <FilterChip key={i} label={chip.label} onRemove={chip.onRemove} />
+          {chips.map(chip => (
+            <FilterChip key={chip.label} label={chip.label} onRemove={chip.onRemove} />
           ))}
         </div>
       )}

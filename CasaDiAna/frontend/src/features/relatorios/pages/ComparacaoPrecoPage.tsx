@@ -69,11 +69,15 @@ function LinhaIngrediente({ item }: { item: ComparacaoPrecoIngrediente }) {
       : item.variacaoValor < 0
         ? 'var(--ada-success-text)'
         : 'var(--ada-muted)'
+  const menorPrecoGlobal = item.porFornecedor.reduce(
+    (min, f) => f.precoMinimo < min ? f.precoMinimo : min,
+    Infinity
+  )
 
   return (
     <>
       <tr
-        className="table-row cursor-pointer select-none"
+        className="table-row table-row-clickable select-none"
         onClick={() => setAberto(a => !a)}
         aria-expanded={aberto}
       >
@@ -116,8 +120,8 @@ function LinhaIngrediente({ item }: { item: ComparacaoPrecoIngrediente }) {
         </td>
         <td className="table-td">
           <span className="text-sm" style={{ color: 'var(--ada-body)' }}>
-            {item.historico.length > 0
-              ? item.historico[item.historico.length - 1].fornecedorNome
+            {item.porFornecedor.length > 0
+              ? item.porFornecedor[0].fornecedorNome
               : '—'}
           </span>
         </td>
@@ -199,8 +203,7 @@ function LinhaIngrediente({ item }: { item: ComparacaoPrecoIngrediente }) {
                       </thead>
                       <tbody>
                         {item.porFornecedor.map(f => {
-                          const menorGlobal = Math.min(...item.porFornecedor.map(x => x.precoMinimo))
-                          const isMelhor = f.precoMinimo === menorGlobal
+                          const isMelhor = f.precoMinimo === menorPrecoGlobal
                           return (
                             <tr key={f.fornecedorId} className="table-row">
                               <td className="table-td">

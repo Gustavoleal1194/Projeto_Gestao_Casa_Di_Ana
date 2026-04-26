@@ -1,5 +1,6 @@
 using CasaDiAna.Application.Common;
 using CasaDiAna.Application.Relatorios.Dtos;
+using CasaDiAna.Application.Relatorios.Queries.ComparacaoPreco;
 using CasaDiAna.Application.Relatorios.Queries.Entradas;
 using CasaDiAna.Application.Relatorios.Queries.EstoqueAtual;
 using CasaDiAna.Application.Relatorios.Queries.InsumosProducao;
@@ -80,5 +81,18 @@ public class RelatoriosController : ControllerBase
         var resultado = await _mediator.Send(
             new InsumosProducaoQuery(de, ate, ingredienteId, produtoId), ct);
         return Ok(ApiResponse<IReadOnlyList<InsumoProducaoDiaDto>>.Ok(resultado));
+    }
+
+    [HttpGet("comparacao-precos")]
+    [ProducesResponseType(typeof(ApiResponse<ComparacaoPrecoDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ComparacaoPrecos(
+        [FromQuery] DateTime? de = null,
+        [FromQuery] DateTime? ate = null,
+        [FromQuery] Guid? ingredienteId = null,
+        CancellationToken ct = default)
+    {
+        var resultado = await _mediator.Send(
+            new ComparacaoPrecoIngredientesQuery(de, ate, ingredienteId), ct);
+        return Ok(ApiResponse<ComparacaoPrecoDto>.Ok(resultado));
     }
 }

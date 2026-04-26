@@ -11,6 +11,7 @@ import { relatoriosService } from '../services/relatoriosService'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { SkeletonTable } from '@/components/ui/SkeletonTable'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
 import type { ComparacaoPreco, ComparacaoPrecoIngrediente } from '@/types/estoque'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -324,7 +325,7 @@ export function ComparacaoPrecoPage() {
         subtitulo="Variação de preços de ingredientes entre entradas e fornecedores"
       />
 
-      <form onSubmit={handleFiltrar} className="filter-bar" role="search" aria-label="Filtrar comparação">
+      <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar comparação">
         <div>
           <label className="filter-label">De</label>
           <input
@@ -343,20 +344,16 @@ export function ComparacaoPrecoPage() {
             className="filter-input"
           />
         </div>
-        <button type="submit" className="btn-secondary" disabled={loading}>
-          {loading ? 'Carregando…' : 'Gerar Comparação'}
-        </button>
-        {(de || ate) && (
-          <button
-            type="button"
-            className="btn-ghost text-sm"
-            style={{ color: 'var(--ada-muted)' }}
-            onClick={() => { setDe(''); setAte(''); }}
-          >
-            Limpar período
-          </button>
-        )}
-      </form>
+        <FilterBarActions
+          submitLabel="Gerar Comparação"
+          loadingLabel="Carregando…"
+          loading={loading}
+          chips={[
+            ...(de ? [{ label: `De: ${de.split('-').reverse().join('/')}`, onRemove: () => setDe('') }] : []),
+            ...(ate ? [{ label: `Até: ${ate.split('-').reverse().join('/')}`, onRemove: () => setAte('') }] : []),
+          ]}
+        />
+      </FilterBar>
 
       {loading && <SkeletonTable colunas={7} linhas={6} />}
       {!loading && erro && <div className="state-error" role="alert">{erro}</div>}

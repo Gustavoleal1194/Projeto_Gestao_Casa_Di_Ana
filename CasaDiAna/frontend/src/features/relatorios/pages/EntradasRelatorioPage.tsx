@@ -4,6 +4,7 @@ import { relatoriosService } from '../services/relatoriosService'
 import { gerarPdfEntradas } from '@/lib/pdf'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { LoadingState } from '@/components/ui/LoadingState'
+import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
 import type { EntradaRelatorioResumo } from '@/types/estoque'
 
 function hoje(): string { return new Date().toISOString().split('T')[0] }
@@ -55,7 +56,7 @@ export function EntradasRelatorioPage() {
         ) : undefined}
       />
 
-      <form onSubmit={handleFiltrar} className="filter-bar" role="search" aria-label="Filtrar entradas">
+      <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar entradas">
         <div>
           <label className="filter-label">De</label>
           <input type="date" value={de} onChange={e => setDe(e.target.value)} className="filter-input" />
@@ -64,8 +65,15 @@ export function EntradasRelatorioPage() {
           <label className="filter-label">Até</label>
           <input type="date" value={ate} onChange={e => setAte(e.target.value)} className="filter-input" />
         </div>
-        <button type="submit" className="btn-secondary">Gerar Relatório</button>
-      </form>
+        <FilterBarActions
+          submitLabel="Gerar Relatório"
+          loading={loading}
+          chips={[
+            ...(de ? [{ label: `De: ${de.split('-').reverse().join('/')}`, onRemove: () => setDe('') }] : []),
+            ...(ate ? [{ label: `Até: ${ate.split('-').reverse().join('/')}`, onRemove: () => setAte('') }] : []),
+          ]}
+        />
+      </FilterBar>
 
       {loading && <LoadingState mensagem="Carregando relatório…" />}
       {!loading && erro && <div className="state-error" role="alert">{erro}</div>}

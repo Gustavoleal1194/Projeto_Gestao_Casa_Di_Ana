@@ -69,6 +69,7 @@ public class ComparacaoPrecoIngredientesQueryHandler
                         fg.Count());
                 })
                 .OrderByDescending(f => f.UltimaCompra)
+                .ThenBy(f => f.FornecedorNome)
                 .ToList()
                 .AsReadOnly();
 
@@ -87,11 +88,11 @@ public class ComparacaoPrecoIngredientesQueryHandler
                 : "estavel"
                 : "sem_historico";
 
-            var ingredienteInfo = cronologico.First().Item.Ingrediente!;
+            var ingredienteInfo = cronologico.First().Item.Ingrediente;
             return new ComparacaoPrecoIngredienteDto(
                 grupo.Key,
-                ingredienteInfo.Nome,
-                ingredienteInfo.UnidadeMedida?.Codigo ?? string.Empty,
+                ingredienteInfo?.Nome ?? string.Empty,
+                ingredienteInfo?.UnidadeMedida?.Codigo ?? string.Empty,
                 historico,
                 porFornecedor,
                 ultimoPreco,

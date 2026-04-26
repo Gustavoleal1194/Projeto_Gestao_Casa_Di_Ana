@@ -157,8 +157,8 @@ function LinhaIngrediente({ item }: { item: ComparacaoPrecoIngrediente }) {
                       </tr>
                     </thead>
                     <tbody>
-                      {[...item.historico].reverse().map((h, idx) => (
-                        <tr key={`${h.entradaId}-${idx}`} className="table-row">
+                      {[...item.historico].reverse().map(h => (
+                        <tr key={h.entradaId} className="table-row">
                           <td className="table-td tabular-nums">
                             <span style={{ color: 'var(--ada-body)' }}>{fmtData(h.dataEntrada)}</span>
                           </td>
@@ -353,7 +353,7 @@ export function ComparacaoPrecoPage() {
             style={{ color: 'var(--ada-muted)' }}
             onClick={() => { setDe(''); setAte(''); }}
           >
-            Ver todo o histórico
+            Limpar período
           </button>
         )}
       </form>

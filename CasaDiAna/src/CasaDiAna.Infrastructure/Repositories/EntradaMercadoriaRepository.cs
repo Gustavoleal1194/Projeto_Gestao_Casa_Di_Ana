@@ -1,4 +1,5 @@
 using CasaDiAna.Domain.Entities;
+using CasaDiAna.Domain.Enums;
 using CasaDiAna.Domain.Interfaces;
 using CasaDiAna.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +39,7 @@ public class EntradaMercadoriaRepository : IEntradaMercadoriaRepository
         DateTime? de = null, DateTime? ate = null, CancellationToken ct = default)
     {
         var query = _db.EntradasMercadoria
+            .Where(e => e.Status == StatusEntrada.Confirmada)
             .Include(e => e.Fornecedor)
             .Include(e => e.Itens)
                 .ThenInclude(i => i.Ingrediente)

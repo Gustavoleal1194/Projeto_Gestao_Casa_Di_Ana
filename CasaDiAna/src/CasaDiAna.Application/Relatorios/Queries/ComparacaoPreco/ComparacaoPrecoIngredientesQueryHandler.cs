@@ -109,15 +109,15 @@ public class ComparacaoPrecoIngredientesQueryHandler
             .ToList();
 
         var maioresAumentos = comVariacao
-            .OrderByDescending(i => i.VariacaoPercentual)
             .Where(i => i.VariacaoPercentual > 0)
+            .OrderByDescending(i => i.VariacaoPercentual)
             .Take(5)
             .ToList()
             .AsReadOnly();
 
         var maioresReducoes = comVariacao
-            .OrderBy(i => i.VariacaoPercentual)
             .Where(i => i.VariacaoPercentual < 0)
+            .OrderBy(i => i.VariacaoPercentual)
             .Take(5)
             .ToList()
             .AsReadOnly();

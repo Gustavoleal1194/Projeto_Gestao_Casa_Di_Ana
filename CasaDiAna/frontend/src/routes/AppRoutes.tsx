@@ -18,6 +18,7 @@ import { MovimentacoesPage } from '@/features/relatorios/pages/MovimentacoesPage
 import { EntradasRelatorioPage } from '@/features/relatorios/pages/EntradasRelatorioPage'
 import { ProducaoVendasRelatorioPage } from '@/features/relatorios/pages/ProducaoVendasRelatorioPage'
 import { InsumosProducaoPage } from '@/features/relatorios/pages/InsumosProducaoPage'
+import { ComparacaoPrecoPage } from '@/features/relatorios/pages/ComparacaoPrecoPage'
 import { UsuariosPage } from '@/features/usuarios/pages/UsuariosPage'
 import { CorrecaoEstoquePage } from '@/features/estoque/correcao/pages/CorrecaoEstoquePage'
 import { CategoriasProdutoPage } from '@/features/producao/categorias-produto/pages/CategoriasProdutoPage'
@@ -83,6 +84,7 @@ export function AppRoutes() {
           <Route path="/relatorios/entradas" element={<EntradasRelatorioPage />} />
           <Route path="/relatorios/producao-vendas" element={<ProducaoVendasRelatorioPage />} />
           <Route path="/relatorios/insumos-producao" element={<InsumosProducaoPage />} />
+          <Route path="/relatorios/comparacao-precos" element={<ComparacaoPrecoPage />} />
 
           {/* Estoque — Correção */}
           <Route path="/estoque/correcao" element={<CorrecaoEstoquePage />} />

@@ -6,6 +6,7 @@ import { gerarPdfMovimentacoes } from '@/lib/pdf'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
 import type { MovimentacaoRelatorio, IngredienteResumo } from '@/types/estoque'
 
 const TIPOS: { valor: string; rotulo: string }[] = [
@@ -76,7 +77,7 @@ export function MovimentacoesPage() {
         ) : undefined}
       />
 
-      <form onSubmit={handleFiltrar} className="filter-bar" role="search" aria-label="Filtrar movimentações">
+      <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar movimentações">
         <div>
           <label className="filter-label">De</label>
           <input type="date" value={de} onChange={e => setDe(e.target.value)} className="filter-input" />
@@ -98,8 +99,16 @@ export function MovimentacoesPage() {
             {ingredientes.map(i => <option key={i.id} value={i.id}>{i.nome}</option>)}
           </select>
         </div>
-        <button type="submit" className="btn-secondary">Filtrar</button>
-      </form>
+        <FilterBarActions
+          loading={loading}
+          chips={[
+            ...(de ? [{ label: `De: ${de.split('-').reverse().join('/')}`, onRemove: () => setDe('') }] : []),
+            ...(ate ? [{ label: `Até: ${ate.split('-').reverse().join('/')}`, onRemove: () => setAte('') }] : []),
+            ...(tipo ? [{ label: `Tipo: ${TIPOS.find(t => t.valor === tipo)?.rotulo ?? tipo}`, onRemove: () => setTipo('') }] : []),
+            ...(ingredienteId ? [{ label: `Ingrediente: ${ingredientes.find(i => i.id === ingredienteId)?.nome ?? ingredienteId}`, onRemove: () => setIngredienteId('') }] : []),
+          ]}
+        />
+      </FilterBar>
 
       {loading && <LoadingState mensagem="Carregando movimentações…" />}
       {!loading && erro && <div className="state-error" role="alert">{erro}</div>}

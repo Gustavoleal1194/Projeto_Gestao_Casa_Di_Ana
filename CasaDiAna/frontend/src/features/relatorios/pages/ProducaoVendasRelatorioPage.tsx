@@ -5,6 +5,7 @@ import { produtosService } from '@/features/producao/produtos/services/produtosS
 import { gerarPdfProducaoVendas } from '@/lib/pdf'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { LoadingState } from '@/components/ui/LoadingState'
+import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
 import type { RelatorioProducaoVendas, RelatorioProducaoVendasItem, ProdutoResumo } from '@/types/producao'
 
 function primeiroDoMes(): string {
@@ -52,7 +53,10 @@ export function ProducaoVendasRelatorioPage() {
     carregar(primeiroDoMes(), hoje())
   }, [carregar])
 
-  const handleFiltrar = () => carregar(de, ate, produtoFiltro || undefined)
+  const handleFiltrar = (e?: React.FormEvent) => {
+    e?.preventDefault()
+    carregar(de, ate, produtoFiltro || undefined)
+  }
 
   const totais = relatorio?.itens.reduce(
     (acc, item) => ({
@@ -80,7 +84,7 @@ export function ProducaoVendasRelatorioPage() {
         ) : undefined}
       />
 
-      <div className="filter-bar" role="search" aria-label="Filtrar relatório">
+      <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar relatório">
         <div>
           <label className="filter-label">De</label>
           <input type="date" value={de} onChange={e => setDe(e.target.value)} className="filter-input" />
@@ -96,8 +100,15 @@ export function ProducaoVendasRelatorioPage() {
             {produtos.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
           </select>
         </div>
-        <button type="button" onClick={handleFiltrar} className="btn-secondary">Filtrar</button>
-      </div>
+        <FilterBarActions
+          loading={loading}
+          chips={[
+            ...(de ? [{ label: `De: ${de.split('-').reverse().join('/')}`, onRemove: () => setDe('') }] : []),
+            ...(ate ? [{ label: `Até: ${ate.split('-').reverse().join('/')}`, onRemove: () => setAte('') }] : []),
+            ...(produtoFiltro ? [{ label: `Produto: ${produtos.find(p => p.id === produtoFiltro)?.nome ?? produtoFiltro}`, onRemove: () => setProdutoFiltro('') }] : []),
+          ]}
+        />
+      </FilterBar>
 
       {loading && <LoadingState mensagem="Carregando relatório…" />}
       {!loading && erro && <div className="state-error" role="alert">{erro}</div>}

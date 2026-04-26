@@ -6,6 +6,7 @@ import { produtosService } from '@/features/producao/produtos/services/produtosS
 import { gerarPdfInsumosProducao } from '@/lib/pdf'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { LoadingState } from '@/components/ui/LoadingState'
+import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
 import type { InsumoProducaoDia, IngredienteResumo } from '@/types/estoque'
 import type { ProdutoResumo } from '@/types/producao'
 
@@ -55,8 +56,10 @@ export function InsumosProducaoPage() {
     carregar(primeiroDoMes(), hoje())
   }, [carregar])
 
-  const handleFiltrar = () =>
+  const handleFiltrar = (e?: React.FormEvent) => {
+    e?.preventDefault()
     carregar(de, ate, ingredienteFiltro || undefined, produtoFiltro || undefined)
+  }
 
   // Agrupar por data para exibição
   const porData = itens.reduce<Record<string, InsumoProducaoDia[]>>((acc, item) => {
@@ -81,7 +84,7 @@ export function InsumosProducaoPage() {
         ) : undefined}
       />
 
-      <div className="filter-bar" role="search" aria-label="Filtrar insumos">
+      <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar insumos">
         <div>
           <label className="filter-label">De</label>
           <input type="date" value={de} onChange={e => setDe(e.target.value)} className="filter-input" />
@@ -104,8 +107,16 @@ export function InsumosProducaoPage() {
             {produtos.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
           </select>
         </div>
-        <button type="button" onClick={handleFiltrar} className="btn-secondary">Filtrar</button>
-      </div>
+        <FilterBarActions
+          loading={loading}
+          chips={[
+            ...(de ? [{ label: `De: ${de.split('-').reverse().join('/')}`, onRemove: () => setDe('') }] : []),
+            ...(ate ? [{ label: `Até: ${ate.split('-').reverse().join('/')}`, onRemove: () => setAte('') }] : []),
+            ...(ingredienteFiltro ? [{ label: `Ingrediente: ${ingredientes.find(i => i.id === ingredienteFiltro)?.nome ?? ingredienteFiltro}`, onRemove: () => setIngredienteFiltro('') }] : []),
+            ...(produtoFiltro ? [{ label: `Produto: ${produtos.find(p => p.id === produtoFiltro)?.nome ?? produtoFiltro}`, onRemove: () => setProdutoFiltro('') }] : []),
+          ]}
+        />
+      </FilterBar>
 
       {loading && <LoadingState mensagem="Carregando insumos…" />}
       {!loading && erro && <div className="state-error" role="alert">{erro}</div>}

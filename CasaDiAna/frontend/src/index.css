@@ -515,6 +515,7 @@
   transition: opacity 150ms;
 }
 .filter-chip-remove:hover { opacity: 1; }
+.filter-chip-remove:focus-visible { outline: 2px solid rgba(64,128,239,0.50); outline-offset: 1px; }
 
 /* Table */
 .table-head-row {

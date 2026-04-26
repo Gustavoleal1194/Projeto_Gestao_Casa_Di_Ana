@@ -29,7 +29,7 @@ public class EntradaMercadoriaRepository : IEntradaMercadoriaRepository
         if (de.HasValue)
             query = query.Where(e => e.DataEntrada >= de.Value);
         if (ate.HasValue)
-            query = query.Where(e => e.DataEntrada <= ate.Value);
+            query = query.Where(e => e.DataEntrada < ate.Value.Date.AddDays(1));
 
         return await query.OrderByDescending(e => e.DataEntrada).ToListAsync(ct);
     }

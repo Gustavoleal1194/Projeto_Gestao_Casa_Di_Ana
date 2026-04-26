@@ -12,6 +12,8 @@ function primeiroDiaMes(): string {
   const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0]
 }
 
+function fmtData(s: string) { return s.split('-').reverse().join('/') }
+
 function formatarData(iso: string): string {
   return new Date(iso).toLocaleDateString('pt-BR')
 }
@@ -69,8 +71,8 @@ export function EntradasRelatorioPage() {
           submitLabel="Gerar Relatório"
           loading={loading}
           chips={[
-            ...(de ? [{ label: `De: ${de.split('-').reverse().join('/')}`, onRemove: () => setDe('') }] : []),
-            ...(ate ? [{ label: `Até: ${ate.split('-').reverse().join('/')}`, onRemove: () => setAte('') }] : []),
+            ...(de ? [{ label: `De: ${fmtData(de)}`, onRemove: () => setDe('') }] : []),
+            ...(ate ? [{ label: `Até: ${fmtData(ate)}`, onRemove: () => setAte('') }] : []),
           ]}
         />
       </FilterBar>

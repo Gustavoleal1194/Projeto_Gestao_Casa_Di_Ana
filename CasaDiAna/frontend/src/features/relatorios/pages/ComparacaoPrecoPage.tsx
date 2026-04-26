@@ -23,9 +23,7 @@ function primeiroDiaMes(): string {
 function fmtMoeda(v: number) {
   return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
-function fmtData(iso: string) {
-  return new Date(iso).toLocaleDateString('pt-BR')
-}
+function fmtData(s: string) { return s.split('-').reverse().join('/') }
 function fmtPct(v: number | null) {
   if (v === null) return '—'
   const sinal = v > 0 ? '+' : ''
@@ -349,8 +347,8 @@ export function ComparacaoPrecoPage() {
           loadingLabel="Carregando…"
           loading={loading}
           chips={[
-            ...(de ? [{ label: `De: ${de.split('-').reverse().join('/')}`, onRemove: () => setDe('') }] : []),
-            ...(ate ? [{ label: `Até: ${ate.split('-').reverse().join('/')}`, onRemove: () => setAte('') }] : []),
+            ...(de ? [{ label: `De: ${fmtData(de)}`, onRemove: () => setDe('') }] : []),
+            ...(ate ? [{ label: `Até: ${fmtData(ate)}`, onRemove: () => setAte('') }] : []),
           ]}
         />
       </FilterBar>

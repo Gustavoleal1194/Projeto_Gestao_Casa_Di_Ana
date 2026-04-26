@@ -34,6 +34,24 @@ public class EntradaMercadoriaRepository : IEntradaMercadoriaRepository
         return await query.OrderByDescending(e => e.DataEntrada).ToListAsync(ct);
     }
 
+    public async Task<IReadOnlyList<EntradaMercadoria>> ListarParaComparacaoAsync(
+        DateTime? de = null, DateTime? ate = null, CancellationToken ct = default)
+    {
+        var query = _db.EntradasMercadoria
+            .Include(e => e.Fornecedor)
+            .Include(e => e.Itens)
+                .ThenInclude(i => i.Ingrediente)
+                    .ThenInclude(i => i!.UnidadeMedida)
+            .AsQueryable();
+
+        if (de.HasValue)
+            query = query.Where(e => e.DataEntrada >= de.Value);
+        if (ate.HasValue)
+            query = query.Where(e => e.DataEntrada < ate.Value.Date.AddDays(1));
+
+        return await query.OrderBy(e => e.DataEntrada).ToListAsync(ct);
+    }
+
     public async Task AdicionarAsync(EntradaMercadoria entrada, CancellationToken ct = default) =>
         await _db.EntradasMercadoria.AddAsync(entrada, ct);
 

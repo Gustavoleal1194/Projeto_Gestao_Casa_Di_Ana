@@ -59,7 +59,8 @@ public class RegistrarEntradaCommandHandlerTests
             new RegistrarEntradaCommand(
                 fornecedorId,
                 DateTime.UtcNow,
-                new List<ItemEntradaInputDto> { new(ingredienteId, 10, 5.50m) }),
+                new List<ItemEntradaInputDto> { new(ingredienteId, 10, 5.50m) },
+                "Operador Teste"),
             CancellationToken.None);
 
         resultado.Should().NotBeNull();
@@ -78,7 +79,8 @@ public class RegistrarEntradaCommandHandlerTests
             new RegistrarEntradaCommand(
                 fornecedorId,
                 DateTime.UtcNow,
-                new List<ItemEntradaInputDto> { new(Guid.NewGuid(), 1, 1) }),
+                new List<ItemEntradaInputDto> { new(Guid.NewGuid(), 1, 1) },
+                "Operador Teste"),
             CancellationToken.None);
 
         await acao.Should().ThrowAsync<DomainException>()
@@ -101,7 +103,8 @@ public class RegistrarEntradaCommandHandlerTests
             new RegistrarEntradaCommand(
                 fornecedorId,
                 DateTime.UtcNow,
-                new List<ItemEntradaInputDto> { new(ingredienteId, 5, 2) }),
+                new List<ItemEntradaInputDto> { new(ingredienteId, 5, 2) },
+                "Operador Teste"),
             CancellationToken.None);
 
         await acao.Should().ThrowAsync<DomainException>()

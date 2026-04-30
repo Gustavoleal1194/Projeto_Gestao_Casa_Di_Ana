@@ -16,6 +16,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
 import type { PerdaProduto } from '@/types/producao'
 import type { ProdutoResumo } from '@/types/producao'
+import { ConfirmacaoPerdasModal, type DadosConfirmacaoPerdas } from '../components/ConfirmacaoPerdasModal'
 
 const perdaSchema = z.object({
   produtoId: z.string().min(1, 'Produto obrigatório.'),
@@ -51,6 +52,7 @@ export function PerdasPage() {
   const [modalAberto, setModalAberto] = useState(false)
   const [de, setDe] = useState(primeiroDoMes())
   const [ate, setAte] = useState(hoje())
+  const [confirma, setConfirma] = useState<DadosConfirmacaoPerdas | null>(null)
 
   const { register, handleSubmit, reset: resetForm, formState: { errors: formErrors, isSubmitting } } =
     useForm<PerdaFormValues>({
@@ -90,10 +92,16 @@ export function PerdasPage() {
         quantidade: Number(values.quantidade),
         justificativa: values.justificativa.trim(),
       })
-      setToast({ tipo: 'sucesso', mensagem: 'Perda registrada com sucesso.' })
+      const produtoNome = produtos.find(p => p.id === values.produtoId)?.nome ?? '—'
       setModalAberto(false)
       resetForm({ produtoId: '', data: hoje(), quantidade: '', justificativa: '' })
       carregar(de, ate)
+      setConfirma({
+        produtoNome,
+        quantidade: Number(values.quantidade),
+        motivo: values.justificativa.trim(),
+        horario: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+      })
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { erros?: string[] } } })?.response?.data?.erros?.[0]
         ?? 'Erro ao registrar perda.'
@@ -291,6 +299,15 @@ export function PerdasPage() {
             </form>
           </div>
         </div>
+      )}
+
+      {confirma && (
+        <ConfirmacaoPerdasModal
+          aberto
+          dados={confirma}
+          onFechar={() => setConfirma(null)}
+          onVerPerdas={() => setConfirma(null)}
+        />
       )}
 
       {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}

@@ -15,6 +15,7 @@ import { Toast } from '@/features/estoque/ingredientes/components/Toast'
 import { LoadingState } from '@/components/ui/LoadingState'
 import type { FichaTecnica } from '@/types/producao'
 import type { IngredienteResumo } from '@/types/estoque'
+import { ConfirmacaoFichaTecnicaModal, type DadosConfirmacaoFichaTecnica } from '../components/ConfirmacaoFichaTecnicaModal'
 
 const fichaSchema = z.object({
   itens: z.array(
@@ -40,6 +41,7 @@ export function FichaTecnicaPage() {
   const [carregando, setCarregando] = useState(true)
   const [salvando, setSalvando] = useState(false)
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
+  const [confirma, setConfirma] = useState<DadosConfirmacaoFichaTecnica | null>(null)
 
   const { register, control, handleSubmit, reset, formState: { errors } } =
     useForm<FichaFormValues>({
@@ -83,7 +85,11 @@ export function FichaTecnicaPage() {
         })),
       })
       setFicha(fichaAtualizada)
-      setToast({ tipo: 'sucesso', mensagem: 'Ficha técnica salva com sucesso.' })
+      setConfirma({
+        produtoNome: fichaAtualizada.produtoNome,
+        totalIngredientes: fichaAtualizada.itens.length,
+        custoTotal: fichaAtualizada.custoTotal,
+      })
     } catch {
       setToast({ tipo: 'erro', mensagem: 'Erro ao salvar ficha técnica.' })
     } finally {
@@ -101,6 +107,13 @@ export function FichaTecnicaPage() {
 
   return (
     <div className="ada-page max-w-3xl">
+      {confirma && (
+        <ConfirmacaoFichaTecnicaModal
+          aberto
+          dados={confirma}
+          onFechar={() => setConfirma(null)}
+        />
+      )}
       {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
 
       <Link to="/producao/produtos" className="back-link">

@@ -12,6 +12,7 @@ import { CampoTexto } from '@/features/estoque/ingredientes/components/CampoText
 import { SelectCampo } from '@/features/estoque/ingredientes/components/SelectCampo'
 import { LoadingState } from '@/components/ui/LoadingState'
 import type { Inventario, IngredienteResumo } from '@/types/estoque'
+import { ConfirmacaoFinalizacaoInventarioModal, type DadosConfirmacaoFinalizacaoInventario } from '../components/ConfirmacaoFinalizacaoInventarioModal'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
 
@@ -59,6 +60,7 @@ export function InventarioDetalhePage() {
   const [processando, setProcessando] = useState(false)
 
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
+  const [confirmaFinalizado, setConfirmaFinalizado] = useState<DadosConfirmacaoFinalizacaoInventario | null>(null)
 
   const podeEditar = temPapel(...PAPEIS_EDICAO)
   const emAndamento = inventario?.status === 'EmAndamento'
@@ -99,7 +101,10 @@ export function InventarioDetalhePage() {
       const atualizado = await inventariosService.finalizar(id)
       setInventario(atualizado)
       setConfirmandoFinalizar(false)
-      setToast({ tipo: 'sucesso', mensagem: 'Inventário finalizado com sucesso.' })
+      setConfirmaFinalizado({
+        totalItens: atualizado.itens.length,
+        horario: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+      })
     } catch {
       setToast({ tipo: 'erro', mensagem: 'Erro ao finalizar inventário.' })
     } finally {
@@ -140,6 +145,13 @@ export function InventarioDetalhePage() {
 
   return (
     <div className="ada-page max-w-4xl">
+      {confirmaFinalizado && (
+        <ConfirmacaoFinalizacaoInventarioModal
+          aberto
+          dados={confirmaFinalizado}
+          onFechar={() => setConfirmaFinalizado(null)}
+        />
+      )}
       <button onClick={() => navigate('/inventarios')} className="back-link">
         <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
         Inventários

@@ -8,6 +8,7 @@ import { Spinner } from '@/components/form/Spinner'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import { categoriasProdutoService } from '@/features/producao/categorias-produto/services/categoriasProdutoService'
 import type { CategoriaProduto, Produto } from '@/types/producao'
+import { ConfirmacaoCriacaoRapidaModal, type DadosConfirmacaoCriacaoRapida } from './ConfirmacaoCriacaoRapidaModal'
 
 const schema = z.object({
   nome: z.string().min(2, 'Nome deve ter ao menos 2 caracteres.').max(100, 'Máximo 100 caracteres.'),
@@ -33,6 +34,8 @@ export function QuickCreateProductModal({ nomeInicial, precoInicial, onSalvo, on
   const [salvando, setSalvando] = useState(false)
   const [erroApi, setErroApi] = useState<string | null>(null)
   const [categorias, setCategorias] = useState<CategoriaProduto[]>([])
+  const [confirma, setConfirma] = useState<DadosConfirmacaoCriacaoRapida | null>(null)
+  const [produtoCriado, setProdutoCriado] = useState<Produto | null>(null)
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -65,7 +68,8 @@ export function QuickCreateProductModal({ nomeInicial, precoInicial, onSalvo, on
         precoVenda: parseFloat(values.precoVenda.replace(',', '.')),
         categoriaProdutoId: values.categoriaProdutoId || null,
       })
-      onSalvo(produto)
+      setProdutoCriado(produto)
+      setConfirma({ produtoNome: produto.nome })
     } catch {
       setErroApi('Erro ao criar produto. Verifique os dados e tente novamente.')
       setSalvando(false)
@@ -73,8 +77,16 @@ export function QuickCreateProductModal({ nomeInicial, precoInicial, onSalvo, on
   }
 
   return (
-    <div
-      className="modal-overlay"
+    <>
+      {confirma && produtoCriado && (
+        <ConfirmacaoCriacaoRapidaModal
+          aberto
+          dados={confirma}
+          onFechar={() => { setConfirma(null); onSalvo(produtoCriado) }}
+        />
+      )}
+      <div
+        className="modal-overlay"
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-criar-produto-titulo"
@@ -177,5 +189,6 @@ export function QuickCreateProductModal({ nomeInicial, precoInicial, onSalvo, on
         </form>
       </div>
     </div>
+    </>
   )
 }

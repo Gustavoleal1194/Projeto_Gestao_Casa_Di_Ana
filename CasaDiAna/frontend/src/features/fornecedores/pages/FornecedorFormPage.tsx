@@ -11,6 +11,7 @@ import { FormCard } from '@/components/form/FormCard'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
 import { LoadingState } from '@/components/ui/LoadingState'
 import type { FornecedorFormValues } from '@/types/estoque'
+import { ConfirmacaoFornecedorModal, type DadosConfirmacaoFornecedor } from '../components/ConfirmacaoFornecedorModal'
 
 export function FornecedorFormPage() {
   const navigate = useNavigate()
@@ -20,6 +21,7 @@ export function FornecedorFormPage() {
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useFornecedorForm()
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
   const [carregando, setCarregando] = useState(isEdicao)
+  const [confirma, setConfirma] = useState<DadosConfirmacaoFornecedor | null>(null)
 
   useEffect(() => {
     if (!id) return
@@ -35,12 +37,13 @@ export function FornecedorFormPage() {
       const input = formParaInput(values)
       if (id) {
         await fornecedoresService.atualizar({ id, ...input })
-        setToast({ tipo: 'sucesso', mensagem: 'Fornecedor atualizado com sucesso.' })
       } else {
         await fornecedoresService.criar(input)
-        setToast({ tipo: 'sucesso', mensagem: 'Fornecedor criado com sucesso.' })
       }
-      setTimeout(() => navigate('/fornecedores'), 1200)
+      setConfirma({
+        fornecedorNome: values.razaoSocial,
+        modo: id ? 'atualizado' : 'criado',
+      })
     } catch {
       setToast({ tipo: 'erro', mensagem: 'Erro ao salvar fornecedor.' })
     }
@@ -56,6 +59,14 @@ export function FornecedorFormPage() {
 
   return (
     <div className="ada-page max-w-2xl">
+      {confirma && (
+        <ConfirmacaoFornecedorModal
+          aberto
+          dados={confirma}
+          onFechar={() => { setConfirma(null); navigate('/fornecedores') }}
+          onVerFornecedores={() => { setConfirma(null); navigate('/fornecedores') }}
+        />
+      )}
       {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
 
       <PageHeader

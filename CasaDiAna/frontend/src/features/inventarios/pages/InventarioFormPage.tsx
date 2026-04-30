@@ -11,6 +11,7 @@ import { FormSection } from '@/components/form/FormSection'
 import { FormActions } from '@/components/form/FormActions'
 import { FormCard } from '@/components/form/FormCard'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
+import { ConfirmacaoInicioInventarioModal, type DadosConfirmacaoInicioInventario } from '../components/ConfirmacaoInicioInventarioModal'
 
 interface IniciarFormValues {
   dataRealizacao: string
@@ -27,6 +28,7 @@ const schema = z.object({
 export function InventarioFormPage() {
   const navigate = useNavigate()
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
+  const [confirma, setConfirma] = useState<DadosConfirmacaoInicioInventario | null>(null)
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } =
     useForm<IniciarFormValues>({
@@ -46,8 +48,10 @@ export function InventarioFormPage() {
         descricao: values.descricao || null,
         observacoes: values.observacoes || null,
       })
-      setToast({ tipo: 'sucesso', mensagem: 'Inventário iniciado.' })
-      setTimeout(() => navigate(`/inventarios/${inventario.id}`), 800)
+      setConfirma({
+        dataInicio: new Date(values.dataRealizacao).toLocaleDateString('pt-BR'),
+        inventarioId: inventario.id,
+      })
     } catch {
       setToast({ tipo: 'erro', mensagem: 'Erro ao iniciar inventário.' })
     }
@@ -55,6 +59,14 @@ export function InventarioFormPage() {
 
   return (
     <div className="ada-page max-w-lg">
+      {confirma && (
+        <ConfirmacaoInicioInventarioModal
+          aberto
+          dados={confirma}
+          onFechar={() => { const destino = confirma.inventarioId; setConfirma(null); navigate(`/inventarios/${destino}`) }}
+          onVerInventario={() => { const destino = confirma.inventarioId; setConfirma(null); navigate(`/inventarios/${destino}`) }}
+        />
+      )}
       {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
 
       <PageHeader

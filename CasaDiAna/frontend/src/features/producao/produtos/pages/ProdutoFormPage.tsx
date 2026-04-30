@@ -64,6 +64,14 @@ export function ProdutoFormPage() {
 
   return (
     <div className="ada-page max-w-2xl">
+      {confirma && (
+        <ConfirmacaoProdutoModal
+          aberto
+          dados={confirma}
+          onFechar={() => { setConfirma(null); navigate('/producao/produtos') }}
+          onVerProdutos={() => { setConfirma(null); navigate('/producao/produtos') }}
+        />
+      )}
       {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
 
       <PageHeader
@@ -118,15 +126,6 @@ export function ProdutoFormPage() {
           />
         </FormCard>
       </form>
-
-      {confirma && (
-        <ConfirmacaoProdutoModal
-          aberto
-          dados={confirma}
-          onFechar={() => { setConfirma(null); navigate('/producao/produtos') }}
-          onVerProdutos={() => { setConfirma(null); navigate('/producao/produtos') }}
-        />
-      )}
     </div>
   )
 }

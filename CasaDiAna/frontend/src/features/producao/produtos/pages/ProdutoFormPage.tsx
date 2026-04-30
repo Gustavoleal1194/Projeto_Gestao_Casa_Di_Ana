@@ -13,6 +13,7 @@ import { FormCard } from '@/components/form/FormCard'
 import { Toast } from '@/features/estoque/ingredientes/components/Toast'
 import { LoadingState } from '@/components/ui/LoadingState'
 import type { CategoriaProduto, ProdutoFormValues } from '@/types/producao'
+import { ConfirmacaoProdutoModal, type DadosConfirmacaoProduto } from '../components/ConfirmacaoProdutoModal'
 
 export function ProdutoFormPage() {
   const navigate = useNavigate()
@@ -23,6 +24,7 @@ export function ProdutoFormPage() {
   const [categorias, setCategorias] = useState<CategoriaProduto[]>([])
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
   const [carregando, setCarregando] = useState(isEdicao)
+  const [confirma, setConfirma] = useState<DadosConfirmacaoProduto | null>(null)
 
   useEffect(() => {
     categoriasProdutoService.listar().then(setCategorias).catch(() => {})
@@ -39,12 +41,14 @@ export function ProdutoFormPage() {
       const input = formParaInput(values)
       if (id) {
         await produtosService.atualizar({ id, ...input })
-        setToast({ tipo: 'sucesso', mensagem: 'Produto atualizado com sucesso.' })
       } else {
         await produtosService.criar(input)
-        setToast({ tipo: 'sucesso', mensagem: 'Produto criado com sucesso.' })
       }
-      setTimeout(() => navigate('/producao/produtos'), 1200)
+      setConfirma({
+        produtoNome: values.nome,
+        precoVenda: Number(values.precoVenda),
+        modo: id ? 'atualizado' : 'criado',
+      })
     } catch {
       setToast({ tipo: 'erro', mensagem: 'Erro ao salvar produto.' })
     }
@@ -114,6 +118,15 @@ export function ProdutoFormPage() {
           />
         </FormCard>
       </form>
+
+      {confirma && (
+        <ConfirmacaoProdutoModal
+          aberto
+          dados={confirma}
+          onFechar={() => { setConfirma(null); navigate('/producao/produtos') }}
+          onVerProdutos={() => { setConfirma(null); navigate('/producao/produtos') }}
+        />
+      )}
     </div>
   )
 }

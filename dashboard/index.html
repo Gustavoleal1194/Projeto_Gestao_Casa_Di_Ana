@@ -419,7 +419,14 @@ function init(data) {
     if (!d || !d.obsidianPath) return;
     const vaultName = data.meta.vaultName || 'ProjetoGestao';
     const url = 'obsidian://open?vault=' + encodeURIComponent(vaultName) + '&file=' + encodeURIComponent(d.obsidianPath);
-    window.open(url, '_blank');
+
+    // Iframe oculto: Electron intercepta a navegação para obsidian://
+    // sem sair do dashboard e sem depender de window.open
+    const tmp = document.createElement('iframe');
+    tmp.style.display = 'none';
+    tmp.src = url;
+    document.body.appendChild(tmp);
+    setTimeout(() => { try { document.body.removeChild(tmp); } catch {} }, 1500);
   }
 
   /* ═══ CONTROLS ═══════════════════════════════════════════ */

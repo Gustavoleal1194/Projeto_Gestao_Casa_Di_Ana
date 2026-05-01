@@ -44,21 +44,21 @@ function useCountUp(target: number, duration: number, enabled: boolean): number 
   return value
 }
 
-function CheckMarkVerde({ delay = 100 }: { delay?: number }) {
+function CheckMarkAmbar({ delay = 100 }: { delay?: number }) {
   return (
     <svg width="64" height="64" viewBox="0 0 72 72" fill="none">
       <circle cx="36" cy="36" r="30" fill="transparent"
-        stroke="#16A34A" strokeWidth="1.5" strokeOpacity="0.3"
+        stroke="#D4960C" strokeWidth="1.5" strokeOpacity="0.3"
         style={{ animation: `ripple 900ms ${delay + 200}ms ease-out both` }} />
       <circle cx="36" cy="36" r="26"
-        stroke="#16A34A" strokeWidth="2.5" fill="transparent"
+        stroke="#D4960C" strokeWidth="2.5" fill="transparent"
         strokeDasharray="163" strokeDashoffset="163"
         style={{ animation: `circleDraw 600ms ${delay}ms cubic-bezier(.4,0,.2,1) both` }} />
       <circle cx="36" cy="36" r="24"
-        fill="#F0FDF4"
+        fill="#FFFBEB"
         style={{ animation: `fadeIn 150ms ${delay + 400}ms ease both` }} />
       <path d="M22 37l9 9 19-19"
-        stroke="#16A34A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+        stroke="#D4960C" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
         strokeDasharray="60" strokeDashoffset="60"
         style={{ animation: `checkDraw 350ms ${delay + 500}ms cubic-bezier(.4,0,.2,1) both` }} />
     </svg>
@@ -139,14 +139,14 @@ export function ConfirmacaoVendaModal({ aberto, onFechar, onVerRelatorio, dados 
           <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 22, animation: 'fadeUp 300ms 50ms ease both' }}>
             <div style={{ position: 'relative', flexShrink: 0 }}>
               <div style={{ animation: 'float 3000ms 1000ms ease-in-out infinite' }}>
-                <CheckMarkVerde delay={100} />
+                <CheckMarkAmbar delay={100} />
               </div>
               <Sparkles delay={700} />
             </div>
             <div>
               <div style={{
                 fontFamily: 'Sora, system-ui, sans-serif', fontSize: 10.5, fontWeight: 600,
-                textTransform: 'uppercase', letterSpacing: '0.14em', color: '#16A34A',
+                textTransform: 'uppercase', letterSpacing: '0.14em', color: '#D4960C',
                 marginBottom: 4, animation: 'fadeIn 300ms 700ms ease both',
               }}>
                 Venda registrada

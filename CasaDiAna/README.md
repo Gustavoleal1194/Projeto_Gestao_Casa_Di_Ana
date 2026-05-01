@@ -202,7 +202,7 @@ ProjetoGestao/
 
 | Tecnologia | Versão | Uso |
 |---|---|---|
-| React | 18 | Framework UI |
+| React | 19 | Framework UI |
 | TypeScript | ~5.9 | Tipagem estática |
 | Vite | 8.x | Build tool |
 | Tailwind CSS | 4.x | Estilização via CSS vars |
@@ -211,8 +211,7 @@ ProjetoGestao/
 | Axios | 1.x | Cliente HTTP |
 | React Hook Form | 7.x | Gerenciamento de formulários |
 | Zod | 4.x | Validação de schemas no frontend |
-| Recharts | 3.x | Gráficos (Dashboard) |
-| ECharts | 6.x | Gráficos avançados |
+| ECharts | 6.x | Gráficos (Dashboard e relatórios) |
 | jsPDF + jspdf-autotable | 4.x / 5.x | Exportação de relatórios em PDF |
 
 ### Infraestrutura

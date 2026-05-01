@@ -66,3 +66,15 @@ npx tsc --noEmit   # checagem de tipos
 ### Deploy (Render)
 
 Builds no plano free levam 10–18 min sem cache de layers. `DATABASE_URL` sem porta → usar `5432` como fallback. `VITE_API_URL` é injetada em build-time via `frontend/.env.production`.
+
+---
+
+## Obsidian Brain / BrainOS
+
+- Existe um BrainOS (vault Obsidian) em `docs/brain/`. É a memória operacional do projeto.
+- Antes de tasks relevantes: consultar `docs/brain/00_CENTRO_DO_CEREBRO.md` e `docs/brain/01_MOC/MOC.md`.
+- Usar os **context packs** em `docs/brain/02_CONTEXT_PACKS/` para reduzir tokens em vez de reler tudo.
+- **Não assumir status** de feature sem verificar código atual.
+- Avisar conflitos entre brain e código (registrar em `docs/brain/09_OPEN_LOOPS/OPEN_LOOPS.md`).
+- Sugerir atualização do brain após tasks importantes (ver `docs/brain/10_IA_PROMPTS/ROTINA_POS_TASK.md`).
+- **Nunca** salvar segredos, tokens, senhas ou connection strings reais no vault.

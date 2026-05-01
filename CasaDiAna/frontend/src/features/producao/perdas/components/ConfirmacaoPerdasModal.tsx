@@ -41,21 +41,21 @@ function useCountUp(target: number, duration: number, enabled: boolean): number 
   return value
 }
 
-function CheckMarkVermelho({ delay = 100 }: { delay?: number }) {
+function CheckMarkAmbar({ delay = 100 }: { delay?: number }) {
   return (
     <svg width="64" height="64" viewBox="0 0 72 72" fill="none">
       <circle cx="36" cy="36" r="30" fill="transparent"
-        stroke="#DC2626" strokeWidth="1.5" strokeOpacity="0.3"
+        stroke="#D4960C" strokeWidth="1.5" strokeOpacity="0.3"
         style={{ animation: `ripple 900ms ${delay + 200}ms ease-out both` }} />
       <circle cx="36" cy="36" r="26"
-        stroke="#DC2626" strokeWidth="2.5" fill="transparent"
+        stroke="#D4960C" strokeWidth="2.5" fill="transparent"
         strokeDasharray="163" strokeDashoffset="163"
         style={{ animation: `circleDraw 600ms ${delay}ms cubic-bezier(.4,0,.2,1) both` }} />
       <circle cx="36" cy="36" r="24"
-        fill="#FEF2F2"
+        fill="#FFFBEB"
         style={{ animation: `fadeIn 150ms ${delay + 400}ms ease both` }} />
       <path d="M22 37l9 9 19-19"
-        stroke="#DC2626" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+        stroke="#D4960C" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
         strokeDasharray="60" strokeDashoffset="60"
         style={{ animation: `checkDraw 350ms ${delay + 500}ms cubic-bezier(.4,0,.2,1) both` }} />
     </svg>
@@ -76,7 +76,7 @@ function Sparkles({ delay = 800 }: { delay?: number }) {
       {SPARKLE_POS.map((pos, i) => (
         <div key={i} style={{
           position: 'absolute', ...pos,
-          width: 7, height: 7, background: '#DC2626', borderRadius: 2,
+          width: 7, height: 7, background: '#D4960C', borderRadius: 2,
           transformOrigin: 'center',
           animation: `sparkle 600ms ${delay + i * 80}ms ease both`,
         }} />
@@ -118,7 +118,7 @@ export function ConfirmacaoPerdasModal({ aberto, onFechar, onVerPerdas, dados }:
           position: 'relative',
         }}
       >
-        <div style={{ height: 4, background: 'linear-gradient(90deg, #DC2626, #EF4444)' }} />
+        <div style={{ height: 4, background: 'linear-gradient(90deg, #D4960C, #E8A520)' }} />
 
         <button type="button" onClick={onFechar} style={{
           position: 'absolute', top: 16, right: 16,
@@ -137,14 +137,14 @@ export function ConfirmacaoPerdasModal({ aberto, onFechar, onVerPerdas, dados }:
           <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 22, animation: 'fadeUp 300ms 50ms ease both' }}>
             <div style={{ position: 'relative', flexShrink: 0 }}>
               <div style={{ animation: 'float 3000ms 1000ms ease-in-out infinite' }}>
-                <CheckMarkVermelho delay={100} />
+                <CheckMarkAmbar delay={100} />
               </div>
               <Sparkles delay={700} />
             </div>
             <div>
               <div style={{
                 fontFamily: 'Sora, system-ui, sans-serif', fontSize: 10.5, fontWeight: 600,
-                textTransform: 'uppercase', letterSpacing: '0.14em', color: '#DC2626',
+                textTransform: 'uppercase', letterSpacing: '0.14em', color: '#D4960C',
                 marginBottom: 4, animation: 'fadeIn 300ms 700ms ease both',
               }}>
                 Perda registrada
@@ -176,7 +176,7 @@ export function ConfirmacaoPerdasModal({ aberto, onFechar, onVerPerdas, dados }:
                 <div style={{ fontSize: 10.5, fontFamily: 'Sora, system-ui, sans-serif', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ada-muted)', marginBottom: 6 }}>
                   {chip.label}
                 </div>
-                <div style={{ fontFamily: 'Sora, system-ui, sans-serif', fontSize: 13, fontWeight: 700, color: 'var(--ada-heading)', letterSpacing: '-0.01em', wordBreak: 'break-word' }}>
+                <div style={{ fontFamily: 'Sora, system-ui, sans-serif', fontSize: 16, fontWeight: 700, color: 'var(--ada-heading)', letterSpacing: '-0.01em', wordBreak: 'break-word' }}>
                   {chip.value}
                 </div>
               </div>
@@ -186,17 +186,17 @@ export function ConfirmacaoPerdasModal({ aberto, onFechar, onVerPerdas, dados }:
           <div style={{
             display: 'flex', alignItems: 'flex-start', gap: 10,
             padding: '10px 14px', borderRadius: 10,
-            background: '#FEF2F2', border: '1px solid #FECACA',
+            background: '#FFFBEB', border: '1px solid #FDE68A',
             marginBottom: 20,
             animation: 'fadeUp 280ms 1000ms ease both',
           }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="#991B1B" strokeWidth="1.8" strokeLinecap="round"
+              stroke="#92580A" strokeWidth="1.8" strokeLinecap="round"
               style={{ flexShrink: 0, marginTop: 1 }}>
               <path d="M13 16h-1v-4h-1m1-4h.01" />
               <circle cx="12" cy="12" r="9" />
             </svg>
-            <span style={{ fontSize: 12.5, color: '#7F1D1D', lineHeight: 1.45 }}>
+            <span style={{ fontSize: 12.5, color: '#7A5206', lineHeight: 1.45 }}>
               Estoque atualizado automaticamente.
             </span>
           </div>
@@ -213,9 +213,9 @@ export function ConfirmacaoPerdasModal({ aberto, onFechar, onVerPerdas, dados }:
             <button type="button" onClick={onVerPerdas} style={{
               flex: 2, padding: '11px 0', borderRadius: 10,
               fontFamily: 'Sora, system-ui, sans-serif', fontSize: 13.5, fontWeight: 600,
-              color: '#fff', background: 'linear-gradient(135deg, #DC2626, #B91C1C)',
+              color: '#fff', background: 'linear-gradient(135deg, #D4960C, #B87D0A)',
               border: 0, cursor: 'pointer',
-              boxShadow: '0 4px 14px rgba(220,38,38,0.30)',
+              boxShadow: '0 4px 14px rgba(212,150,12,0.30)',
             }}>
               Ver Perdas →
             </button>

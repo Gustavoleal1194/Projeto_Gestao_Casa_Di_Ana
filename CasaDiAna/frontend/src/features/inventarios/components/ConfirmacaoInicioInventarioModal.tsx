@@ -12,21 +12,21 @@ interface Props {
   dados: DadosConfirmacaoInicioInventario
 }
 
-function CheckMarkRoxo({ delay = 100 }: { delay?: number }) {
+function CheckMarkAmbar({ delay = 100 }: { delay?: number }) {
   return (
     <svg width="64" height="64" viewBox="0 0 72 72" fill="none">
       <circle cx="36" cy="36" r="30" fill="transparent"
-        stroke="#7C3AED" strokeWidth="1.5" strokeOpacity="0.3"
+        stroke="#D4960C" strokeWidth="1.5" strokeOpacity="0.3"
         style={{ animation: `ripple 900ms ${delay + 200}ms ease-out both` }} />
       <circle cx="36" cy="36" r="26"
-        stroke="#7C3AED" strokeWidth="2.5" fill="transparent"
+        stroke="#D4960C" strokeWidth="2.5" fill="transparent"
         strokeDasharray="163" strokeDashoffset="163"
         style={{ animation: `circleDraw 600ms ${delay}ms cubic-bezier(.4,0,.2,1) both` }} />
       <circle cx="36" cy="36" r="24"
-        fill="#F5F3FF"
+        fill="#FFFBEB"
         style={{ animation: `fadeIn 150ms ${delay + 400}ms ease both` }} />
       <path d="M22 37l9 9 19-19"
-        stroke="#7C3AED" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+        stroke="#D4960C" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
         strokeDasharray="60" strokeDashoffset="60"
         style={{ animation: `checkDraw 350ms ${delay + 500}ms cubic-bezier(.4,0,.2,1) both` }} />
     </svg>
@@ -47,7 +47,7 @@ function Sparkles({ delay = 800 }: { delay?: number }) {
       {SPARKLE_POS.map((pos, i) => (
         <div key={i} style={{
           position: 'absolute', ...pos,
-          width: 7, height: 7, background: '#7C3AED', borderRadius: 2,
+          width: 7, height: 7, background: '#D4960C', borderRadius: 2,
           transformOrigin: 'center',
           animation: `sparkle 600ms ${delay + i * 80}ms ease both`,
         }} />
@@ -83,7 +83,7 @@ export function ConfirmacaoInicioInventarioModal({ aberto, onFechar, onVerInvent
           position: 'relative',
         }}
       >
-        <div style={{ height: 4, background: 'linear-gradient(90deg, #7C3AED, #8B5CF6)' }} />
+        <div style={{ height: 4, background: 'linear-gradient(90deg, #D4960C, #E8A520)' }} />
 
         <button type="button" onClick={onFechar} style={{
           position: 'absolute', top: 16, right: 16,
@@ -102,20 +102,20 @@ export function ConfirmacaoInicioInventarioModal({ aberto, onFechar, onVerInvent
           <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 22, animation: 'fadeUp 300ms 50ms ease both' }}>
             <div style={{ position: 'relative', flexShrink: 0 }}>
               <div style={{ animation: 'float 3000ms 1000ms ease-in-out infinite' }}>
-                <CheckMarkRoxo delay={100} />
+                <CheckMarkAmbar delay={100} />
               </div>
               <Sparkles delay={700} />
             </div>
             <div>
               <div style={{
                 fontFamily: 'Sora, system-ui, sans-serif', fontSize: 10.5, fontWeight: 600,
-                textTransform: 'uppercase', letterSpacing: '0.14em', color: '#7C3AED',
+                textTransform: 'uppercase', letterSpacing: '0.14em', color: '#D4960C',
                 marginBottom: 4, animation: 'fadeIn 300ms 700ms ease both',
               }}>
                 Inventário iniciado
               </div>
               <div style={{
-                fontFamily: 'Sora, system-ui, sans-serif', fontSize: 20, fontWeight: 700,
+                fontFamily: 'Sora, system-ui, sans-serif', fontSize: 22, fontWeight: 700,
                 color: 'var(--ada-heading)', letterSpacing: '-0.02em',
                 animation: 'fadeUp 300ms 400ms ease both',
               }}>
@@ -127,17 +127,17 @@ export function ConfirmacaoInicioInventarioModal({ aberto, onFechar, onVerInvent
           <div style={{
             display: 'flex', alignItems: 'flex-start', gap: 10,
             padding: '10px 14px', borderRadius: 10,
-            background: '#F5F3FF', border: '1px solid #DDD6FE',
+            background: '#FFFBEB', border: '1px solid #FDE68A',
             marginBottom: 28,
             animation: 'fadeUp 280ms 750ms ease both',
           }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="#5B21B6" strokeWidth="1.8" strokeLinecap="round"
+              stroke="#92580A" strokeWidth="1.8" strokeLinecap="round"
               style={{ flexShrink: 0, marginTop: 1 }}>
               <path d="M13 16h-1v-4h-1m1-4h.01" />
               <circle cx="12" cy="12" r="9" />
             </svg>
-            <span style={{ fontSize: 12.5, color: '#4C1D95', lineHeight: 1.45 }}>
+            <span style={{ fontSize: 12.5, color: '#7A5206', lineHeight: 1.45 }}>
               Adicione os itens contados e finalize o inventário ao concluir.
             </span>
           </div>
@@ -154,9 +154,9 @@ export function ConfirmacaoInicioInventarioModal({ aberto, onFechar, onVerInvent
             <button type="button" onClick={onVerInventario} style={{
               flex: 2, padding: '11px 0', borderRadius: 10,
               fontFamily: 'Sora, system-ui, sans-serif', fontSize: 13.5, fontWeight: 600,
-              color: '#fff', background: 'linear-gradient(135deg, #7C3AED, #6D28D9)',
+              color: '#fff', background: 'linear-gradient(135deg, #D4960C, #B87D0A)',
               border: 0, cursor: 'pointer',
-              boxShadow: '0 4px 14px rgba(124,58,237,0.30)',
+              boxShadow: '0 4px 14px rgba(212,150,12,0.30)',
             }}>
               Ir para o Inventário →
             </button>

@@ -40,21 +40,21 @@ function useCountUp(target: number, duration: number, enabled: boolean): number 
   return value
 }
 
-function CheckMarkAzul({ delay = 100 }: { delay?: number }) {
+function CheckMarkAmbar({ delay = 100 }: { delay?: number }) {
   return (
     <svg width="64" height="64" viewBox="0 0 72 72" fill="none">
       <circle cx="36" cy="36" r="30" fill="transparent"
-        stroke="#2563EB" strokeWidth="1.5" strokeOpacity="0.3"
+        stroke="#D4960C" strokeWidth="1.5" strokeOpacity="0.3"
         style={{ animation: `ripple 900ms ${delay + 200}ms ease-out both` }} />
       <circle cx="36" cy="36" r="26"
-        stroke="#2563EB" strokeWidth="2.5" fill="transparent"
+        stroke="#D4960C" strokeWidth="2.5" fill="transparent"
         strokeDasharray="163" strokeDashoffset="163"
         style={{ animation: `circleDraw 600ms ${delay}ms cubic-bezier(.4,0,.2,1) both` }} />
       <circle cx="36" cy="36" r="24"
-        fill="#EFF6FF"
+        fill="#FFFBEB"
         style={{ animation: `fadeIn 150ms ${delay + 400}ms ease both` }} />
       <path d="M22 37l9 9 19-19"
-        stroke="#2563EB" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+        stroke="#D4960C" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
         strokeDasharray="60" strokeDashoffset="60"
         style={{ animation: `checkDraw 350ms ${delay + 500}ms cubic-bezier(.4,0,.2,1) both` }} />
     </svg>
@@ -75,7 +75,7 @@ function Sparkles({ delay = 800 }: { delay?: number }) {
       {SPARKLE_POS.map((pos, i) => (
         <div key={i} style={{
           position: 'absolute', ...pos,
-          width: 7, height: 7, background: '#2563EB', borderRadius: 2,
+          width: 7, height: 7, background: '#D4960C', borderRadius: 2,
           transformOrigin: 'center',
           animation: `sparkle 600ms ${delay + i * 80}ms ease both`,
         }} />
@@ -121,7 +121,7 @@ export function ConfirmacaoProdutoModal({ aberto, onFechar, onVerProdutos, dados
           position: 'relative',
         }}
       >
-        <div style={{ height: 4, background: 'linear-gradient(90deg, #2563EB, #3B82F6)' }} />
+        <div style={{ height: 4, background: 'linear-gradient(90deg, #D4960C, #E8A520)' }} />
 
         <button type="button" onClick={onFechar} style={{
           position: 'absolute', top: 16, right: 16,
@@ -140,20 +140,20 @@ export function ConfirmacaoProdutoModal({ aberto, onFechar, onVerProdutos, dados
           <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 22, animation: 'fadeUp 300ms 50ms ease both' }}>
             <div style={{ position: 'relative', flexShrink: 0 }}>
               <div style={{ animation: 'float 3000ms 1000ms ease-in-out infinite' }}>
-                <CheckMarkAzul delay={100} />
+                <CheckMarkAmbar delay={100} />
               </div>
               <Sparkles delay={700} />
             </div>
             <div>
               <div style={{
                 fontFamily: 'Sora, system-ui, sans-serif', fontSize: 10.5, fontWeight: 600,
-                textTransform: 'uppercase', letterSpacing: '0.14em', color: '#2563EB',
+                textTransform: 'uppercase', letterSpacing: '0.14em', color: '#D4960C',
                 marginBottom: 4, animation: 'fadeIn 300ms 700ms ease both',
               }}>
                 Produto {dados.modo}
               </div>
               <div style={{
-                fontFamily: 'Sora, system-ui, sans-serif', fontSize: 20, fontWeight: 700,
+                fontFamily: 'Sora, system-ui, sans-serif', fontSize: 22, fontWeight: 700,
                 color: 'var(--ada-heading)', letterSpacing: '-0.02em',
                 animation: 'fadeUp 300ms 400ms ease both',
               }}>
@@ -164,7 +164,7 @@ export function ConfirmacaoProdutoModal({ aberto, onFechar, onVerProdutos, dados
 
           <div style={{
             display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10,
-            marginBottom: 28,
+            marginBottom: 20,
             animation: 'fadeUp 300ms 550ms ease both',
           }}>
             {chips.map(chip => (
@@ -195,9 +195,9 @@ export function ConfirmacaoProdutoModal({ aberto, onFechar, onVerProdutos, dados
             <button type="button" onClick={onVerProdutos} style={{
               flex: 2, padding: '11px 0', borderRadius: 10,
               fontFamily: 'Sora, system-ui, sans-serif', fontSize: 13.5, fontWeight: 600,
-              color: '#fff', background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
+              color: '#fff', background: 'linear-gradient(135deg, #D4960C, #B87D0A)',
               border: 0, cursor: 'pointer',
-              boxShadow: '0 4px 14px rgba(37,99,235,0.30)',
+              boxShadow: '0 4px 14px rgba(212,150,12,0.30)',
             }}>
               Ver Produtos →
             </button>

@@ -152,7 +152,7 @@ export function ConfirmacaoFichaTecnicaModal({ aberto, onFechar, dados }: Props)
                 Ficha técnica salva
               </div>
               <div style={{
-                fontFamily: 'Sora, system-ui, sans-serif', fontSize: 20, fontWeight: 700,
+                fontFamily: 'Sora, system-ui, sans-serif', fontSize: 22, fontWeight: 700,
                 color: 'var(--ada-heading)', letterSpacing: '-0.02em',
                 animation: 'fadeUp 300ms 400ms ease both',
               }}>

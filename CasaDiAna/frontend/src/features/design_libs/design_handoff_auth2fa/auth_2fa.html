@@ -1,0 +1,1095 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Auth 2FA — Casa di Ana</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --brand: #D4960C;
+  --brand2: #B87D0A;
+  --brand3: #F0B030;
+  --ink: #07101E;
+  --ink2: #0D1117;
+  --success: #16A34A;
+  --success-light: #4ADE80;
+  --danger: #EF4444;
+  --danger2: #DC2626;
+  --danger-light: #FCA5A5;
+  --font-d: 'Sora', system-ui, sans-serif;
+  --font-b: 'DM Sans', system-ui, sans-serif;
+}
+
+html, body { height: 100%; background: #05080F; }
+
+body {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 100vh;
+  font-family: var(--font-b);
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── Canvas particle layer ─────────────────────────────── */
+#particle-canvas {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+}
+
+/* ── Ambient background ────────────────────────────────── */
+.ambient {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 0%, rgba(212,150,12,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(7,16,30,0.8) 0%, transparent 70%);
+  transition: background 600ms ease;
+}
+.ambient.success-bg {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 30%, rgba(22,163,74,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 100% at 50% 50%, rgba(22,163,74,0.06) 0%, transparent 70%);
+}
+.ambient.danger-bg {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 30%, rgba(239,68,68,0.20) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 100% at 50% 50%, rgba(220,38,38,0.08) 0%, transparent 70%);
+}
+
+/* ── Grid bg ───────────────────────────────────────────── */
+.grid-bg {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    linear-gradient(rgba(212,150,12,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212,150,12,0.04) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse at center, black 20%, transparent 70%);
+}
+
+/* ── Main card ─────────────────────────────────────────── */
+.card {
+  position: relative; z-index: 10;
+  width: 420px;
+  background: rgba(11,17,28,0.80);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 24px;
+  padding: 44px 40px 40px;
+  backdrop-filter: blur(24px);
+  box-shadow:
+    0 0 0 1px rgba(212,150,12,0.08),
+    0 32px 64px rgba(0,0,0,0.55),
+    0 8px 20px rgba(0,0,0,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+  transition: box-shadow 500ms ease, transform 500ms ease;
+  text-align: center;
+}
+.card.shake {
+  animation: shake 420ms cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+.card.success-glow {
+  box-shadow:
+    0 0 0 1px rgba(74,222,128,0.20),
+    0 0 60px rgba(22,163,74,0.25),
+    0 32px 64px rgba(0,0,0,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.card.danger-glow {
+  box-shadow:
+    0 0 0 1px rgba(239,68,68,0.25),
+    0 0 60px rgba(239,68,68,0.20),
+    0 32px 64px rgba(0,0,0,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  10%,50%,90% { transform: translateX(-8px) rotate(-0.3deg); }
+  30%,70% { transform: translateX(8px) rotate(0.3deg); }
+}
+
+/* ── Logo mark ─────────────────────────────────────────── */
+.logomark {
+  display: inline-flex; align-items: center; gap: 10px;
+  margin-bottom: 32px; opacity: 0.9;
+}
+.mark-box {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--brand), var(--brand2));
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(212,150,12,0.35);
+}
+.mark-name {
+  font-family: var(--font-d); font-size: 14px; font-weight: 700;
+  color: rgba(255,255,255,0.90); letter-spacing: -0.01em;
+}
+
+/* ── Header ────────────────────────────────────────────── */
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 14px; border-radius: 9999px;
+  border: 1px solid rgba(212,150,12,0.25);
+  background: rgba(212,150,12,0.08);
+  font-family: var(--font-d); font-size: 10.5px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--brand3); margin-bottom: 16px;
+}
+.badge .dot { width: 5px; height: 5px; border-radius: 9999px; background: var(--brand); }
+
+.card h1 {
+  font-family: var(--font-d); font-size: 24px; font-weight: 700;
+  color: #fff; letter-spacing: -0.02em; margin-bottom: 8px;
+  transition: color 400ms ease;
+}
+.card .sub {
+  font-size: 13.5px; color: rgba(255,255,255,0.50);
+  line-height: 1.55; margin-bottom: 32px;
+  transition: color 400ms ease;
+}
+
+/* ── Code input row ────────────────────────────────────── */
+.code-row {
+  display: flex; gap: 10px; justify-content: center;
+  margin-bottom: 28px;
+}
+.code-digit {
+  width: 52px; height: 60px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.10);
+  border-radius: 12px;
+  font-family: var(--font-d); font-size: 22px; font-weight: 700;
+  color: #fff; text-align: center;
+  cursor: default; user-select: none;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color 300ms ease, background 300ms ease, color 300ms ease, transform 300ms ease;
+  position: relative; overflow: hidden;
+}
+.code-digit::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 100%);
+  pointer-events: none;
+}
+.code-digit.filled {
+  border-color: rgba(212,150,12,0.35);
+  background: rgba(212,150,12,0.06);
+  color: var(--brand3);
+}
+.code-digit.active {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(212,150,12,0.15);
+}
+.code-digit.success-digit {
+  border-color: var(--success-light) !important;
+  background: rgba(22,163,74,0.12) !important;
+  color: var(--success-light) !important;
+}
+.code-digit.danger-digit {
+  border-color: var(--danger-light) !important;
+  background: rgba(239,68,68,0.12) !important;
+  color: var(--danger-light) !important;
+}
+
+/* ── Icon stage ────────────────────────────────────────── */
+.icon-stage {
+  position: relative;
+  width: 100px; height: 100px;
+  margin: 0 auto 24px;
+  display: flex; align-items: center; justify-content: center;
+}
+.ring-svg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  transform: rotate(-90deg);
+}
+.ring-track {
+  stroke: rgba(255,255,255,0.06);
+  stroke-width: 2; fill: none;
+}
+.ring-fill {
+  stroke: var(--brand);
+  stroke-width: 2.5; fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: 283;
+  stroke-dashoffset: 283;
+  transition: stroke 600ms ease;
+}
+.icon-inner {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.10);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  transition: background 400ms ease, border-color 400ms ease;
+}
+.icon-inner::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(160deg, rgba(255,255,255,0.08) 0%, transparent 60%);
+}
+.icon-glyph {
+  position: relative; z-index: 1;
+  transition: opacity 300ms ease;
+}
+
+/* scan line */
+.scan-line {
+  position: absolute; left: 8px; right: 8px; height: 1.5px;
+  background: linear-gradient(90deg, transparent 0%, var(--brand) 30%, var(--brand3) 50%, var(--brand) 70%, transparent 100%);
+  border-radius: 9999px;
+  top: 8px;
+  opacity: 0;
+  box-shadow: 0 0 8px var(--brand);
+}
+
+/* success/fail icon overlays */
+.result-icon {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+}
+.check-svg path, .x-svg path {
+  stroke-dasharray: 80;
+  stroke-dashoffset: 80;
+}
+
+/* ── Status text ───────────────────────────────────────── */
+.status-text {
+  height: 20px; position: relative; margin-bottom: 24px;
+  overflow: hidden;
+}
+.status-line {
+  position: absolute; width: 100%; text-align: center;
+  font-family: var(--font-d); font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  opacity: 0; transform: translateY(16px);
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+.status-line.visible {
+  opacity: 1; transform: translateY(0);
+}
+.status-line.amber { color: var(--brand3); }
+.status-line.green { color: var(--success-light); }
+.status-line.red   { color: var(--danger-light); }
+
+/* ── Result panel ──────────────────────────────────────── */
+.result-panel {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 500ms cubic-bezier(0.4,0,0.2,1), opacity 400ms ease;
+}
+.result-panel.open {
+  max-height: 200px;
+  opacity: 1;
+}
+.result-inner {
+  padding: 16px; border-radius: 14px; border: 1px solid;
+  text-align: left;
+  transform: translateY(8px);
+  transition: transform 400ms ease;
+}
+.result-panel.open .result-inner { transform: translateY(0); }
+
+.result-inner.success {
+  background: rgba(22,163,74,0.10);
+  border-color: rgba(22,163,74,0.25);
+}
+.result-inner.danger {
+  background: rgba(239,68,68,0.10);
+  border-color: rgba(239,68,68,0.25);
+}
+.result-inner .r-title {
+  font-family: var(--font-d); font-size: 13px; font-weight: 700;
+  margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
+}
+.result-inner.success .r-title { color: var(--success-light); }
+.result-inner.danger  .r-title { color: var(--danger-light); }
+.result-inner .r-sub {
+  font-size: 12.5px; line-height: 1.5; color: rgba(255,255,255,0.55);
+}
+.result-inner .r-meta {
+  display: flex; gap: 16px; margin-top: 10px;
+  font-size: 11px; color: rgba(255,255,255,0.35);
+  font-family: var(--font-d); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Demo controls ─────────────────────────────────────── */
+.controls {
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 12px; z-index: 20;
+}
+.ctrl-btn {
+  padding: 11px 22px; border-radius: 12px;
+  font-family: var(--font-d); font-size: 13px; font-weight: 600;
+  border: 0; cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+  transition: box-shadow 150ms ease, transform 100ms ease;
+}
+.ctrl-btn:active { transform: scale(0.97); }
+.ctrl-btn.success-btn {
+  background: linear-gradient(135deg, #16A34A, #15803D);
+  color: #fff; box-shadow: 0 4px 14px rgba(22,163,74,0.35);
+}
+.ctrl-btn.success-btn:hover { box-shadow: 0 6px 20px rgba(22,163,74,0.50); }
+.ctrl-btn.danger-btn {
+  background: linear-gradient(135deg, #EF4444, #DC2626);
+  color: #fff; box-shadow: 0 4px 14px rgba(239,68,68,0.35);
+}
+.ctrl-btn.danger-btn:hover { box-shadow: 0 6px 20px rgba(239,68,68,0.50); }
+.ctrl-btn.reset-btn {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.70);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: none;
+}
+.ctrl-btn.reset-btn:hover { background: rgba(255,255,255,0.10); }
+
+/* ── Scanning animation ────────────────────────────────── */
+@keyframes scanDown {
+  0%   { top: 8px; opacity: 1; }
+  85%  { top: 56px; opacity: 1; }
+  100% { top: 60px; opacity: 0; }
+}
+@keyframes scanLoop {
+  0%   { top: 8px;  opacity: 0; }
+  5%   { opacity: 1; }
+  90%  { top: 60px; opacity: 1; }
+  95%  { opacity: 0; }
+  100% { top: 60px; opacity: 0; }
+}
+
+/* ── Pulse ring ────────────────────────────────────────── */
+.pulse-ring {
+  position: absolute; inset: -12px;
+  border-radius: 50%;
+  border: 1.5px solid;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Progress dots ─────────────────────────────────────── */
+.progress-dots {
+  display: flex; justify-content: center; gap: 6px;
+  margin-bottom: 24px;
+  opacity: 0; transition: opacity 300ms ease;
+}
+.progress-dots.visible { opacity: 1; }
+.pdot {
+  width: 5px; height: 5px; border-radius: 9999px;
+  background: rgba(255,255,255,0.20);
+}
+.pdot.active {
+  background: var(--brand3);
+  box-shadow: 0 0 8px var(--brand);
+  animation: dotPulse 600ms ease infinite alternate;
+}
+@keyframes dotPulse {
+  from { transform: scale(1); opacity: 1; }
+  to   { transform: scale(1.4); opacity: 0.8; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="particle-canvas"></canvas>
+<div class="ambient" id="ambient"></div>
+<div class="grid-bg"></div>
+
+<div class="card" id="card">
+  <!-- Logo -->
+  <div class="logomark">
+    <div class="mark-box">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7 3c0 1.5 2 1.5 2 3M11 3c0 1.5 2 1.5 2 3"/>
+        <path d="M4 8h14v8a4 4 0 01-4 4H8a4 4 0 01-4-4V8z"/>
+        <path d="M18 11h2.5a2.5 2.5 0 010 5H18"/>
+      </svg>
+    </div>
+    <span class="mark-name">Casa di Ana</span>
+  </div>
+
+  <div class="badge"><span class="dot"></span>Verificação em dois fatores</div>
+
+  <h1 id="card-title">Código de acesso</h1>
+  <p class="sub" id="card-sub">Digite o código de 6 dígitos enviado para<br><strong style="color:rgba(255,255,255,0.75)">ana.ribeiro@casadiana.com.br</strong></p>
+
+  <!-- Icon stage -->
+  <div class="icon-stage">
+    <!-- Pulse rings -->
+    <div class="pulse-ring" id="pulse1" style="border-color: rgba(212,150,12,0.3)"></div>
+    <div class="pulse-ring" id="pulse2" style="border-color: rgba(212,150,12,0.15)"></div>
+
+    <!-- Ring progress SVG -->
+    <svg class="ring-svg" viewBox="0 0 100 100">
+      <circle class="ring-track" cx="50" cy="50" r="45"/>
+      <circle class="ring-fill" id="ring-fill" cx="50" cy="50" r="45"/>
+    </svg>
+
+    <!-- Inner icon -->
+    <div class="icon-inner" id="icon-inner">
+      <!-- Scan line -->
+      <div class="scan-line" id="scan-line"></div>
+
+      <!-- Lock (default) -->
+      <div class="icon-glyph" id="glyph-lock">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="3"/>
+          <path d="M7 11V7a5 5 0 0110 0v4"/>
+          <circle cx="12" cy="17" r="1.5" fill="rgba(255,255,255,0.55)" stroke="none"/>
+        </svg>
+      </div>
+
+      <!-- Check (success) -->
+      <div class="result-icon" id="glyph-check">
+        <svg class="check-svg" width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M4 13l5 5L20 7" stroke="#4ADE80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                stroke-dasharray="80" stroke-dashoffset="80" id="check-path"/>
+        </svg>
+      </div>
+
+      <!-- X (failure) -->
+      <div class="result-icon" id="glyph-x">
+        <svg class="x-svg" width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <path d="M18 6L6 18M6 6l12 12" stroke="#FCA5A5" stroke-width="2.5" stroke-linecap="round"
+                stroke-dasharray="80" stroke-dashoffset="80" id="x-path"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress dots (verifying state) -->
+  <div class="progress-dots" id="progress-dots">
+    <div class="pdot active" id="pdot0"></div>
+    <div class="pdot" id="pdot1"></div>
+    <div class="pdot" id="pdot2"></div>
+  </div>
+
+  <!-- Code digits -->
+  <div class="code-row" id="code-row">
+    <div class="code-digit filled" id="d0">4</div>
+    <div class="code-digit filled" id="d1">8</div>
+    <div class="code-digit filled" id="d2">2</div>
+    <div class="code-digit filled" id="d3">7</div>
+    <div class="code-digit filled" id="d4">0</div>
+    <div class="code-digit filled active" id="d5">9</div>
+  </div>
+
+  <!-- Status text -->
+  <div class="status-text">
+    <div class="status-line amber" id="st-verifying">Verificando…</div>
+    <div class="status-line green" id="st-success">Identidade confirmada</div>
+    <div class="status-line red"   id="st-failure">Código incorreto</div>
+  </div>
+
+  <!-- Result panel -->
+  <div class="result-panel" id="result-panel">
+    <div class="result-inner success" id="result-inner-success">
+      <div class="r-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Acesso liberado — bem-vinda, Ana
+      </div>
+      <div class="r-sub">Sessão iniciada com autenticação de dois fatores. Redirecionando para o painel operacional.</div>
+      <div class="r-meta">
+        <span id="access-time">--:--</span>
+        <span>IP 177.92.134.22</span>
+        <span>TLS 1.3</span>
+      </div>
+    </div>
+    <div class="result-inner danger" id="result-inner-danger" style="display:none">
+      <div class="r-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+        </svg>
+        Tentativa bloqueada
+      </div>
+      <div class="r-sub">O código informado é inválido ou expirou. Você tem <strong style="color:var(--danger-light)" id="attempts-left">2</strong> tentativas restantes.</div>
+      <div class="r-meta">
+        <span id="fail-time">--:--</span>
+        <span>Falha #1</span>
+        <span>Código expirou?</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Controls -->
+<div class="controls">
+  <button class="ctrl-btn success-btn" onclick="runSuccess()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <path d="M9 12l2 2 4-4"/>
+    </svg>
+    Código correto
+  </button>
+  <button class="ctrl-btn danger-btn" onclick="runFailure()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <path d="M18 6L6 18M6 6l12 12"/>
+    </svg>
+    Código incorreto
+  </button>
+  <button class="ctrl-btn reset-btn" onclick="reset()">↺ Resetar</button>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   PARTICLE SYSTEM
+═══════════════════════════════════════════════════════ */
+const canvas = document.getElementById('particle-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [], animId;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+class Particle {
+  constructor(x, y, opts = {}) {
+    this.x = x; this.y = y;
+    this.vx = (Math.random() - 0.5) * (opts.speed || 8);
+    this.vy = (Math.random() - 0.5) * (opts.speed || 8) - (opts.upward ? 2 : 0);
+    this.r = Math.random() * (opts.maxR || 4) + (opts.minR || 1.5);
+    this.life = 1;
+    this.decay = Math.random() * 0.018 + (opts.fastDecay ? 0.022 : 0.010);
+    this.color = opts.color || `hsl(${38 + Math.random() * 20}, 85%, 60%)`;
+    this.type = opts.type || 'circle'; // circle | spark | diamond
+    this.rot = Math.random() * Math.PI * 2;
+    this.rotV = (Math.random() - 0.5) * 0.15;
+    this.gravity = opts.gravity ?? 0.08;
+    this.glow = opts.glow || false;
+  }
+  update() {
+    this.vx *= 0.96;
+    this.vy *= 0.96;
+    this.vy += this.gravity;
+    this.x += this.vx;
+    this.y += this.vy;
+    this.rot += this.rotV;
+    this.life -= this.decay;
+  }
+  draw(ctx) {
+    if (this.life <= 0) return;
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, this.life);
+    if (this.glow) {
+      ctx.shadowColor = this.color;
+      ctx.shadowBlur = 8;
+    }
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.rot);
+    ctx.fillStyle = this.color;
+
+    if (this.type === 'diamond') {
+      ctx.beginPath();
+      ctx.moveTo(0, -this.r * 1.4);
+      ctx.lineTo(this.r * 0.8, 0);
+      ctx.lineTo(0, this.r * 1.4);
+      ctx.lineTo(-this.r * 0.8, 0);
+      ctx.closePath();
+      ctx.fill();
+    } else if (this.type === 'spark') {
+      ctx.strokeStyle = this.color;
+      ctx.lineWidth = this.r * 0.5;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(-this.r * 2, 0);
+      ctx.lineTo(this.r * 2, 0);
+      ctx.stroke();
+    } else {
+      ctx.beginPath();
+      ctx.arc(0, 0, this.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+function loop() {
+  ctx.clearRect(0, 0, W, H);
+  particles = particles.filter(p => p.life > 0);
+  particles.forEach(p => { p.update(); p.draw(ctx); });
+  animId = requestAnimationFrame(loop);
+}
+loop();
+
+function burst(x, y, count, opts) {
+  for (let i = 0; i < count; i++) particles.push(new Particle(x, y, opts));
+}
+
+function getCardCenter() {
+  const card = document.getElementById('card');
+  const rect = card.getBoundingClientRect();
+  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+}
+function getIconCenter() {
+  const icon = document.getElementById('icon-inner');
+  const rect = icon.getBoundingClientRect();
+  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════════ */
+const $ = id => document.getElementById(id);
+const ring = $('ring-fill');
+const CIRC = 283;
+
+function setRingProgress(pct, color) {
+  ring.style.strokeDashoffset = CIRC * (1 - pct);
+  if (color) ring.style.stroke = color;
+}
+
+function showStatus(id) {
+  ['st-verifying','st-success','st-failure'].forEach(s => {
+    const el = $(s);
+    el.classList.remove('visible');
+  });
+  if (id) {
+    const el = $(id);
+    el.classList.add('visible');
+  }
+}
+
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+function animateRing(from, to, color, duration) {
+  return new Promise(resolve => {
+    const start = performance.now();
+    const fromOff = CIRC * (1 - from);
+    const toOff   = CIRC * (1 - to);
+    function step(now) {
+      const t = Math.min((now - start) / duration, 1);
+      const ease = easeOutCubic(t);
+      ring.style.strokeDashoffset = fromOff + (toOff - fromOff) * ease;
+      if (color) ring.style.stroke = color;
+      if (t < 1) requestAnimationFrame(step);
+      else resolve();
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+function drawPath(pathEl, duration) {
+  return new Promise(resolve => {
+    const len = 80;
+    pathEl.style.strokeDashoffset = len;
+    const start = performance.now();
+    function step(now) {
+      const t = Math.min((now - start) / duration, 1);
+      const ease = easeOutCubic(t);
+      pathEl.style.strokeDashoffset = len * (1 - ease);
+      if (t < 1) requestAnimationFrame(step);
+      else resolve();
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+function pulsePing(el, color, delay1, delay2) {
+  el.style.border = `1.5px solid ${color}`;
+  el.style.opacity = '0';
+  el.style.animation = 'none';
+  setTimeout(() => {
+    el.style.animation = 'none';
+    el.style.opacity = '0';
+    el.style.transform = 'scale(0.8)';
+    el.style.transition = 'none';
+    void el.offsetWidth;
+    el.style.transition = `transform ${700}ms ease, opacity ${700}ms ease`;
+    el.style.transform = 'scale(2.2)';
+    el.style.opacity = '0.6';
+    setTimeout(() => { el.style.opacity = '0'; }, 350);
+  }, delay1);
+  setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transform = 'scale(0.8)';
+    void el.offsetWidth;
+    el.style.transition = `transform ${700}ms ease, opacity ${700}ms ease`;
+    el.style.transform = 'scale(2.8)';
+    el.style.opacity = '0.3';
+    setTimeout(() => { el.style.opacity = '0'; }, 400);
+  }, delay2);
+}
+
+function colorDigits(cls) {
+  for (let i = 0; i < 6; i++) {
+    const el = $(`d${i}`);
+    setTimeout(() => {
+      el.classList.remove('filled','active','success-digit','danger-digit');
+      el.classList.add(cls);
+    }, i * 50);
+  }
+}
+
+function scaleIn(el, delay) {
+  el.style.opacity = '0';
+  el.style.transform = 'scale(0.5)';
+  setTimeout(() => {
+    el.style.transition = 'opacity 300ms ease, transform 400ms cubic-bezier(0.34,1.56,0.64,1)';
+    el.style.opacity = '1';
+    el.style.transform = 'scale(1)';
+  }, delay);
+}
+
+function openResultPanel(type) {
+  const panel = $('result-panel');
+  const s = $('result-inner-success');
+  const d = $('result-inner-danger');
+  if (type === 'success') {
+    s.style.display = 'block'; d.style.display = 'none';
+    $('access-time').textContent = new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  } else {
+    s.style.display = 'none'; d.style.display = 'block';
+    $('fail-time').textContent = new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  }
+  requestAnimationFrame(() => { panel.classList.add('open'); });
+}
+
+let running = false;
+
+/* ═══════════════════════════════════════════════════════
+   SUCCESS FLOW
+═══════════════════════════════════════════════════════ */
+async function runSuccess() {
+  if (running) return;
+  running = true;
+  reset(false);
+  await wait(80);
+
+  const ic = getIconCenter();
+
+  // 1. Fill digits + show scanning
+  showStatus('st-verifying');
+  $('progress-dots').classList.add('visible');
+
+  // cycling progress dot
+  let dotI = 0;
+  const dotTimer = setInterval(() => {
+    for (let i = 0; i < 3; i++) $(`pdot${i}`).classList.remove('active');
+    $(`pdot${dotI % 3}`).classList.add('active');
+    dotI++;
+  }, 280);
+
+  // Scan line animation
+  const scan = $('scan-line');
+  scan.style.animation = 'none';
+  scan.style.opacity = '0';
+  void scan.offsetWidth;
+  scan.style.animation = 'scanLoop 800ms linear 3';
+
+  // 2. Animate ring fill
+  await animateRing(0, 1, '#D4960C', 1800);
+  clearInterval(dotTimer);
+  $('progress-dots').classList.remove('visible');
+  scan.style.opacity = '0';
+  scan.style.animation = 'none';
+
+  // 3. Ring turns gold/green + pulse
+  await wait(120);
+  pulsePing($('pulse1'), '#4ADE80', 0, 160);
+  pulsePing($('pulse2'), '#4ADE80', 80, 260);
+  await animateRing(1, 1, '#4ADE80', 400);
+
+  // 4. Icon inner bg success
+  const inner = $('icon-inner');
+  inner.style.transition = 'background 400ms ease, border-color 400ms ease';
+  inner.style.background = 'rgba(22,163,74,0.15)';
+  inner.style.borderColor = 'rgba(74,222,128,0.35)';
+  inner.style.boxShadow = '0 0 0 12px rgba(22,163,74,0.08), inset 0 0 20px rgba(22,163,74,0.10)';
+
+  // 5. Lock icon fades out
+  const lock = $('glyph-lock');
+  lock.style.transition = 'opacity 200ms ease, transform 200ms ease';
+  lock.style.opacity = '0';
+  lock.style.transform = 'scale(0.7)';
+
+  // 6. Checkmark appears + draws
+  const check = $('glyph-check');
+  scaleIn(check, 80);
+  await wait(220);
+  drawPath($('check-path'), 450);
+  await wait(300);
+
+  // 7. Digits color change
+  colorDigits('success-digit');
+
+  // 8. Particle burst — gold + green
+  for (let i = 0; i < 8; i++) {
+    setTimeout(() => {
+      const angle = (i / 8) * Math.PI * 2;
+      const bx = ic.x + Math.cos(angle) * 36;
+      const by = ic.y + Math.sin(angle) * 36;
+      burst(bx, by, 12, {
+        speed: 5 + Math.random() * 5,
+        maxR: 3.5, minR: 1.5,
+        color: i % 2 === 0 ? `hsl(${42 + Math.random() * 18}, 90%, 62%)` : `hsl(${130 + Math.random() * 15}, 65%, 60%)`,
+        type: Math.random() > 0.5 ? 'diamond' : 'circle',
+        glow: true, fastDecay: false, gravity: 0.06,
+      });
+    }, i * 40);
+  }
+
+  // Ring of sparks
+  for (let i = 0; i < 24; i++) {
+    setTimeout(() => {
+      const angle = (i / 24) * Math.PI * 2;
+      const bx = ic.x + Math.cos(angle) * 48;
+      const by = ic.y + Math.sin(angle) * 48;
+      burst(bx, by, 3, {
+        speed: 2.5, maxR: 2, minR: 0.8,
+        color: `hsl(45, 90%, 70%)`,
+        type: 'spark', glow: true, gravity: 0.03, fastDecay: true,
+      });
+    }, i * 25);
+  }
+
+  // 9. Card glow
+  const card = $('card');
+  card.classList.add('success-glow');
+  $('ambient').classList.add('success-bg');
+
+  // 10. Status text
+  showStatus('st-success');
+  $('card-title').style.transition = 'color 500ms ease';
+  $('card-title').style.color = '#4ADE80';
+
+  // 11. Result panel
+  await wait(600);
+  openResultPanel('success');
+
+  // 12. Continuous ambient particle drift
+  const driftTimer = setInterval(() => {
+    const cx = getCardCenter();
+    burst(
+      cx.x + (Math.random() - 0.5) * 200,
+      cx.y + 80 + Math.random() * 60,
+      2, {
+        speed: 1.5, maxR: 2, minR: 0.5,
+        upward: true,
+        color: `hsla(${42 + Math.random() * 18}, 85%, 70%, 0.7)`,
+        gravity: -0.04, decay: 0.008, fastDecay: false,
+      }
+    );
+  }, 120);
+  setTimeout(() => clearInterval(driftTimer), 4000);
+
+  running = false;
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   FAILURE FLOW
+═══════════════════════════════════════════════════════ */
+async function runFailure() {
+  if (running) return;
+  running = true;
+  reset(false);
+  await wait(80);
+
+  const ic = getIconCenter();
+
+  // 1. Scan phase
+  showStatus('st-verifying');
+  $('progress-dots').classList.add('visible');
+  const scan = $('scan-line');
+  scan.style.animation = 'scanLoop 800ms linear 2';
+
+  let dotI = 0;
+  const dotTimer = setInterval(() => {
+    for (let i = 0; i < 3; i++) $(`pdot${i}`).classList.remove('active');
+    $(`pdot${dotI % 3}`).classList.add('active');
+    dotI++;
+  }, 280);
+
+  // 2. Ring partially fills — then snaps to red
+  await animateRing(0, 0.85, '#D4960C', 1200);
+  clearInterval(dotTimer);
+  scan.style.opacity = '0'; scan.style.animation = 'none';
+  $('progress-dots').classList.remove('visible');
+
+  // 3. Abrupt recolor to red + ring empties slightly
+  await wait(80);
+  ring.style.transition = 'stroke 300ms ease';
+  ring.style.stroke = '#EF4444';
+  await animateRing(0.85, 0.62, '#EF4444', 200);
+
+  // 4. Icon inner → danger
+  const inner = $('icon-inner');
+  inner.style.transition = 'background 300ms ease, border-color 300ms ease, box-shadow 300ms ease';
+  inner.style.background = 'rgba(239,68,68,0.12)';
+  inner.style.borderColor = 'rgba(252,165,165,0.30)';
+  inner.style.boxShadow = '0 0 0 10px rgba(239,68,68,0.07), inset 0 0 16px rgba(239,68,68,0.10)';
+
+  // 5. Red pulse rings
+  pulsePing($('pulse1'), '#EF4444', 0, 150);
+  pulsePing($('pulse2'), '#EF4444', 80, 260);
+
+  // 6. Card shake
+  const card = $('card');
+  card.classList.add('shake', 'danger-glow');
+  $('ambient').classList.add('danger-bg');
+  setTimeout(() => card.classList.remove('shake'), 500);
+
+  // 7. Lock fades, X appears
+  const lock = $('glyph-lock');
+  lock.style.transition = 'opacity 200ms ease, transform 200ms ease';
+  lock.style.opacity = '0';
+  lock.style.transform = 'scale(0.8) rotate(-10deg)';
+
+  const xEl = $('glyph-x');
+  scaleIn(xEl, 60);
+
+  await wait(160);
+
+  // Draw X with stagger
+  const xPath = $('x-path');
+  drawPath(xPath, 350);
+
+  // 8. Digit flash to red
+  colorDigits('danger-digit');
+
+  // 9. Scatter particles — red/dark
+  for (let i = 0; i < 12; i++) {
+    setTimeout(() => {
+      const angle = (i / 12) * Math.PI * 2;
+      const dist = 30 + Math.random() * 20;
+      const bx = ic.x + Math.cos(angle) * dist;
+      const by = ic.y + Math.sin(angle) * dist;
+      burst(bx, by, 8, {
+        speed: 3.5 + Math.random() * 3,
+        maxR: 3, minR: 1,
+        color: i % 3 === 0
+          ? `hsl(0, 80%, 65%)`
+          : i % 3 === 1
+          ? `hsl(0, 60%, 45%)`
+          : `rgba(252,165,165,0.8)`,
+        type: Math.random() > 0.6 ? 'diamond' : 'circle',
+        glow: false, fastDecay: true, gravity: 0.12,
+      });
+    }, i * 30);
+  }
+
+  // Sharp spark ring outward
+  for (let i = 0; i < 16; i++) {
+    const angle = (i / 16) * Math.PI * 2;
+    burst(
+      ic.x + Math.cos(angle) * 40,
+      ic.y + Math.sin(angle) * 40,
+      2, {
+        speed: 4, maxR: 1.5, minR: 0.5,
+        color: `rgba(239,68,68,0.9)`,
+        type: 'spark', glow: true, fastDecay: true, gravity: 0.04,
+      }
+    );
+  }
+
+  // 10. Status text
+  showStatus('st-failure');
+  $('card-title').style.transition = 'color 400ms ease';
+  $('card-title').style.color = '#FCA5A5';
+
+  // 11. Result panel
+  await wait(500);
+  openResultPanel('failure');
+
+  running = false;
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════════════════ */
+function reset(setRunning = true) {
+  if (setRunning) running = false;
+
+  // ring
+  ring.style.transition = 'none';
+  ring.style.strokeDashoffset = CIRC;
+  ring.style.stroke = '#D4960C';
+
+  // icon inner
+  const inner = $('icon-inner');
+  inner.style.transition = 'none';
+  inner.style.background = 'rgba(255,255,255,0.04)';
+  inner.style.borderColor = 'rgba(255,255,255,0.10)';
+  inner.style.boxShadow = '';
+
+  // scan line
+  const scan = $('scan-line');
+  scan.style.animation = 'none';
+  scan.style.opacity = '0';
+
+  // glyphs
+  const lock = $('glyph-lock');
+  lock.style.transition = 'none';
+  lock.style.opacity = '1';
+  lock.style.transform = 'scale(1) rotate(0deg)';
+
+  const check = $('glyph-check');
+  check.style.transition = 'none';
+  check.style.opacity = '0';
+  check.style.transform = 'scale(0.5)';
+  $('check-path').style.strokeDashoffset = '80';
+
+  const xEl = $('glyph-x');
+  xEl.style.transition = 'none';
+  xEl.style.opacity = '0';
+  xEl.style.transform = 'scale(0.5)';
+  $('x-path').style.strokeDashoffset = '80';
+
+  // pulses
+  [$('pulse1'), $('pulse2')].forEach(p => {
+    p.style.transition = 'none';
+    p.style.opacity = '0';
+    p.style.transform = 'scale(1)';
+  });
+
+  // digits
+  for (let i = 0; i < 6; i++) {
+    const d = $(`d${i}`);
+    d.classList.remove('success-digit','danger-digit','active');
+    d.classList.add('filled');
+    if (i === 5) d.classList.add('active');
+  }
+
+  // status texts
+  showStatus(null);
+
+  // progress dots
+  $('progress-dots').classList.remove('visible');
+  for (let i = 0; i < 3; i++) $(`pdot${i}`).classList.remove('active');
+  $('pdot0').classList.add('active');
+
+  // card
+  const card = $('card');
+  card.classList.remove('shake','success-glow','danger-glow');
+  card.style.transition = 'none';
+
+  // title
+  const title = $('card-title');
+  title.style.transition = 'none';
+  title.style.color = '#fff';
+
+  // ambient
+  const amb = $('ambient');
+  amb.classList.remove('success-bg','danger-bg');
+
+  // result panel
+  const panel = $('result-panel');
+  panel.classList.remove('open');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+---
+name: MOD_INGREDIENTES
+description: Cadastro de ingredientes com estoque, mínimo/máximo, custo unitário
+type: modulo
+status: existente
+ultima_atualizacao: 2026-04-30
+---
+
+# 🥚 Módulo: Ingredientes
+
+## Status detectado
+**existente** — CRUD completo + módulo de referência do frontend.
+
+## Objetivo
+Manter o cadastro central de ingredientes da cafeteria com estoque rastreável.
+
+## Fluxo geral
+- Cadastrar ingrediente: nome, unidade, categoria, mínimo, máximo, custo unitário.
+- Editar (mantém histórico via movimentações para qualquer alteração de estoque).
+- Soft delete (`ativo = false`).
+- Estoque alterado por entrada de mercadoria, produção (saída), inventário, correção manual — sempre com `Movimentacao`.
+
+## Evidências
+- Backend: `CasaDiAna/src/CasaDiAna.Application/Ingredientes/`
+- Domain: `CasaDiAna/src/CasaDiAna.Domain/Entities/Ingrediente.cs`
+- Repo: `CasaDiAna/src/CasaDiAna.Infrastructure/Repositories/IngredienteRepository.cs`
+- Controller: `CasaDiAna/src/CasaDiAna.API/Controllers/IngredientesController.cs`
+- Frontend: `CasaDiAna/frontend/src/features/estoque/ingredientes/`
+- Plans: 3 etapas em `docs/superpowers/plans/2026-03-27-ingredientes-etapa{1,2,3}*.md`
+
+## Regras relacionadas
+- [[REGRA_MOVIMENTACAO_RASTREAVEL]]
+- [[REGRA_ENTRADA_ATUALIZA_CUSTO]]
+- [[REGRA_SOFT_DELETE_NOMEEXISTE]]
+- [[REGRA_COLECAO_READONLY_DBUPDATE]]
+
+## Módulos relacionados
+- [[MOD_CATEGORIAS_INGREDIENTE]]
+- [[MOD_UNIDADES_MEDIDA]]
+- [[MOD_ENTRADAS]]
+- [[MOD_INVENTARIOS]]
+- [[MOD_CORRECAO_ESTOQUE]]
+- [[MOD_NOTIFICACOES_ESTOQUE]]
+- [[MOD_PRODUTOS_FICHA_TECNICA]]
+
+## Pontos de atenção
+- **Módulo de referência** do frontend: copiar a estrutura `pages/components/services` ao criar novos módulos.
+- Estoque clampado em 0 pelo domínio (após `ZerarEstoqueNegativo`).
+- Custo unitário é único por ingrediente — sem histórico (gap conhecido).
+
+## O que NÃO fazer
+- Não chamar `_db.Update(ingrediente)` para inserir filhos via `private readonly List<T>` — `DbUpdateConcurrencyException`. Inserir filhos pelo repositório.
+- Não alterar `EstoqueAtual` sem criar `Movimentacao`.
+- Não esquecer de filtrar `ativo = true` em `NomeExisteAsync`.

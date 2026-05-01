@@ -77,6 +77,10 @@ function spherePoint(idx, total, spread) {
 }
 
 function generate() {
+  if (!fs.existsSync(VAULT_DIR)) {
+    console.error(`[BrainOS] Vault não encontrado: ${VAULT_DIR}`);
+    process.exit(1);
+  }
   const files = walkMd(VAULT_DIR);
 
   // --- pass 1: build node registry ---
@@ -89,7 +93,8 @@ function generate() {
     const folder = parts.length > 1 ? parts[0] : '';
     const name   = parts[parts.length - 1].replace(/\.md$/, '');
     const id     = slugify(name);
-    const content = fs.readFileSync(fp, 'utf8');
+    let content;
+    try { content = fs.readFileSync(fp, 'utf8'); } catch { return; }
     const fm     = parseFrontmatter(content);
 
     if (fm.brain_skip === true) return;

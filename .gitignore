@@ -33,3 +33,8 @@ desktop.ini
 # ─── IDEs ────────────────────────────────────────────────────────────────────
 .idea/
 *.swp
+
+# BrainOS Dashboard — gerado automaticamente
+dashboard/brain_data.json
+_design_bundle/
+neural_network_design.html

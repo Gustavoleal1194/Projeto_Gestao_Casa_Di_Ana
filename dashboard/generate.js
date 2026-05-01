@@ -108,10 +108,10 @@ function generate() {
     labelIndex.set(id, id);
   });
 
-  // --- pass 2: resolve edges + inDegree ---
+  // --- pass 2: resolve edges + degree ---
   const edgeSet  = new Set();
   const edges    = [];
-  const inDegree = new Map([...registry.keys()].map(k => [k, 0]));
+  const degree = new Map([...registry.keys()].map(k => [k, 0]));
 
   registry.forEach(node => {
     node.links.forEach(raw => {
@@ -123,8 +123,8 @@ function generate() {
       if (edgeSet.has(key)) return;
       edgeSet.add(key);
       edges.push({ a: node.id, b: target });
-      inDegree.set(target, inDegree.get(target) + 1);
-      inDegree.set(node.id, inDegree.get(node.id) + 1);
+      degree.set(target, degree.get(target) + 1);
+      degree.set(node.id, degree.get(node.id) + 1);
     });
   });
 
@@ -136,7 +136,7 @@ function generate() {
 
   const nodes = [];
   registry.forEach(node => {
-    const deg    = inDegree.get(node.id) || 0;
+    const deg    = degree.get(node.id) || 0;
     const r      = node.isHub ? 2.2 : Math.min(2.2, Math.max(0.4, 0.4 + deg * 0.12));
     const center = CLUSTER_CENTER[node.type] || [0, 0, 0];
     const spread = Math.max(4, 3 + Math.sqrt(clusterTotal[node.type] || 1) * 1.4);

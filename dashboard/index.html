@@ -279,12 +279,16 @@ function init(data) {
     hubMesh.userData._ring2 = ring2;
   }
 
+  /* node type lookup (O(1) para uso nas arestas e partículas) */
+  const nodeTypeMap = {};
+  NODES.forEach(n => { nodeTypeMap[n.id] = n.type; });
+
   /* ═══ EDGES ══════════════════════════════════════════════ */
   const edgeLines = [];
   EDGES.forEach(({ a, b }) => {
     const ma = meshMap[a], mb = meshMap[b];
     if (!ma || !mb) return;
-    const isBridge = (NODES.find(n=>n.id===a)?.type==='bridge') || (NODES.find(n=>n.id===b)?.type==='bridge');
+    const isBridge = nodeTypeMap[a]==='bridge' || nodeTypeMap[b]==='bridge';
     const col = isBridge ? 0xFF6B6B : 0x113355;
     const op  = isBridge ? 0.70 : 0.25;
     const geo = new THREE.BufferGeometry();
@@ -316,9 +320,6 @@ function init(data) {
         edge: EDGES[i % EDGES.length], t: Math.random(), speed: 0.004 + Math.random()*0.008,
       }))
     : [];
-
-  const nodeTypeMap = {};
-  NODES.forEach(n => { nodeTypeMap[n.id] = n.type; });
 
   function tickParticles() {
     particles.forEach((p, i) => {

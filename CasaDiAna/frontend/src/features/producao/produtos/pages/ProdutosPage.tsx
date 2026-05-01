@@ -153,7 +153,8 @@ export function ProdutosPage() {
       {/* ── Modais ─────────────────────────────────────────────────────── */}
       {paraDesativar && (
         <ModalDesativar
-          nomeIngrediente={paraDesativar.nome}
+          nome={paraDesativar.nome}
+          entidade="produto"
           loading={desativando}
           onConfirmar={handleDesativar}
           onCancelar={() => setParaDesativar(null)}

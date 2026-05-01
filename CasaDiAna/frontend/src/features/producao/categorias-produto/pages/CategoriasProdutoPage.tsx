@@ -99,7 +99,8 @@ export function CategoriasProdutoPage() {
       )}
       {paraDesativar && (
         <ModalDesativar
-          nomeIngrediente={paraDesativar.nome}
+          nome={paraDesativar.nome}
+          entidade="categoria de produto"
           loading={desativando}
           onConfirmar={handleDesativar}
           onCancelar={() => setParaDesativar(null)}

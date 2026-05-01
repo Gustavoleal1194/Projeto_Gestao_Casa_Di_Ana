@@ -145,7 +145,8 @@ export function FornecedoresPage() {
       {/* ── Modais ─────────────────────────────────────────────────────── */}
       {paraDesativar && (
         <ModalDesativar
-          nomeIngrediente={paraDesativar.razaoSocial}
+          nome={paraDesativar.razaoSocial}
+          entidade="fornecedor"
           loading={desativando}
           onConfirmar={handleDesativar}
           onCancelar={() => setParaDesativar(null)}

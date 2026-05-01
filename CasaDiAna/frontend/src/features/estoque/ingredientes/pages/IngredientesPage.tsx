@@ -129,7 +129,8 @@ export function IngredientesPage() {
       {/* ── Modal ────────────────────────────────────────────────────── */}
       {paraDesativar && (
         <ModalDesativar
-          nomeIngrediente={paraDesativar.nome}
+          nome={paraDesativar.nome}
+          entidade="ingrediente"
           loading={desativando}
           onConfirmar={confirmarDesativacao}
           onCancelar={() => setParaDesativar(null)}

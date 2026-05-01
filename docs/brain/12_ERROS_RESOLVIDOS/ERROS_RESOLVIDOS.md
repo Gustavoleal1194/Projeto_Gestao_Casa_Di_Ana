@@ -3,7 +3,7 @@ name: ERROS_RESOLVIDOS – erros já solucionados
 description: Bug → causa → cura, para evitar repetição
 type: erros_resolvidos
 status: existente
-ultima_atualizacao: 2026-04-30
+ultima_atualizacao: 2026-05-01
 ---
 
 # 🐛 Erros Resolvidos
@@ -39,3 +39,9 @@ ultima_atualizacao: 2026-04-30
 - **Causa raiz:** handler chamava só `AtualizarEstoque`, esquecia `AtualizarCusto`.
 - **Cura:** sempre chamar ambos.
 - **Como evitar:** ver [[REGRA_ENTRADA_ATUALIZA_CUSTO]].
+
+## E6 — Modal de desativação exibia "Ingrediente" em todos os módulos
+- **Sintoma:** ao clicar em desativar em Categorias, Fornecedores, Produtos ou Categorias de Produto, o modal mostrava "Desativar Ingrediente" e "O ingrediente não aparecerá…".
+- **Causa raiz:** `ModalDesativar` foi criado com textos hardcoded e prop `nomeIngrediente` específicos para ingredientes, depois reutilizado em 4 outros módulos sem adaptação.
+- **Cura:** prop `nomeIngrediente` renomeada para `nome`; adicionada prop `entidade?: string` (default `'ingrediente'`). Título gerado dinamicamente. Corpo usa texto genérico ("Este item não aparecerá…"). Todos os 5 callers atualizados com `entidade` correta.
+- **Como evitar:** ao reutilizar componentes de confirmação entre módulos, sempre verificar se há texto hardcoded referenciando a entidade original. Componentes genéricos devem ter props de configuração de texto.

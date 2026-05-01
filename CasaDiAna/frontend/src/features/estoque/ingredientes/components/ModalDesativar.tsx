@@ -2,7 +2,8 @@ import { useEffect } from 'react'
 import { ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/24/outline'
 
 interface Props {
-  nomeIngrediente: string
+  nome: string
+  entidade?: string
   loading: boolean
   onConfirmar: () => void
   onCancelar: () => void
@@ -17,7 +18,8 @@ function Spinner() {
   )
 }
 
-export function ModalDesativar({ nomeIngrediente, loading, onConfirmar, onCancelar }: Props) {
+export function ModalDesativar({ nome, entidade = 'ingrediente', loading, onConfirmar, onCancelar }: Props) {
+  const titulo = `Desativar ${entidade.charAt(0).toUpperCase() + entidade.slice(1)}`
   // Fechar com Escape
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -51,7 +53,7 @@ export function ModalDesativar({ nomeIngrediente, loading, onConfirmar, onCancel
               className="text-[15px] font-semibold"
               style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
             >
-              Desativar Ingrediente
+              {titulo}
             </h2>
           </div>
           <button
@@ -78,9 +80,9 @@ export function ModalDesativar({ nomeIngrediente, loading, onConfirmar, onCancel
           >
             Deseja desativar{' '}
             <span className="font-semibold" style={{ color: 'var(--ada-heading)' }}>
-              "{nomeIngrediente}"
+              "{nome}"
             </span>
-            ? O ingrediente não aparecerá mais nas listagens ativas. Esta ação pode ser revertida.
+            ? Este item não aparecerá mais nas listagens ativas. Esta ação pode ser revertida.
           </p>
         </div>
 

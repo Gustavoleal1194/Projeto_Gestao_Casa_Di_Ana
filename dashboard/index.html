@@ -348,11 +348,12 @@ function init(data) {
 
   /* ═══ CAMERA ═════════════════════════════════════════════ */
   const cam = { theta:0.2, phi:0, radius:42, paused:false, exploded:false };
-  let drag = null;
+  let drag = null, mouseDownAt = null;
 
   renderer.domElement.addEventListener('mousedown', e => {
     if (e.button!==0) return;
     drag = { x:e.clientX, y:e.clientY, theta:cam.theta, phi:cam.phi };
+    mouseDownAt = { x:e.clientX, y:e.clientY };
   });
   window.addEventListener('mousemove', e => {
     if (drag) {
@@ -361,7 +362,13 @@ function init(data) {
       cam.theta = Math.max(-1.2, Math.min(1.2, cam.theta));
     } else { hoverCheck(e); }
   });
-  window.addEventListener('mouseup', () => { drag = null; });
+  window.addEventListener('mouseup', e => {
+    if (mouseDownAt) {
+      const dx = e.clientX - mouseDownAt.x, dy = e.clientY - mouseDownAt.y;
+      if (Math.sqrt(dx*dx + dy*dy) < 5) clickNode(e);
+    }
+    drag = null; mouseDownAt = null;
+  });
   renderer.domElement.addEventListener('wheel', e => {
     cam.radius += e.deltaY*0.04;
     cam.radius  = Math.max(12, Math.min(90, cam.radius));
@@ -380,23 +387,39 @@ function init(data) {
   const ray = new THREE.Raycaster(), m2 = new THREE.Vector2();
   const tt  = document.getElementById('tt');
 
-  function hoverCheck(e) {
+  function raycastNode(e) {
     m2.x = (e.clientX/innerWidth)*2-1;
     m2.y = -(e.clientY/innerHeight)*2+1;
     ray.setFromCamera(m2, camera);
     const hits = ray.intersectObjects(Object.values(meshMap));
-    if (hits.length) {
-      const d = hits[0].object.userData;
+    return hits.length ? hits[0].object.userData : null;
+  }
+
+  function hoverCheck(e) {
+    const d = raycastNode(e);
+    if (d) {
+      renderer.domElement.style.cursor = 'pointer';
       document.getElementById('ttn').textContent = d.label;
       document.getElementById('ttt').textContent = '[ '+d.type.toUpperCase()+' ]';
       document.getElementById('ttt').style.color = TYPE_CSS[d.type]||'#aaa';
-      document.getElementById('tti').textContent = d.info;
+      document.getElementById('tti').textContent = d.info + (d.obsidianPath ? '\n\n🖱 clique para abrir' : '');
       document.getElementById('tt-dot').style.background  = TYPE_CSS[d.type]||'#aaa';
       document.getElementById('tt-dot').style.boxShadow   = `0 0 8px ${TYPE_CSS[d.type]||'#aaa'}`;
       tt.style.opacity = '1';
-      tt.style.left = (e.clientX+16)+'px';
+      tt.style.left = Math.min(e.clientX+16, innerWidth-210)+'px';
       tt.style.top  = (e.clientY-8)+'px';
-    } else { tt.style.opacity = '0'; }
+    } else {
+      renderer.domElement.style.cursor = '';
+      tt.style.opacity = '0';
+    }
+  }
+
+  function clickNode(e) {
+    const d = raycastNode(e);
+    if (!d || !d.obsidianPath) return;
+    const vaultName = data.meta.vaultName || 'ProjetoGestao';
+    const url = 'obsidian://open?vault=' + encodeURIComponent(vaultName) + '&file=' + encodeURIComponent(d.obsidianPath);
+    window.open(url, '_blank');
   }
 
   /* ═══ CONTROLS ═══════════════════════════════════════════ */

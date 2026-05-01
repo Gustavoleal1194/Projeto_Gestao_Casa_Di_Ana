@@ -2,8 +2,10 @@
 const fs   = require('fs');
 const path = require('path');
 
-const VAULT_DIR = path.resolve(__dirname, '../docs/brain');
-const OUTPUT    = path.resolve(__dirname, 'brain_data.json');
+const VAULT_DIR    = path.resolve(__dirname, '../docs/brain');
+const PROJECT_ROOT = path.resolve(__dirname, '..');
+const VAULT_NAME   = path.basename(PROJECT_ROOT);
+const OUTPUT       = path.resolve(__dirname, 'brain_data.json');
 
 const FOLDER_TYPE = {
   '01_MOC':              'obsidian',
@@ -103,7 +105,8 @@ function generate() {
     const type  = isHub ? 'bridge' : (fm.brain_type || FOLDER_TYPE[folder] || 'ctx');
     const info  = fm.brain_info || `${name}\n${folder || 'raiz'}`;
 
-    registry.set(id, { id, label: name, type, info, isHub, links: parseWikilinks(content) });
+    const obsidianPath = path.relative(PROJECT_ROOT, fp).replace(/\\/g, '/');
+    registry.set(id, { id, label: name, type, info, isHub, obsidianPath, links: parseWikilinks(content) });
     labelIndex.set(name.toLowerCase(), id);
     labelIndex.set(id, id);
   });
@@ -148,13 +151,13 @@ function generate() {
       Math.round((center[1] + dy) * 100) / 100,
       Math.round((center[2] + dz) * 100) / 100,
     ];
-    nodes.push({ id: node.id, label: node.label, type: node.type, r: Math.round(r * 100) / 100, p, info: node.info });
+    nodes.push({ id: node.id, label: node.label, type: node.type, r: Math.round(r * 100) / 100, p, info: node.info, obsidianPath: node.obsidianPath });
   });
 
   const data = {
     nodes,
     edges,
-    meta: { generatedAt: new Date().toISOString(), totalNodes: nodes.length, totalEdges: edges.length },
+    meta: { generatedAt: new Date().toISOString(), totalNodes: nodes.length, totalEdges: edges.length, vaultName: VAULT_NAME },
   };
 
   fs.writeFileSync(OUTPUT, JSON.stringify(data, null, 2), 'utf8');

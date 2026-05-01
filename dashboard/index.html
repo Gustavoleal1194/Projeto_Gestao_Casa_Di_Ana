@@ -171,7 +171,18 @@ function init(data) {
     const cls   = CLUSTER_CLASS[type] || '';
     const row = document.createElement('div');
     row.className = 'panel-row';
-    row.innerHTML = `<span class="panel-key" style="display:flex;align-items:center;gap:5px"><span style="width:6px;height:6px;border-radius:50%;background:${color};display:inline-block"></span>${label}</span><span class="panel-val ${cls}">${count}</span>`;
+    const dot = document.createElement('span');
+    dot.style.cssText = `width:6px;height:6px;border-radius:50%;background:${color};display:inline-block`;
+    const keySpan = document.createElement('span');
+    keySpan.className = 'panel-key';
+    keySpan.style.cssText = 'display:flex;align-items:center;gap:5px';
+    keySpan.appendChild(dot);
+    keySpan.appendChild(document.createTextNode(label));
+    const valSpan = document.createElement('span');
+    valSpan.className = `panel-val ${cls}`;
+    valSpan.textContent = count;
+    row.appendChild(keySpan);
+    row.appendChild(valSpan);
     clusterRows.appendChild(row);
   });
 
@@ -289,7 +300,7 @@ function init(data) {
   });
 
   /* ═══ PARTICLES ══════════════════════════════════════════ */
-  const PC = Math.min(300, EDGES.length * 4 || 1);
+  const PC = EDGES.length > 0 ? Math.min(300, EDGES.length * 4) : 0;
   const pbuf = new Float32Array(PC*3), cbuf = new Float32Array(PC*3);
   const pgeo = new THREE.BufferGeometry();
   pgeo.setAttribute('position', new THREE.BufferAttribute(pbuf, 3));
@@ -300,20 +311,25 @@ function init(data) {
   })));
   document.getElementById('sp').textContent = PC;
 
-  const particles = Array.from({ length: PC }, (_, i) => ({
-    edge: EDGES[i % EDGES.length], t: Math.random(), speed: 0.004 + Math.random()*0.008,
-  }));
+  const particles = EDGES.length > 0
+    ? Array.from({ length: PC }, (_, i) => ({
+        edge: EDGES[i % EDGES.length], t: Math.random(), speed: 0.004 + Math.random()*0.008,
+      }))
+    : [];
+
+  const nodeTypeMap = {};
+  NODES.forEach(n => { nodeTypeMap[n.id] = n.type; });
 
   function tickParticles() {
     particles.forEach((p, i) => {
       p.t += p.speed;
-      if (p.t > 1) { p.t = 0; p.edge = EDGES[Math.floor(Math.random()*EDGES.length)]; }
+      if (p.t > 1) { p.t = 0; p.edge = EDGES.length > 0 ? EDGES[Math.floor(Math.random()*EDGES.length)] : null; }
       const ma = meshMap[p.edge?.a], mb = meshMap[p.edge?.b];
       if (!ma || !mb) return;
       pbuf[i*3]   = ma.position.x + (mb.position.x - ma.position.x)*p.t;
       pbuf[i*3+1] = ma.position.y + (mb.position.y - ma.position.y)*p.t;
       pbuf[i*3+2] = ma.position.z + (mb.position.z - ma.position.z)*p.t;
-      const h = TYPE_HEX[NODES.find(n=>n.id===p.edge.a)?.type] || 0x00D4FF;
+      const h = TYPE_HEX[nodeTypeMap[p.edge?.a]] || 0x00D4FF;
       cbuf[i*3]=(h>>16&255)/255; cbuf[i*3+1]=(h>>8&255)/255; cbuf[i*3+2]=(h&255)/255;
     });
     pgeo.attributes.position.needsUpdate = true;

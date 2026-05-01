@@ -420,13 +420,16 @@ function init(data) {
     const vaultName = data.meta.vaultName || 'ProjetoGestao';
     const url = 'obsidian://open?vault=' + encodeURIComponent(vaultName) + '&file=' + encodeURIComponent(d.obsidianPath);
 
-    // Iframe oculto: Electron intercepta a navegação para obsidian://
-    // sem sair do dashboard e sem depender de window.open
-    const tmp = document.createElement('iframe');
-    tmp.style.display = 'none';
-    tmp.src = url;
-    document.body.appendChild(tmp);
-    setTimeout(() => { try { document.body.removeChild(tmp); } catch {} }, 1500);
+    // target="_top" pede ao Electron (frame raiz do Obsidian) para navegar
+    // para obsidian:// — o protocol handler do Obsidian intercepta e abre
+    // o arquivo no editor sem sair da tela atual
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_top';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { try { document.body.removeChild(a); } catch {} }, 100);
   }
 
   /* ═══ CONTROLS ═══════════════════════════════════════════ */

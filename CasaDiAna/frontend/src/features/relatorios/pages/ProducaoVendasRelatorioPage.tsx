@@ -170,7 +170,7 @@ export function ProducaoVendasRelatorioPage() {
                       >
                         <td className="table-td">
                           <div className="flex items-center gap-2.5">
-                            <span className={item.margemPerda != null && item.margemPerda > 20 ? 'accent-bar-alert shrink-0' : 'accent-bar shrink-0'} aria-hidden="true" />
+                            <span className={`accent-bar shrink-0${item.margemPerda != null && item.margemPerda > 20 ? ' accent-bar-alert' : ''}`} aria-hidden="true" />
                             <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>{item.produtoNome}</span>
                           </div>
                         </td>

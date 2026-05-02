@@ -9,6 +9,7 @@ import { Toast } from '@/components/ui/Toast'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { SkeletonTable } from '@/components/ui/SkeletonTable'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import type { ProdutoResumo } from '@/types/producao'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
@@ -109,9 +110,7 @@ export function ProdutosPage() {
                         </span>
                       </td>
                       <td className="table-td">
-                        <span className={p.ativo ? 'badge badge-active' : 'badge badge-inactive'}>
-                          {p.ativo ? 'Ativo' : 'Inativo'}
-                        </span>
+                        <StatusBadge variante={p.ativo ? 'ativo' : 'inativo'} />
                       </td>
                       {podeEditar && (
                         <td className="table-td" style={{ textAlign: 'right' }}>

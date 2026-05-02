@@ -3,6 +3,7 @@ import { PlusIcon } from '@heroicons/react/20/solid'
 import { KeyIcon, ShieldExclamationIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { usuariosService, type UsuarioDto, type CriarUsuarioInput } from '../services/usuariosService'
 import { RelativeTime } from '@/components/ui/RelativeTime'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import { StatusBadge2Fa } from '@/components/ui/StatusBadge2Fa'
 import { Toast } from '@/components/ui/Toast'
 import { Spinner } from '@/components/form/Spinner'
@@ -248,9 +249,7 @@ export function UsuariosPage() {
                         </span>
                       </td>
                       <td className="table-td">
-                        <span className={u.ativo ? 'badge badge-active' : 'badge badge-inactive'}>
-                          {u.ativo ? 'Ativo' : 'Inativo'}
-                        </span>
+                        <StatusBadge variante={u.ativo ? 'ativo' : 'inativo'} />
                       </td>
                       <td className="table-td">
                         <StatusBadge2Fa status={u.twoFactorHabilitado ? 'ativo' : 'inativo'} />

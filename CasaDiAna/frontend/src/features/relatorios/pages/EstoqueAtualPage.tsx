@@ -4,6 +4,7 @@ import { relatoriosService } from '../services/relatoriosService'
 import { gerarPdfEstoqueAtual } from '@/lib/pdf'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { LoadingState } from '@/components/ui/LoadingState'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import type { EstoqueAtualItem } from '@/types/estoque'
 
 export function EstoqueAtualPage() {
@@ -118,9 +119,10 @@ export function EstoqueAtualPage() {
                       </span>
                     </td>
                     <td className="table-td">
-                      <span className={`badge ${item.estaBaixoDoMinimo ? 'badge-danger' : 'badge-active'}`}>
-                        {item.estaBaixoDoMinimo ? 'Abaixo do mínimo' : 'OK'}
-                      </span>
+                      <StatusBadge
+                        variante={item.estaBaixoDoMinimo ? 'critico' : 'ativo'}
+                        label={item.estaBaixoDoMinimo ? 'Abaixo do mínimo' : 'OK'}
+                      />
                     </td>
                   </tr>
                 ))}

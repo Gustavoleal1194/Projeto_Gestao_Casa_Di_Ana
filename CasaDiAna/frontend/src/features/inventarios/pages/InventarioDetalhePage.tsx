@@ -12,6 +12,8 @@ import { CampoTexto } from '@/components/form/CampoTexto'
 import { SelectCampo } from '@/components/form/SelectCampo'
 import { LoadingState } from '@/components/ui/LoadingState'
 import type { Inventario, IngredienteResumo } from '@/types/estoque'
+import { StatusBadge } from '@/components/ui/StatusBadge'
+import type { BadgeVariante } from '@/components/ui/StatusBadge'
 import { ConfirmacaoFinalizacaoInventarioModal, type DadosConfirmacaoFinalizacaoInventario } from '../components/ConfirmacaoFinalizacaoInventarioModal'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
@@ -28,11 +30,11 @@ const itemSchema = z.object({
   observacoes: z.string(),
 })
 
-function getBadgeClass(status: string) {
-  if (status === 'EmAndamento') return 'badge badge-warning'
-  if (status === 'Finalizado') return 'badge badge-active'
-  if (status === 'Cancelado') return 'badge badge-danger'
-  return 'badge badge-inactive'
+function getBadgeVariante(status: string): BadgeVariante {
+  if (status === 'EmAndamento') return 'baixo'
+  if (status === 'Finalizado') return 'ativo'
+  if (status === 'Cancelado') return 'critico'
+  return 'inativo'
 }
 
 function labelStatus(status: string) {
@@ -171,7 +173,7 @@ export function InventarioDetalhePage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <span className={getBadgeClass(inventario.status)}>{labelStatus(inventario.status)}</span>
+          <StatusBadge variante={getBadgeVariante(inventario.status)} label={labelStatus(inventario.status)} />
           {podeEditar && emAndamento && (
             <>
               <button

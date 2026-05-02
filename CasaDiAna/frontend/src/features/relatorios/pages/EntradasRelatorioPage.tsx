@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
 import { FiltroPeriodo, gerarChipsPeriodo } from '@/components/ui/FiltroPeriodo'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import type { EntradaRelatorioResumo } from '@/types/estoque'
 
 function hoje(): string { return new Date().toISOString().split('T')[0] }
@@ -141,9 +142,9 @@ export function EntradasRelatorioPage() {
                           <span className="text-sm" style={{ color: 'var(--ada-body)' }}>{formatarData(e.dataEntrada)}</span>
                         </td>
                         <td className="table-td">
-                          <span className={`badge ${e.status === 'Confirmada' ? 'badge-active' : 'badge-danger'}`}>
-                            {e.status}
-                          </span>
+                          {e.status === 'Confirmada'
+                            ? <StatusBadge variante="ativo" label={e.status} />
+                            : <StatusBadge variante="critico" label={e.status} />}
                         </td>
                         <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
                           <span className="text-sm" style={{ color: 'var(--ada-body)' }}>{e.totalItens}</span>

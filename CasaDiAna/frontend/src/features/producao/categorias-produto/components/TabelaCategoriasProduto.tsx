@@ -1,4 +1,5 @@
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/20/solid'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import type { CategoriaProduto } from '@/types/producao'
 
 interface Props {
@@ -58,9 +59,7 @@ export function TabelaCategoriasProduto({ categorias, podeEditar, onEditar, onDe
                   </span>
                 </td>
                 <td className="table-td">
-                  <span className={cat.ativo ? 'badge badge-active' : 'badge badge-inactive'}>
-                    {cat.ativo ? 'Ativo' : 'Inativo'}
-                  </span>
+                  <StatusBadge variante={cat.ativo ? 'ativo' : 'inativo'} />
                 </td>
                 {podeEditar && (
                   <td className="table-td" style={{ textAlign: 'right' }}>

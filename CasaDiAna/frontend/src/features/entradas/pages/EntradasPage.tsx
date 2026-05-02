@@ -9,13 +9,14 @@ import { SkeletonTable } from '@/components/ui/SkeletonTable'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
 import { FiltroPeriodo, gerarChipsPeriodo } from '@/components/ui/FiltroPeriodo'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
 
-function badgeStatus(status: string) {
-  if (status === 'Confirmada') return 'badge badge-active'
-  if (status === 'Cancelada') return 'badge badge-danger'
-  return 'badge badge-warning'
+function BadgeStatus({ status }: { status: string }) {
+  if (status === 'Confirmada') return <StatusBadge variante="ativo" label={status} />
+  if (status === 'Cancelada') return <StatusBadge variante="critico" label={status} />
+  return <StatusBadge variante="baixo" label={status} />
 }
 
 function formatarData(iso: string): string {
@@ -134,7 +135,7 @@ export function EntradasPage() {
                         </span>
                       </td>
                       <td className="table-td">
-                        <span className={badgeStatus(e.status)}>{e.status}</span>
+                        <BadgeStatus status={e.status} />
                       </td>
                     </tr>
                   ))}

@@ -6,14 +6,16 @@ import { useAuthStore } from '@/store/authStore'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { SkeletonTable } from '@/components/ui/SkeletonTable'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { StatusBadge } from '@/components/ui/StatusBadge'
+import type { BadgeVariante } from '@/components/ui/StatusBadge'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
 
-function getBadgeClass(status: string) {
-  if (status === 'EmAndamento') return 'badge badge-warning'
-  if (status === 'Finalizado') return 'badge badge-active'
-  if (status === 'Cancelado') return 'badge badge-danger'
-  return 'badge badge-inactive'
+function getBadgeVariante(status: string): BadgeVariante {
+  if (status === 'EmAndamento') return 'baixo'
+  if (status === 'Finalizado') return 'ativo'
+  if (status === 'Cancelado') return 'critico'
+  return 'inativo'
 }
 
 function labelStatus(status: string) {
@@ -96,9 +98,7 @@ export function InventariosPage() {
                         </span>
                       </td>
                       <td className="table-td">
-                        <span className={getBadgeClass(inv.status)}>
-                          {labelStatus(inv.status)}
-                        </span>
+                        <StatusBadge variante={getBadgeVariante(inv.status)} label={labelStatus(inv.status)} />
                       </td>
                     </tr>
                   ))}

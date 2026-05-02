@@ -5,6 +5,7 @@ import { entradasService } from '../services/entradasService'
 import { useAuthStore } from '@/store/authStore'
 import { Toast } from '@/components/ui/Toast'
 import { LoadingState } from '@/components/ui/LoadingState'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import type { EntradaMercadoria } from '@/types/estoque'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
@@ -93,9 +94,10 @@ export function EntradaDetalhePage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <span className={`badge ${entrada.status === 'Confirmada' ? 'badge-active' : 'badge-danger'}`}>
-            {entrada.status}
-          </span>
+          <StatusBadge
+            variante={entrada.status === 'Confirmada' ? 'ativo' : 'critico'}
+            label={entrada.status}
+          />
           {podeCancelar && entrada.status === 'Confirmada' && (
             <button
               onClick={() => setConfirmando(true)}

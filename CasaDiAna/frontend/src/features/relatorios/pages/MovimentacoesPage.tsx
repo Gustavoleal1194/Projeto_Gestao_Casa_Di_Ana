@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
+import { FiltroPeriodo, gerarChipsPeriodo } from '@/components/ui/FiltroPeriodo'
 import type { MovimentacaoRelatorio, IngredienteResumo } from '@/types/estoque'
 
 const TIPOS: { valor: string; rotulo: string }[] = [
@@ -78,14 +79,7 @@ export function MovimentacoesPage() {
       />
 
       <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar movimentações">
-        <div>
-          <label className="filter-label">De</label>
-          <input type="date" value={de} max={new Date().toISOString().split('T')[0]} onChange={e => setDe(e.target.value)} className="filter-input" />
-        </div>
-        <div>
-          <label className="filter-label">Até</label>
-          <input type="date" value={ate} max={new Date().toISOString().split('T')[0]} onChange={e => setAte(e.target.value)} className="filter-input" />
-        </div>
+        <FiltroPeriodo de={de} onChangeDe={setDe} ate={ate} onChangeAte={setAte} />
         <div>
           <label className="filter-label">Tipo</label>
           <select value={tipo} onChange={e => setTipo(e.target.value)} className="filter-input">
@@ -102,8 +96,7 @@ export function MovimentacoesPage() {
         <FilterBarActions
           loading={loading}
           chips={[
-            ...(de ? [{ label: `De: ${de.split('-').reverse().join('/')}`, onRemove: () => setDe('') }] : []),
-            ...(ate ? [{ label: `Até: ${ate.split('-').reverse().join('/')}`, onRemove: () => setAte('') }] : []),
+            ...gerarChipsPeriodo(de, ate, () => setDe(''), () => setAte('')),
             ...(tipo ? [{ label: `Tipo: ${TIPOS.find(t => t.valor === tipo)?.rotulo ?? tipo}`, onRemove: () => setTipo('') }] : []),
             ...(ingredienteId ? [{ label: `Ingrediente: ${ingredientes.find(i => i.id === ingredienteId)?.nome ?? ingredienteId}`, onRemove: () => setIngredienteId('') }] : []),
           ]}

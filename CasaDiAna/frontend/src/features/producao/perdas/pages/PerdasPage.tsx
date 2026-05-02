@@ -14,6 +14,7 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
+import { FiltroPeriodo, gerarChipsPeriodo } from '@/components/ui/FiltroPeriodo'
 import type { PerdaProduto } from '@/types/producao'
 import type { ProdutoResumo } from '@/types/producao'
 import { ConfirmacaoPerdasModal, type DadosConfirmacaoPerdas } from '../components/ConfirmacaoPerdasModal'
@@ -131,19 +132,11 @@ export function PerdasPage() {
 
       {/* ── Filtros ─────────────────────────────────────────────────────── */}
       <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar perdas">
-        <div>
-          <label htmlFor="perdas-de" className="filter-label">De</label>
-          <input id="perdas-de" type="date" value={de} max={new Date().toISOString().split('T')[0]} onChange={e => setDe(e.target.value)} className="filter-input" />
-        </div>
-        <div>
-          <label htmlFor="perdas-ate" className="filter-label">Até</label>
-          <input id="perdas-ate" type="date" value={ate} max={new Date().toISOString().split('T')[0]} onChange={e => setAte(e.target.value)} className="filter-input" />
-        </div>
+        <FiltroPeriodo de={de} onChangeDe={setDe} ate={ate} onChangeAte={setAte} idDe="perdas-de" idAte="perdas-ate" />
         <FilterBarActions
           loading={loading}
           chips={[
-            ...(de ? [{ label: `De: ${de.split('-').reverse().join('/')}`, onRemove: () => setDe('') }] : []),
-            ...(ate ? [{ label: `Até: ${ate.split('-').reverse().join('/')}`, onRemove: () => setAte('') }] : []),
+            ...gerarChipsPeriodo(de, ate, () => setDe(''), () => setAte('')),
           ]}
         />
         {perdas.length > 0 && (

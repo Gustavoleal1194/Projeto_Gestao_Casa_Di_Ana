@@ -9,6 +9,7 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
+import { FiltroPeriodo, gerarChipsPeriodo } from '@/components/ui/FiltroPeriodo'
 import type { ProdutoResumo } from '@/types/producao'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
@@ -49,14 +50,7 @@ export function VendasDiariasPage() {
       {/* ── Filtros ─────────────────────────────────────────────────────── */}
       <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar vendas">
         <CalendarIcon className="h-4 w-4 shrink-0" style={{ color: 'var(--ada-placeholder)' }} aria-hidden="true" />
-        <div>
-          <label htmlFor="venda-de" className="filter-label">De</label>
-          <input id="venda-de" type="date" value={de} max={new Date().toISOString().split('T')[0]} onChange={e => setDe(e.target.value)} className="filter-input" />
-        </div>
-        <div>
-          <label htmlFor="venda-ate" className="filter-label">Até</label>
-          <input id="venda-ate" type="date" value={ate} max={new Date().toISOString().split('T')[0]} onChange={e => setAte(e.target.value)} className="filter-input" />
-        </div>
+        <FiltroPeriodo de={de} onChangeDe={setDe} ate={ate} onChangeAte={setAte} idDe="venda-de" idAte="venda-ate" />
         <div>
           <label htmlFor="venda-produto" className="filter-label">Produto</label>
           <select
@@ -73,8 +67,7 @@ export function VendasDiariasPage() {
         <FilterBarActions
           loading={loading}
           chips={[
-            ...(de ? [{ label: `De: ${de.split('-').reverse().join('/')}`, onRemove: () => setDe('') }] : []),
-            ...(ate ? [{ label: `Até: ${ate.split('-').reverse().join('/')}`, onRemove: () => setAte('') }] : []),
+            ...gerarChipsPeriodo(de, ate, () => setDe(''), () => setAte('')),
             ...(produtoFiltro ? [{ label: `Produto: ${produtos.find(p => p.id === produtoFiltro)?.nome ?? produtoFiltro}`, onRemove: () => setProdutoFiltro('') }] : []),
           ]}
         />

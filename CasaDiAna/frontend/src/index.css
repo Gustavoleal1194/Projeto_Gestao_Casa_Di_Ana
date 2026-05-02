@@ -32,6 +32,8 @@
 
 /* ─── Global CSS Custom Properties ─────────────────────────────────────── */
 :root {
+  color-scheme: dark;
+
   /* Layout */
   --header-h: 60px;
 
@@ -211,6 +213,12 @@
 [data-theme="dark"] input::placeholder,
 [data-theme="dark"] textarea::placeholder {
   color: var(--ada-placeholder) !important;
+}
+
+/* Fallback explícito para option elements (alguns browsers ignoram color-scheme no popup nativo) */
+select option {
+  background-color: var(--ada-surface-2);
+  color: var(--ada-heading);
 }
 
 /* Sombras Tailwind padrão */

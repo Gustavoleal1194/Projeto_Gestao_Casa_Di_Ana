@@ -1,3 +1,4 @@
+// CasaDiAna/frontend/src/components/ui/ModalDesativar.tsx
 import { useEffect } from 'react'
 import { ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/24/outline'
 
@@ -20,7 +21,7 @@ function Spinner() {
 
 export function ModalDesativar({ nome, entidade = 'ingrediente', loading, onConfirmar, onCancelar }: Props) {
   const titulo = `Desativar ${entidade.charAt(0).toUpperCase() + entidade.slice(1)}`
-  // Fechar com Escape
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !loading) onCancelar()
@@ -39,14 +40,13 @@ export function ModalDesativar({ nome, entidade = 'ingrediente', loading, onConf
       onClick={e => { if (e.target === e.currentTarget && !loading) onCancelar() }}
     >
       <div className="modal-card max-w-[400px]">
-        {/* Header */}
         <div className="modal-header">
           <div className="flex items-center gap-3">
             <div
               className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
               style={{ background: 'var(--ada-error-bg)', border: '1px solid var(--ada-error-border)' }}
             >
-              <ExclamationTriangleIcon className="h-5 w-5" style={{ color: '#DC2626' }} aria-hidden="true" />
+              <ExclamationTriangleIcon className="h-5 w-5" style={{ color: '#F87171' }} aria-hidden="true" />
             </div>
             <h2
               id="modal-titulo"
@@ -64,14 +64,12 @@ export function ModalDesativar({ nome, entidade = 'ingrediente', loading, onConf
                        disabled:opacity-40"
             aria-label="Fechar"
             style={{ color: 'var(--ada-muted)' }}
-            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--ada-bg)'}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--ada-hover)'}
             onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
           >
             <XMarkIcon className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
-
-        {/* Body */}
         <div className="px-6 py-5">
           <p
             id="modal-descricao"
@@ -85,21 +83,11 @@ export function ModalDesativar({ nome, entidade = 'ingrediente', loading, onConf
             ? Este item não aparecerá mais nas listagens ativas. Esta ação pode ser revertida.
           </p>
         </div>
-
-        {/* Footer */}
         <div className="modal-footer">
-          <button
-            onClick={onCancelar}
-            disabled={loading}
-            className="btn-secondary disabled:opacity-50"
-          >
+          <button onClick={onCancelar} disabled={loading} className="btn-secondary disabled:opacity-50">
             Cancelar
           </button>
-          <button
-            onClick={onConfirmar}
-            disabled={loading}
-            className="btn-danger disabled:opacity-60 disabled:cursor-not-allowed"
-          >
+          <button onClick={onConfirmar} disabled={loading} className="btn-danger disabled:opacity-60 disabled:cursor-not-allowed">
             {loading && <Spinner />}
             {loading ? 'Desativando…' : 'Desativar'}
           </button>

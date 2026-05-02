@@ -850,11 +850,25 @@
 
 /* ─── Dashboard Card hover via CSS ───────────────────────────────────────── */
 .dashboard-card {
-  background: var(--ada-surface);
+  background: rgba(255,255,255,.025);
   border-radius: 1rem;
   padding: 1.25rem;
   box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(255,255,255,.07);
+  backdrop-filter: blur(8px);
+  position: relative;
+  overflow: hidden;
   transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.dashboard-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(212,150,12,.08) 0%, rgba(212,150,12,.35) 50%, rgba(212,150,12,.08) 100%);
+  border-radius: 1rem 1rem 0 0;
 }
 .dashboard-card:hover {
   box-shadow: var(--shadow-md);

@@ -10,9 +10,10 @@ export function FormCard({ children, className = '' }: FormCardProps) {
     <div
       className={`rounded-xl p-6 ${className}`}
       style={{
-        background: 'var(--ada-surface)',
-        border: '1px solid var(--ada-border)',
+        background: 'rgba(255,255,255,.025)',
+        border: '1px solid rgba(255,255,255,.07)',
         boxShadow: 'var(--shadow-sm)',
+        backdropFilter: 'blur(8px)',
       }}
     >
       {children}

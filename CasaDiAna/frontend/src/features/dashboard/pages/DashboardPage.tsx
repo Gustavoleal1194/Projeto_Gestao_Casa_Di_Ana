@@ -144,17 +144,41 @@ interface DashboardCardProps {
 
 function DashboardCard({ titulo, valor, subtexto, variante = 'default', icone }: DashboardCardProps) {
   const vByVariant = {
-    default:  { border: 'var(--ada-border)', iconBg: 'var(--ada-bg)',  iconColor: 'var(--ada-muted)',  valorColor: 'var(--ada-heading)' },
-    positivo: { border: '#BBF7D0', iconBg: '#F0FDF4',  iconColor: '#16A34A',  valorColor: '#15803D' },
-    negativo: { border: 'var(--ada-error-border)', iconBg: 'var(--ada-error-bg)',  iconColor: '#DC2626',  valorColor: '#DC2626' },
-    alerta:   { border: 'var(--ada-warning-border)', iconBg: 'var(--ada-warning-bg)',  iconColor: '#D97706',  valorColor: '#B45309' },
+    default:  {
+      border: 'rgba(255,255,255,.07)',
+      iconBg: 'rgba(255,255,255,.05)',
+      iconColor: 'var(--ada-muted)',
+      valorColor: '#D4960C',
+      glow: 'rgba(212,150,12,.4)',
+    },
+    positivo: {
+      border: 'rgba(74,222,128,.2)',
+      iconBg: 'rgba(74,222,128,.1)',
+      iconColor: '#4ADE80',
+      valorColor: '#4ADE80',
+      glow: 'rgba(74,222,128,.4)',
+    },
+    negativo: {
+      border: 'rgba(248,113,113,.2)',
+      iconBg: 'rgba(248,113,113,.1)',
+      iconColor: '#F87171',
+      valorColor: '#F87171',
+      glow: 'rgba(248,113,113,.4)',
+    },
+    alerta: {
+      border: 'rgba(252,211,77,.2)',
+      iconBg: 'rgba(252,211,77,.1)',
+      iconColor: '#FCD34D',
+      valorColor: '#FCD34D',
+      glow: 'rgba(252,211,77,.4)',
+    },
   } as const
   const v = vByVariant[variante]
 
   return (
     <div
       className="dashboard-card"
-      style={{ border: `1px solid ${v.border}` }}
+      style={{ boxShadow: `0 0 0 1px ${v.border}, var(--shadow-sm)` }}
     >
       <div className="flex items-start justify-between mb-4">
         <p
@@ -175,7 +199,11 @@ function DashboardCard({ titulo, valor, subtexto, variante = 'default', icone }:
       </div>
       <p
         className="text-[26px] font-bold leading-none mb-2 tracking-tight"
-        style={{ color: v.valorColor, fontFamily: 'Sora, system-ui, sans-serif' }}
+        style={{
+          color: v.valorColor,
+          fontFamily: 'Sora, system-ui, sans-serif',
+          textShadow: `0 0 20px ${v.glow}`,
+        }}
       >
         {valor}
       </p>

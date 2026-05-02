@@ -223,9 +223,9 @@
 
 /* Filter chip — dark mode adaptation */
 [data-theme="dark"] .filter-chip {
-  color: #6BA3FF;
-  background: rgba(107,163,255,0.12);
-  border-color: rgba(107,163,255,0.25);
+  color: #D4960C;
+  background: rgba(212,150,12,.1);
+  border-color: rgba(212,150,12,.2);
 }
 
 /* ─── Base ──────────────────────────────────────────────────────────────── */
@@ -341,7 +341,7 @@
   font-weight: 600;
   color: #ffffff;
   background: linear-gradient(135deg, #D4960C 0%, #B87D0A 100%);
-  box-shadow: 0 3px 10px rgba(196,135,10,0.28);
+  box-shadow: 0 0 20px rgba(212,150,12,.35), 0 4px 12px rgba(0,0,0,.3);
   transition: box-shadow 200ms, opacity 200ms;
   outline: none;
   white-space: nowrap;
@@ -349,17 +349,9 @@
   cursor: pointer;
   border: none;
 }
-.btn-primary:hover { box-shadow: 0 5px 16px rgba(196,135,10,0.40); }
+.btn-primary:hover { box-shadow: 0 0 28px rgba(212,150,12,.45), 0 6px 16px rgba(0,0,0,.35); }
 .btn-primary:focus-visible { outline: 2px solid rgba(196,135,10,0.50); outline-offset: 2px; }
 .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
-
-/* Dark premium glow override */
-.btn-primary {
-  box-shadow: 0 0 20px rgba(212,150,12,.35), 0 4px 12px rgba(0,0,0,.3);
-}
-.btn-primary:hover {
-  box-shadow: 0 0 28px rgba(212,150,12,.45), 0 6px 16px rgba(0,0,0,.35);
-}
 
 /* Danger button */
 .btn-danger {
@@ -479,8 +471,8 @@
   transition: border-color 200ms, box-shadow 200ms;
 }
 .filter-input:focus {
-  border-color: #C4870A;
-  box-shadow: 0 0 0 3px rgba(196,135,10,0.15);
+  border-color: rgba(212,150,12,.5);
+  box-shadow: 0 0 0 3px rgba(212,150,12,.12);
 }
 
 .filter-chips-row {

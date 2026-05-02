@@ -1,4 +1,5 @@
-import { PencilSquareIcon, TrashIcon, ExclamationTriangleIcon } from '@heroicons/react/20/solid'
+import { ExclamationTriangleIcon } from '@heroicons/react/20/solid'
+import { TabelaAcoesLinha } from '@/components/ui/TabelaAcoesLinha'
 import type { IngredienteResumo } from '@/types/estoque'
 
 interface Props {
@@ -145,27 +146,13 @@ export function TabelaIngredientes({
                 </td>
 
                 {/* Ações */}
-                <td className={`${tdCls} text-right`}>
-                  <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                    {podeEditar && (
-                      <button
-                        onClick={() => onEditar(ing.id)}
-                        aria-label={`Editar ${ing.nome}`}
-                        className="row-action-btn"
-                      >
-                        <PencilSquareIcon className="h-4 w-4" aria-hidden="true" />
-                      </button>
-                    )}
-                    {podeDesativar && (
-                      <button
-                        onClick={() => onDesativar(ing)}
-                        aria-label={`Desativar ${ing.nome}`}
-                        className="row-action-btn danger"
-                      >
-                        <TrashIcon className="h-4 w-4" aria-hidden="true" />
-                      </button>
-                    )}
-                  </div>
+                <td className={`${tdCls} text-right group`}>
+                  <TabelaAcoesLinha
+                    onEditar={podeEditar ? () => onEditar(ing.id) : undefined}
+                    onDesativar={podeDesativar ? () => onDesativar(ing) : undefined}
+                    labelEditar={`Editar ${ing.nome}`}
+                    labelDesativar={`Desativar ${ing.nome}`}
+                  />
                 </td>
               </tr>
             ))}

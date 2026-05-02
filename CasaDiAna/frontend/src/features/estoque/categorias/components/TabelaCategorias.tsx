@@ -1,5 +1,5 @@
-import { PencilSquareIcon, TrashIcon } from '@heroicons/react/20/solid'
 import { StatusBadge } from '@/components/ui/StatusBadge'
+import { TabelaAcoesLinha } from '@/components/ui/TabelaAcoesLinha'
 import type { CategoriaIngrediente } from '@/types/estoque'
 
 interface Props {
@@ -62,23 +62,13 @@ export function TabelaCategorias({ categorias, podeEditar, onEditar, onDesativar
                   <StatusBadge variante={cat.ativo ? 'ativo' : 'inativo'} />
                 </td>
                 {podeEditar && (
-                  <td className="table-td" style={{ textAlign: 'right' }}>
-                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                      <button
-                        onClick={() => onEditar(cat)}
-                        aria-label={`Editar ${cat.nome}`}
-                        className="row-action-btn"
-                      >
-                        <PencilSquareIcon className="h-4 w-4" aria-hidden="true" />
-                      </button>
-                      <button
-                        onClick={() => onDesativar(cat)}
-                        aria-label={`Desativar ${cat.nome}`}
-                        className="row-action-btn danger"
-                      >
-                        <TrashIcon className="h-4 w-4" aria-hidden="true" />
-                      </button>
-                    </div>
+                  <td className="table-td text-right group">
+                    <TabelaAcoesLinha
+                      onEditar={() => onEditar(cat)}
+                      onDesativar={() => onDesativar(cat)}
+                      labelEditar={`Editar ${cat.nome}`}
+                      labelDesativar={`Desativar ${cat.nome}`}
+                    />
                   </td>
                 )}
               </tr>

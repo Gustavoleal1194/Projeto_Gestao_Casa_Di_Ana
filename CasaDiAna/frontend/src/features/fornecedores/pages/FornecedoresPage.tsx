@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PlusIcon } from '@heroicons/react/20/solid'
-import { PencilSquareIcon, TrashIcon } from '@heroicons/react/20/solid'
 import { TruckIcon } from '@heroicons/react/24/outline'
+import { TabelaAcoesLinha } from '@/components/ui/TabelaAcoesLinha'
 import { useFornecedores } from '../hooks/useFornecedores'
 import { useAuthStore } from '@/store/authStore'
 import { ModalDesativar } from '@/components/ui/ModalDesativar'
@@ -113,23 +113,13 @@ export function FornecedoresPage() {
                         <StatusBadge variante={f.ativo ? 'ativo' : 'inativo'} />
                       </td>
                       {podeEditar && (
-                        <td className="table-td" style={{ textAlign: 'right' }}>
-                          <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                            <button
-                              onClick={() => navigate(`/fornecedores/${f.id}/editar`)}
-                              aria-label={`Editar ${f.razaoSocial}`}
-                              className="row-action-btn"
-                            >
-                              <PencilSquareIcon className="h-4 w-4" aria-hidden="true" />
-                            </button>
-                            <button
-                              onClick={() => setParaDesativar(f)}
-                              aria-label={`Desativar ${f.razaoSocial}`}
-                              className="row-action-btn danger"
-                            >
-                              <TrashIcon className="h-4 w-4" aria-hidden="true" />
-                            </button>
-                          </div>
+                        <td className="table-td text-right group">
+                          <TabelaAcoesLinha
+                            onEditar={() => navigate(`/fornecedores/${f.id}/editar`)}
+                            onDesativar={() => setParaDesativar(f)}
+                            labelEditar={`Editar ${f.razaoSocial}`}
+                            labelDesativar={`Desativar ${f.razaoSocial}`}
+                          />
                         </td>
                       )}
                     </tr>

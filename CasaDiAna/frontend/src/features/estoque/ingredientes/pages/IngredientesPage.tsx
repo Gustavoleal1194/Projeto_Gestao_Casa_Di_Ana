@@ -6,7 +6,7 @@ import { useCategorias } from '@/features/estoque/categorias/hooks/useCategorias
 import { useAuthStore } from '@/store/authStore'
 import { TabelaIngredientes } from '../components/TabelaIngredientes'
 import { FiltrosIngredientes } from '../components/FiltrosIngredientes'
-import { ModalDesativar } from '../components/ModalDesativar'
+import { ModalDesativar } from '@/components/ui/ModalDesativar'
 import { Paginacao } from '../components/Paginacao'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { SkeletonTable } from '@/components/ui/SkeletonTable'

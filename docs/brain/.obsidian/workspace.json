@@ -4,93 +4,24 @@
     "type": "split",
     "children": [
       {
-        "id": "6f25ee1805afacc9",
+        "id": "3cc4c8a94781681e",
         "type": "tabs",
         "children": [
           {
-            "id": "652eaeab55fceb6b",
-            "type": "leaf",
-            "pinned": true,
-            "state": {
-              "type": "juggl_view",
-              "state": {},
-              "pinned": true,
-              "icon": "lucide-ghost",
-              "title": "juggl_view"
-            }
-          },
-          {
-            "id": "d4231d42c1f039d5",
-            "type": "leaf",
-            "pinned": true,
-            "state": {
-              "type": "juggl_view",
-              "state": {},
-              "pinned": true,
-              "icon": "lucide-ghost",
-              "title": "juggl_view"
-            }
-          },
-          {
-            "id": "789105591964459e",
-            "type": "leaf",
-            "pinned": true,
-            "state": {
-              "type": "juggl_view",
-              "state": {},
-              "pinned": true,
-              "icon": "lucide-ghost",
-              "title": "juggl_view"
-            }
-          },
-          {
-            "id": "f91e29caa89726c7",
-            "type": "leaf",
-            "pinned": true,
-            "state": {
-              "type": "juggl_view",
-              "state": {},
-              "pinned": true,
-              "icon": "lucide-file",
-              "title": "Juggl"
-            }
-          },
-          {
-            "id": "2706f2a61a03c45f",
+            "id": "6d9af7be32e016ad",
             "type": "leaf",
             "state": {
-              "type": "excalidraw",
+              "type": "markdown",
               "state": {
-                "file": "Excalidraw/Drawing 2026-04-30 18.38.23.excalidraw.md"
+                "file": "05_REGRAS_NEGOCIO/REGRA_MOVIMENTACAO_RASTREAVEL.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "excalidraw-icon",
-              "title": "Drawing 2026-04-30 18.38.23.excalidraw"
-            }
-          },
-          {
-            "id": "d4332fd4d7630abe",
-            "type": "leaf",
-            "pinned": true,
-            "state": {
-              "type": "juggl_view",
-              "state": {},
-              "pinned": true,
               "icon": "lucide-file",
-              "title": "Juggl"
-            }
-          },
-          {
-            "id": "37d5dd11d7e9dda6",
-            "type": "leaf",
-            "state": {
-              "type": "3d_graph_view",
-              "state": {},
-              "icon": "lucide-file",
-              "title": "3D-Graph"
+              "title": "REGRA_MOVIMENTACAO_RASTREAVEL"
             }
           }
-        ],
-        "currentTab": 6
+        ]
       }
     ],
     "direction": "vertical"
@@ -263,6 +194,7 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "obsidian-custom-frames:Open BrainOS": false,
       "3d-graph:3D Graph": false,
       "switcher:Abrir a troca rápida": false,
       "graph:Abrir visualização em gráfico": false,
@@ -275,14 +207,21 @@
       "juggl:Juggl global graph": false
     }
   },
-  "active": "37d5dd11d7e9dda6",
+  "active": "6d9af7be32e016ad",
   "lastOpenFiles": [
+    "03_PROJECT_MEMORY/ARQUITETURA.md",
+    "05_REGRAS_NEGOCIO/REGRA_MOVIMENTACAO_RASTREAVEL.md",
+    "04_MODULOS/MOD_INGREDIENTES.md",
+    "00_CENTRO_DO_CEREBRO.md",
+    "90_TEMPLATES/TEMPLATE_DECISAO.md",
+    "02_CONTEXT_PACKS/CONTEXT_PACK_ESTOQUE.md",
+    "02_CONTEXT_PACKS/CONTEXT_PACK_ETIQUETAS.md",
+    "BrainOS_Live.md",
+    "Excalidraw/Drawing 2026-04-30 18.38.23.excalidraw.md",
     "06_DECISOES/DEC_PALETA_MODAIS_CONFIRMACAO.md",
     "06_DECISOES/DEC_PALETA_MODAIS_CONFIRMACAO.md.tmp.2260.1777602241655",
     "Excalidraw/Drawing 2026-04-30 18.38.26.excalidraw.md",
-    "Excalidraw/Drawing 2026-04-30 18.38.23.excalidraw.md",
     "Excalidraw/Drawing 2026-04-30 18.33.59.excalidraw.md",
-    "Excalidraw",
-    "00_CENTRO_DO_CEREBRO.md"
+    "Excalidraw"
   ]
 }

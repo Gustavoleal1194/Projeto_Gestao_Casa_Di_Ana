@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { ingredientesService } from '@/features/estoque/ingredientes/services/ingredientesService'
-import { Toast } from '@/features/estoque/ingredientes/components/Toast'
+import { Toast } from '@/components/ui/Toast'
 import { LoadingState } from '@/components/ui/LoadingState'
 import api from '@/lib/api'
 import type { ApiResponse } from '@/types/estoque'

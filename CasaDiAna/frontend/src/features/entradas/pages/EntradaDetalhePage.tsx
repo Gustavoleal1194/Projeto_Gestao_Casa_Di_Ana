@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeftIcon, XCircleIcon } from '@heroicons/react/24/outline'
 import { entradasService } from '../services/entradasService'
 import { useAuthStore } from '@/store/authStore'
-import { Toast } from '@/features/estoque/ingredientes/components/Toast'
+import { Toast } from '@/components/ui/Toast'
 import { LoadingState } from '@/components/ui/LoadingState'
 import type { EntradaMercadoria } from '@/types/estoque'
 

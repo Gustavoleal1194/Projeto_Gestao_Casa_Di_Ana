@@ -50,6 +50,19 @@ canvas{position:fixed;inset:0;display:block}
 #loading .ld-title{font-family:'Sora',sans-serif;font-size:18px;font-weight:700;color:#fff}
 #loading .ld-sub{font-size:10px;letter-spacing:.2em;color:#00FF8C;opacity:.7;text-transform:uppercase}
 #loading .ld-err{font-size:11px;color:#FF6B6B;max-width:340px;text-align:center;line-height:1.6;display:none}
+/* ── Search ── */
+#search-bar{position:fixed;top:82px;left:50%;transform:translateX(-50%);z-index:10;display:flex;align-items:center;gap:8px;pointer-events:auto}
+#search-input{background:rgba(0,0,0,.88);border:1px solid rgba(0,255,140,.28);border-radius:3px;padding:5px 11px;color:#fff;font-family:'JetBrains Mono',monospace;font-size:10.5px;outline:none;width:210px;transition:border-color 150ms}
+#search-input:focus{border-color:rgba(0,255,140,.65)}
+#search-input::placeholder{color:rgba(255,255,255,.28)}
+#search-count{font-size:8.5px;letter-spacing:.14em;color:rgba(0,255,140,.55);min-width:56px}
+/* ── Cluster toggles ── */
+#stack-panel{pointer-events:auto}
+.clt-btn{cursor:pointer;border-radius:2px;transition:opacity 200ms;user-select:none}
+.clt-btn:hover{opacity:.75}
+.clt-btn.off{opacity:.28;text-decoration:line-through}
+/* ── Button states ── */
+.ctrl.active{border-color:rgba(212,150,12,.7);color:#D4960C}
 </style>
 </head>
 <body>
@@ -65,6 +78,11 @@ canvas{position:fixed;inset:0;display:block}
 <div class="bracket tr" style="display:none"></div>
 <div class="bracket bl" style="display:none"></div>
 <div class="bracket br" style="display:none"></div>
+
+<div id="search-bar" style="display:none">
+  <input type="text" id="search-input" placeholder="⌕  buscar nota..." autocomplete="off" spellcheck="false"/>
+  <span id="search-count"></span>
+</div>
 
 <div id="header" style="display:none">
   <div class="sys-label"><span></span>SISTEMA OPERACIONAL · CASA DI ANA<span></span></div>
@@ -92,6 +110,12 @@ canvas{position:fixed;inset:0;display:block}
     <div class="panel-row"><span class="panel-key">Gerado</span><span class="panel-val cyan" id="gen-time">—</span></div>
     <div class="panel-row"><span class="panel-key">TLS</span><span class="panel-val cyan">local</span></div>
   </div>
+  <div class="panel-block">
+    <div class="panel-title">// Destaques</div>
+    <div class="panel-row"><span class="panel-key" style="display:flex;align-items:center;gap:5px"><span style="width:6px;height:6px;border-radius:50%;background:#D4960C;display:inline-block;box-shadow:0 0 5px #D4960C"></span>Open Loops</span></div>
+    <div class="panel-row"><span class="panel-key" style="display:flex;align-items:center;gap:5px"><span style="width:6px;height:6px;border-radius:50%;background:#FF6B6B;display:inline-block;box-shadow:0 0 5px #FF6B6B"></span>A Confirmar</span></div>
+    <div class="panel-row"><span class="panel-key" style="display:flex;align-items:center;gap:5px"><span style="width:6px;height:6px;border-radius:50%;background:#00D4FF;display:inline-block;box-shadow:0 0 5px #00D4FF"></span>Decisões Téc.</span></div>
+  </div>
 </div>
 
 <div id="telemetry" style="display:none">
@@ -104,6 +128,8 @@ canvas{position:fixed;inset:0;display:block}
   <button class="ctrl" id="breset"><span class="ci">⊙</span>RESET</button>
   <button class="ctrl" id="bpause"><span class="ci" id="picon">⏸</span><span id="plabel">PAUSE</span></button>
   <button class="ctrl" id="bexplode"><span class="ci">✦</span><span id="elabel">EXPLODE</span></button>
+  <button class="ctrl" id="bhome"><span class="ci">⌂</span><span id="homelabel">HOME</span></button>
+  <button class="ctrl" id="bexit" style="display:none"><span class="ci">◎</span>SAIR FOCO</button>
 </div>
 
 <div id="tt">
@@ -142,7 +168,7 @@ fetch('brain_data.json')
   });
 
 function showUI() {
-  ['scanlines','header','left-panel','right-panel','telemetry','bottom-bar']
+  ['scanlines','search-bar','header','left-panel','right-panel','telemetry','bottom-bar']
     .forEach(id => document.getElementById(id).style.display = '');
   document.querySelectorAll('.bracket').forEach(el => el.style.display = '');
   document.getElementById('loading').style.display = 'none';
@@ -151,6 +177,27 @@ function showUI() {
 function init(data) {
   const NODES = data.nodes;
   const EDGES = data.edges;
+
+  /* ═══ STATE ══════════════════════════════════════════════ */
+  const state = { hiddenTypes: new Set(), focusSet: null, homeMode: false };
+  let searchMatches = new Set();
+
+  function nodeFolder(n) {
+    if (!n.obsidianPath) return '';
+    const p = n.obsidianPath.split('/');
+    return p.length >= 3 ? p[2] : '';
+  }
+  const HOME_FOLDERS = new Set(['01_MOC','02_CONTEXT_PACKS','04_MODULOS','05_REGRAS_NEGOCIO','06_DECISOES','07_STATUS','09_OPEN_LOOPS','10_IA_PROMPTS']);
+  const hlOpenLoop = new Set(), hlConfirmar = new Set(), hlDecisao = new Set();
+  const neighbors = {};
+  NODES.forEach(n => { neighbors[n.id] = new Set(); });
+  EDGES.forEach(({a,b}) => { if(neighbors[a]&&neighbors[b]){ neighbors[a].add(b); neighbors[b].add(a); } });
+  NODES.forEach(n => {
+    const f = nodeFolder(n);
+    if (f.startsWith('09_')) hlOpenLoop.add(n.id);
+    if (f.startsWith('06_')) hlDecisao.add(n.id);
+    if (n.label.toLowerCase().includes('confirmar')) hlConfirmar.add(n.id);
+  });
 
   /* panels */
   document.getElementById('sn').textContent = NODES.length;
@@ -170,7 +217,8 @@ function init(data) {
     const label = CLUSTER_LABEL[type] || type;
     const cls   = CLUSTER_CLASS[type] || '';
     const row = document.createElement('div');
-    row.className = 'panel-row';
+    row.className = 'panel-row clt-btn';
+    row.title = 'Clique para ocultar/mostrar';
     const dot = document.createElement('span');
     dot.style.cssText = `width:6px;height:6px;border-radius:50%;background:${color};display:inline-block`;
     const keySpan = document.createElement('span');
@@ -183,6 +231,11 @@ function init(data) {
     valSpan.textContent = count;
     row.appendChild(keySpan);
     row.appendChild(valSpan);
+    row.addEventListener('click', () => {
+      if (state.hiddenTypes.has(type)) { state.hiddenTypes.delete(type); row.classList.remove('off'); }
+      else { state.hiddenTypes.add(type); row.classList.add('off'); }
+      applyVisibility();
+    });
     clusterRows.appendChild(row);
   });
 
@@ -303,6 +356,28 @@ function init(data) {
     edgeLines.push({ line, a, b });
   });
 
+  /* ═══ VISIBILITY ════════════════════════════════════════ */
+  function applyVisibility() {
+    NODES.forEach(n => {
+      const m = meshMap[n.id];
+      // busca tem prioridade sobre tudo
+      if (searchMatches.size > 0) { m.visible = searchMatches.has(n.id); return; }
+      let vis = !state.hiddenTypes.has(n.type);
+      if (state.homeMode && vis) vis = HOME_FOLDERS.has(nodeFolder(n)) || n.type === 'bridge';
+      if (state.focusSet && vis) vis = state.focusSet.has(n.id);
+      m.visible = vis;
+    });
+    edgeLines.forEach(({line,a,b}) => { line.visible = !!(meshMap[a]?.visible && meshMap[b]?.visible); });
+  }
+
+  function flyToNode(d) {
+    const [nx, ny, nz] = d.p;
+    const targetPhi   = Math.atan2(nx, nz);
+    const horiz       = Math.sqrt(nx*nx + nz*nz);
+    const targetTheta = Math.max(-0.9, Math.min(0.9, Math.atan2(ny, horiz)*0.55));
+    cam._fly = { phi: targetPhi, theta: targetTheta, radius: 16 };
+  }
+
   /* ═══ PARTICLES ══════════════════════════════════════════ */
   const PC = EDGES.length > 0 ? Math.min(300, EDGES.length * 4) : 0;
   const pbuf = new Float32Array(PC*3), cbuf = new Float32Array(PC*3);
@@ -416,20 +491,18 @@ function init(data) {
 
   function clickNode(e) {
     const d = raycastNode(e);
-    if (!d || !d.obsidianPath) return;
-    const vaultName = data.meta.vaultName || 'ProjetoGestao';
-    const url = 'obsidian://open?vault=' + encodeURIComponent(vaultName) + '&file=' + encodeURIComponent(d.obsidianPath);
-
-    // target="_top" pede ao Electron (frame raiz do Obsidian) para navegar
-    // para obsidian:// — o protocol handler do Obsidian intercepta e abre
-    // o arquivo no editor sem sair da tela atual
-    const a = document.createElement('a');
-    a.href = url;
-    a.target = '_top';
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => { try { document.body.removeChild(a); } catch {} }, 100);
+    if (!d) return;
+    // Focus Mode: mostrar só o nó + vizinhos diretos
+    state.focusSet = new Set([d.id, ...neighbors[d.id]]);
+    applyVisibility();
+    flyToNode(d);
+    document.getElementById('bexit').style.display = '';
+    // Abrir no Obsidian
+    if (d.obsidianPath) {
+      const vaultName = data.meta.vaultName || 'ProjetoGestao';
+      fetch('/open?vault=' + encodeURIComponent(vaultName) + '&file=' + encodeURIComponent(d.obsidianPath))
+        .catch(() => {});
+    }
   }
 
   /* ═══ CONTROLS ═══════════════════════════════════════════ */
@@ -445,6 +518,46 @@ function init(data) {
     const f = cam.exploded ? 1.9 : 1.0;
     NODES.forEach(d => { meshMap[d.id].userData._tgt = origPos[d.id].map(v=>v*f); });
   };
+
+  document.getElementById('bhome').onclick = function() {
+    state.homeMode = !state.homeMode;
+    this.classList.toggle('active', state.homeMode);
+    document.getElementById('homelabel').textContent = state.homeMode ? 'FULL' : 'HOME';
+    if (state.homeMode) { state.focusSet = null; document.getElementById('bexit').style.display = 'none'; }
+    applyVisibility();
+  };
+
+  document.getElementById('bexit').onclick = function() {
+    state.focusSet = null;
+    applyVisibility();
+    this.style.display = 'none';
+  };
+
+  /* ═══ SEARCH ═════════════════════════════════════════════ */
+  const searchInput = document.getElementById('search-input');
+  const searchCount = document.getElementById('search-count');
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim().toLowerCase();
+    searchMatches = new Set();
+    if (q) {
+      NODES.forEach(n => { if (n.label.toLowerCase().includes(q)) searchMatches.add(n.id); });
+      const sz = searchMatches.size;
+      searchCount.textContent = sz ? sz + ' nó' + (sz > 1 ? 's' : '') : 'nenhum';
+      if (sz > 0) flyToNode(NODES.find(n => searchMatches.has(n.id)));
+    } else {
+      searchCount.textContent = '';
+    }
+    applyVisibility();
+  });
+  searchInput.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      searchInput.value = '';
+      searchMatches = new Set();
+      searchCount.textContent = '';
+      applyVisibility();
+      searchInput.blur();
+    }
+  });
 
   /* ═══ CLOCK ══════════════════════════════════════════════ */
   function updateClock() {
@@ -462,6 +575,12 @@ function init(data) {
     requestAnimationFrame(animate);
     const dt = clk.getDelta();
     if (!cam.paused) cam.phi += 0.0014;
+    if (cam._fly) {
+      cam.phi    += (cam._fly.phi    - cam.phi)    * 0.06;
+      cam.theta  += (cam._fly.theta  - cam.theta)  * 0.06;
+      cam.radius += (cam._fly.radius - cam.radius) * 0.06;
+      if (Math.abs(cam._fly.phi-cam.phi)<0.002 && Math.abs(cam._fly.radius-cam.radius)<0.05) cam._fly=null;
+    }
     applyCamera();
 
     /* explode lerp */
@@ -493,9 +612,28 @@ function init(data) {
     }
     NODES.forEach((d,i) => {
       const m=meshMap[d.id];
-      m.scale.setScalar(1+0.04*Math.sin(t0*1.5+i*0.7));
-      m.material.color.setHex(TYPE_HEX[d.type]||0x556677);
-      m.material.color.multiplyScalar(0.7+0.3*Math.sin(t0*1.0+i*0.5));
+      if (!m.visible) return;
+      if (searchMatches.has(d.id)) {
+        m.scale.setScalar(1.06+0.02*Math.sin(t0*2+i*0.4));
+        m.material.color.setHex(TYPE_HEX[d.type]||0x556677);
+        m.material.color.multiplyScalar(0.85+0.25*Math.sin(t0*1.5+i*0.5));
+      } else if (hlOpenLoop.has(d.id)) {
+        m.scale.setScalar(1+0.09*Math.sin(t0*2.5+i*0.7));
+        m.material.color.setHex(0xD4960C);
+        m.material.color.multiplyScalar(0.75+0.45*Math.sin(t0*2+i));
+      } else if (hlConfirmar.has(d.id)) {
+        m.scale.setScalar(1+0.08*Math.sin(t0*3+i*0.5));
+        m.material.color.setHex(0xFF6B6B);
+        m.material.color.multiplyScalar(0.75+0.4*Math.sin(t0*2.5+i));
+      } else if (hlDecisao.has(d.id)) {
+        m.scale.setScalar(1+0.07*Math.sin(t0*3.5+i*0.6));
+        m.material.color.setHex(0x00D4FF);
+        m.material.color.multiplyScalar(0.75+0.4*Math.sin(t0*2+i));
+      } else {
+        m.scale.setScalar(1+0.04*Math.sin(t0*1.5+i*0.7));
+        m.material.color.setHex(TYPE_HEX[d.type]||0x556677);
+        m.material.color.multiplyScalar(0.7+0.3*Math.sin(t0*1.0+i*0.5));
+      }
     });
 
     /* hub rings */

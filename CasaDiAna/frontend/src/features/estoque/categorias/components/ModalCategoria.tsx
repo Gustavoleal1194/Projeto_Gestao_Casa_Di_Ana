@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import { CampoTexto } from '@/features/estoque/ingredientes/components/CampoTexto'
+import { CampoTexto } from '@/components/form/CampoTexto'
 import { Spinner } from '@/components/form/Spinner'
 import type { CategoriaIngrediente } from '@/types/estoque'
 

@@ -162,7 +162,10 @@ export function InsumosProducaoPage() {
                           className="table-row"
                         >
                           <td className="table-td">
-                            <span className="text-sm" style={{ color: 'var(--ada-body)' }}>{linha.produtoNome}</span>
+                            <div className="flex items-center gap-2.5">
+                              <span className="accent-bar shrink-0" aria-hidden="true" />
+                              <span className="text-sm" style={{ color: 'var(--ada-body)' }}>{linha.produtoNome}</span>
+                            </div>
                           </td>
                           <td className="table-td">
                             <span className="text-sm" style={{ color: 'var(--ada-muted)' }}>{linha.ingredienteNome}</span>

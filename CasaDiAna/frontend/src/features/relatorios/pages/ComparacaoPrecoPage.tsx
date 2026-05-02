@@ -83,6 +83,7 @@ function LinhaIngrediente({ item }: { item: ComparacaoPrecoIngrediente }) {
       >
         <td className="table-td">
           <div className="flex items-center gap-2">
+            <span className="accent-bar shrink-0" aria-hidden="true" />
             {aberto
               ? <ChevronUpIcon className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--ada-muted)' }} />
               : <ChevronDownIcon className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--ada-muted)' }} />

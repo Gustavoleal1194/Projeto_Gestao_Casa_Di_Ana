@@ -95,7 +95,10 @@ export function EstoqueAtualPage() {
                     style={item.estaBaixoDoMinimo ? { background: 'var(--ada-error-bg)' } : {}}
                   >
                     <td className="table-td">
-                      <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>{item.nome}</span>
+                      <div className="flex items-center gap-2.5">
+                        <span className={item.estaBaixoDoMinimo ? 'accent-bar-alert shrink-0' : 'accent-bar shrink-0'} aria-hidden="true" />
+                        <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>{item.nome}</span>
+                      </div>
                     </td>
                     <td className="table-td">
                       <span className="text-sm" style={{ color: 'var(--ada-muted)' }}>{item.categoriaNome ?? '—'}</span>

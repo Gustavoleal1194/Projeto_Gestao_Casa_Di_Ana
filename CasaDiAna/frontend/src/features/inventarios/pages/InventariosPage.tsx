@@ -83,9 +83,12 @@ export function InventariosPage() {
                       className="table-row table-row-clickable"
                     >
                       <td className="table-td">
-                        <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>
-                          {formatarData(inv.dataRealizacao)}
-                        </span>
+                        <div className="flex items-center gap-2.5">
+                          <span className="accent-bar shrink-0" aria-hidden="true" />
+                          <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>
+                            {formatarData(inv.dataRealizacao)}
+                          </span>
+                        </div>
                       </td>
                       <td className="table-td">
                         <span className="text-sm" style={{ color: inv.descricao ? 'var(--ada-body)' : 'var(--ada-placeholder)' }}>

@@ -133,7 +133,10 @@ export function EntradasRelatorioPage() {
                     {resumo.entradas.map(e => (
                       <tr key={e.id} className="table-row">
                         <td className="table-td">
-                          <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>{e.fornecedorNome}</span>
+                          <div className="flex items-center gap-2.5">
+                            <span className="accent-bar shrink-0" aria-hidden="true" />
+                            <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>{e.fornecedorNome}</span>
+                          </div>
                         </td>
                         <td className="table-td font-mono">
                           <span className="text-sm" style={{ color: 'var(--ada-body)' }}>{e.numeroNotaFiscal ?? '—'}</span>

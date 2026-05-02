@@ -138,8 +138,11 @@ export function MovimentacoesPage() {
                       </span>
                     </td>
                     <td className="table-td">
-                      <span className="text-sm" style={{ color: 'var(--ada-heading)' }}>{m.ingredienteNome}</span>
-                      <span className="text-xs ml-1" style={{ color: 'var(--ada-placeholder)' }}>({m.unidadeMedidaCodigo})</span>
+                      <div className="flex items-center gap-2.5">
+                        <span className="accent-bar shrink-0" aria-hidden="true" />
+                        <span className="text-sm" style={{ color: 'var(--ada-heading)' }}>{m.ingredienteNome}</span>
+                        <span className="text-xs" style={{ color: 'var(--ada-placeholder)' }}>({m.unidadeMedidaCodigo})</span>
+                      </div>
                     </td>
                     <td className="table-td">
                       <span className="text-sm" style={{ color: 'var(--ada-body)' }}>{TIPO_LABEL[m.tipo] ?? m.tipo}</span>

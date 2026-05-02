@@ -51,11 +51,11 @@ export function VendasDiariasPage() {
         <CalendarIcon className="h-4 w-4 shrink-0" style={{ color: 'var(--ada-placeholder)' }} aria-hidden="true" />
         <div>
           <label htmlFor="venda-de" className="filter-label">De</label>
-          <input id="venda-de" type="date" value={de} onChange={e => setDe(e.target.value)} className="filter-input" />
+          <input id="venda-de" type="date" value={de} max={new Date().toISOString().split('T')[0]} onChange={e => setDe(e.target.value)} className="filter-input" />
         </div>
         <div>
           <label htmlFor="venda-ate" className="filter-label">Até</label>
-          <input id="venda-ate" type="date" value={ate} onChange={e => setAte(e.target.value)} className="filter-input" />
+          <input id="venda-ate" type="date" value={ate} max={new Date().toISOString().split('T')[0]} onChange={e => setAte(e.target.value)} className="filter-input" />
         </div>
         <div>
           <label htmlFor="venda-produto" className="filter-label">Produto</label>

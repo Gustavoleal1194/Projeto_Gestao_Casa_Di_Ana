@@ -329,6 +329,7 @@ export function ComparacaoPrecoPage() {
           <input
             type="date"
             value={de}
+            max={new Date().toISOString().split('T')[0]}
             onChange={e => setDe(e.target.value)}
             className="filter-input"
           />
@@ -338,6 +339,7 @@ export function ComparacaoPrecoPage() {
           <input
             type="date"
             value={ate}
+            max={new Date().toISOString().split('T')[0]}
             onChange={e => setAte(e.target.value)}
             className="filter-input"
           />

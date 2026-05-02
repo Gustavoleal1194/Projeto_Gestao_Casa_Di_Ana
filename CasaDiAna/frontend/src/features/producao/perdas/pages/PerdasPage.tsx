@@ -133,11 +133,11 @@ export function PerdasPage() {
       <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar perdas">
         <div>
           <label htmlFor="perdas-de" className="filter-label">De</label>
-          <input id="perdas-de" type="date" value={de} onChange={e => setDe(e.target.value)} className="filter-input" />
+          <input id="perdas-de" type="date" value={de} max={new Date().toISOString().split('T')[0]} onChange={e => setDe(e.target.value)} className="filter-input" />
         </div>
         <div>
           <label htmlFor="perdas-ate" className="filter-label">Até</label>
-          <input id="perdas-ate" type="date" value={ate} onChange={e => setAte(e.target.value)} className="filter-input" />
+          <input id="perdas-ate" type="date" value={ate} max={new Date().toISOString().split('T')[0]} onChange={e => setAte(e.target.value)} className="filter-input" />
         </div>
         <FilterBarActions
           loading={loading}

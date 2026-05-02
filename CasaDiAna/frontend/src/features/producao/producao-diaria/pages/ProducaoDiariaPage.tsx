@@ -51,11 +51,11 @@ export function ProducaoDiariaPage() {
         <CalendarIcon className="h-4 w-4 shrink-0" style={{ color: 'var(--ada-placeholder)' }} aria-hidden="true" />
         <div>
           <label htmlFor="prod-de" className="filter-label">De</label>
-          <input id="prod-de" type="date" value={de} onChange={e => setDe(e.target.value)} className="filter-input" />
+          <input id="prod-de" type="date" value={de} max={new Date().toISOString().split('T')[0]} onChange={e => setDe(e.target.value)} className="filter-input" />
         </div>
         <div>
           <label htmlFor="prod-ate" className="filter-label">Até</label>
-          <input id="prod-ate" type="date" value={ate} onChange={e => setAte(e.target.value)} className="filter-input" />
+          <input id="prod-ate" type="date" value={ate} max={new Date().toISOString().split('T')[0]} onChange={e => setAte(e.target.value)} className="filter-input" />
         </div>
         <div>
           <label htmlFor="prod-produto" className="filter-label">Produto</label>

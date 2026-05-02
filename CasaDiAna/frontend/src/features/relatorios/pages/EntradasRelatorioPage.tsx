@@ -61,11 +61,11 @@ export function EntradasRelatorioPage() {
       <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar entradas">
         <div>
           <label className="filter-label">De</label>
-          <input type="date" value={de} onChange={e => setDe(e.target.value)} className="filter-input" />
+          <input type="date" value={de} max={new Date().toISOString().split('T')[0]} onChange={e => setDe(e.target.value)} className="filter-input" />
         </div>
         <div>
           <label className="filter-label">Até</label>
-          <input type="date" value={ate} onChange={e => setAte(e.target.value)} className="filter-input" />
+          <input type="date" value={ate} max={new Date().toISOString().split('T')[0]} onChange={e => setAte(e.target.value)} className="filter-input" />
         </div>
         <FilterBarActions
           submitLabel="Gerar Relatório"

@@ -775,6 +775,7 @@ export function DashboardPage() {
               id="dash-de"
               type="date"
               value={de}
+              max={new Date().toISOString().split('T')[0]}
               onChange={e => setDe(e.target.value)}
               className={inputCls}
               name="de"
@@ -792,6 +793,7 @@ export function DashboardPage() {
               id="dash-ate"
               type="date"
               value={ate}
+              max={new Date().toISOString().split('T')[0]}
               onChange={e => setAte(e.target.value)}
               className={inputCls}
               name="ate"

@@ -59,6 +59,7 @@ export function EntradasPage() {
             id="entrada-de"
             type="date"
             value={de}
+            max={new Date().toISOString().split('T')[0]}
             onChange={e => atualizarDe(e.target.value)}
             className="filter-input"
           />
@@ -69,6 +70,7 @@ export function EntradasPage() {
             id="entrada-ate"
             type="date"
             value={ate}
+            max={new Date().toISOString().split('T')[0]}
             onChange={e => atualizarAte(e.target.value)}
             className="filter-input"
           />

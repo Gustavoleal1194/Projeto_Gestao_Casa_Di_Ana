@@ -54,9 +54,12 @@ export function TabelaCategoriasProduto({ categorias, podeEditar, onEditar, onDe
             {categorias.map(cat => (
               <tr key={cat.id} className="table-row group">
                 <td className="table-td">
-                  <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>
-                    {cat.nome}
-                  </span>
+                  <div className="flex items-center gap-2.5">
+                    <span className="accent-bar shrink-0" aria-hidden="true" />
+                    <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>
+                      {cat.nome}
+                    </span>
+                  </div>
                 </td>
                 <td className="table-td">
                   <StatusBadge variante={cat.ativo ? 'ativo' : 'inativo'} />

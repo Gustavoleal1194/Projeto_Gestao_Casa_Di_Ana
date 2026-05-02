@@ -185,9 +185,12 @@ export function PerdasPage() {
                       </span>
                     </td>
                     <td className="table-td">
-                      <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>
-                        {p.produtoNome}
-                      </span>
+                      <div className="flex items-center gap-2.5">
+                        <span className="accent-bar shrink-0" aria-hidden="true" />
+                        <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>
+                          {p.produtoNome}
+                        </span>
+                      </div>
                     </td>
                     <td className="table-td" style={{ textAlign: 'right' }}>
                       <span className="text-sm font-bold tabular-nums" style={{ color: 'var(--ada-error-text)' }}>

@@ -90,14 +90,19 @@ export function FornecedoresPage() {
                   {fornecedores.map(f => (
                     <tr key={f.id} className="table-row group">
                       <td className="table-td">
-                        <p className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>
-                          {f.razaoSocial}
-                        </p>
-                        {f.nomeFantasia && (
-                          <p className="text-xs mt-0.5" style={{ color: 'var(--ada-muted)' }}>
-                            {f.nomeFantasia}
-                          </p>
-                        )}
+                        <div className="flex items-center gap-2.5">
+                          <span className="accent-bar shrink-0" aria-hidden="true" />
+                          <div>
+                            <p className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>
+                              {f.razaoSocial}
+                            </p>
+                            {f.nomeFantasia && (
+                              <p className="text-xs mt-0.5" style={{ color: 'var(--ada-muted)' }}>
+                                {f.nomeFantasia}
+                              </p>
+                            )}
+                          </div>
+                        </div>
                       </td>
                       <td className="table-td">
                         <span className="text-[12.5px] font-mono tracking-wide" style={{ color: f.cnpj ? 'var(--ada-muted-dim)' : 'var(--ada-placeholder)' }}>

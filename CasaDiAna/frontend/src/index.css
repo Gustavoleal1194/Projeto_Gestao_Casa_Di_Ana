@@ -440,8 +440,8 @@
 
 /* Filter bar */
 .filter-bar {
-  background: var(--ada-surface);
-  border-bottom: 1px solid var(--ada-border-sub);
+  background: rgba(255,255,255,.025);
+  border-bottom: 1px solid rgba(255,255,255,.07);
   border-radius: 0;
   padding: 1rem 1.25rem;
   margin-bottom: 1rem;
@@ -450,6 +450,7 @@
   gap: 0.75rem;
   align-items: flex-end;
   box-shadow: var(--shadow-xs);
+  backdrop-filter: blur(8px);
 }
 
 .filter-label {
@@ -687,7 +688,7 @@
 .page-header-title {
   font-size: 1.375rem;    /* 22px */
   font-weight: 700;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.03em;
   color: var(--ada-heading);
   font-family: 'Sora', system-ui, sans-serif;
   margin: 0;

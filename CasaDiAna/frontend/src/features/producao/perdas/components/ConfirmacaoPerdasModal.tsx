@@ -52,7 +52,7 @@ function CheckMarkAmbar({ delay = 100 }: { delay?: number }) {
         strokeDasharray="163" strokeDashoffset="163"
         style={{ animation: `circleDraw 600ms ${delay}ms cubic-bezier(.4,0,.2,1) both` }} />
       <circle cx="36" cy="36" r="24"
-        fill="#FFFBEB"
+        fill="rgba(212,150,12,.15)"
         style={{ animation: `fadeIn 150ms ${delay + 400}ms ease both` }} />
       <path d="M22 37l9 9 19-19"
         stroke="#D4960C" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
@@ -186,17 +186,17 @@ export function ConfirmacaoPerdasModal({ aberto, onFechar, onVerPerdas, dados }:
           <div style={{
             display: 'flex', alignItems: 'flex-start', gap: 10,
             padding: '10px 14px', borderRadius: 10,
-            background: '#FFFBEB', border: '1px solid #FDE68A',
+            background: 'var(--ada-warning-bg)', border: '1px solid var(--ada-warning-border)',
             marginBottom: 20,
             animation: 'fadeUp 280ms 1000ms ease both',
           }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="#92580A" strokeWidth="1.8" strokeLinecap="round"
-              style={{ flexShrink: 0, marginTop: 1 }}>
+              strokeWidth="1.8" strokeLinecap="round"
+              style={{ flexShrink: 0, marginTop: 1, stroke: 'var(--ada-warning-text)' }}>
               <path d="M13 16h-1v-4h-1m1-4h.01" />
               <circle cx="12" cy="12" r="9" />
             </svg>
-            <span style={{ fontSize: 12.5, color: '#7A5206', lineHeight: 1.45 }}>
+            <span style={{ fontSize: 12.5, color: 'var(--ada-warning-text)', lineHeight: 1.45 }}>
               Estoque atualizado automaticamente.
             </span>
           </div>

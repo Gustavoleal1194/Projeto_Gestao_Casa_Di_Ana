@@ -221,6 +221,16 @@ select option {
   color: var(--ada-heading);
 }
 
+/* Autofill — sobrescreve o fundo amarelo/branco do browser */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--ada-surface-2) inset !important;
+  -webkit-text-fill-color: var(--ada-heading) !important;
+  caret-color: var(--ada-heading);
+}
+
 /* Sombras Tailwind padrão */
 [data-theme="dark"] .shadow-sm {
   box-shadow: var(--shadow-sm) !important;

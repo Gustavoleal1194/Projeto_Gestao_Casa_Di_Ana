@@ -511,7 +511,7 @@ export function EtiquetasPage() {
 
           {/* Toggle Produto / Ingrediente */}
           <div>
-            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-text)' }}>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-body)' }}>
               Tipo de Item
             </label>
             <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: 'var(--ada-border)' }}>
@@ -532,7 +532,7 @@ export function EtiquetasPage() {
                   className="flex-1 py-2 text-sm font-medium transition-colors"
                   style={{
                     background: tipoItem === t ? 'var(--sb-accent)' : 'var(--ada-bg)',
-                    color: tipoItem === t ? '#fff' : 'var(--ada-text)',
+                    color: tipoItem === t ? '#fff' : 'var(--ada-body)',
                   }}
                 >
                   {t === 'produto' ? 'Produto' : 'Ingrediente'}
@@ -544,7 +544,7 @@ export function EtiquetasPage() {
           {/* Seletor de produto ou ingrediente */}
           {tipoItem === 'produto' ? (
             <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-text)' }}>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-body)' }}>
                 Produto <span className="text-red-500">*</span>
               </label>
               <select
@@ -554,7 +554,7 @@ export function EtiquetasPage() {
                 style={{
                   background: 'var(--ada-bg)',
                   borderColor: 'var(--ada-border)',
-                  color: 'var(--ada-text)',
+                  color: 'var(--ada-body)',
                 }}
               >
                 <option value="">Selecione um produto...</option>
@@ -565,7 +565,7 @@ export function EtiquetasPage() {
             </div>
           ) : (
             <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-text)' }}>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-body)' }}>
                 Ingrediente <span className="text-red-500">*</span>
               </label>
               <select
@@ -575,7 +575,7 @@ export function EtiquetasPage() {
                 style={{
                   background: 'var(--ada-bg)',
                   borderColor: 'var(--ada-border)',
-                  color: 'var(--ada-text)',
+                  color: 'var(--ada-body)',
                 }}
               >
                 <option value="">Selecione um ingrediente...</option>
@@ -589,7 +589,7 @@ export function EtiquetasPage() {
           {/* Tipo de etiqueta — só disponível para produtos */}
           {tipoItem === 'produto' && (
             <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-text)' }}>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-body)' }}>
                 Tipo de Etiqueta
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -602,7 +602,7 @@ export function EtiquetasPage() {
                     style={{
                       background: tipo === op.valor ? 'var(--sb-accent)' : 'var(--ada-bg)',
                       borderColor: tipo === op.valor ? 'var(--sb-accent)' : 'var(--ada-border)',
-                      color: tipo === op.valor ? '#fff' : 'var(--ada-text)',
+                      color: tipo === op.valor ? '#fff' : 'var(--ada-body)',
                     }}
                   >
                     <div className="text-xs font-semibold">{op.label}</div>
@@ -633,30 +633,30 @@ export function EtiquetasPage() {
               {/* Porção */}
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: 'var(--ada-text)' }}>Porção</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: 'var(--ada-body)' }}>Porção</label>
                   <input
                     type="text"
                     placeholder="Ex: 50g"
                     value={nutri.porcao}
                     onChange={e => setNutri(n => ({ ...n, porcao: e.target.value }))}
                     className="w-full rounded-lg px-3 py-2 text-sm border outline-none"
-                    style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)', color: 'var(--ada-text)' }}
+                    style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)', color: 'var(--ada-body)' }}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: 'var(--ada-text)' }}>Medida caseira</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: 'var(--ada-body)' }}>Medida caseira</label>
                   <input
                     type="text"
                     placeholder="Ex: 1 fatia"
                     value={nutri.medidaCaseira}
                     onChange={e => setNutri(n => ({ ...n, medidaCaseira: e.target.value }))}
                     className="w-full rounded-lg px-3 py-2 text-sm border outline-none"
-                    style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)', color: 'var(--ada-text)' }}
+                    style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)', color: 'var(--ada-body)' }}
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: 'var(--ada-text)' }}>
+                <label className="block text-xs font-medium mb-1" style={{ color: 'var(--ada-body)' }}>
                   Porções por embalagem
                 </label>
                 <input
@@ -666,7 +666,7 @@ export function EtiquetasPage() {
                   value={nutri.porcoesPorEmbalagem}
                   onChange={e => setNutri(n => ({ ...n, porcoesPorEmbalagem: e.target.value }))}
                   className="w-full rounded-lg px-3 py-2 text-sm border outline-none"
-                  style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)', color: 'var(--ada-text)' }}
+                  style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)', color: 'var(--ada-body)' }}
                 />
               </div>
 
@@ -686,7 +686,7 @@ export function EtiquetasPage() {
                   { key: 'sodio', label: 'Sódio', unit: 'mg' },
                 ].map(({ key, label, unit }) => (
                   <div key={key}>
-                    <label className="block text-xs font-medium mb-1" style={{ color: 'var(--ada-text)' }}>
+                    <label className="block text-xs font-medium mb-1" style={{ color: 'var(--ada-body)' }}>
                       {label} <span className="font-normal" style={{ color: 'var(--ada-muted)' }}>({unit})</span>
                     </label>
                     <input
@@ -697,7 +697,7 @@ export function EtiquetasPage() {
                       value={nutri[key as keyof typeof nutri]}
                       onChange={e => setNutri(n => ({ ...n, [key]: e.target.value }))}
                       className="w-full rounded-lg px-3 py-2 text-sm border outline-none"
-                      style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)', color: 'var(--ada-text)' }}
+                      style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)', color: 'var(--ada-body)' }}
                     />
                   </div>
                 ))}
@@ -709,7 +709,7 @@ export function EtiquetasPage() {
                 className="w-full rounded-lg px-3 py-2 text-xs font-semibold transition-opacity disabled:opacity-40"
                 style={{
                   background: modeloSalvo ? 'var(--ada-success-text, #16a34a)' : 'var(--ada-hover)',
-                  color: modeloSalvo ? '#fff' : 'var(--ada-text)',
+                  color: modeloSalvo ? '#fff' : 'var(--ada-body)',
                   border: '1px solid var(--ada-border)',
                 }}
               >
@@ -719,7 +719,7 @@ export function EtiquetasPage() {
           )}
 
           <div>
-            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-text)' }}>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-body)' }}>
               Data de Produção
             </label>
             <input
@@ -730,13 +730,14 @@ export function EtiquetasPage() {
               style={{
                 background: 'var(--ada-bg)',
                 borderColor: 'var(--ada-border)',
-                color: 'var(--ada-text)',
+                color: 'var(--ada-body)',
+                colorScheme: 'dark',
               }}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-text)' }}>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-body)' }}>
               Data de Validade <span className="text-red-500">*</span>
             </label>
             <input
@@ -747,13 +748,14 @@ export function EtiquetasPage() {
               style={{
                 background: 'var(--ada-bg)',
                 borderColor: 'var(--ada-border)',
-                color: 'var(--ada-text)',
+                color: 'var(--ada-body)',
+                colorScheme: 'dark',
               }}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-text)' }}>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-body)' }}>
               Quantidade de Etiquetas
             </label>
             <input
@@ -766,7 +768,7 @@ export function EtiquetasPage() {
               style={{
                 background: 'var(--ada-bg)',
                 borderColor: 'var(--ada-border)',
-                color: 'var(--ada-text)',
+                color: 'var(--ada-body)',
               }}
             />
           </div>
@@ -883,18 +885,18 @@ export function EtiquetasPage() {
                       <td className="px-4 py-3">
                         <span
                           className="px-2 py-0.5 rounded text-xs font-medium"
-                          style={{ background: 'var(--ada-hover)', color: 'var(--ada-text)' }}
+                          style={{ background: 'var(--ada-hover)', color: 'var(--ada-body)' }}
                         >
                           {TIPO_LABELS[h.tipoEtiqueta]}
                         </span>
                       </td>
-                      <td className="px-4 py-3" style={{ color: 'var(--ada-text)' }}>
+                      <td className="px-4 py-3" style={{ color: 'var(--ada-body)' }}>
                         {h.quantidade}
                       </td>
-                      <td className="px-4 py-3" style={{ color: 'var(--ada-text)' }}>
+                      <td className="px-4 py-3" style={{ color: 'var(--ada-body)' }}>
                         {formatarData(h.dataProducao)}
                       </td>
-                      <td className="px-4 py-3" style={{ color: 'var(--ada-text)' }}>
+                      <td className="px-4 py-3" style={{ color: 'var(--ada-body)' }}>
                         {validade}
                       </td>
                       <td className="px-4 py-3 text-xs" style={{ color: 'var(--ada-muted)' }}>

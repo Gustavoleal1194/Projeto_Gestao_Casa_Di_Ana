@@ -538,7 +538,7 @@ export function ImportacaoVendasPage() {
             style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)' }}
           >
             <div className="flex-1">
-              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-text)' }}>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-body)' }}>
                 Data dos lançamentos
               </label>
               <input
@@ -546,7 +546,7 @@ export function ImportacaoVendasPage() {
                 value={dataVenda}
                 onChange={e => setDataVenda(e.target.value)}
                 className="rounded-lg px-3 py-2 text-sm border outline-none"
-                style={{ background: 'var(--ada-bg)', borderColor: 'var(--ada-border)', color: 'var(--ada-text)' }}
+                style={{ background: 'var(--ada-bg)', borderColor: 'var(--ada-border)', color: 'var(--ada-body)', colorScheme: 'dark' }}
               />
               <p className="text-xs mt-1" style={{ color: 'var(--ada-muted)' }}>
                 Todos os itens importados usarão esta data.
@@ -556,7 +556,7 @@ export function ImportacaoVendasPage() {
               <button
                 onClick={reiniciar}
                 className="px-4 py-2 rounded-lg text-sm font-medium border transition-colors"
-                style={{ borderColor: 'var(--ada-border)', color: 'var(--ada-text)', background: 'var(--ada-bg)' }}
+                style={{ borderColor: 'var(--ada-border)', color: 'var(--ada-body)', background: 'var(--ada-bg)' }}
               >
                 Cancelar
               </button>
@@ -678,7 +678,7 @@ function PreviewRow({
             value={resolucao}
             onChange={e => onResolucao(e.target.value)}
             className="rounded-lg px-2 py-1 text-xs border outline-none"
-            style={{ background: 'var(--ada-bg)', borderColor: 'var(--ada-warning-border)', color: 'var(--ada-text)' }}
+            style={{ background: 'var(--ada-bg)', borderColor: 'var(--ada-warning-border)', color: 'var(--ada-body)' }}
           >
             <option value="">Selecione o produto…</option>
             {item.sugestoes.map(s => (

@@ -30,6 +30,7 @@ export function CampoTexto({ label, erro, obrigatorio, sufixo, className, id, ..
             border: `1px solid ${erro ? 'rgba(248,113,113,.5)' : 'rgba(255,255,255,.08)'}`,
             color: 'var(--ada-heading)',
             paddingRight: sufixo ? '2.5rem' : undefined,
+            colorScheme: 'dark',
           }}
           {...props}
         />

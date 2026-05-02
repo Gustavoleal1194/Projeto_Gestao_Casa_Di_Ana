@@ -244,14 +244,14 @@ export function MinhaContaPage() {
               Passo 2 — Salve seus códigos de recuperação
             </p>
             <div className="rounded-lg p-3 border"
-              style={{ background: 'var(--ada-warning-badge, #fef9c3)', borderColor: 'var(--ada-warning-border, #fde047)' }}>
-              <p className="text-xs font-semibold mb-2" style={{ color: '#854d0e' }}>
+              style={{ background: 'var(--ada-warning-bg)', borderColor: 'var(--ada-warning-border)' }}>
+              <p className="text-xs font-semibold mb-2" style={{ color: 'var(--ada-warning-text)' }}>
                 ⚠ Guarde estes códigos em lugar seguro — não serão exibidos novamente.
               </p>
               <div className="grid grid-cols-2 gap-1.5">
                 {setupData.codigosRecuperacao.map((c, i) => (
                   <span key={i} className="text-xs font-mono px-2 py-1 rounded text-center"
-                    style={{ background: 'rgba(255,255,255,0.7)', color: '#1c1917', border: '1px solid rgba(0,0,0,0.1)' }}>
+                    style={{ background: 'rgba(255,255,255,.06)', color: 'var(--ada-heading)', border: '1px solid rgba(255,255,255,.1)' }}>
                     {c}
                   </span>
                 ))}

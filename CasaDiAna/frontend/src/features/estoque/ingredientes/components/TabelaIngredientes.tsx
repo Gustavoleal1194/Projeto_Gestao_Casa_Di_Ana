@@ -86,19 +86,25 @@ export function TabelaIngredientes({
               >
                 {/* Nome */}
                 <td className={tdCls}>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)', fontFamily: 'DM Sans, system-ui, sans-serif' }}>
-                      {ing.nome}
-                    </span>
-                    {ing.estaBaixoDoMinimo && (
-                      <span
-                        className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10.5px] font-semibold shrink-0"
-                        style={{ background: 'var(--ada-warning-badge)', color: 'var(--ada-warning-text)', border: '1px solid var(--ada-warning-border)' }}
-                      >
-                        <ExclamationTriangleIcon className="h-3 w-3" aria-hidden="true" />
-                        Baixo
+                  <div className="flex items-center gap-2.5">
+                    <span
+                      className={`accent-bar shrink-0${ing.estaBaixoDoMinimo ? ' accent-bar-alert' : ''}`}
+                      aria-hidden="true"
+                    />
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)', fontFamily: 'DM Sans, system-ui, sans-serif' }}>
+                        {ing.nome}
                       </span>
-                    )}
+                      {ing.estaBaixoDoMinimo && (
+                        <span
+                          className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10.5px] font-semibold shrink-0"
+                          style={{ background: 'var(--ada-warning-badge)', color: 'var(--ada-warning-text)', border: '1px solid var(--ada-warning-border)' }}
+                        >
+                          <ExclamationTriangleIcon className="h-3 w-3" aria-hidden="true" />
+                          Baixo
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </td>
 

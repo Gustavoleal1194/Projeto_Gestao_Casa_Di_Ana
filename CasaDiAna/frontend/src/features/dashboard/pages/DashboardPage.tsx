@@ -13,6 +13,7 @@ import type { EstoqueAtualItem } from '@/types/estoque'
 import type { RelatorioProducaoVendasItem } from '@/types/producao'
 import { useTheme } from '@/hooks/useTheme'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { FiltroPeriodo } from '@/components/ui/FiltroPeriodo'
 
 // ─── Paleta de cores ────────────────────────────────────────────────────────
 const COR = {
@@ -51,13 +52,6 @@ function listarDiasNoIntervalo(de: string, ate: string, limite = 62) {
   }
   return dias
 }
-
-const inputCls = [
-  'border rounded-lg px-3 py-2 text-sm outline-none',
-  'transition-all duration-200',
-  'border-[var(--ada-border)] bg-[var(--ada-surface)] text-[var(--ada-heading)]',
-  'focus-visible:border-[#C4870A] focus-visible:ring-2 focus-visible:ring-[#C4870A]/20',
-].join(' ')
 
 // SVG icons para os KPI cards
 const IcReceita = () => (
@@ -763,42 +757,14 @@ export function DashboardPage() {
           className="flex flex-col gap-2.5 sm:flex-row sm:items-end sm:gap-3 p-3 rounded-xl"
           style={{ background: 'var(--ada-surface)', border: '1px solid var(--ada-border)', boxShadow: 'var(--shadow-xs)' }}
         >
-          <div>
-            <label
-              htmlFor="dash-de"
-              className="block text-[11px] font-semibold uppercase tracking-[0.06em] mb-1"
-              style={{ color: 'var(--ada-muted)' }}
-            >
-              De
-            </label>
-            <input
-              id="dash-de"
-              type="date"
-              value={de}
-              max={new Date().toISOString().split('T')[0]}
-              onChange={e => setDe(e.target.value)}
-              className={inputCls}
-              name="de"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="dash-ate"
-              className="block text-[11px] font-semibold uppercase tracking-[0.06em] mb-1"
-              style={{ color: 'var(--ada-muted)' }}
-            >
-              Até
-            </label>
-            <input
-              id="dash-ate"
-              type="date"
-              value={ate}
-              max={new Date().toISOString().split('T')[0]}
-              onChange={e => setAte(e.target.value)}
-              className={inputCls}
-              name="ate"
-            />
-          </div>
+          <FiltroPeriodo
+            de={de}
+            onChangeDe={setDe}
+            ate={ate}
+            onChangeAte={setAte}
+            idDe="dash-de"
+            idAte="dash-ate"
+          />
           <button
             onClick={handleFiltrar}
             className="px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all duration-200 outline-none

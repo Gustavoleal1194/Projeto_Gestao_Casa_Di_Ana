@@ -6,6 +6,7 @@ import { gerarPdfProducaoVendas } from '@/lib/pdf'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
+import { FiltroPeriodo, gerarChipsPeriodo } from '@/components/ui/FiltroPeriodo'
 import type { RelatorioProducaoVendas, RelatorioProducaoVendasItem, ProdutoResumo } from '@/types/producao'
 
 function primeiroDoMes(): string {
@@ -85,14 +86,7 @@ export function ProducaoVendasRelatorioPage() {
       />
 
       <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar relatório">
-        <div>
-          <label className="filter-label">De</label>
-          <input type="date" value={de} max={new Date().toISOString().split('T')[0]} onChange={e => setDe(e.target.value)} className="filter-input" />
-        </div>
-        <div>
-          <label className="filter-label">Até</label>
-          <input type="date" value={ate} max={new Date().toISOString().split('T')[0]} onChange={e => setAte(e.target.value)} className="filter-input" />
-        </div>
+        <FiltroPeriodo de={de} onChangeDe={setDe} ate={ate} onChangeAte={setAte} />
         <div>
           <label className="filter-label">Produto</label>
           <select value={produtoFiltro} onChange={e => setProdutoFiltro(e.target.value)} className="filter-input">
@@ -103,8 +97,7 @@ export function ProducaoVendasRelatorioPage() {
         <FilterBarActions
           loading={loading}
           chips={[
-            ...(de ? [{ label: `De: ${de.split('-').reverse().join('/')}`, onRemove: () => setDe('') }] : []),
-            ...(ate ? [{ label: `Até: ${ate.split('-').reverse().join('/')}`, onRemove: () => setAte('') }] : []),
+            ...gerarChipsPeriodo(de, ate, () => setDe(''), () => setAte('')),
             ...(produtoFiltro ? [{ label: `Produto: ${produtos.find(p => p.id === produtoFiltro)?.nome ?? produtoFiltro}`, onRemove: () => setProdutoFiltro('') }] : []),
           ]}
         />

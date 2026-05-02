@@ -12,6 +12,7 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { SkeletonTable } from '@/components/ui/SkeletonTable'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
+import { FiltroPeriodo, gerarChipsPeriodo } from '@/components/ui/FiltroPeriodo'
 import type { ComparacaoPreco, ComparacaoPrecoIngrediente } from '@/types/estoque'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -324,34 +325,12 @@ export function ComparacaoPrecoPage() {
       />
 
       <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar comparação">
-        <div>
-          <label className="filter-label">De</label>
-          <input
-            type="date"
-            value={de}
-            max={new Date().toISOString().split('T')[0]}
-            onChange={e => setDe(e.target.value)}
-            className="filter-input"
-          />
-        </div>
-        <div>
-          <label className="filter-label">Até</label>
-          <input
-            type="date"
-            value={ate}
-            max={new Date().toISOString().split('T')[0]}
-            onChange={e => setAte(e.target.value)}
-            className="filter-input"
-          />
-        </div>
+        <FiltroPeriodo de={de} onChangeDe={setDe} ate={ate} onChangeAte={setAte} />
         <FilterBarActions
           submitLabel="Gerar Comparação"
           loadingLabel="Carregando…"
           loading={loading}
-          chips={[
-            ...(de ? [{ label: `De: ${fmtData(de)}`, onRemove: () => setDe('') }] : []),
-            ...(ate ? [{ label: `Até: ${fmtData(ate)}`, onRemove: () => setAte('') }] : []),
-          ]}
+          chips={gerarChipsPeriodo(de, ate, () => setDe(''), () => setAte(''))}
         />
       </FilterBar>
 

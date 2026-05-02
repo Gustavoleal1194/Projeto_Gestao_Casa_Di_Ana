@@ -5,14 +5,13 @@ import { gerarPdfEntradas } from '@/lib/pdf'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
+import { FiltroPeriodo, gerarChipsPeriodo } from '@/components/ui/FiltroPeriodo'
 import type { EntradaRelatorioResumo } from '@/types/estoque'
 
 function hoje(): string { return new Date().toISOString().split('T')[0] }
 function primeiroDiaMes(): string {
   const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0]
 }
-
-function fmtData(s: string) { return s.split('-').reverse().join('/') }
 
 function formatarData(iso: string): string {
   return new Date(iso).toLocaleDateString('pt-BR')
@@ -59,21 +58,11 @@ export function EntradasRelatorioPage() {
       />
 
       <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar entradas">
-        <div>
-          <label className="filter-label">De</label>
-          <input type="date" value={de} max={new Date().toISOString().split('T')[0]} onChange={e => setDe(e.target.value)} className="filter-input" />
-        </div>
-        <div>
-          <label className="filter-label">Até</label>
-          <input type="date" value={ate} max={new Date().toISOString().split('T')[0]} onChange={e => setAte(e.target.value)} className="filter-input" />
-        </div>
+        <FiltroPeriodo de={de} onChangeDe={setDe} ate={ate} onChangeAte={setAte} />
         <FilterBarActions
           submitLabel="Gerar Relatório"
           loading={loading}
-          chips={[
-            ...(de ? [{ label: `De: ${fmtData(de)}`, onRemove: () => setDe('') }] : []),
-            ...(ate ? [{ label: `Até: ${fmtData(ate)}`, onRemove: () => setAte('') }] : []),
-          ]}
+          chips={gerarChipsPeriodo(de, ate, () => setDe(''), () => setAte(''))}
         />
       </FilterBar>
 

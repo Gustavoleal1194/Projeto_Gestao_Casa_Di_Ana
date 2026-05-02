@@ -36,31 +36,31 @@
   --header-h: 60px;
 
   /* ── Semantic design tokens (runtime, theme-switchable) ── */
-  --ada-bg:           #F6F8FB;
-  --ada-surface:      #FFFFFF;
-  --ada-surface-2:    #F1F4F8;
-  --ada-border:       #E4E7EC;
-  --ada-border-sub:   #ECF1F7;
-  --ada-heading:      #18150E;
-  --ada-body:         #4B4039;
-  --ada-muted:        #8B7E73;
-  --ada-muted-dim:    #6B6456;
-  --ada-placeholder:  #C4B8AD;
-  --ada-hover:        #EEF1F6;
-  --ada-row-alert:       #FFFBEB;
-  --ada-row-alert-hover: #FEF9E7;
-  --ada-error-bg:        #FEF2F2;
-  --ada-error-border:    #FECACA;
-  --ada-warning-bg:      #FFFBEB;
-  --ada-warning-border:  #FDE68A;
-  --ada-warning-badge:   #FEF3C7;
-  --ada-success-bg:      #F0FDF4;
-  --ada-success-border:  #BBF7D0;
-  --ada-warning-text:    #92580A;
-  --ada-error-text:      #dc2626;
-  --ada-error-badge:     rgba(220, 38, 38, 0.12);
-  --ada-success-text:    #16a34a;
-  --ada-danger-text:     #dc2626;
+  --ada-bg:           #080F1C;
+  --ada-surface:      #0D1829;
+  --ada-surface-2:    #111E35;
+  --ada-border:       rgba(255,255,255,.07);
+  --ada-border-sub:   rgba(255,255,255,.04);
+  --ada-heading:      #F1F5F9;
+  --ada-body:         #94A3B8;
+  --ada-muted:        #475569;
+  --ada-muted-dim:    #334155;
+  --ada-placeholder:  #334155;
+  --ada-hover:        rgba(255,255,255,.03);
+  --ada-row-alert:       rgba(252,211,77,.04);
+  --ada-row-alert-hover: rgba(252,211,77,.07);
+  --ada-error-bg:        rgba(248,113,113,.1);
+  --ada-error-border:    rgba(248,113,113,.2);
+  --ada-warning-bg:      rgba(252,211,77,.1);
+  --ada-warning-border:  rgba(252,211,77,.2);
+  --ada-warning-badge:   rgba(252,211,77,.1);
+  --ada-success-bg:      rgba(74,222,128,.1);
+  --ada-success-border:  rgba(74,222,128,.2);
+  --ada-warning-text:    #FCD34D;
+  --ada-error-text:      #F87171;
+  --ada-error-badge:     rgba(248,113,113,.1);
+  --ada-success-text:    #4ADE80;
+  --ada-danger-text:     #F87171;
 
   /* Sidebar — sempre escura (theme-independent) */
   --sb-bg:          #07101E;
@@ -353,6 +353,14 @@
 .btn-primary:focus-visible { outline: 2px solid rgba(196,135,10,0.50); outline-offset: 2px; }
 .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
 
+/* Dark premium glow override */
+.btn-primary {
+  box-shadow: 0 0 20px rgba(212,150,12,.35), 0 4px 12px rgba(0,0,0,.3);
+}
+.btn-primary:hover {
+  box-shadow: 0 0 28px rgba(212,150,12,.45), 0 6px 16px rgba(0,0,0,.35);
+}
+
 /* Danger button */
 .btn-danger {
   display: inline-flex;
@@ -492,9 +500,9 @@
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 500;
-  color: #4080EF;
-  background: rgba(64,128,239,0.10);
-  border: 1px solid rgba(64,128,239,0.22);
+  color: #D4960C;
+  background: rgba(212,150,12,.1);
+  border: 1px solid rgba(212,150,12,.2);
 }
 
 .filter-chip-remove {
@@ -791,6 +799,20 @@
     var(--ada-border) 75%
   );
   background-size: 600px 100%;
+}
+
+/* ─── Dark Premium — Accent Bar ─────────────────────────────────────────── */
+.accent-bar {
+  display: inline-block;
+  width: 2px;
+  height: 28px;
+  border-radius: 1px;
+  background: linear-gradient(180deg, #D4960C 0%, transparent 100%);
+  opacity: .8;
+  flex-shrink: 0;
+}
+.accent-bar-alert {
+  background: linear-gradient(180deg, #FCD34D 0%, transparent 100%);
 }
 
 /* ─── Notification Panel ─────────────────────────────────────────────────── */

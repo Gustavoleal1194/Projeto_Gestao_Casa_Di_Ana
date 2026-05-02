@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { SkeletonTable } from '@/components/ui/SkeletonTable'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
+import { FiltroPeriodo, gerarChipsPeriodo } from '@/components/ui/FiltroPeriodo'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
 
@@ -53,34 +54,15 @@ export function EntradasPage() {
       {/* ── Filtro de período ───────────────────────────────────────────── */}
       <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar entradas">
         <CalendarIcon className="h-4 w-4 shrink-0" style={{ color: 'var(--ada-placeholder)' }} aria-hidden="true" />
-        <div>
-          <label htmlFor="entrada-de" className="filter-label">De</label>
-          <input
-            id="entrada-de"
-            type="date"
-            value={de}
-            max={new Date().toISOString().split('T')[0]}
-            onChange={e => atualizarDe(e.target.value)}
-            className="filter-input"
-          />
-        </div>
-        <div>
-          <label htmlFor="entrada-ate" className="filter-label">Até</label>
-          <input
-            id="entrada-ate"
-            type="date"
-            value={ate}
-            max={new Date().toISOString().split('T')[0]}
-            onChange={e => atualizarAte(e.target.value)}
-            className="filter-input"
-          />
-        </div>
+        <FiltroPeriodo
+          de={de}
+          onChangeDe={atualizarDe}
+          ate={ate}
+          onChangeAte={atualizarAte}
+        />
         <FilterBarActions
           loading={loading}
-          chips={[
-            ...(de ? [{ label: `De: ${de.split('-').reverse().join('/')}`, onRemove: () => atualizarDe('') }] : []),
-            ...(ate ? [{ label: `Até: ${ate.split('-').reverse().join('/')}`, onRemove: () => atualizarAte('') }] : []),
-          ]}
+          chips={gerarChipsPeriodo(de, ate, () => atualizarDe(''), () => atualizarAte(''))}
         />
       </FilterBar>
 

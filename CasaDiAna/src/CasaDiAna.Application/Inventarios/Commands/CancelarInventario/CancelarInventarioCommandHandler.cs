@@ -26,6 +26,9 @@ public class CancelarInventarioCommandHandler : IRequestHandler<CancelarInventar
         var inventario = await _inventarios.ObterPorIdComItensAsync(request.InventarioId, cancellationToken)
             ?? throw new DomainException("Inventário não encontrado.");
 
+        if (inventario.CriadoPor != _currentUser.UsuarioId && _currentUser.Papel != "Admin")
+            throw new UnauthorizedAccessException("Acesso negado.");
+
         inventario.Cancelar(_currentUser.UsuarioId);
         _inventarios.Atualizar(inventario);
         await _inventarios.SalvarAsync(cancellationToken);

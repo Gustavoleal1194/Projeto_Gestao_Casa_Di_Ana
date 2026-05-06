@@ -22,6 +22,7 @@ public class FinalizarInventarioCommandHandlerTests
     public FinalizarInventarioCommandHandlerTests()
     {
         _currentUser.Setup(u => u.UsuarioId).Returns(_usuarioId);
+        _currentUser.Setup(u => u.Papel).Returns("Operador");
         _handler = new FinalizarInventarioCommandHandler(
             _inventarios.Object,
             _ingredientes.Object,
@@ -104,5 +105,48 @@ public class FinalizarInventarioCommandHandlerTests
 
         await acao.Should().ThrowAsync<DomainException>()
             .WithMessage("*Inventário*");
+    }
+
+    [Fact]
+    public async Task DeveLancarUnauthorized_QuandoOutroUsuarioTentaFinalizar()
+    {
+        var dono = Guid.NewGuid();
+        var inventario = Inventario.Criar(DateTime.UtcNow, dono);
+        _currentUser.Setup(u => u.UsuarioId).Returns(Guid.NewGuid());
+        _currentUser.Setup(u => u.Papel).Returns("Operador");
+        _inventarios.Setup(r => r.ObterPorIdComItensAsync(inventario.Id, default)).ReturnsAsync(inventario);
+
+        var acao = () => _handler.Handle(
+            new FinalizarInventarioCommand(inventario.Id),
+            CancellationToken.None);
+
+        await acao.Should().ThrowAsync<UnauthorizedAccessException>()
+            .WithMessage("*Acesso negado*");
+    }
+
+    [Fact]
+    public async Task DeveFinalizarInventario_QuandoUsuarioEhAdmin()
+    {
+        var dono = Guid.NewGuid();
+        var ingredienteId = Guid.NewGuid();
+        var inventario = Inventario.Criar(DateTime.UtcNow, dono);
+        inventario.AdicionarItem(ingredienteId, 10, 10); // sem diferença — não precisa de mock de ingrediente
+        var finalizado = Inventario.Criar(DateTime.UtcNow, dono);
+        finalizado.AdicionarItem(ingredienteId, 10, 10);
+        finalizado.Finalizar(dono);
+
+        _currentUser.Setup(u => u.UsuarioId).Returns(Guid.NewGuid());
+        _currentUser.Setup(u => u.Papel).Returns("Admin");
+        _inventarios.SetupSequence(r => r.ObterPorIdComItensAsync(It.IsAny<Guid>(), default))
+            .ReturnsAsync(inventario)
+            .ReturnsAsync(finalizado);
+        _inventarios.Setup(r => r.Atualizar(It.IsAny<Inventario>()));
+        _inventarios.Setup(r => r.SalvarAsync(default)).ReturnsAsync(1);
+
+        var resultado = await _handler.Handle(
+            new FinalizarInventarioCommand(inventario.Id),
+            CancellationToken.None);
+
+        resultado.Status.Should().Be("Finalizado");
     }
 }

@@ -38,6 +38,9 @@ public class FinalizarInventarioCommandHandler : IRequestHandler<FinalizarInvent
         var inventario = await _inventarios.ObterPorIdComItensAsync(request.InventarioId, cancellationToken)
             ?? throw new DomainException("Inventário não encontrado.");
 
+        if (inventario.CriadoPor != _currentUser.UsuarioId && _currentUser.Papel != "Admin")
+            throw new UnauthorizedAccessException("Acesso negado.");
+
         var ingredientesAfetados = new List<Ingrediente>();
 
         foreach (var item in inventario.Itens.Where(i => i.Diferenca != 0))

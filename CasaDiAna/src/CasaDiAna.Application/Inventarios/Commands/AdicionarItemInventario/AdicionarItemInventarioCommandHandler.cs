@@ -1,3 +1,4 @@
+using CasaDiAna.Application.Common;
 using CasaDiAna.Application.Inventarios.Commands.IniciarInventario;
 using CasaDiAna.Application.Inventarios.Dtos;
 using CasaDiAna.Domain.Exceptions;
@@ -10,13 +11,16 @@ public class AdicionarItemInventarioCommandHandler : IRequestHandler<AdicionarIt
 {
     private readonly IInventarioRepository _inventarios;
     private readonly IIngredienteRepository _ingredientes;
+    private readonly ICurrentUserService _currentUser;
 
     public AdicionarItemInventarioCommandHandler(
         IInventarioRepository inventarios,
-        IIngredienteRepository ingredientes)
+        IIngredienteRepository ingredientes,
+        ICurrentUserService currentUser)
     {
         _inventarios = inventarios;
         _ingredientes = ingredientes;
+        _currentUser = currentUser;
     }
 
     public async Task<InventarioDto> Handle(
@@ -24,6 +28,9 @@ public class AdicionarItemInventarioCommandHandler : IRequestHandler<AdicionarIt
     {
         var inventario = await _inventarios.ObterPorIdComItensAsync(request.InventarioId, cancellationToken)
             ?? throw new DomainException("Inventário não encontrado.");
+
+        if (inventario.CriadoPor != _currentUser.UsuarioId && _currentUser.Papel != "Admin")
+            throw new UnauthorizedAccessException("Acesso negado.");
 
         var ingrediente = await _ingredientes.ObterPorIdAsync(request.IngredienteId, cancellationToken)
             ?? throw new DomainException($"Ingrediente '{request.IngredienteId}' não encontrado.");

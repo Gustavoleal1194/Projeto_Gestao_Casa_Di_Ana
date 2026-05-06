@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
+import { AdjustmentsHorizontalIcon } from '@heroicons/react/20/solid'
 import { ingredientesService } from '@/features/estoque/ingredientes/services/ingredientesService'
 import { Toast } from '@/components/ui/Toast'
-import { LoadingState } from '@/components/ui/LoadingState'
+import { SkeletonTable } from '@/components/ui/SkeletonTable'
+import { PageHeader } from '@/components/ui/PageHeader'
+import { EmptyState } from '@/components/ui/EmptyState'
 import api from '@/lib/api'
 import type { ApiResponse } from '@/types/estoque'
 import type { IngredienteResumo } from '@/types/estoque'
@@ -12,9 +15,12 @@ interface LinhaCorrecao {
   categoriaNome: string | null
   unidadeMedidaCodigo: string
   estoqueAtual: number
-  novaQuantidade: string   // string para o input
+  novaQuantidade: string
   observacao: string
 }
+
+const thCls = 'px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.06em]'
+const tdCls = 'px-5 py-3.5'
 
 export function CorrecaoEstoquePage() {
   const [linhas, setLinhas] = useState<LinhaCorrecao[]>([])
@@ -89,26 +95,20 @@ export function CorrecaoEstoquePage() {
 
   return (
     <div className="ada-page">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1
-            className="text-xl font-bold tracking-tight"
-            style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
+      <PageHeader
+        titulo="Correção de Estoque"
+        breadcrumb={['Estoque', 'Correção de Estoque']}
+        subtitulo="Informe a quantidade real de cada ingrediente. Só os campos preenchidos serão atualizados."
+        actions={
+          <button
+            onClick={handleSalvar}
+            disabled={salvando || alteradas.length === 0}
+            className="btn-primary disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Correção de Estoque
-          </h1>
-          <p className="text-sm mt-1" style={{ color: 'var(--ada-muted)' }}>
-            Informe a quantidade real de cada ingrediente. Só os campos preenchidos serão atualizados.
-          </p>
-        </div>
-        <button
-          onClick={handleSalvar}
-          disabled={salvando || alteradas.length === 0}
-          className="btn-primary disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {salvando ? 'Salvando…' : `Salvar${alteradas.length > 0 ? ` (${alteradas.length})` : ''}`}
-        </button>
-      </div>
+            {salvando ? 'Salvando…' : `Salvar${alteradas.length > 0 ? ` (${alteradas.length})` : ''}`}
+          </button>
+        }
+      />
 
       {/* Barra de busca */}
       <div className="mb-4">
@@ -141,30 +141,48 @@ export function CorrecaoEstoquePage() {
         </div>
       )}
 
-      {loading && <LoadingState mensagem="Carregando ingredientes…" />}
+      {loading && <SkeletonTable colunas={5} linhas={8} />}
 
-      {!loading && erro && <div className="state-error" role="alert">{erro}</div>}
+      {!loading && erro && (
+        <div
+          className="rounded-xl px-5 py-4 text-sm"
+          style={{ background: 'var(--ada-error-bg)', border: '1px solid var(--ada-error-border)', color: 'var(--ada-error-text)' }}
+          role="alert"
+        >
+          {erro}
+        </div>
+      )}
 
       {!loading && !erro && (
-        <div className="ada-surface-card">
+        <div
+          className="rounded-xl overflow-hidden"
+          style={{
+            background: 'var(--ada-surface)',
+            border: '1px solid var(--ada-border)',
+            boxShadow: 'var(--shadow-sm)',
+          }}
+        >
           {linhasFiltradas.length === 0 ? (
-            <div className="py-16 text-center">
-              <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Nenhum ingrediente encontrado.</p>
-            </div>
+            <EmptyState
+              icon={<AdjustmentsHorizontalIcon className="w-7 h-7" />}
+              iconColor="neutral"
+              titulo="Nenhum ingrediente encontrado"
+              descricao="Ajuste o filtro de busca para localizar o ingrediente desejado."
+            />
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full" role="table">
                 <thead>
-                  <tr className="table-head-row">
-                    <th className="table-th" scope="col">Ingrediente</th>
-                    <th className="table-th" scope="col">Categoria</th>
-                    <th className="table-th table-th-right" scope="col">Estoque Atual</th>
-                    <th className="table-th w-36" scope="col">Nova Quantidade</th>
-                    <th className="table-th" scope="col">Observação</th>
+                  <tr style={{ background: 'var(--ada-surface-2)', borderBottom: '1px solid var(--ada-border-sub)' }}>
+                    <th className={thCls} style={{ color: 'var(--ada-muted)' }} scope="col">Ingrediente</th>
+                    <th className={thCls} style={{ color: 'var(--ada-muted)' }} scope="col">Categoria</th>
+                    <th className={`${thCls} text-right`} style={{ color: 'var(--ada-muted)' }} scope="col">Estoque Atual</th>
+                    <th className={`${thCls} w-36`} style={{ color: 'var(--ada-muted)' }} scope="col">Nova Quantidade</th>
+                    <th className={thCls} style={{ color: 'var(--ada-muted)' }} scope="col">Observação</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {linhasFiltradas.map(linha => {
+                  {linhasFiltradas.map((linha, idx) => {
                     const alterada = linha.novaQuantidade !== '' && linha.novaQuantidade !== String(linha.estoqueAtual)
                     const novaNum = Number(linha.novaQuantidade)
                     const diff = alterada ? novaNum - linha.estoqueAtual : null
@@ -172,31 +190,41 @@ export function CorrecaoEstoquePage() {
                     return (
                       <tr
                         key={linha.ingredienteId}
+                        className="transition-colors duration-100"
                         style={{
-                          borderBottom: '1px solid var(--ada-border-sub)',
-                          background: alterada ? 'var(--ada-warning-bg)' : undefined,
-                          transition: 'background 150ms',
+                          borderBottom: idx < linhasFiltradas.length - 1 ? '1px solid var(--ada-hover)' : 'none',
+                          background: alterada ? 'var(--ada-warning-bg)' : 'var(--ada-surface)',
                         }}
-                        onMouseEnter={e => { if (!alterada) (e.currentTarget as HTMLElement).style.background = 'var(--ada-hover)' }}
-                        onMouseLeave={e => { if (!alterada) (e.currentTarget as HTMLElement).style.background = '' }}
+                        onMouseEnter={e => (e.currentTarget.style.background = alterada ? 'var(--ada-row-alert-hover)' : 'var(--ada-surface-2)')}
+                        onMouseLeave={e => (e.currentTarget.style.background = alterada ? 'var(--ada-warning-bg)' : 'var(--ada-surface)')}
                       >
-                        <td className="px-4 py-2.5 text-sm font-medium" style={{ color: 'var(--ada-heading)' }}>
-                          {linha.nome}
+                        <td className={tdCls}>
+                          <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)', fontFamily: 'DM Sans, system-ui, sans-serif' }}>
+                            {linha.nome}
+                          </span>
                         </td>
-                        <td className="px-4 py-2.5 text-sm" style={{ color: 'var(--ada-muted)' }}>
-                          {linha.categoriaNome ?? '—'}
+
+                        <td className={tdCls}>
+                          <span className="text-sm" style={{ color: linha.categoriaNome ? 'var(--ada-muted-dim)' : 'var(--ada-placeholder)' }}>
+                            {linha.categoriaNome ?? '—'}
+                          </span>
                         </td>
-                        <td className="px-4 py-2.5 text-sm text-right">
-                          <span className="font-semibold" style={{ color: 'var(--ada-body)' }}>
+
+                        <td className={`${tdCls} text-right`}>
+                          <span className="text-sm font-semibold tabular-nums" style={{ color: 'var(--ada-body)' }}>
                             {linha.estoqueAtual} {linha.unidadeMedidaCodigo}
                           </span>
                           {diff !== null && (
-                            <span className={`ml-2 text-xs font-medium ${diff > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                            <span
+                              className="ml-2 text-xs font-medium"
+                              style={{ color: diff > 0 ? 'var(--ada-success-text)' : 'var(--ada-danger-text)' }}
+                            >
                               ({diff > 0 ? '+' : ''}{diff.toFixed(3)})
                             </span>
                           )}
                         </td>
-                        <td className="px-4 py-2.5">
+
+                        <td className={tdCls}>
                           <div className="flex items-center gap-1.5">
                             <input
                               type="number"
@@ -208,8 +236,8 @@ export function CorrecaoEstoquePage() {
                               className="w-28 rounded-lg px-2.5 py-1.5 text-sm text-right outline-none transition-all
                                          focus:ring-2 focus:ring-[#C4870A]/25"
                               style={{
-                                border: alterada ? '1px solid #C4870A' : '1px solid var(--ada-border)',
-                                background: alterada ? 'var(--ada-warning-bg)' : 'var(--ada-surface)',
+                                border: alterada ? '1px solid var(--ada-warning-border)' : '1px solid var(--ada-border)',
+                                background: alterada ? 'var(--ada-surface-2)' : 'var(--ada-surface-2)',
                                 color: 'var(--ada-heading)',
                                 boxShadow: 'var(--shadow-xs)',
                               }}
@@ -219,7 +247,8 @@ export function CorrecaoEstoquePage() {
                             </span>
                           </div>
                         </td>
-                        <td className="px-4 py-2.5">
+
+                        <td className={tdCls}>
                           <input
                             type="text"
                             placeholder="Motivo (opcional)"
@@ -230,9 +259,10 @@ export function CorrecaoEstoquePage() {
                                        focus:ring-2 focus:ring-[#C4870A]/25"
                             style={{
                               border: '1px solid var(--ada-border)',
-                              background: alterada ? 'var(--ada-surface)' : 'var(--ada-surface-2)',
+                              background: 'var(--ada-surface-2)',
                               color: alterada ? 'var(--ada-heading)' : 'var(--ada-muted)',
                               cursor: alterada ? 'text' : 'not-allowed',
+                              opacity: alterada ? 1 : 0.5,
                               boxShadow: 'var(--shadow-xs)',
                             }}
                           />

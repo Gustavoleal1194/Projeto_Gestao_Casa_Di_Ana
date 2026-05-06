@@ -93,60 +93,57 @@
   --shadow-xl: 0 24px 48px rgba(24,21,14,0.12), 0 8px 16px rgba(24,21,14,0.07);
 }
 
-/* ─── Tema Escuro ────────────────────────────────────────────────────────── */
-[data-theme="dark"] {
-  color-scheme: dark;
+/* ─── Tema Claro ─────────────────────────────────────────────────────────── */
+[data-theme="light"] {
+  color-scheme: light;
 
-  /* Design tokens — premium dark mode */
-  --ada-bg:           #0F172A;  /* slate-900 — fundo profundo e limpo */
-  --ada-surface:      #111827;  /* gray-900  — card, levemente mais claro */
-  --ada-surface-2:    #1A2233;  /* navy      — superfície secundária */
-  --ada-border:       #1F2937;  /* gray-800  — divisores sutis */
-  --ada-border-sub:   #162032;  /* mais escuro que border — separadores internos */
-  --ada-heading:      #EDE5D8;  /* creme quente — contraste elegante sobre fundo frio */
-  --ada-body:         #B5ABA0;  /* stone-400 quente */
-  --ada-muted:        #7A7068;  /* muted quente */
-  --ada-muted-dim:    #625B54;  /* dim quente */
-  --ada-placeholder:  #3A4A5E;  /* placeholder sobre surface-2 */
-  --ada-hover:        #1C2840;  /* hover/separador de linha slate */
-  --ada-row-alert:       rgba(212, 150, 12, 0.09);
-  --ada-row-alert-hover: rgba(212, 150, 12, 0.16);
-  --ada-error-bg:        rgba(244, 63, 94, 0.10);
-  --ada-error-border:    rgba(244, 63, 94, 0.35);
-  --ada-warning-bg:      rgba(212, 150, 12, 0.12);
-  --ada-warning-border:  rgba(212, 150, 12, 0.35);
-  --ada-warning-badge:   rgba(212, 150, 12, 0.20);
-  --ada-success-bg:      rgba(16, 185, 129, 0.12);
-  --ada-success-border:  rgba(16, 185, 129, 0.35);
-  --ada-warning-text:    #FBBF24;
-  --ada-error-text:      #fda4af;
-  --ada-error-badge:     rgba(244, 63, 94, 0.22);
-  --ada-success-text:    #6ee7b7;
-  --ada-danger-text:     #fda4af;
+  --ada-bg:           #F6F8FB;
+  --ada-surface:      #FFFFFF;
+  --ada-surface-2:    #F1F4F8;
+  --ada-border:       #E4E7EC;
+  --ada-border-sub:   #ECF1F7;
+  --ada-heading:      #18150E;
+  --ada-body:         #4B4039;
+  --ada-muted:        #8B7E73;
+  --ada-muted-dim:    #A09287;
+  --ada-placeholder:  #C5BAB3;
+  --ada-hover:        rgba(0,0,0,.04);
+  --ada-row-alert:       rgba(245,158,11,.07);
+  --ada-row-alert-hover: rgba(245,158,11,.13);
+  --ada-error-bg:        rgba(220,38,38,.07);
+  --ada-error-border:    rgba(220,38,38,.22);
+  --ada-warning-bg:      rgba(245,158,11,.08);
+  --ada-warning-border:  rgba(245,158,11,.25);
+  --ada-warning-badge:   rgba(245,158,11,.12);
+  --ada-success-bg:      rgba(16,185,129,.08);
+  --ada-success-border:  rgba(16,185,129,.25);
+  --ada-warning-text:    #92400E;
+  --ada-error-text:      #DC2626;
+  --ada-error-badge:     rgba(220,38,38,.10);
+  --ada-success-text:    #065F46;
+  --ada-danger-text:     #DC2626;
 
-  /* Sidebar — mais escura que o fundo para criar hierarquia de profundidade */
-  --sb-bg:          #050D18;
+  /* Sidebar e Topbar — sempre escuras */
+  --sb-bg:          #07101E;
   --sb-hover:       rgba(255,255,255,0.05);
-  --sb-divider:     rgba(255,255,255,0.06);
+  --sb-divider:     rgba(255,255,255,0.07);
   --sb-group:       #2D3A52;
   --sb-text:        #64748B;
   --sb-text-hover:  #CBD5E1;
   --sb-text-active: #FFFFFF;
   --sb-accent:      #D4960C;
-  --sb-active-bg:   rgba(212, 150, 12, 0.14);
+  --sb-active-bg:   rgba(212,150,12,0.14);
   --sb-active-bd:   #D4960C;
+  --topbar-bg:      #07101E;
+  --topbar-border:  #162336;
+  --chrome-divider: #162336;
 
-  /* Topbar — no dark mode fica ainda mais integrada */
-  --topbar-bg:      #050D18;
-  --topbar-border:  #0A1626;
-  --chrome-divider: #0A1626;
-
-  /* Sombras — elevação marcante para superfícies sobre fundo escuro */
-  --shadow-xs: 0 1px 2px rgba(0,0,0,0.35);
-  --shadow-sm: 0 0 0 1px rgba(255,255,255,0.04), 0 2px 6px rgba(0,0,0,0.45);
-  --shadow-md: 0 0 0 1px rgba(255,255,255,0.04), 0 4px 12px rgba(0,0,0,0.50);
-  --shadow-lg: 0 0 0 1px rgba(255,255,255,0.04), 0 12px 28px rgba(0,0,0,0.55), 0 4px 8px rgba(0,0,0,0.40);
-  --shadow-xl: 0 0 0 1px rgba(255,255,255,0.05), 0 24px 48px rgba(0,0,0,0.60), 0 8px 16px rgba(0,0,0,0.45);
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(24,21,14,.06);
+  --shadow-sm: 0 1px 3px rgba(24,21,14,.10), 0 1px 2px rgba(24,21,14,.06);
+  --shadow-md: 0 4px 8px  rgba(24,21,14,.08), 0 2px 4px rgba(24,21,14,.05);
+  --shadow-lg: 0 12px 24px rgba(24,21,14,.10), 0 4px 8px rgba(24,21,14,.06);
+  --shadow-xl: 0 24px 48px rgba(24,21,14,.14), 0 8px 16px rgba(24,21,14,.08);
 }
 
 /* ─── Overrides globais para tema escuro ─────────────────────────────────── */

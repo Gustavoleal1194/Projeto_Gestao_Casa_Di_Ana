@@ -20,6 +20,7 @@ public class CancelarEntradaCommandHandlerTests
     public CancelarEntradaCommandHandlerTests()
     {
         _currentUser.Setup(u => u.UsuarioId).Returns(_usuarioId);
+        _currentUser.Setup(u => u.Papel).Returns("Operador");
         _handler = new CancelarEntradaCommandHandler(
             _entradas.Object,
             _ingredientes.Object,
@@ -73,6 +74,52 @@ public class CancelarEntradaCommandHandlerTests
 
         await acao.Should().ThrowAsync<DomainException>()
             .WithMessage("*Entrada*");
+    }
+
+    [Fact]
+    public async Task DeveLancarUnauthorized_QuandoOutroUsuarioTentaCancelar()
+    {
+        var donoDaEntrada = Guid.NewGuid();
+        var entrada = EntradaMercadoria.Criar(Guid.NewGuid(), DateTime.UtcNow, donoDaEntrada);
+        _currentUser.Setup(u => u.UsuarioId).Returns(Guid.NewGuid()); // usuário diferente, não é dono
+        _currentUser.Setup(u => u.Papel).Returns("Operador");         // não é admin
+        _entradas.Setup(r => r.ObterPorIdComItensAsync(entrada.Id, default)).ReturnsAsync(entrada);
+
+        var acao = () => _handler.Handle(new CancelarEntradaCommand(entrada.Id), CancellationToken.None);
+
+        await acao.Should().ThrowAsync<UnauthorizedAccessException>()
+            .WithMessage("*Acesso negado*");
+    }
+
+    [Fact]
+    public async Task DeveCancelarEntrada_QuandoUsuarioEhAdmin()
+    {
+        var donoDaEntrada = Guid.NewGuid();
+        var ingredienteId = Guid.NewGuid();
+        var entrada = EntradaMercadoria.Criar(Guid.NewGuid(), DateTime.UtcNow, donoDaEntrada);
+        entrada.AdicionarItem(ingredienteId, 5, 3m);
+
+        var ingrediente = Ingrediente.Criar("Farinha", 1, 0, donoDaEntrada);
+        ingrediente.AtualizarEstoque(5, donoDaEntrada);
+
+        var entradaCancelada = EntradaMercadoria.Criar(Guid.NewGuid(), DateTime.UtcNow, donoDaEntrada);
+        entradaCancelada.AdicionarItem(ingredienteId, 5, 3m);
+        entradaCancelada.Cancelar(_usuarioId);
+
+        _currentUser.Setup(u => u.UsuarioId).Returns(Guid.NewGuid()); // admin diferente do dono
+        _currentUser.Setup(u => u.Papel).Returns("Admin");
+        _entradas.SetupSequence(r => r.ObterPorIdComItensAsync(It.IsAny<Guid>(), default))
+            .ReturnsAsync(entrada)
+            .ReturnsAsync(entradaCancelada);
+        _ingredientes.Setup(r => r.ObterPorIdAsync(ingredienteId, default)).ReturnsAsync(ingrediente);
+        _ingredientes.Setup(r => r.Atualizar(It.IsAny<Ingrediente>()));
+        _movimentacoes.Setup(r => r.AdicionarAsync(It.IsAny<Movimentacao>(), default)).Returns(Task.CompletedTask);
+        _entradas.Setup(r => r.Atualizar(It.IsAny<EntradaMercadoria>()));
+        _entradas.Setup(r => r.SalvarAsync(default)).ReturnsAsync(1);
+
+        var resultado = await _handler.Handle(new CancelarEntradaCommand(entrada.Id), CancellationToken.None);
+
+        resultado.Status.Should().Be("Cancelada");
     }
 
     [Fact]

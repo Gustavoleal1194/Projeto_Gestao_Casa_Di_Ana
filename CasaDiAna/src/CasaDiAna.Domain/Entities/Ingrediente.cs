@@ -13,6 +13,7 @@ public class Ingrediente
     public decimal EstoqueMinimo { get; private set; }
     public decimal? EstoqueMaximo { get; private set; }
     public string? Observacoes { get; private set; }
+    public string? QuantidadeEmbalagem { get; private set; }
     public decimal? CustoUnitario { get; private set; }
     public bool Ativo { get; private set; }
     public DateTime CriadoEm { get; private set; }
@@ -33,7 +34,8 @@ public class Ingrediente
         string? codigoInterno = null,
         Guid? categoriaId = null,
         decimal? estoqueMaximo = null,
-        string? observacoes = null)
+        string? observacoes = null,
+        string? quantidadeEmbalagem = null)
     {
         if (estoqueMinimo < 0)
             throw new DomainException("Estoque mínimo não pode ser negativo.");
@@ -51,6 +53,7 @@ public class Ingrediente
             EstoqueMinimo = estoqueMinimo,
             EstoqueMaximo = estoqueMaximo,
             Observacoes = observacoes,
+            QuantidadeEmbalagem = quantidadeEmbalagem,
             Ativo = true,
             CriadoEm = DateTime.UtcNow,
             AtualizadoEm = DateTime.UtcNow,
@@ -67,7 +70,8 @@ public class Ingrediente
         string? codigoInterno = null,
         Guid? categoriaId = null,
         decimal? estoqueMaximo = null,
-        string? observacoes = null)
+        string? observacoes = null,
+        string? quantidadeEmbalagem = null)
     {
         if (estoqueMinimo < 0)
             throw new DomainException("Estoque mínimo não pode ser negativo.");
@@ -81,6 +85,7 @@ public class Ingrediente
         EstoqueMinimo = estoqueMinimo;
         EstoqueMaximo = estoqueMaximo;
         Observacoes = observacoes;
+        QuantidadeEmbalagem = quantidadeEmbalagem;
         AtualizadoEm = DateTime.UtcNow;
         AtualizadoPor = atualizadoPor;
     }

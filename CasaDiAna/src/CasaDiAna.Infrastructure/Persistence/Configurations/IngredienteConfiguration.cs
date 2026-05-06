@@ -27,6 +27,7 @@ public class IngredienteConfiguration : IEntityTypeConfiguration<Ingrediente>
         builder.Property(i => i.EstoqueMaximo).HasColumnName("estoque_maximo").HasPrecision(15, 4);
         builder.Property(i => i.CustoUnitario).HasColumnName("custo_unitario").HasPrecision(15, 4);
         builder.Property(i => i.Observacoes).HasColumnName("observacoes");
+        builder.Property(i => i.QuantidadeEmbalagem).HasColumnName("quantidade_embalagem").HasMaxLength(100);
         builder.Property(i => i.Ativo).HasColumnName("ativo").IsRequired();
         builder.Property(i => i.CriadoEm).HasColumnName("criado_em").IsRequired();
         builder.Property(i => i.AtualizadoEm).HasColumnName("atualizado_em").IsRequired();

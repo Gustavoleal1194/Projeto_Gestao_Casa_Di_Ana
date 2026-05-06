@@ -3,10 +3,10 @@ import { useEffect, useState } from 'react'
 type Theme = 'light' | 'dark'
 
 function getInitialTheme(): Theme {
-  if (typeof window === 'undefined') return 'light'
+  if (typeof window === 'undefined') return 'dark'
   const stored = localStorage.getItem('ada-theme') as Theme | null
   if (stored === 'light' || stored === 'dark') return stored
-  return 'light'
+  return 'dark'
 }
 
 export function useTheme() {

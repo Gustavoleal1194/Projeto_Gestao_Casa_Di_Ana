@@ -34,6 +34,9 @@ public class CancelarEntradaCommandHandler : IRequestHandler<CancelarEntradaComm
         var entrada = await _entradas.ObterPorIdComItensAsync(request.EntradaId, cancellationToken)
             ?? throw new DomainException("Entrada não encontrada.");
 
+        if (entrada.CriadoPor != _currentUser.UsuarioId && _currentUser.Papel != "Admin")
+            throw new UnauthorizedAccessException("Acesso negado.");
+
         entrada.Cancelar(_currentUser.UsuarioId);
 
         foreach (var item in entrada.Itens)

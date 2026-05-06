@@ -4,7 +4,7 @@ services:
     environment:
       POSTGRES_DB: casadiana
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: casadiana123
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5433:5432"   # 5433 para não colidir com Postgres local
     volumes:
@@ -23,8 +23,8 @@ services:
       - "8080:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      ConnectionStrings__Default: "Host=postgres;Port=5432;Database=casadiana;Username=postgres;Password=casadiana123"
-      Jwt__Chave: "casadiana-chave-docker-local-minimo-32-caracteres!"
+      ConnectionStrings__Default: "Host=postgres;Port=5432;Database=casadiana;Username=postgres;Password=${POSTGRES_PASSWORD}"
+      Jwt__Chave: "${JWT_CHAVE}"
       Jwt__Emissor: CasaDiAna
       CorsOrigins: "http://localhost:3000"
     depends_on:

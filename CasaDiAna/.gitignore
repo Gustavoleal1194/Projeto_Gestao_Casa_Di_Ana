@@ -1,0 +1,15 @@
+# Secrets — nunca commitar
+.env
+appsettings.Development.json
+appsettings.*.json
+!appsettings.json
+
+# .NET
+bin/
+obj/
+*.user
+
+# Rider / VS
+.idea/
+.vs/
+*.DotSettings.user

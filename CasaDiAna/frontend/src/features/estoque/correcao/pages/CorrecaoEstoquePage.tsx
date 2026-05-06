@@ -199,9 +199,15 @@ export function CorrecaoEstoquePage() {
                         onMouseLeave={e => (e.currentTarget.style.background = alterada ? 'var(--ada-warning-bg)' : 'var(--ada-surface)')}
                       >
                         <td className={tdCls}>
-                          <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)', fontFamily: 'DM Sans, system-ui, sans-serif' }}>
-                            {linha.nome}
-                          </span>
+                          <div className="flex items-center gap-2.5">
+                            <span
+                              className={`accent-bar shrink-0${alterada ? ' accent-bar-alert' : ''}`}
+                              aria-hidden="true"
+                            />
+                            <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)', fontFamily: 'DM Sans, system-ui, sans-serif' }}>
+                              {linha.nome}
+                            </span>
+                          </div>
                         </td>
 
                         <td className={tdCls}>

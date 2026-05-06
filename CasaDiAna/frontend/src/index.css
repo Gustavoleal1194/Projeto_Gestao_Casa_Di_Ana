@@ -37,91 +37,32 @@
   /* Layout */
   --header-h: 60px;
 
-  /* ── Design tokens — dark premium (padrão do sistema) ── */
-  --ada-bg:           #0F172A;
-  --ada-surface:      #111827;
-  --ada-surface-2:    #1A2233;
-  --ada-border:       #1F2937;
-  --ada-border-sub:   #162032;
-  --ada-heading:      #EDE5D8;
-  --ada-body:         #B5ABA0;
-  --ada-muted:        #7A7068;
-  --ada-muted-dim:    #625B54;
-  --ada-placeholder:  #3A4A5E;
-  --ada-hover:        #1C2840;
-  --ada-row-alert:       rgba(212,150,12,.09);
-  --ada-row-alert-hover: rgba(212,150,12,.16);
-  --ada-error-bg:        rgba(244,63,94,.10);
-  --ada-error-border:    rgba(244,63,94,.35);
-  --ada-warning-bg:      rgba(212,150,12,.12);
-  --ada-warning-border:  rgba(212,150,12,.35);
-  --ada-warning-badge:   rgba(212,150,12,.20);
-  --ada-success-bg:      rgba(16,185,129,.12);
-  --ada-success-border:  rgba(16,185,129,.35);
-  --ada-warning-text:    #FBBF24;
-  --ada-error-text:      #fda4af;
-  --ada-error-badge:     rgba(244,63,94,.22);
-  --ada-success-text:    #6ee7b7;
-  --ada-danger-text:     #fda4af;
-
-  /* Sidebar — sempre escura (theme-independent) */
-  --sb-bg:          #050D18;
-  --sb-hover:       rgba(255,255,255,0.05);
-  --sb-divider:     rgba(255,255,255,0.06);
-  --sb-group:       #2D3A52;
-  --sb-text:        #64748B;
-  --sb-text-hover:  #CBD5E1;
-  --sb-text-active: #FFFFFF;
-  --sb-accent:      #D4960C;
-  --sb-active-bg:   rgba(212,150,12,0.14);
-  --sb-active-bd:   #D4960C;
-
-  /* Topbar — sempre escura (theme-independent) */
-  --topbar-bg:      #050D18;
-  --topbar-border:  #0A1626;
-  --chrome-divider: #0A1626;
-  --topbar-text:    #6B7280;
-  --topbar-heading: #F1F5F9;
-  --topbar-hover:   rgba(255,255,255,0.06);
-  --topbar-divider: rgba(255,255,255,0.08);
-
-  /* Shadows */
-  --shadow-xs: 0 1px 2px rgba(0,0,0,0.35);
-  --shadow-sm: 0 0 0 1px rgba(255,255,255,0.04), 0 2px 6px rgba(0,0,0,0.45);
-  --shadow-md: 0 0 0 1px rgba(255,255,255,0.04), 0 4px 12px rgba(0,0,0,0.50);
-  --shadow-lg: 0 0 0 1px rgba(255,255,255,0.04), 0 12px 28px rgba(0,0,0,0.55), 0 4px 8px rgba(0,0,0,0.40);
-  --shadow-xl: 0 0 0 1px rgba(255,255,255,0.05), 0 24px 48px rgba(0,0,0,0.60), 0 8px 16px rgba(0,0,0,0.45);
-}
-
-/* ─── Tema Claro ─────────────────────────────────────────────────────────── */
-[data-theme="light"] {
-  color-scheme: light;
-
-  --ada-bg:           #F6F8FB;
-  --ada-surface:      #FFFFFF;
-  --ada-surface-2:    #F1F4F8;
-  --ada-border:       #E4E7EC;
-  --ada-border-sub:   #ECF1F7;
-  --ada-heading:      #18150E;
-  --ada-body:         #4B4039;
-  --ada-muted:        #8B7E73;
-  --ada-muted-dim:    #A09287;
-  --ada-placeholder:  #C5BAB3;
-  --ada-hover:        rgba(0,0,0,.04);
-  --ada-row-alert:       rgba(245,158,11,.07);
-  --ada-row-alert-hover: rgba(245,158,11,.13);
-  --ada-error-bg:        rgba(220,38,38,.07);
-  --ada-error-border:    rgba(220,38,38,.22);
-  --ada-warning-bg:      rgba(245,158,11,.08);
-  --ada-warning-border:  rgba(245,158,11,.25);
-  --ada-warning-badge:   rgba(245,158,11,.12);
-  --ada-success-bg:      rgba(16,185,129,.08);
-  --ada-success-border:  rgba(16,185,129,.25);
-  --ada-warning-text:    #92400E;
-  --ada-error-text:      #DC2626;
-  --ada-error-badge:     rgba(220,38,38,.10);
-  --ada-success-text:    #065F46;
-  --ada-danger-text:     #DC2626;
+  /* ── Semantic design tokens (runtime, theme-switchable) ── */
+  --ada-bg:           #080F1C;
+  --ada-surface:      #0D1829;
+  --ada-surface-2:    #111E35;
+  --ada-border:       rgba(255,255,255,.07);
+  --ada-border-sub:   rgba(255,255,255,.04);
+  --ada-heading:      #F1F5F9;
+  --ada-body:         #94A3B8;
+  --ada-muted:        #475569;
+  --ada-muted-dim:    #334155;
+  --ada-placeholder:  #334155;
+  --ada-hover:        rgba(255,255,255,.03);
+  --ada-row-alert:       rgba(252,211,77,.04);
+  --ada-row-alert-hover: rgba(252,211,77,.07);
+  --ada-error-bg:        rgba(248,113,113,.1);
+  --ada-error-border:    rgba(248,113,113,.2);
+  --ada-warning-bg:      rgba(252,211,77,.1);
+  --ada-warning-border:  rgba(252,211,77,.2);
+  --ada-warning-badge:   rgba(252,211,77,.1);
+  --ada-success-bg:      rgba(74,222,128,.1);
+  --ada-success-border:  rgba(74,222,128,.2);
+  --ada-warning-text:    #FCD34D;
+  --ada-error-text:      #F87171;
+  --ada-error-badge:     rgba(248,113,113,.1);
+  --ada-success-text:    #4ADE80;
+  --ada-danger-text:     #F87171;
 
   /* Sidebar — sempre escura (theme-independent) */
   --sb-bg:          #07101E;
@@ -132,7 +73,7 @@
   --sb-text-hover:  #CBD5E1;
   --sb-text-active: #FFFFFF;
   --sb-accent:      #D4960C;
-  --sb-active-bg:   rgba(212,150,12,0.14);
+  --sb-active-bg:   rgba(212, 150, 12, 0.14);
   --sb-active-bd:   #D4960C;
 
   /* Topbar — sempre escura (theme-independent) */
@@ -144,83 +85,137 @@
   --topbar-hover:   rgba(255,255,255,0.06);
   --topbar-divider: rgba(255,255,255,0.08);
 
-  /* Shadows — leves para fundo claro */
-  --shadow-xs: 0 1px 2px rgba(24,21,14,.06);
-  --shadow-sm: 0 1px 3px rgba(24,21,14,.10), 0 1px 2px rgba(24,21,14,.06);
-  --shadow-md: 0 4px 8px  rgba(24,21,14,.08), 0 2px 4px rgba(24,21,14,.05);
-  --shadow-lg: 0 12px 24px rgba(24,21,14,.10), 0 4px 8px rgba(24,21,14,.06);
-  --shadow-xl: 0 24px 48px rgba(24,21,14,.14), 0 8px 16px rgba(24,21,14,.08);
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(24,21,14,0.04);
+  --shadow-sm: 0 1px 3px rgba(24,21,14,0.06), 0 1px 2px rgba(24,21,14,0.04);
+  --shadow-md: 0 4px 8px  rgba(24,21,14,0.06), 0 2px 4px  rgba(24,21,14,0.04);
+  --shadow-lg: 0 12px 24px rgba(24,21,14,0.08), 0 4px 8px  rgba(24,21,14,0.05);
+  --shadow-xl: 0 24px 48px rgba(24,21,14,0.12), 0 8px 16px rgba(24,21,14,0.07);
 }
 
-/* ─── Overrides globais de superfície (adaptam via var(--ada-*)) ─────────── */
+/* ─── Tema Escuro ────────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Design tokens — premium dark mode */
+  --ada-bg:           #0F172A;  /* slate-900 — fundo profundo e limpo */
+  --ada-surface:      #111827;  /* gray-900  — card, levemente mais claro */
+  --ada-surface-2:    #1A2233;  /* navy      — superfície secundária */
+  --ada-border:       #1F2937;  /* gray-800  — divisores sutis */
+  --ada-border-sub:   #162032;  /* mais escuro que border — separadores internos */
+  --ada-heading:      #EDE5D8;  /* creme quente — contraste elegante sobre fundo frio */
+  --ada-body:         #B5ABA0;  /* stone-400 quente */
+  --ada-muted:        #7A7068;  /* muted quente */
+  --ada-muted-dim:    #625B54;  /* dim quente */
+  --ada-placeholder:  #3A4A5E;  /* placeholder sobre surface-2 */
+  --ada-hover:        #1C2840;  /* hover/separador de linha slate */
+  --ada-row-alert:       rgba(212, 150, 12, 0.09);
+  --ada-row-alert-hover: rgba(212, 150, 12, 0.16);
+  --ada-error-bg:        rgba(244, 63, 94, 0.10);
+  --ada-error-border:    rgba(244, 63, 94, 0.35);
+  --ada-warning-bg:      rgba(212, 150, 12, 0.12);
+  --ada-warning-border:  rgba(212, 150, 12, 0.35);
+  --ada-warning-badge:   rgba(212, 150, 12, 0.20);
+  --ada-success-bg:      rgba(16, 185, 129, 0.12);
+  --ada-success-border:  rgba(16, 185, 129, 0.35);
+  --ada-warning-text:    #FBBF24;
+  --ada-error-text:      #fda4af;
+  --ada-error-badge:     rgba(244, 63, 94, 0.22);
+  --ada-success-text:    #6ee7b7;
+  --ada-danger-text:     #fda4af;
+
+  /* Sidebar — mais escura que o fundo para criar hierarquia de profundidade */
+  --sb-bg:          #050D18;
+  --sb-hover:       rgba(255,255,255,0.05);
+  --sb-divider:     rgba(255,255,255,0.06);
+  --sb-group:       #2D3A52;
+  --sb-text:        #64748B;
+  --sb-text-hover:  #CBD5E1;
+  --sb-text-active: #FFFFFF;
+  --sb-accent:      #D4960C;
+  --sb-active-bg:   rgba(212, 150, 12, 0.14);
+  --sb-active-bd:   #D4960C;
+
+  /* Topbar — no dark mode fica ainda mais integrada */
+  --topbar-bg:      #050D18;
+  --topbar-border:  #0A1626;
+  --chrome-divider: #0A1626;
+
+  /* Sombras — elevação marcante para superfícies sobre fundo escuro */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.35);
+  --shadow-sm: 0 0 0 1px rgba(255,255,255,0.04), 0 2px 6px rgba(0,0,0,0.45);
+  --shadow-md: 0 0 0 1px rgba(255,255,255,0.04), 0 4px 12px rgba(0,0,0,0.50);
+  --shadow-lg: 0 0 0 1px rgba(255,255,255,0.04), 0 12px 28px rgba(0,0,0,0.55), 0 4px 8px rgba(0,0,0,0.40);
+  --shadow-xl: 0 0 0 1px rgba(255,255,255,0.05), 0 24px 48px rgba(0,0,0,0.60), 0 8px 16px rgba(0,0,0,0.45);
+}
+
+/* ─── Overrides globais para tema escuro ─────────────────────────────────── */
 
 /* Superfícies brancas (cards, modais, tabelas) */
-.bg-white {
+[data-theme="dark"] .bg-white {
   background-color: var(--ada-surface) !important;
 }
 
-/* Knob circular de toggle — off-white no dark, branco no light */
-.rounded-full.bg-white {
+/* Excepção: knob circular de toggle — mantém tom claro */
+[data-theme="dark"] .rounded-full.bg-white {
   background-color: #cec6bc !important;
-}
-[data-theme="light"] .rounded-full.bg-white {
-  background-color: #FFFFFF !important;
 }
 
 /* Stone surfaces */
-.bg-stone-50 {
+[data-theme="dark"] .bg-stone-50 {
   background-color: var(--ada-surface-2) !important;
 }
-.bg-stone-100 {
+[data-theme="dark"] .bg-stone-100 {
   background-color: var(--ada-surface-2) !important;
 }
 
 /* Hover backgrounds */
-.hover\:bg-stone-50:hover,
-.hover\:bg-stone-100:hover {
+[data-theme="dark"] .hover\:bg-stone-50:hover,
+[data-theme="dark"] .hover\:bg-stone-100:hover {
   background-color: var(--ada-hover) !important;
 }
-.hover\:bg-amber-50:hover {
-  background-color: rgba(212,150,12,0.07) !important;
+[data-theme="dark"] .hover\:bg-amber-50:hover {
+  background-color: rgba(212, 150, 12, 0.07) !important;
 }
-.hover\:bg-amber-50:hover td {
+[data-theme="dark"] .hover\:bg-amber-50:hover td {
   background-color: transparent !important;
 }
 
 /* Bordas stone */
-.border-stone-200,
-.border-stone-100 {
+[data-theme="dark"] .border-stone-200,
+[data-theme="dark"] .border-stone-100 {
   border-color: var(--ada-border) !important;
 }
 
 /* Textos stone */
-.text-stone-900,
-.text-stone-800 {
+[data-theme="dark"] .text-stone-900,
+[data-theme="dark"] .text-stone-800 {
   color: var(--ada-heading) !important;
 }
-.text-stone-700,
-.text-stone-600 {
+[data-theme="dark"] .text-stone-700,
+[data-theme="dark"] .text-stone-600 {
   color: var(--ada-body) !important;
 }
-.text-stone-500,
-.text-stone-400 {
+[data-theme="dark"] .text-stone-500,
+[data-theme="dark"] .text-stone-400 {
   color: var(--ada-muted) !important;
 }
 
 /* Inputs e selects */
-input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
-select,
-textarea {
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
   background-color: var(--ada-surface-2) !important;
   color: var(--ada-heading) !important;
   border-color: var(--ada-border) !important;
+  color-scheme: dark;
 }
-input::placeholder,
-textarea::placeholder {
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
   color: var(--ada-placeholder) !important;
 }
 
-/* Fallback explícito para option elements */
+/* Fallback explícito para option elements (alguns browsers ignoram color-scheme no popup nativo) */
 select option {
   background-color: var(--ada-surface-2);
   color: var(--ada-heading);
@@ -237,15 +232,15 @@ input:-webkit-autofill:active {
 }
 
 /* Sombras Tailwind padrão */
-.shadow-sm {
+[data-theme="dark"] .shadow-sm {
   box-shadow: var(--shadow-sm) !important;
 }
-.shadow-xl {
+[data-theme="dark"] .shadow-xl {
   box-shadow: var(--shadow-xl) !important;
 }
 
-/* Filter chip */
-.filter-chip {
+/* Filter chip — dark mode adaptation */
+[data-theme="dark"] .filter-chip {
   color: #D4960C;
   background: rgba(212,150,12,.1);
   border-color: rgba(212,150,12,.2);

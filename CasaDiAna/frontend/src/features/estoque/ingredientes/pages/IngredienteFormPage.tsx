@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { Controller } from 'react-hook-form'
 import { ChevronLeftIcon } from '@heroicons/react/20/solid'
@@ -18,14 +18,8 @@ import { FormCard } from '@/components/form/FormCard'
 import { LoadingState } from '@/components/ui/LoadingState'
 import type { Ingrediente, IngredienteFormValues } from '@/types/estoque'
 
-function gerarCodigoInterno(nome: string): string {
-  const palavras = nome.trim().split(/\s+/).filter(Boolean)
-  const prefixo = palavras
-    .slice(0, 3)
-    .map(p => p[0].toUpperCase())
-    .join('')
-  const sufixo = String(Math.floor(Math.random() * 900) + 100)
-  return `${prefixo}-${sufixo}`
+function calcularPrefixo(nome: string): string {
+  return nome.trim().split(/\s+/).filter(Boolean).slice(0, 3).map(p => p[0].toUpperCase()).join('')
 }
 
 export function IngredienteFormPage() {
@@ -59,9 +53,12 @@ export function IngredienteFormPage() {
   const { form, salvar } = useIngredienteForm({ ingredienteExistente: ingrediente })
   const { register, handleSubmit, watch, reset, setValue, clearErrors, control, formState: { errors } } = form
 
-  // Watchs para auto-geração de código
   const nomeAtual = watch('nome') ?? ''
-  const codigoAtual = watch('codigoInterno') ?? ''
+
+  // Controle de auto-geração: só gera automaticamente enquanto o usuário não editar manualmente
+  const codigoEditadoManualmenteRef = useRef(false)
+  const sufixoGeradoRef = useRef<number | null>(null)
+  const prefixoGeradoRef = useRef('')
 
   // Ao carregar ingrediente no modo edição, resetar o form com os dados
   useEffect(() => {
@@ -94,13 +91,26 @@ export function IngredienteFormPage() {
     }
   }, [ehPacote, setValue, clearErrors])
 
-  // Auto-gera código interno quando nome é preenchido e código está vazio (somente criação)
+  // Auto-gera código dinamicamente conforme o nome é editado (somente criação)
+  // O sufixo aleatório é estável enquanto o prefixo (iniciais) não mudar
   useEffect(() => {
-    if (!modoEdicao && nomeAtual.trim().length >= 3 && !codigoAtual.trim()) {
-      setValue('codigoInterno', gerarCodigoInterno(nomeAtual))
+    if (modoEdicao || codigoEditadoManualmenteRef.current) return
+    const nome = nomeAtual.trim()
+    if (nome.length < 3) {
+      setValue('codigoInterno', '')
+      sufixoGeradoRef.current = null
+      prefixoGeradoRef.current = ''
+      return
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nomeAtual])
+    const prefixo = calcularPrefixo(nome)
+    if (prefixo !== prefixoGeradoRef.current || sufixoGeradoRef.current === null) {
+      sufixoGeradoRef.current = Math.floor(Math.random() * 900) + 100
+      prefixoGeradoRef.current = prefixo
+    }
+    setValue('codigoInterno', `${prefixo}-${sufixoGeradoRef.current}`)
+  }, [nomeAtual, modoEdicao, setValue])
+
+  const registroCodigo = register('codigoInterno')
 
   const onSubmit = handleSubmit(async (values: IngredienteFormValues) => {
     setSalvando(true)
@@ -178,7 +188,19 @@ export function IngredienteFormPage() {
               <CampoTexto
                 label="Código Interno"
                 placeholder="Ex: FA-001"
-                {...register('codigoInterno')}
+                {...registroCodigo}
+                onChange={(e) => {
+                  const valor = e.target.value
+                  codigoEditadoManualmenteRef.current = valor !== ''
+                  if (valor === '' && nomeAtual.trim().length >= 3) {
+                    const prefixo = calcularPrefixo(nomeAtual)
+                    sufixoGeradoRef.current = Math.floor(Math.random() * 900) + 100
+                    prefixoGeradoRef.current = prefixo
+                    setValue('codigoInterno', `${prefixo}-${sufixoGeradoRef.current}`)
+                  } else {
+                    registroCodigo.onChange(e)
+                  }
+                }}
                 erro={errors.codigoInterno?.message}
               />
             </div>

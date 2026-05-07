@@ -3,12 +3,19 @@ name: OPEN_LOOPS – pendências e dúvidas em aberto
 description: Pontos a confirmar, conflitos detectados, decisões pendentes
 type: open_loops
 status: existente
-ultima_atualizacao: 2026-04-30
+ultima_atualizacao: 2026-05-07
 ---
 
 # ❓ Open Loops
 
 > Pontos abertos. Resolver = mover para [[DEC]] / [[REGRA]] / [[ERRO_RESOLVIDO]] e retirar daqui.
+
+## Frontend / Design
+
+### [[OPEN_LOOP_TEMA_TOGGLE]]
+- **Sintoma:** toggle claro/escuro teve múltiplos ciclos de fix+revert (db3cd2f, 7f274f4 são os últimos reverts em 2026-05-06). Estado atual: dark premium no `:root`, tema claro via `[data-theme=light]`, mas alguns módulos ainda exibem cores erradas no tema claro.
+- **Importância:** afeta usabilidade em ambientes com iluminação natural; promessa do design system.
+- **Próximo passo:** auditar `index.css` — verificar quais tokens do `[data-theme=light]` ainda herdam valores dark; testar módulo por módulo com tema light ativo.
 
 ## Comportamento de domínio
 

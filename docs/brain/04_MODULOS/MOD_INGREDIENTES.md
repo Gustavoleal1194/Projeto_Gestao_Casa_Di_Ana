@@ -1,9 +1,9 @@
 ---
 name: MOD_INGREDIENTES
-description: Cadastro de ingredientes com estoque, mínimo/máximo, custo unitário
+description: Cadastro de ingredientes com estoque, mínimo/máximo, custo unitário, quantidade por embalagem
 type: modulo
 status: existente
-ultima_atualizacao: 2026-04-30
+ultima_atualizacao: 2026-05-07
 ---
 
 # 🥚 Módulo: Ingredientes
@@ -19,6 +19,20 @@ Manter o cadastro central de ingredientes da cafeteria com estoque rastreável.
 - Editar (mantém histórico via movimentações para qualquer alteração de estoque).
 - Soft delete (`ativo = false`).
 - Estoque alterado por entrada de mercadoria, produção (saída), inventário, correção manual — sempre com `Movimentacao`.
+
+## Campos especiais (2026-05-06)
+
+### `quantidadeEmbalagem` (string nullable, max 100)
+- Coluna `quantidade_embalagem` em `estoque.ingredientes` (migration `20260506214149`).
+- Campo **condicional** no frontend: só aparece quando a unidade selecionada contém "pacote" em sua descrição (case-insensitive).
+- Obrigatório apenas quando visível — validado via `superRefine` no schema Zod (`_ehPacote` boolean hidden).
+- Backend: `MaximumLength(100).When(x => x.QuantidadeEmbalagem != null)`.
+
+### `codigoInterno` — auto-geração no frontend
+- No modo criação: ao preencher ≥3 letras no nome, o código interno é sugerido automaticamente.
+- Formato: iniciais das primeiras 3 palavras em maiúsculas + `-` + número aleatório 100-999. Ex: "Farinha de Trigo" → `FDT-437`.
+- O usuário pode sobrescrever livremente; se apagar e o campo ficar vazio, a sugestão regenera ao digitar mais.
+- Limite: 30 caracteres (Zod e FluentValidation alinhados).
 
 ## Evidências
 - Backend: `CasaDiAna/src/CasaDiAna.Application/Ingredientes/`

@@ -1,13 +1,13 @@
 ---
-name: STATUS_SNAPSHOT – 2026-04-30
+name: STATUS_SNAPSHOT – 2026-05-07
 description: Estado atual detectado do projeto a partir de código, docs e plans
 type: status
 status: existente
-data_snapshot: 2026-04-30
-ultima_revisao: 2026-04-30
+data_snapshot: 2026-05-07
+ultima_revisao: 2026-05-07
 ---
 
-# 📊 Status snapshot — 2026-04-30
+# 📊 Status snapshot — 2026-05-07
 
 > Snapshot baseado em leitura direta do repositório. Confirmar antes de afirmar staleness.
 
@@ -25,10 +25,10 @@ ultima_revisao: 2026-04-30
 | Auth + 2FA TOTP                        | existente      | Refactor TOTP (abr 2026); painel animado; rate limit `login`/`reenvio2fa` |
 | Usuários                               | existente      | Admin only; soft delete; campos lastLogin                              |
 | Minha Conta (perfil + 2FA)             | existente      | Plan 2026-04-24 executado                                              |
-| Ingredientes / Estoque                 | existente      | Módulo de referência do frontend; modal de confirmação animado         |
+| Ingredientes / Estoque                 | existente      | Campo `quantidadeEmbalagem` (condicional para Pacote); auto-geração de `codigoInterno`; modal de confirmação animado |
 | Categorias (ingrediente / produto)     | existente      | CRUD com soft delete                                                   |
 | Unidades de medida                     | existente      | Seed imutável (8 unidades)                                             |
-| Fornecedores                           | existente      | Modal de confirmação animado (cf2f28f)                                 |
+| Fornecedores                           | existente      | Máscaras CNPJ + Telefone (frontend + backend validados); modal de confirmação animado |
 | Entrada de Mercadoria                  | existente      | `RecebidoPor` adicionado; modal de confirmação animado                 |
 | Inventário Físico                      | existente      | Modal de confirmação ao iniciar e finalizar                            |
 | Correção de Estoque                    | existente      | Em lote                                                                |
@@ -42,6 +42,9 @@ ultima_revisao: 2026-04-30
 | Relatórios                             | existente      | 5 relatórios com PDF; Comparação de Preços adicionada (118a48c)        |
 | Dashboard                              | existente      | ECharts (sem Recharts — README corrigido em 2026-04-30)               |
 | Filter Bar                             | existente      | Componente FilterBar com chips e btn-filter (plan 2026-04-26 executado)|
+| Design System Dark Premium             | existente      | `:root` dark premium; 4 componentes novos; `Toast/ModalDesativar/CampoTexto/SelectCampo` em paths globais; tema claro via `[data-theme=light]` (toggle instável — ver open loop) |
+| BrainOS Dashboard                      | existente      | Three.js 3D `dashboard/index.html`; `generate.js` → `brain_data.json`; clique abre nota no Obsidian |
+| Segurança                              | existente      | IDOR em Entradas + Inventários corrigido com testes; security headers nginx; CORS fechado; secrets removidos do docker-compose |
 
 ## Plans — classificação
 
@@ -73,6 +76,9 @@ ultima_revisao: 2026-04-30
 | 2026-04-25-comparacao-precos-ingredientes | executado | 118a48c ComparacaoPrecoPage |
 | 2026-04-26-redesign-filter-bar | executado | 1add17c FilterBar; c94d842 redesign CSS |
 | 2026-04-29-modal-confirmacao-todos-formularios | executado | 5731f0b ingredientes; f655385 produtos; 946e962 perdas; cf2f28f fornecedores; 3fb2245+563a0ae inventarios; 6ad0994 ficha-tecnica; b25ef95 importacao-vendas |
+| 2026-04-30-brainOS-dashboard | executado | d8aed9b nó abre Obsidian; 37bb23e Three.js; 5cf6c43 fixes |
+| 2026-05-01-design-system-dark-premium | executado_parcial | dark premium `:root` ativo; toggle tema claro instável (múltiplos reverts — db3cd2f, 7f274f4) |
+| 2026-05-06-formularios-ingredientes-fornecedores | executado | 1ab5ad3→08a4e89 — 12 commits; E7 documentado |
 
 ## Backend rodando em (local)
 
@@ -94,6 +100,7 @@ ultima_revisao: 2026-04-30
 - Pasta `src/` na raiz (apenas `obj/`) é resíduo? — ver [[OPEN_LOOP_SRC_RAIZ]].
 - Importação de vendas via PDF está em produção ou só CSV? — ver [[OPEN_LOOP_IMPORTACAO_PDF]].
 - Contagem real de testes unitários (era 28 em 2026-03-27) — ver [[OPEN_LOOP_BACKEND_DOCS_TESTES]].
+- Toggle tema claro/escuro instável — `[data-theme=light]` em alguns módulos ainda com cores erradas (múltiplos reverts em db3cd2f, 7f274f4) — ver [[OPEN_LOOP_TEMA_TOGGLE]].
 
 ## Riscos detectados
 

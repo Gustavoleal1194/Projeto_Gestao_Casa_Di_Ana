@@ -46,7 +46,7 @@ export function IngredienteFormPage() {
   const fecharToast = useCallback(() => setToast(null), [])
 
   const { form, salvar } = useIngredienteForm({ ingredienteExistente: ingrediente })
-  const { register, handleSubmit, watch, reset, formState: { errors } } = form
+  const { register, handleSubmit, watch, reset, setValue, formState: { errors } } = form
 
   // Ao carregar ingrediente no modo edição, resetar o form com os dados
   useEffect(() => {
@@ -61,6 +61,21 @@ export function IngredienteFormPage() {
     const unidade = unidades.find(u => String(u.id) === unidadeSelecionadaId)
     setUnidadeAtual(unidade?.codigo ?? '')
   }, [unidadeSelecionadaId, unidades])
+
+  // Detecta se a unidade selecionada é do tipo Pacote
+  const ehPacote = unidades
+    .find(u => String(u.id) === unidadeSelecionadaId)
+    ?.descricao.toLowerCase()
+    .includes('pacote') ?? false
+
+  // Sincroniza flag _ehPacote no form para o superRefine funcionar
+  useEffect(() => {
+    setValue('_ehPacote', ehPacote)
+    if (!ehPacote) {
+      setValue('quantidadeEmbalagem', '')
+      form.clearErrors('quantidadeEmbalagem')
+    }
+  }, [ehPacote, setValue, form]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onSubmit = handleSubmit(async (values: any) => {
@@ -188,6 +203,21 @@ export function IngredienteFormPage() {
               erro={errors.estoqueMaximo?.message}
             />
           </div>
+
+          {ehPacote && (
+            <>
+              <FormSection titulo="Embalagem" />
+              <div className="max-w-xs">
+                <CampoTexto
+                  label="Quantidade por Embalagem"
+                  obrigatorio
+                  placeholder="Ex: 500 gramas, 1000 ml, 5 kg"
+                  {...register('quantidadeEmbalagem')}
+                  erro={errors.quantidadeEmbalagem?.message}
+                />
+              </div>
+            </>
+          )}
 
           <FormSection titulo="Observações" />
           <FormTextarea

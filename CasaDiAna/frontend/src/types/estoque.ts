@@ -57,6 +57,7 @@ export interface Ingrediente {
   estoqueMaximo: number | null
   estaBaixoDoMinimo: boolean
   observacoes: string | null
+  quantidadeEmbalagem: string | null
   ativo: boolean
   atualizadoEm: string
 }
@@ -69,6 +70,7 @@ export interface CriarIngredienteInput {
   categoriaId?: string | null
   estoqueMaximo?: number | null
   observacoes?: string | null
+  quantidadeEmbalagem?: string | null
 }
 
 export interface AtualizarIngredienteInput extends CriarIngredienteInput {
@@ -83,6 +85,8 @@ export interface IngredienteFormValues {
   estoqueMinimo: string
   estoqueMaximo: string
   observacoes: string
+  quantidadeEmbalagem: string
+  _ehPacote?: boolean
 }
 
 // ─── Fornecedor ───────────────────────────────────────────────────────────────

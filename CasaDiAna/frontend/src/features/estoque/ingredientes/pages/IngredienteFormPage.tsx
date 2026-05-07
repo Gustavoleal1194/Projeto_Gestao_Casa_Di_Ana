@@ -16,7 +16,7 @@ import { FormTextarea } from '@/components/form/FormTextarea'
 import { FormActions } from '@/components/form/FormActions'
 import { FormCard } from '@/components/form/FormCard'
 import { LoadingState } from '@/components/ui/LoadingState'
-import type { Ingrediente } from '@/types/estoque'
+import type { Ingrediente, IngredienteFormValues } from '@/types/estoque'
 
 function gerarCodigoInterno(nome: string): string {
   const palavras = nome.trim().split(/\s+/).filter(Boolean)
@@ -102,8 +102,7 @@ export function IngredienteFormPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nomeAtual])
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onSubmit = handleSubmit(async (values: any) => {
+  const onSubmit = handleSubmit(async (values: IngredienteFormValues) => {
     setSalvando(true)
     try {
       await salvar(values)

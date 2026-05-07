@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
+import { Controller } from 'react-hook-form'
 import { ChevronLeftIcon } from '@heroicons/react/20/solid'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { useIngredienteForm, ingredienteParaForm } from '../hooks/useIngredienteForm'
@@ -56,7 +57,7 @@ export function IngredienteFormPage() {
   const fecharToast = useCallback(() => setToast(null), [])
 
   const { form, salvar } = useIngredienteForm({ ingredienteExistente: ingrediente })
-  const { register, handleSubmit, watch, reset, setValue, clearErrors, formState: { errors } } = form
+  const { register, handleSubmit, watch, reset, setValue, clearErrors, control, formState: { errors } } = form
 
   // Watchs para auto-geração de código
   const nomeAtual = watch('nome') ?? ''
@@ -86,8 +87,10 @@ export function IngredienteFormPage() {
   useEffect(() => {
     setValue('_ehPacote', ehPacote)
     if (!ehPacote) {
-      setValue('quantidadeEmbalagem', '')
-      clearErrors('quantidadeEmbalagem')
+      setValue('quantidadeEmbalagemValor', undefined)
+      setValue('unidadeEmbalagem', '')
+      clearErrors('quantidadeEmbalagemValor')
+      clearErrors('unidadeEmbalagem')
     }
   }, [ehPacote, setValue, clearErrors])
 
@@ -229,14 +232,48 @@ export function IngredienteFormPage() {
           {ehPacote && (
             <>
               <FormSection titulo="Embalagem" />
-              <div className="max-w-xs">
-                <CampoTexto
-                  label="Quantidade por Embalagem"
-                  obrigatorio
-                  placeholder="Ex: 500 gramas, 1000 ml, 5 kg"
-                  {...register('quantidadeEmbalagem')}
-                  erro={errors.quantidadeEmbalagem?.message}
-                />
+              <div className="flex gap-3 items-end">
+                <div className="flex-1">
+                  <Controller
+                    name="quantidadeEmbalagemValor"
+                    control={control}
+                    render={({ field }) => (
+                      <CampoTexto
+                        label="Quantidade por embalagem"
+                        type="number"
+                        min="0"
+                        step="any"
+                        value={field.value ?? ''}
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value === '' ? undefined : Number(e.target.value)
+                          )
+                        }
+                        erro={errors.quantidadeEmbalagemValor?.message}
+                        obrigatorio
+                      />
+                    )}
+                  />
+                </div>
+                <div className="w-28">
+                  <Controller
+                    name="unidadeEmbalagem"
+                    control={control}
+                    render={({ field }) => (
+                      <SelectCampo
+                        label="Unidade"
+                        value={field.value}
+                        onChange={field.onChange}
+                        erro={errors.unidadeEmbalagem?.message}
+                        opcoes={[
+                          { valor: 'ml', rotulo: 'ml' },
+                          { valor: 'g', rotulo: 'g' },
+                        ]}
+                        placeholderOpcao="Selecione"
+                      />
+                    )}
+                  />
+                </div>
               </div>
             </>
           )}

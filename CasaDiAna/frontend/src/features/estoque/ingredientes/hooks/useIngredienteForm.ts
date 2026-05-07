@@ -5,6 +5,23 @@ import { z } from 'zod'
 import { ingredientesService } from '../services/ingredientesService'
 import type { Ingrediente, IngredienteFormValues } from '@/types/estoque'
 
+// ─── Helpers z.preprocess ─────────────────────────────────────────────────────
+const numeroObrigatorio = (msg = 'Campo obrigatório') =>
+  z.preprocess(
+    (v) => (v === '' || v == null ? undefined : Number(v)),
+    z
+      .number({ required_error: msg, invalid_type_error: 'Deve ser um número' })
+      .nonnegative('Deve ser ≥ 0')
+  )
+
+const numeroOpcionalPositivo = z.preprocess(
+  (v) => (v === '' || v == null ? undefined : Number(v)),
+  z
+    .number({ invalid_type_error: 'Deve ser um número' })
+    .positive('Deve ser maior que zero')
+    .optional()
+)
+
 // ─── Schema de validação ──────────────────────────────────────────────────────
 export const ingredienteSchema = z
   .object({
@@ -17,26 +34,31 @@ export const ingredienteSchema = z
     unidadeMedidaId: z
       .string()
       .min(1, 'Unidade de medida é obrigatória')
-      .refine(v => !isNaN(Number(v)) && Number(v) > 0, 'Selecione uma unidade'),
-    estoqueMinimo: z
-      .string()
-      .min(1, 'Estoque mínimo é obrigatório')
-      .refine(v => !isNaN(Number(v)) && Number(v) >= 0, 'Deve ser ≥ 0'),
-    estoqueMaximo: z
-      .string()
-      .refine(v => v === '' || (!isNaN(Number(v)) && Number(v) >= 0), 'Deve ser ≥ 0')
-      .optional()
-      .or(z.literal('')),
+      .refine((v) => !isNaN(Number(v)) && Number(v) > 0, 'Selecione uma unidade'),
+    estoqueMinimo: numeroObrigatorio('Estoque mínimo é obrigatório'),
+    estoqueMaximo: numeroOpcionalPositivo,
     observacoes: z.string().max(500, 'Máximo 500 caracteres').optional().or(z.literal('')),
-    quantidadeEmbalagem: z.string().max(100, 'Máximo 100 caracteres').optional().or(z.literal('')),
+    quantidadeEmbalagemValor: numeroOpcionalPositivo,
+    unidadeEmbalagem: z.enum(['', 'ml', 'g']).optional().or(z.literal('')),
     _ehPacote: z.boolean().optional(),
   })
   .superRefine((data, ctx) => {
-    if (data._ehPacote && !data.quantidadeEmbalagem) {
+    const temValor =
+      data.quantidadeEmbalagemValor !== undefined && data.quantidadeEmbalagemValor > 0
+    const temUnidade =
+      data.unidadeEmbalagem !== '' && data.unidadeEmbalagem !== undefined
+    if (temValor && !temUnidade) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Informe a quantidade por embalagem (ex: 500 gramas, 1000 ml)',
-        path: ['quantidadeEmbalagem'],
+        message: 'Selecione a unidade de embalagem',
+        path: ['unidadeEmbalagem'],
+      })
+    }
+    if (temUnidade && !temValor) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Informe a quantidade por embalagem',
+        path: ['quantidadeEmbalagemValor'],
       })
     }
   })
@@ -49,10 +71,11 @@ const defaultValues: IngredienteFormValues = {
   codigoInterno: '',
   categoriaId: '',
   unidadeMedidaId: '',
-  estoqueMinimo: '',
-  estoqueMaximo: '',
+  estoqueMinimo: 0,
+  estoqueMaximo: undefined,
   observacoes: '',
-  quantidadeEmbalagem: '',
+  quantidadeEmbalagemValor: undefined,
+  unidadeEmbalagem: '',
   _ehPacote: false,
 }
 
@@ -63,10 +86,11 @@ export function ingredienteParaForm(ing: Ingrediente): IngredienteFormValues {
     codigoInterno: ing.codigoInterno ?? '',
     categoriaId: ing.categoriaId ?? '',
     unidadeMedidaId: String(ing.unidadeMedidaId),
-    estoqueMinimo: String(ing.estoqueMinimo),
-    estoqueMaximo: ing.estoqueMaximo != null ? String(ing.estoqueMaximo) : '',
+    estoqueMinimo: ing.estoqueMinimo,
+    estoqueMaximo: ing.estoqueMaximo ?? undefined,
     observacoes: ing.observacoes ?? '',
-    quantidadeEmbalagem: ing.quantidadeEmbalagem ?? '',
+    quantidadeEmbalagemValor: ing.quantidadeEmbalagemValor ?? undefined,
+    unidadeEmbalagem: ing.unidadeEmbalagem ?? '',
     _ehPacote: false,
   }
 }
@@ -76,12 +100,13 @@ function formParaInput(values: IngredienteSchema) {
   return {
     nome: values.nome,
     unidadeMedidaId: Number(values.unidadeMedidaId),
-    estoqueMinimo: Number(values.estoqueMinimo),
+    estoqueMinimo: values.estoqueMinimo as number,
     codigoInterno: values.codigoInterno || null,
     categoriaId: values.categoriaId || null,
-    estoqueMaximo: values.estoqueMaximo ? Number(values.estoqueMaximo) : null,
+    estoqueMaximo: values.estoqueMaximo ?? null,
     observacoes: values.observacoes || null,
-    quantidadeEmbalagem: values.quantidadeEmbalagem || null,
+    quantidadeEmbalagemValor: values.quantidadeEmbalagemValor || undefined,
+    unidadeEmbalagem: values.unidadeEmbalagem || undefined,
   }
 }
 

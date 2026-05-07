@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { Controller } from 'react-hook-form'
 import { PageHeader } from '@/components/ui/PageHeader'
-import { useFornecedorForm, fornecedorParaForm, formParaInput } from '../hooks/useFornecedorForm'
+import { useFornecedorForm, fornecedorParaForm, formParaInput, formatarCnpj, formatarTelefone } from '../hooks/useFornecedorForm'
 import { fornecedoresService } from '../services/fornecedoresService'
 import { CampoTexto } from '@/components/form/CampoTexto'
 import { FormTextarea } from '@/components/form/FormTextarea'
@@ -18,7 +19,13 @@ export function FornecedorFormPage() {
   const { id } = useParams<{ id: string }>()
   const isEdicao = Boolean(id)
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useFornecedorForm()
+  const {
+    register,
+    handleSubmit,
+    reset,
+    control,
+    formState: { errors, isSubmitting },
+  } = useFornecedorForm()
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
   const [carregando, setCarregando] = useState(isEdicao)
   const [confirma, setConfirma] = useState<DadosConfirmacaoFornecedor | null>(null)
@@ -93,21 +100,39 @@ export function FornecedorFormPage() {
             />
           </div>
           <div className="mt-4 max-w-xs">
-            <CampoTexto
-              label="CNPJ"
-              placeholder="14 dígitos sem pontuação"
-              erro={errors.cnpj?.message}
-              {...register('cnpj')}
+            <Controller
+              name="cnpj"
+              control={control}
+              render={({ field }) => (
+                <CampoTexto
+                  label="CNPJ"
+                  placeholder="00.000.000/0000-00"
+                  inputMode="numeric"
+                  value={field.value}
+                  onChange={e => field.onChange(formatarCnpj(e.target.value))}
+                  onBlur={field.onBlur}
+                  erro={errors.cnpj?.message}
+                />
+              )}
             />
           </div>
 
           <FormSection titulo="Contato" />
           <div className="grid grid-cols-2 gap-4">
-            <CampoTexto
-              label="Telefone"
-              placeholder="(11) 99999-9999"
-              erro={errors.telefone?.message}
-              {...register('telefone')}
+            <Controller
+              name="telefone"
+              control={control}
+              render={({ field }) => (
+                <CampoTexto
+                  label="Telefone"
+                  placeholder="(11) 99999-9999"
+                  inputMode="numeric"
+                  value={field.value}
+                  onChange={e => field.onChange(formatarTelefone(e.target.value))}
+                  onBlur={field.onBlur}
+                  erro={errors.telefone?.message}
+                />
+              )}
             />
             <CampoTexto
               label="E-mail"

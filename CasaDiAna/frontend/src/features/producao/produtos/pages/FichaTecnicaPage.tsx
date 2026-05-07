@@ -21,16 +21,17 @@ const fichaSchema = z.object({
   itens: z.array(
     z.object({
       ingredienteId: z.string().min(1, 'Selecione um ingrediente.'),
-      quantidadePorUnidade: z
-        .string()
-        .min(1)
-        .refine(v => Number(v) > 0, 'Quantidade deve ser > 0.'),
+      quantidadePorUnidade: z.preprocess(
+        (v) => (v === '' || v == null ? undefined : Number(v)),
+        z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Deve ser um número' })
+          .positive('Deve ser maior que zero')
+      ),
     })
   ).min(1, 'Adicione pelo menos um ingrediente.'),
 })
 
 type FichaFormValues = {
-  itens: { ingredienteId: string; quantidadePorUnidade: string }[]
+  itens: { ingredienteId: string; quantidadePorUnidade: number | undefined }[]
 }
 
 export function FichaTecnicaPage() {
@@ -47,7 +48,7 @@ export function FichaTecnicaPage() {
     useForm<FichaFormValues>({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       resolver: zodResolver(fichaSchema) as any,
-      defaultValues: { itens: [{ ingredienteId: '', quantidadePorUnidade: '' }] },
+      defaultValues: { itens: [{ ingredienteId: '', quantidadePorUnidade: undefined }] },
     })
 
   const { fields, append, remove } = useFieldArray({ control, name: 'itens' })
@@ -81,7 +82,7 @@ export function FichaTecnicaPage() {
       const fichaAtualizada = await produtosService.definirFichaTecnica(id, {
         itens: values.itens.map(i => ({
           ingredienteId: i.ingredienteId,
-          quantidadePorUnidade: Number(i.quantidadePorUnidade),
+          quantidadePorUnidade: i.quantidadePorUnidade as number,
         })),
       })
       setFicha(fichaAtualizada)
@@ -212,7 +213,7 @@ export function FichaTecnicaPage() {
 
           <button
             type="button"
-            onClick={() => append({ ingredienteId: '', quantidadePorUnidade: '' })}
+            onClick={() => append({ ingredienteId: '', quantidadePorUnidade: undefined })}
             className="mt-3 flex items-center gap-1.5 text-xs font-semibold transition-colors"
             style={{ color: '#C4870A' }}
             onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#B87D0A'}

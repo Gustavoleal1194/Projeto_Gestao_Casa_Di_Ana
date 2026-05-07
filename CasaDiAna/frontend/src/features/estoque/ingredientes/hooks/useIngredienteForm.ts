@@ -12,7 +12,7 @@ export const ingredienteSchema = z
       .string()
       .min(1, 'Nome é obrigatório')
       .max(200, 'Nome deve ter no máximo 200 caracteres'),
-    codigoInterno: z.string().max(50, 'Máximo 50 caracteres').optional().or(z.literal('')),
+    codigoInterno: z.string().max(30, 'Máximo 30 caracteres').optional().or(z.literal('')),
     categoriaId: z.string().uuid('Categoria inválida').optional().or(z.literal('')),
     unidadeMedidaId: z
       .string()

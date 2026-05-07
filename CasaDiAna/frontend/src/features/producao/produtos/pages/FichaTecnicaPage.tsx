@@ -66,7 +66,7 @@ export function FichaTecnicaPage() {
           reset({
             itens: fichaData.itens.map(i => ({
               ingredienteId: i.ingredienteId,
-              quantidadePorUnidade: String(i.quantidadePorUnidade),
+              quantidadePorUnidade: i.quantidadePorUnidade,
             })),
           })
         }

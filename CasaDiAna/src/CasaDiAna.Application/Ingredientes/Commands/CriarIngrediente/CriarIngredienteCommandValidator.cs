@@ -32,5 +32,15 @@ public class CriarIngredienteCommandValidator : AbstractValidator<CriarIngredien
         RuleFor(x => x.UnidadeEmbalagem)
             .Must(u => u == null || u == "ml" || u == "g")
             .WithMessage("Unidade de embalagem deve ser 'ml' ou 'g'.");
+
+        // Cross-validation: if value is set, unit must also be set
+        RuleFor(x => x.UnidadeEmbalagem)
+            .NotNull().When(x => x.QuantidadeEmbalagemValor.HasValue)
+            .WithMessage("Informe a unidade de embalagem (ml ou g) quando a quantidade for informada.");
+
+        // Cross-validation: if unit is set, value must also be set
+        RuleFor(x => x.QuantidadeEmbalagemValor)
+            .NotNull().When(x => x.UnidadeEmbalagem != null)
+            .WithMessage("Informe a quantidade por embalagem quando a unidade for informada.");
     }
 }

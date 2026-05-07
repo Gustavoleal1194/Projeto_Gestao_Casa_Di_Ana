@@ -20,13 +20,17 @@ const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
 
 interface ItemFormValues {
   ingredienteId: string
-  quantidadeContada: string
+  quantidadeContada: number | undefined
   observacoes: string
 }
 
 const itemSchema = z.object({
   ingredienteId: z.string().min(1, 'Selecione um ingrediente.'),
-  quantidadeContada: z.string().min(1).refine(v => Number(v) >= 0, 'Quantidade deve ser ≥ 0.'),
+  quantidadeContada: z.preprocess(
+    (v) => (v === '' || v == null ? undefined : Number(v)),
+    z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Deve ser um número' })
+      .min(0, 'Deve ser maior ou igual a zero'),
+  ),
   observacoes: z.string(),
 })
 
@@ -69,7 +73,7 @@ export function InventarioDetalhePage() {
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<ItemFormValues>({
     resolver: zodResolver(itemSchema),
-    defaultValues: { ingredienteId: '', quantidadeContada: '', observacoes: '' },
+    defaultValues: { ingredienteId: '', quantidadeContada: undefined, observacoes: '' },
   })
 
   useEffect(() => {
@@ -85,11 +89,11 @@ export function InventarioDetalhePage() {
     try {
       const atualizado = await inventariosService.adicionarItem(id, {
         ingredienteId: values.ingredienteId,
-        quantidadeContada: Number(values.quantidadeContada),
+        quantidadeContada: values.quantidadeContada!,
         observacoes: values.observacoes || null,
       })
       setInventario(atualizado)
-      reset({ ingredienteId: '', quantidadeContada: '', observacoes: '' })
+      reset({ ingredienteId: '', quantidadeContada: undefined, observacoes: '' })
       setToast({ tipo: 'sucesso', mensagem: 'Item adicionado.' })
     } catch {
       setToast({ tipo: 'erro', mensagem: 'Erro ao adicionar item.' })

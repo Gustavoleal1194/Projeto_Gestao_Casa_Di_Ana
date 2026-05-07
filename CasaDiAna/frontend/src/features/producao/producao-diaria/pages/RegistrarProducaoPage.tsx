@@ -20,10 +20,12 @@ import type { ProdutoResumo, ProducaoFormValues } from '@/types/producao'
 const producaoSchema = z.object({
   produtoId: z.string().min(1, 'Selecione um produto.'),
   data: z.string().min(1, 'Informe a data.'),
-  quantidadeProduzida: z
-    .string()
-    .min(1, 'Informe a quantidade.')
-    .refine(v => Number(v) > 0, 'Quantidade deve ser maior que 0.'),
+  quantidadeProduzida: z.preprocess(
+    (v) => (v === '' || v == null ? undefined : Number(v)),
+    z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Deve ser um número' })
+      .int('Deve ser um número inteiro')
+      .positive('Deve ser maior que zero')
+  ),
   observacoes: z.string(),
 })
 
@@ -40,7 +42,7 @@ export function RegistrarProducaoPage() {
       defaultValues: {
         produtoId: '',
         data: new Date().toISOString().split('T')[0],
-        quantidadeProduzida: '',
+        quantidadeProduzida: undefined,
         observacoes: '',
       },
     })
@@ -54,10 +56,10 @@ export function RegistrarProducaoPage() {
       const resultado = await producaoDiariaService.registrar({
         produtoId: values.produtoId,
         data: values.data,
-        quantidadeProduzida: Number(values.quantidadeProduzida),
+        quantidadeProduzida: values.quantidadeProduzida,
         observacoes: values.observacoes || null,
       })
-      const quantidade = Number(values.quantidadeProduzida)
+      const quantidade = values.quantidadeProduzida
       setConfirma({
         produtoNome: resultado.produtoNome,
         quantidade,

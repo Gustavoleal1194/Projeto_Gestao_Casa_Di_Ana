@@ -20,10 +20,12 @@ import { ConfirmacaoVendaModal, type DadosConfirmacaoVenda } from '../components
 const vendaSchema = z.object({
   produtoId: z.string().min(1, 'Selecione um produto.'),
   data: z.string().min(1, 'Informe a data.'),
-  quantidadeVendida: z
-    .string()
-    .min(1, 'Informe a quantidade.')
-    .refine(v => Number(v) > 0, 'Quantidade deve ser maior que 0.'),
+  quantidadeVendida: z.preprocess(
+    (v) => (v === '' || v == null ? undefined : Number(v)),
+    z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Deve ser um número' })
+      .int('Deve ser um número inteiro')
+      .positive('Deve ser maior que zero')
+  ),
 })
 
 export function RegistrarVendaPage() {
@@ -40,7 +42,7 @@ export function RegistrarVendaPage() {
       defaultValues: {
         produtoId: '',
         data: new Date().toISOString().split('T')[0],
-        quantidadeVendida: '',
+        quantidadeVendida: undefined,
       },
     })
 
@@ -53,7 +55,7 @@ export function RegistrarVendaPage() {
       const resultado = await vendasDiariasService.registrar({
         produtoId: values.produtoId,
         data: values.data,
-        quantidadeVendida: Number(values.quantidadeVendida),
+        quantidadeVendida: values.quantidadeVendida,
       })
       const produto = produtos.find(p => p.id === values.produtoId)
       if (!produto) {
@@ -61,7 +63,7 @@ export function RegistrarVendaPage() {
         return
       }
       const valorUnitario = produto.precoVenda
-      const quantidade = Number(values.quantidadeVendida)
+      const quantidade = values.quantidadeVendida
       setConfirma({
         produtoNome: resultado.produtoNome,
         quantidade,

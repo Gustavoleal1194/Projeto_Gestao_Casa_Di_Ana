@@ -56,10 +56,10 @@ export function RegistrarProducaoPage() {
       const resultado = await producaoDiariaService.registrar({
         produtoId: values.produtoId,
         data: values.data,
-        quantidadeProduzida: values.quantidadeProduzida,
+        quantidadeProduzida: values.quantidadeProduzida!,
         observacoes: values.observacoes || null,
       })
-      const quantidade = values.quantidadeProduzida
+      const quantidade = values.quantidadeProduzida!
       setConfirma({
         produtoNome: resultado.produtoNome,
         quantidade,

@@ -38,3 +38,14 @@ desktop.ini
 dashboard/brain_data.json
 _design_bundle/
 neural_network_design.html
+
+# ─── Obsidian — estado de UI (gerado automaticamente, não versionar) ─────────
+# workspace.json e graph.json mudam a cada abertura do app — ruído no git
+docs/brain/.obsidian/workspace.json
+docs/brain/.obsidian/graph.json
+# Dados de cache dos plugins (não são config, são estado interno)
+docs/brain/.obsidian/plugins/
+# .obsidian/ fora do vault (criado pelo Obsidian na raiz do projeto)
+.obsidian/
+# Canvas files soltos
+*.base

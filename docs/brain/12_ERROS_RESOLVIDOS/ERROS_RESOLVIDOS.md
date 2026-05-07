@@ -3,7 +3,7 @@ name: ERROS_RESOLVIDOS – erros já solucionados
 description: Bug → causa → cura, para evitar repetição
 type: erros_resolvidos
 status: existente
-ultima_atualizacao: 2026-05-01
+ultima_atualizacao: 2026-05-07
 ---
 
 # 🐛 Erros Resolvidos
@@ -39,6 +39,12 @@ ultima_atualizacao: 2026-05-01
 - **Causa raiz:** handler chamava só `AtualizarEstoque`, esquecia `AtualizarCusto`.
 - **Cura:** sempre chamar ambos.
 - **Como evitar:** ver [[REGRA_ENTRADA_ATUALIZA_CUSTO]].
+
+## E7 — `ref` em `CampoTexto` quebra build Docker (TypeScript TS2322)
+- **Sintoma:** build no Render falha com `Property 'ref' does not exist on type 'IntrinsicAttributes & Props'` em `FornecedorFormPage.tsx`.
+- **Causa raiz:** `CampoTexto` é função pura — não usa `React.forwardRef`. Passar `ref={field.ref}` via `Controller` do RHF não é aceito pelo compilador no ambiente Docker (versão de `@types/react` mais estrita que o cache local).
+- **Cura:** remover `ref={field.ref}` dos dois `Controller` renders em `FornecedorFormPage.tsx`. O `name={field.name}` pode ser mantido pois é prop normal de `InputHTMLAttributes`.
+- **Como evitar:** antes de aplicar sugestão de reviewer que envolva `ref`, verificar se o componente alvo usa `forwardRef`. Em `components/form/`, **nenhum** componente usa `forwardRef` atualmente. Se precisar de ref, usar `forwardRef` no componente ou capturar via `useRef` na página.
 
 ## E6 — Modal de desativação exibia "Ingrediente" em todos os módulos
 - **Sintoma:** ao clicar em desativar em Categorias, Fornecedores, Produtos ou Categorias de Produto, o modal mostrava "Desativar Ingrediente" e "O ingrediente não aparecerá…".

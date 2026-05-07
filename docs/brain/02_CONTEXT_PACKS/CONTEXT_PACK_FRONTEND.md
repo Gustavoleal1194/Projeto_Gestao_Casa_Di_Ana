@@ -23,7 +23,7 @@ Tasks em `CasaDiAna/frontend/`: páginas, componentes, services HTTP, formulári
 
 ## Responsabilidades / organização
 - `features/<area>/<modulo>/` — feature-based, com `pages/`, `components/`, `services/`.
-- `components/form/` — `FormCard`, `FormSection`, `CampoTexto`, `SelectCampo`, `FormTextarea`, `FormActions`, `Spinner`.
+- `components/form/` — `FormCard`, `FormSection`, `CampoTexto`, `SelectCampo`, `FormTextarea`, `FormActions`, `Spinner`. **Nenhum desses componentes usa `React.forwardRef`** — não aceita `ref` como prop. Passar `ref` causa TS2322 no build Docker mesmo que passe no `tsc` local com cache.
 - `components/ui/` e `shared/components/` — primitivos compartilhados.
 - `lib/api.ts` — cliente Axios.
 - `lib/etiquetasService.ts`, `lib/notificacoesService.ts`, `lib/pdf.ts` — utilidades cross-feature.

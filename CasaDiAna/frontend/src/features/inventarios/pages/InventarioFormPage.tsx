@@ -74,7 +74,7 @@ export function InventarioFormPage() {
         breadcrumb={['Movimentações', 'Inventários']}
       />
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit as any)}>
         <FormCard>
           <FormSection titulo="Dados do Inventário" />
           <div className="grid gap-4">

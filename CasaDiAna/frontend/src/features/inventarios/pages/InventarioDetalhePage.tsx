@@ -209,7 +209,7 @@ export function InventarioDetalhePage() {
               Adicionar Item
             </span>
           </div>
-          <form onSubmit={handleSubmit(handleAdicionarItem)}>
+          <form onSubmit={handleSubmit(handleAdicionarItem as any)}>
             <div className="grid grid-cols-1 sm:grid-cols-[1fr_120px_180px_auto] gap-3 items-start">
               <SelectCampo
                 label="Ingrediente"

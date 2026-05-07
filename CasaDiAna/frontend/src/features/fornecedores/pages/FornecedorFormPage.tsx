@@ -81,7 +81,7 @@ export function FornecedorFormPage() {
         breadcrumb={['Cadastros', 'Fornecedores']}
       />
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit as any)}>
         <FormCard>
           <FormSection titulo="Identificação" primeiro />
           <div className="grid grid-cols-2 gap-4">

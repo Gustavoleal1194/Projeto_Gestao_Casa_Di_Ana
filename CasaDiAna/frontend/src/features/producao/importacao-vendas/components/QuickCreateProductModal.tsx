@@ -113,7 +113,7 @@ export function QuickCreateProductModal({ nomeInicial, precoInicial, onSalvo, on
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit as any)}>
           <div className="px-6 py-5 space-y-4">
             {erroApi && (
               <div

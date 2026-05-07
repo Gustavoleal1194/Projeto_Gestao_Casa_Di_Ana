@@ -79,7 +79,7 @@ export function ProdutoFormPage() {
         breadcrumb={['Produção', 'Produtos']}
       />
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit as any)}>
         <FormCard>
           <FormSection titulo="Identificação" />
           <div className="grid grid-cols-2 gap-4">

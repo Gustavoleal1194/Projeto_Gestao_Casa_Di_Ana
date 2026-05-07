@@ -117,7 +117,7 @@ export function EntradaFormPage() {
         Nova Entrada de Mercadoria
       </h1>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit as any)}>
         <FormCard>
           <FormSection titulo="Dados da Entrada" />
           <div className="grid grid-cols-2 gap-4">

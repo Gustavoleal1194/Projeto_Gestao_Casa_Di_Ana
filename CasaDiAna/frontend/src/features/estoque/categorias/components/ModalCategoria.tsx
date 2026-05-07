@@ -75,7 +75,7 @@ export function ModalCategoria({ categoria, salvando, onSalvar, onFechar }: Prop
         </div>
 
         {/* Body */}
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit as any)}>
           <div className="px-6 py-5">
             <CampoTexto
               label="Nome"

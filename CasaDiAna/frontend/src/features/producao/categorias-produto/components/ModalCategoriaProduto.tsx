@@ -72,7 +72,7 @@ export function ModalCategoriaProduto({ categoria, salvando, onSalvar, onFechar 
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit as any)}>
           <div className="px-6 py-5">
             <CampoTexto
               label="Nome"

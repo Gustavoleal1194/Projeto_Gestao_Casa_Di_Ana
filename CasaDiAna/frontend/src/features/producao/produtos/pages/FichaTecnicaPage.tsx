@@ -155,7 +155,7 @@ export function FichaTecnicaPage() {
         )}
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit as any)}>
         <FormCard>
           <FormSection titulo="Ingredientes" />
 

@@ -237,7 +237,7 @@ export function PerdasPage() {
               </div>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmitPerda)}>
+            <form onSubmit={handleSubmit(onSubmitPerda as any)}>
             <div className="px-6 py-5 space-y-4">
               <SelectCampo
                 label="Produto"

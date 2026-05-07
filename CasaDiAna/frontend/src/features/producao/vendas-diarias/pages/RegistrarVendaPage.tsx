@@ -86,7 +86,7 @@ export function RegistrarVendaPage() {
         breadcrumb={['Produção', 'Vendas Diárias']}
       />
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit as any)}>
         <FormCard>
           <FormSection titulo="Dados da Venda" />
           <div className="grid gap-4">

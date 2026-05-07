@@ -82,7 +82,7 @@ export function RegistrarProducaoPage() {
         breadcrumb={['Produção', 'Produção Diária']}
       />
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit as any)}>
         <FormCard>
           <FormSection titulo="Dados da Produção" />
           <div className="grid gap-4">

@@ -27,8 +27,16 @@ const entradaSchema = z.object({
     .array(
       z.object({
         ingredienteId: z.string().min(1, 'Selecione um ingrediente.'),
-        quantidade: z.string().min(1).refine(v => Number(v) > 0, 'Quantidade deve ser maior que 0.'),
-        custoUnitario: z.string().min(1).refine(v => Number(v) >= 0, 'Custo deve ser ≥ 0.'),
+        quantidade: z.preprocess(
+          (v) => (v === '' || v == null ? undefined : Number(v)),
+          z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Deve ser um número' })
+            .positive('Quantidade deve ser maior que 0.')
+        ),
+        custoUnitario: z.preprocess(
+          (v) => (v === '' || v == null ? undefined : Number(v)),
+          z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Deve ser um número' })
+            .min(0, 'Custo deve ser ≥ 0.')
+        ),
       })
     )
     .min(1, 'Adicione pelo menos um item.'),
@@ -51,7 +59,7 @@ export function EntradaFormPage() {
         numeroNotaFiscal: '',
         recebidoPor: '',
         observacoes: '',
-        itens: [{ ingredienteId: '', quantidade: '', custoUnitario: '' }],
+        itens: [{ ingredienteId: '', quantidade: undefined, custoUnitario: undefined }],
       },
     })
 
@@ -72,8 +80,8 @@ export function EntradaFormPage() {
         observacoes: values.observacoes || null,
         itens: values.itens.map(item => ({
           ingredienteId: item.ingredienteId,
-          quantidade: Number(item.quantidade),
-          custoUnitario: Number(item.custoUnitario),
+          quantidade: item.quantidade,
+          custoUnitario: item.custoUnitario,
         })),
       })
       setConfirma({
@@ -215,7 +223,7 @@ export function EntradaFormPage() {
 
           <button
             type="button"
-            onClick={() => append({ ingredienteId: '', quantidade: '', custoUnitario: '' })}
+            onClick={() => append({ ingredienteId: '', quantidade: undefined, custoUnitario: undefined })}
             className="mt-3 flex items-center gap-1.5 text-xs font-semibold transition-colors"
             style={{ color: '#C4870A' }}
             onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#B87D0A'}

@@ -1,4 +1,4 @@
-// frontend/src/features/producao/producao-diaria/pages/RegistrarProducaoPage.tsx
+﻿// frontend/src/features/producao/producao-diaria/pages/RegistrarProducaoPage.tsx
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
@@ -22,7 +22,7 @@ const producaoSchema = z.object({
   data: z.string().min(1, 'Informe a data.'),
   quantidadeProduzida: z.preprocess(
     (v) => (v === '' || v == null ? undefined : Number(v)),
-    z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Deve ser um número' })
+    z.number()
       .int('Deve ser um número inteiro')
       .positive('Deve ser maior que zero')
   ),

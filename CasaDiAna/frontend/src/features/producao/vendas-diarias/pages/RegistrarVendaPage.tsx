@@ -1,4 +1,4 @@
-// frontend/src/features/producao/vendas-diarias/pages/RegistrarVendaPage.tsx
+﻿// frontend/src/features/producao/vendas-diarias/pages/RegistrarVendaPage.tsx
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
@@ -22,7 +22,7 @@ const vendaSchema = z.object({
   data: z.string().min(1, 'Informe a data.'),
   quantidadeVendida: z.preprocess(
     (v) => (v === '' || v == null ? undefined : Number(v)),
-    z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Deve ser um número' })
+    z.number()
       .int('Deve ser um número inteiro')
       .positive('Deve ser maior que zero')
   ),
@@ -55,7 +55,7 @@ export function RegistrarVendaPage() {
       const resultado = await vendasDiariasService.registrar({
         produtoId: values.produtoId,
         data: values.data,
-        quantidadeVendida: values.quantidadeVendida,
+        quantidadeVendida: values.quantidadeVendida!,
       })
       const produto = produtos.find(p => p.id === values.produtoId)
       if (!produto) {
@@ -63,7 +63,7 @@ export function RegistrarVendaPage() {
         return
       }
       const valorUnitario = produto.precoVenda
-      const quantidade = values.quantidadeVendida
+      const quantidade = values.quantidadeVendida!
       setConfirma({
         produtoNome: resultado.produtoNome,
         quantidade,

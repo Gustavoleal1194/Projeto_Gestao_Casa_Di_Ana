@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form'
+﻿import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { Produto, ProdutoFormValues, CriarProdutoInput } from '@/types/producao'
@@ -7,7 +7,7 @@ export const produtoSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório.').max(150, 'Máximo de 150 caracteres.'),
   precoVenda: z.preprocess(
     (v) => (v === '' || v == null ? undefined : Number(v)),
-    z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Deve ser um número' })
+    z.number()
       .positive('Deve ser maior que zero')
   ),
   categoriaProdutoId: z.string(),

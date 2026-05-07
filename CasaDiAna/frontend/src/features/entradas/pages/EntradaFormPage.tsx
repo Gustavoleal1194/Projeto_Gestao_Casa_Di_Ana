@@ -1,4 +1,4 @@
-// frontend/src/features/entradas/pages/EntradaFormPage.tsx
+﻿// frontend/src/features/entradas/pages/EntradaFormPage.tsx
 import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useForm, useFieldArray } from 'react-hook-form'
@@ -29,12 +29,12 @@ const entradaSchema = z.object({
         ingredienteId: z.string().min(1, 'Selecione um ingrediente.'),
         quantidade: z.preprocess(
           (v) => (v === '' || v == null ? undefined : Number(v)),
-          z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Deve ser um número' })
+          z.number()
             .positive('Quantidade deve ser maior que 0.')
         ),
         custoUnitario: z.preprocess(
           (v) => (v === '' || v == null ? undefined : Number(v)),
-          z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Deve ser um número' })
+          z.number()
             .min(0, 'Custo deve ser ≥ 0.')
         ),
       })
@@ -80,8 +80,8 @@ export function EntradaFormPage() {
         observacoes: values.observacoes || null,
         itens: values.itens.map(item => ({
           ingredienteId: item.ingredienteId,
-          quantidade: item.quantidade,
-          custoUnitario: item.custoUnitario,
+          quantidade: item.quantidade!,
+          custoUnitario: item.custoUnitario!,
         })),
       })
       setConfirma({

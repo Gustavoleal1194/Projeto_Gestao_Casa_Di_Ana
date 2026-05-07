@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -23,7 +23,7 @@ const fichaSchema = z.object({
       ingredienteId: z.string().min(1, 'Selecione um ingrediente.'),
       quantidadePorUnidade: z.preprocess(
         (v) => (v === '' || v == null ? undefined : Number(v)),
-        z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Deve ser um número' })
+        z.number()
           .positive('Deve ser maior que zero')
       ),
     })

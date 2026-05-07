@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+﻿import { useEffect, useState, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -24,7 +24,7 @@ const perdaSchema = z.object({
   data: z.string().min(1, 'Data obrigatória.'),
   quantidade: z.preprocess(
     (v) => (v === '' || v == null ? undefined : Number(v)),
-    z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Deve ser um número' })
+    z.number()
       .int('Deve ser um número inteiro')
       .positive('Deve ser maior que zero')
   ),

@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+﻿import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -10,14 +10,14 @@ const numeroObrigatorio = (msg = 'Campo obrigatório') =>
   z.preprocess(
     (v) => (v === '' || v == null ? undefined : Number(v)),
     z
-      .number({ required_error: msg, invalid_type_error: 'Deve ser um número' })
+      .number()
       .nonnegative('Deve ser ≥ 0')
   )
 
 const numeroOpcionalPositivo = z.preprocess(
   (v) => (v === '' || v == null ? undefined : Number(v)),
   z
-    .number({ invalid_type_error: 'Deve ser um número' })
+    .number()
     .positive('Deve ser maior que zero')
     .optional()
 )

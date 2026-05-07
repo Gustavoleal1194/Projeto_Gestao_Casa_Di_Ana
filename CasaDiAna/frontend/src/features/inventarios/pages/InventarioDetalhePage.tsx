@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -28,7 +28,7 @@ const itemSchema = z.object({
   ingredienteId: z.string().min(1, 'Selecione um ingrediente.'),
   quantidadeContada: z.preprocess(
     (v) => (v === '' || v == null ? undefined : Number(v)),
-    z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Deve ser um número' })
+    z.number()
       .min(0, 'Deve ser maior ou igual a zero'),
   ),
   observacoes: z.string(),

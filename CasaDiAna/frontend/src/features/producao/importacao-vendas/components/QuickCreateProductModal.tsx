@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -14,7 +14,7 @@ const schema = z.object({
   nome: z.string().min(2, 'Nome deve ter ao menos 2 caracteres.').max(100, 'Máximo 100 caracteres.'),
   precoVenda: z.preprocess(
     (v) => (v === '' || v == null ? undefined : Number(v)),
-    z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Deve ser um número' })
+    z.number()
       .positive('Deve ser maior que zero')
   ),
   categoriaProdutoId: z.string().optional(),

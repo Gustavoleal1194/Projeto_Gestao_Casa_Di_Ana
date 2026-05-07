@@ -13,14 +13,25 @@ ultima_atualizacao: 2026-04-30
 
 ---
 
-## ⚡ Início rápido para agentes
+## ⚡ Protocolo para agentes — pré-task
 
-1. Leia este arquivo.
-2. Abra o [[MOC]] para navegar por área.
-3. Antes de qualquer tarefa relevante, leia o **context pack** correspondente em [[02_CONTEXT_PACKS]].
-4. Confira [[STATUS_SNAPSHOT]] para o estado atual e [[OPEN_LOOPS]] para pendências.
-5. Nunca presuma o status de uma feature — verifique no código quando houver dúvida.
-6. Após mudanças relevantes, atualize as notas afetadas (ver [[ROTINA_POS_TASK]]).
+> **Não leia tudo. Leia o mínimo certo.**
+
+### Sempre (obrigatório)
+1. `12_ERROS_RESOLVIDOS/ERROS_RESOLVIDOS.md` — nunca repetir E1–E10+.
+2. Context pack da área → tabela em [[ROTINA_PRE_TASK]] ou `CasaDiAna/CLAUDE.md`.
+3. `04_MODULOS/MOD_<modulo>.md` do módulo afetado.
+
+### Somente se a task exigir
+- [[STATUS_SNAPSHOT]] — se precisar checar estado atual de módulos.
+- [[OPEN_LOOPS]] — se a área tem pendências conhecidas.
+- [[REGRAS_BACKEND_CRITICAS]] — se toca regras de domínio.
+
+### Nunca ler por padrão
+- Este arquivo e [[MOC]] são portais de navegação, não contexto de task.
+- `90_TEMPLATES/`, `99_INBOX/`, `13_ACADEMICO/` — raramente relevantes.
+
+> Protocolo completo: [[ROTINA_PRE_TASK]] · Pós-task: [[ROTINA_POS_TASK]]
 
 ---
 

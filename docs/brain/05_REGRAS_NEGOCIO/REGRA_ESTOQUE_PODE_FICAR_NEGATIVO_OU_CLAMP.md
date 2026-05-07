@@ -2,8 +2,8 @@
 name: REGRA_ESTOQUE_PODE_FICAR_NEGATIVO_OU_CLAMP
 description: Estoque negativo é permitido pelo banco (constraint removida) e clampado em 0 pelo domínio
 type: regra
-status: a_confirmar
-ultima_atualizacao: 2026-04-30
+status: existente
+ultima_atualizacao: 2026-05-07
 ---
 
 # Regra: estoque negativo (a_confirmar comportamento atual)
@@ -20,7 +20,7 @@ ultima_atualizacao: 2026-04-30
 - Relatórios podem assumir `EstoqueAtual >= 0`.
 
 **Status:**
-- ⚠️ **a_confirmar** — coexistência entre "permite negativo no banco" e "clampa em 0 no domínio" é parcialmente contraditória. Verificar se algum handler ainda persiste valor negativo. Ver [[OPEN_LOOP_ESTOQUE_NEGATIVO]].
+- ✅ **confirmado (2026-05-07)** — `Domain/Entities/Ingrediente.cs:107`: `EstoqueAtual = Math.Max(0, novoSaldo)`. Clamp em 0 garantido pelo domínio. Nenhum handler persiste valor negativo — todos passam pelo método `AtualizarEstoque`. Banco sem constraint é intencional (flexibilidade operacional); o piso 0 é responsabilidade do domínio, não do banco.
 
 **Onde aplica:**
 - [[MOD_INGREDIENTES]], [[MOD_PRODUCAO_DIARIA]], [[MOD_INVENTARIOS]].

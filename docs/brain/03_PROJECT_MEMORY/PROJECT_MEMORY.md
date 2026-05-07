@@ -3,7 +3,7 @@ name: PROJECT_MEMORY – Casa di Ana ERP
 description: Visão geral profunda do projeto. Origem, propósito, escopo, papéis, ambientes.
 type: project_memory
 status: existente
-ultima_atualizacao: 2026-04-30
+ultima_atualizacao: 2026-05-07
 fontes:
   - CasaDiAna/README.md
   - CasaDiAna/CLAUDE.md
@@ -51,7 +51,8 @@ Pequenos negócios do setor alimentício enfrentam falta de visibilidade sobre o
 | Local back | http://localhost:5130            | `dotnet run --project src/CasaDiAna.API`                  |
 | Local front| http://localhost:5173            | `npm run dev` em `CasaDiAna/frontend`                     |
 | Docker     | back :8080 / front :3000         | `docker-compose up --build`                               |
-| Produção   | Render.com                       | Build no plano free leva 10–18 min sem cache.             |
+| Produção — frontend | https://casadiana-frontend.onrender.com/ | Build no plano free leva 10–18 min sem cache. |
+| Produção — API      | https://casadiana-api.onrender.com/api   | Migrations rodam no startup via `db.Database.Migrate()`. Seed: `admin@casadiana.com` / `Admin@123`. |
 
 > Configuração completa em [[CONTEXT_PACK_DEPLOY_RENDER]].
 

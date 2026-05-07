@@ -46,6 +46,24 @@ ultima_atualizacao: 2026-05-07
 - **Cura:** remover `ref={field.ref}` dos dois `Controller` renders em `FornecedorFormPage.tsx`. O `name={field.name}` pode ser mantido pois é prop normal de `InputHTMLAttributes`.
 - **Como evitar:** antes de aplicar sugestão de reviewer que envolva `ref`, verificar se o componente alvo usa `forwardRef`. Em `components/form/`, **nenhum** componente usa `forwardRef` atualmente. Se precisar de ref, usar `forwardRef` no componente ou capturar via `useRef` na página.
 
+## E9 — Zod 4: `required_error` / `invalid_type_error` removidos do construtor de `z.number()`
+- **Sintoma:** build Docker falha com `'required_error' does not exist in type '{ error?: string | $ZodErrorMap<...> | undefined; message?: string | undefined; }'`.
+- **Causa raiz:** Zod 4 removeu `required_error` e `invalid_type_error` do construtor dos schemas primitivos. O padrão Zod 3 `z.number({ required_error: '...', invalid_type_error: '...' })` não compila em Zod 4.
+- **Cura:** usar `z.number()` sem opções no construtor. As mensagens de erro customizadas vêm dos métodos encadeados: `.positive('msg')`, `.min(0, 'msg')`, `.int('msg')`. Se precisar de mensagem customizada no nível do tipo, usar `z.number({ error: 'msg' })` (Zod 4) em vez dos dois campos separados.
+- **Como evitar:** nunca usar `required_error` ou `invalid_type_error` em novos schemas — são Zod 3. Commit `bee15f8` corrigiu 9 arquivos.
+
+## E10 — Payload com `number | undefined` não atribuível a `number` esperado pela API
+- **Sintoma:** build Docker falha com `TS2322: Type 'number | undefined' is not assignable to type 'number'` no mapeamento do payload enviado ao backend.
+- **Causa raiz:** ao mudar `FormValues.campo` de `string` para `number | undefined` (para o padrão z.preprocess), o campo no payload da API (que espera `number`) passa a ter conflito de tipo. O Zod garante que após validação o valor é `number`, mas o TypeScript não tem essa informação em tempo de compilação.
+- **Cura:** usar non-null assertion no payload: `campo: values.campo!`. O `!` é seguro pois o schema Zod usa `.positive()` ou `.min()` que rejeita `undefined` antes do submit.
+- **Como evitar:** ao migrar campos numéricos para `z.preprocess`, sempre adicionar `!` nos usos do campo dentro do `onSubmit` onde o tipo esperado é `number` (não `number | undefined`).
+
+## E8 — `handleSubmit(fn)` falha no build Docker quando `fn` tem tipo explícito e resolver usa `as any`
+- **Sintoma:** build Docker falha com `TS2345: Argument of type '(values: XFormValues) => Promise<void>' is not assignable to parameter of type 'SubmitHandler<TFieldValues>'. Types of parameters 'values' and 'data' are incompatible. Type 'TFieldValues' is not assignable to type 'XFormValues'.`
+- **Causa raiz:** quando `useForm` usa `resolver: zodResolver(schema) as any`, o TypeScript no Docker (mais estrito que o local) perde a inferência concreta de `TFieldValues`. O `handleSubmit` passa a esperar `SubmitHandler<TFieldValues>` (genérico), mas a função nomeada é `(values: XFormValues) => void` — tipos incompatíveis na verificação de parâmetros (contravariance). Funções inline (`handleSubmit(async (values) => {...})`) não têm o problema porque recebem tipagem contextual do `handleSubmit`.
+- **Cura:** adicionar `as any` na passagem: `handleSubmit(onSubmit as any)`. Não remover o tipo da função — manter `(values: XFormValues)` para preservar type safety dentro da função.
+- **Como evitar:** toda vez que uma função nomeada com tipo explícito for passada a `handleSubmit(...)`, adicionar `as any`. Aplica a **todos** os formulários do projeto. Commit `d232048` corrigiu 12 arquivos de uma vez.
+
 ## E6 — Modal de desativação exibia "Ingrediente" em todos os módulos
 - **Sintoma:** ao clicar em desativar em Categorias, Fornecedores, Produtos ou Categorias de Produto, o modal mostrava "Desativar Ingrediente" e "O ingrediente não aparecerá…".
 - **Causa raiz:** `ModalDesativar` foi criado com textos hardcoded e prop `nomeIngrediente` específicos para ingredientes, depois reutilizado em 4 outros módulos sem adaptação.

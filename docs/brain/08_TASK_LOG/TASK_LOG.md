@@ -11,6 +11,20 @@ ultima_atualizacao: 2026-05-07
 > Apenas tasks que mudaram o projeto. Use [[TEMPLATE_TASK_LOG]] como base.
 > Ordem: mais recente no topo.
 
+## 2026-05-07 — Formulários profissionais: tipos corretos + E8/E9/E10
+
+- **Task:** plan `2026-05-07-formularios-profissionais-tipos-corretos.md`
+- **Áreas:** frontend (schemas Zod, tipos, payloads), backend (migration), BrainOS
+- **Resultado:**
+  - **`quantidadeEmbalagem: string`** refatorado em **`quantidadeEmbalagemValor: decimal?`** + **`unidadeEmbalagem: string? (ml/g)`**. Migration `20260507030643_RefatorarQuantidadeEmbalagem` aplicada em produção. Frontend: input numérico via `Controller` + select ml/g.
+  - **Anti-pattern eliminado em todos os formulários:** `z.string().refine(Number(v) > 0)` substituído por `z.preprocess((v) => ..., z.number()...)`.
+  - **E8 descoberto e resolvido:** `handleSubmit(namedFn)` falha no Docker quando `resolver` usa `as any`. Fix: `handleSubmit(fn as any)` em 12 arquivos.
+  - **E9 descoberto e resolvido:** Zod 4 removeu `required_error`/`invalid_type_error` dos construtores. Fix: 9 arquivos corrigidos.
+  - **E10 descoberto e resolvido:** `number | undefined` não atribuível a `number` no payload. Fix: non-null assertion `values.campo!` nos handlers de submit.
+  - 6 deploys no Render até build limpo. Migration verificada em produção via API.
+  - Testes backend: **84 unitários passando**.
+- **Notas relacionadas:** [[ERROS_RESOLVIDOS]] (E8, E9, E10), [[CONTEXT_PACK_FORMULARIOS_FRONTEND]], [[MOD_INGREDIENTES]], [[CONTEXT_PACK_DEPLOY_RENDER]].
+
 ## 2026-05-06 — Melhorias de formulários: Ingredientes e Fornecedores
 - **Task:** plan `2026-05-06-formularios-ingredientes-fornecedores.md`
 - **Áreas:** backend (Domain, Application, Infrastructure, migrations), frontend (form, hooks, types)

@@ -4,6 +4,7 @@ description: Cadastro de ingredientes com estoque, mínimo/máximo, custo unitá
 type: modulo
 status: existente
 ultima_atualizacao: 2026-05-07
+ultima_revisao: 2026-05-07
 ---
 
 # 🥚 Módulo: Ingredientes
@@ -20,13 +21,14 @@ Manter o cadastro central de ingredientes da cafeteria com estoque rastreável.
 - Soft delete (`ativo = false`).
 - Estoque alterado por entrada de mercadoria, produção (saída), inventário, correção manual — sempre com `Movimentacao`.
 
-## Campos especiais (2026-05-06)
+## Campos especiais (atualizado 2026-05-07)
 
-### `quantidadeEmbalagem` (string nullable, max 100)
-- Coluna `quantidade_embalagem` em `estoque.ingredientes` (migration `20260506214149`).
-- Campo **condicional** no frontend: só aparece quando a unidade selecionada contém "pacote" em sua descrição (case-insensitive).
-- Obrigatório apenas quando visível — validado via `superRefine` no schema Zod (`_ehPacote` boolean hidden).
-- Backend: `MaximumLength(100).When(x => x.QuantidadeEmbalagem != null)`.
+### `quantidadeEmbalagemValor` (decimal?, BD: `quantidade_embalagem_valor`) + `unidadeEmbalagem` (string?, BD: `unidade_embalagem`)
+- Migration `20260507030643_RefatorarQuantidadeEmbalagem`: removeu `quantidade_embalagem` (varchar), adicionou `quantidade_embalagem_valor` (numeric 15,4 nullable) e `unidade_embalagem` (varchar 10 nullable, enum `"ml"` / `"g"`).
+- Campo condicional no frontend: seção "Embalagem" só aparece quando a unidade selecionada é "Pacote" (flag `_ehPacote` oculto no schema).
+- Validação cruzada via `superRefine`: se um dos dois estiver preenchido, o outro é obrigatório.
+- Frontend: `quantidadeEmbalagemValor` usa `Controller` + `CampoTexto type="number"`; `unidadeEmbalagem` usa `Controller` + `SelectCampo` (opções `ml` / `g`).
+- Backend FluentValidation: `.GreaterThan(0).When(...)` e `.Must(v => v == "ml" || v == "g").When(...)`.
 
 ### `codigoInterno` — auto-geração no frontend
 - No modo criação: ao preencher ≥3 letras no nome, o código interno é sugerido automaticamente.

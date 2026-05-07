@@ -10,19 +10,8 @@ ultima_atualizacao: 2026-05-07
 
 > Pontos abertos. Resolver = mover para [[DEC]] / [[REGRA]] / [[ERRO_RESOLVIDO]] e retirar daqui.
 
-## Frontend / Design
-
-### [[OPEN_LOOP_TEMA_TOGGLE]]
-- **Sintoma:** toggle claro/escuro teve múltiplos ciclos de fix+revert (db3cd2f, 7f274f4 são os últimos reverts em 2026-05-06). Estado atual: dark premium no `:root`, tema claro via `[data-theme=light]`, mas alguns módulos ainda exibem cores erradas no tema claro.
-- **Importância:** afeta usabilidade em ambientes com iluminação natural; promessa do design system.
-- **Próximo passo:** auditar `index.css` — verificar quais tokens do `[data-theme=light]` ainda herdam valores dark; testar módulo por módulo com tema light ativo.
-
 ## Comportamento de domínio
 
-### [[OPEN_LOOP_ESTOQUE_NEGATIVO]]
-- **Pergunta:** o método `Ingrediente.AtualizarEstoque` realmente clampa em 0? Ou apenas algumas migrations zeraram o saldo histórico?
-- **Importância:** afeta produção sem estoque, inventário, correção.
-- **Próximo passo:** abrir `Domain/Entities/Ingrediente.cs` e validar lógica.
 
 ### [[OPEN_LOOP_PERDAS_BAIXA]]
 - **Pergunta:** registrar `PerdaProduto` faz baixa de estoque dos ingredientes correspondentes? Ou só registra a perda?
@@ -56,18 +45,6 @@ ultima_atualizacao: 2026-05-07
 - **Status das features:** todas executadas (evidência em commits — ver [[STATUS_SNAPSHOT]]).
 - **Próximo passo:** commitar os 6 arquivos de plan ou manter como artefatos locais (decisão do Gustavo).
 
-## Dados a confirmar
-
-### [[OPEN_LOOP_BACKEND_DOCS_TESTES]]
-- **Sintoma:** memória externa diz "28 testes unitários passando" (2026-03-27) — número provavelmente mudou.
-- **Próximo passo:** rodar `dotnet test tests/CasaDiAna.Application.Tests` e atualizar [[STATUS_SNAPSHOT]].
-
-## Memória externa do agente (auto-memory)
-
-### [[OPEN_LOOP_MEMORY_DESATUALIZADA]]
-- **Sintoma:** `~/.claude/projects/.../memory/project_casadiana.md` (data 2026-03-27) diz "Backend 100%, próximo passo: Frontend".
-- **Hoje (2026-04-30):** frontend completo, com 2FA, etiquetas, relatórios, dashboard.
-- **Próximo passo:** atualizar a memória externa quando aplicável (fora deste vault).
 
 ---
 
@@ -80,3 +57,19 @@ ultima_atualizacao: 2026-05-07
 ### [FECHADO] OPEN_LOOP_PLANS_STATUS
 - **Sintoma original:** 24 planos sem índice de status.
 - **Resolução (2026-04-30):** todos os 24 plans classificados como `executado` com evidência de commit em [[STATUS_SNAPSHOT]].
+
+### [FECHADO] OPEN_LOOP_BACKEND_DOCS_TESTES
+- **Sintoma original:** contagem de testes unitários defasada (dizia 28 em 2026-03-27).
+- **Resolução (2026-05-07):** plan `2026-05-07-formularios-profissionais-tipos-corretos` confirmou **84 testes unitários passando** em `dotnet test`. Memória e STATUS_SNAPSHOT atualizados.
+
+### [FECHADO] OPEN_LOOP_ESTOQUE_NEGATIVO
+- **Pergunta original:** `Ingrediente.AtualizarEstoque` realmente clampa em 0?
+- **Resolução (2026-05-07):** confirmado lendo `Domain/Entities/Ingrediente.cs:107` — `EstoqueAtual = Math.Max(0, novoSaldo)`. Clamp em 0 é garantido pelo domínio em toda operação de saída. `REGRA_ESTOQUE_PODE_FICAR_NEGATIVO_OU_CLAMP` atualizada para `existente`.
+
+### [FECHADO] OPEN_LOOP_TEMA_TOGGLE
+- **Sintoma original:** múltiplos ciclos de fix+revert no toggle claro/escuro (db3cd2f, 7f274f4).
+- **Resolução (2026-05-07):** implementação estável confirmada. `:root` = dark premium (padrão); `[data-theme="light"]` = override do tema claro; `[data-theme="dark"]` = overrides para classes Tailwind legadas. `useTheme.ts` seta `data-theme` no `document.documentElement`; toggle existe no `TopHeader`. Funciona corretamente.
+
+### [FECHADO] OPEN_LOOP_MEMORY_DESATUALIZADA
+- **Sintoma original:** `~/.claude/projects/.../memory/project_casadiana.md` desatualizada (data 2026-03-27).
+- **Resolução (2026-05-07):** rewrite completo da memória — stack real, URLs de produção, todos os módulos, convenções críticas E7–E10, padrão `z.preprocess`. Atualizada em sessão de 2026-05-07.

@@ -3,7 +3,7 @@ name: CONTEXT_PACK_FORMULARIOS_FRONTEND
 description: Pack para criar/alterar formulários no frontend (RHF + Zod + components/form)
 type: context_pack
 status: existente
-ultima_atualizacao: 2026-04-30
+ultima_atualizacao: 2026-05-07
 ---
 
 # 🧰 Context pack — Formulários (Frontend)
@@ -18,7 +18,67 @@ Criar ou modificar qualquer formulário (cadastro, edição, modal de confirmaç
 - Modal de confirmação animado: padrão = `ConfirmacaoProducaoModal.tsx` (em produção em produção-diaria, vendas, fornecedores, ficha técnica, inventários, importação de vendas).
 - Plan global: `docs/superpowers/plans/2026-04-29-modal-confirmacao-todos-formularios.md`.
 
-## Regras críticas
+## Regras críticas — TypeScript / Zod 4 (OBRIGATÓRIO)
+
+### 1. `resolver: zodResolver(schema) as any` — em TODO formulário
+Zod 4 infere `input` de schemas com `z.preprocess` como `unknown`. Sem o `as any`, o TypeScript conflita com `FormValues`. **Aplica em 100% dos formulários, mesmo os simples.**
+
+```typescript
+useForm<MinhaFormValues>({
+  resolver: zodResolver(meuSchema) as any,
+  defaultValues: { ... },
+})
+```
+
+### 2. `handleSubmit(fn as any)` — para funções nomeadas com tipo explícito
+Quando a função de submit tem tipo explícito (`async (values: MinhaFormValues) => void`), o Docker TypeScript (mais estrito) falha com TS2345. **Aplica a toda função nomeada; funções inline não precisam.**
+
+```typescript
+// ✅ Correto
+<form onSubmit={handleSubmit(onSubmit as any)}>
+
+// ❌ Errado — falha no build Docker
+<form onSubmit={handleSubmit(onSubmit)}>
+```
+
+### 3. Campos numéricos: padrão `z.preprocess` (Zod 4 — não usar `z.string().refine`)
+Inputs HTML sempre retornam `string`. Usar `z.preprocess` para converter antes de validar:
+
+```typescript
+// Obrigatório, positivo:
+z.preprocess((v) => (v === '' || v == null ? undefined : Number(v)), z.number().positive('Deve ser > 0'))
+
+// Obrigatório, >= 0:
+z.preprocess((v) => (v === '' || v == null ? undefined : Number(v)), z.number().min(0, 'Deve ser >= 0'))
+
+// Inteiro positivo:
+z.preprocess((v) => (v === '' || v == null ? undefined : Number(v)), z.number().int('Inteiro').positive('Deve ser > 0'))
+
+// Opcional:
+z.preprocess((v) => (v === '' || v == null ? undefined : Number(v)), z.number().positive('Deve ser > 0').optional())
+```
+
+- `defaultValues` numéricos: **`undefined`** (não `''` nem `0` quando opcional).
+- No `FormValues`: tipo `number | undefined`.
+- No payload para a API (que espera `number`): usar **non-null assertion** — `values.campo!`. Seguro pós-validação Zod.
+
+### 4. Zod 4: sem `required_error` / `invalid_type_error` no construtor
+Esses parâmetros não existem em Zod 4. Mensagens customizadas vão nos métodos encadeados:
+
+```typescript
+// ✅ Correto
+z.number().positive('Deve ser > 0')
+z.number().min(0, 'Deve ser >= 0')
+z.number().int('Deve ser inteiro')
+
+// ❌ Errado — falha no build Docker
+z.number({ required_error: '...', invalid_type_error: '...' })
+```
+
+### 5. Componentes `CampoTexto`, `SelectCampo`, `FormTextarea` — SEM `forwardRef`
+Nunca passar `ref={field.ref}` nesses componentes. Para campos com máscara, usar `Controller` sem `ref`. Ver E7 em [[ERROS_RESOLVIDOS]].
+
+### Regras de estilo
 - Sem classes Tailwind de cor — usar `var(--ada-*)`.
 - `<PageHeader>`, `<SkeletonTable>` (loading), `<EmptyState>` (lista vazia) são obrigatórios em telas correspondentes.
 - Toda tabela em `<div className="overflow-x-auto">`.
@@ -69,4 +129,4 @@ setConfirma({ ...dados })
 - Datas: `new Date(valor)` direto. Sem concat `T12:00:00`.
 
 ## Prompt curto
-> "Task em formulário do Casa di Ana ERP. Use RHF + Zod (`as any` no resolver), componentes de `components/form/`, tokens `var(--ada-*)`, modal animado de confirmação seguindo `ConfirmacaoProducaoModal.tsx`. Veja plan `docs/superpowers/plans/2026-04-29-modal-confirmacao-todos-formularios.md` para padrão."
+> "Task em formulário do Casa di Ana ERP (Zod 4.3.6 + RHF 7). Obrigatório: `resolver: zodResolver(schema) as any`; `handleSubmit(onSubmit as any)` para funções nomeadas; campos numéricos via `z.preprocess((v) => (v === '' || v == null ? undefined : Number(v)), z.number()...)`; defaultValues numéricos = `undefined`; payload numérico usa `values.campo!`. Sem `required_error`/`invalid_type_error` — são Zod 3. Componentes de `components/form/`, tokens `var(--ada-*)`, modal animado seguindo `ConfirmacaoProducaoModal.tsx`. Ver erros E7, E8, E9, E10 em [[ERROS_RESOLVIDOS]]."

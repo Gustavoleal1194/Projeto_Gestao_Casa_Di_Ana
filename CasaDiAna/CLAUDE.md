@@ -71,10 +71,38 @@ Builds no plano free levam 10–18 min sem cache de layers. `DATABASE_URL` sem p
 
 ## Obsidian Brain / BrainOS
 
-- Existe um BrainOS (vault Obsidian) em `docs/brain/`. É a memória operacional do projeto.
-- Antes de tasks relevantes: consultar `docs/brain/00_CENTRO_DO_CEREBRO.md` e `docs/brain/01_MOC/MOC.md`.
-- Usar os **context packs** em `docs/brain/02_CONTEXT_PACKS/` para reduzir tokens em vez de reler tudo.
-- **Não assumir status** de feature sem verificar código atual.
-- Avisar conflitos entre brain e código (registrar em `docs/brain/09_OPEN_LOOPS/OPEN_LOOPS.md`).
-- Sugerir atualização do brain após tasks importantes (ver `docs/brain/10_IA_PROMPTS/ROTINA_POS_TASK.md`).
-- **Nunca** salvar segredos, tokens, senhas ou connection strings reais no vault.
+O BrainOS em `docs/brain/` é a memória operacional do projeto. **Siga o protocolo abaixo antes de qualquer task.**
+
+### Protocolo pré-task (obrigatório)
+
+**Sempre ler:**
+1. `docs/brain/12_ERROS_RESOLVIDOS/ERROS_RESOLVIDOS.md` — evita repetir erros já resolvidos (E1–E10+).
+2. O context pack da área da task (tabela abaixo).
+3. `docs/brain/04_MODULOS/MOD_<MODULO>.md` do módulo afetado.
+
+**Context pack por área:**
+
+| Área | Arquivo em `02_CONTEXT_PACKS/` |
+|---|---|
+| Formulário frontend (qualquer) | `CONTEXT_PACK_FORMULARIOS_FRONTEND.md` + `CONTEXT_PACK_FRONTEND.md` |
+| Frontend sem formulário | `CONTEXT_PACK_FRONTEND.md` |
+| Backend (handlers, validators, controllers) | `CONTEXT_PACK_BACKEND.md` |
+| Ingredientes, Entradas, Inventário, Estoque | `CONTEXT_PACK_ESTOQUE.md` |
+| Produtos, Produção, Vendas, Perdas | `CONTEXT_PACK_PRODUCAO.md` |
+| Deploy, Docker, Render, build | `CONTEXT_PACK_DEPLOY_RENDER.md` |
+| Auth, 2FA, Login, Usuários | `CONTEXT_PACK_AUTH_2FA.md` |
+| Relatórios, PDF | `CONTEXT_PACK_RELATORIOS.md` |
+| Etiquetas | `CONTEXT_PACK_ETIQUETAS.md` |
+| Migrations, banco, EF Core | `CONTEXT_PACK_BANCO_DE_DADOS.md` |
+
+**Carregar apenas se a task exigir:** `STATUS_SNAPSHOT.md`, `OPEN_LOOPS.md`, `REGRAS_BACKEND_CRITICAS.md`, `ARQUITETURA.md`.
+
+**Nunca ler por padrão:** `00_CENTRO_DO_CEREBRO.md`, `01_MOC/`, `90_TEMPLATES/`, `99_INBOX/`, `13_ACADEMICO/`.
+
+> Protocolo completo: `docs/brain/10_IA_PROMPTS/ROTINA_PRE_TASK.md`
+> Pós-task: `docs/brain/10_IA_PROMPTS/ROTINA_POS_TASK.md`
+
+### Outras regras
+- **Não assumir status** de feature sem verificar o código atual.
+- Conflitos entre brain e código: registrar em `docs/brain/09_OPEN_LOOPS/OPEN_LOOPS.md`.
+- **Nunca** salvar segredos, tokens, senhas ou connection strings no vault.

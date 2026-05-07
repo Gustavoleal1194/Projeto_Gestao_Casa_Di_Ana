@@ -24,5 +24,9 @@ public class CriarIngredienteCommandValidator : AbstractValidator<CriarIngredien
         RuleFor(x => x.CodigoInterno)
             .MaximumLength(30).When(x => x.CodigoInterno != null)
             .WithMessage("Código interno deve ter no máximo 30 caracteres.");
+
+        RuleFor(x => x.QuantidadeEmbalagem)
+            .MaximumLength(100).When(x => x.QuantidadeEmbalagem != null)
+            .WithMessage("Quantidade por embalagem deve ter no máximo 100 caracteres.");
     }
 }

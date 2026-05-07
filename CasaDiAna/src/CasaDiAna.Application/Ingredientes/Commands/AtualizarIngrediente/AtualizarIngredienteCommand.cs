@@ -11,4 +11,5 @@ public record AtualizarIngredienteCommand(
     string? CodigoInterno = null,
     Guid? CategoriaId = null,
     decimal? EstoqueMaximo = null,
-    string? Observacoes = null) : IRequest<IngredienteDto>;
+    string? Observacoes = null,
+    string? QuantidadeEmbalagem = null) : IRequest<IngredienteDto>;

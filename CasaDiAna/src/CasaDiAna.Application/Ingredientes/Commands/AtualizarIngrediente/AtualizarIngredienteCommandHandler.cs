@@ -43,7 +43,8 @@ public class AtualizarIngredienteCommandHandler : IRequestHandler<AtualizarIngre
             request.CodigoInterno,
             request.CategoriaId,
             request.EstoqueMaximo,
-            request.Observacoes);
+            request.Observacoes,
+            request.QuantidadeEmbalagem);
 
         _ingredientes.Atualizar(ingrediente);
         await _ingredientes.SalvarAsync(cancellationToken);

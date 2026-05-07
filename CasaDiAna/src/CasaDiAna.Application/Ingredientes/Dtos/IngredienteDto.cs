@@ -13,5 +13,6 @@ public record IngredienteDto(
     decimal? EstoqueMaximo,
     bool EstaBaixoDoMinimo,
     string? Observacoes,
+    string? QuantidadeEmbalagem,
     bool Ativo,
     DateTime AtualizadoEm);

@@ -9,7 +9,6 @@ import { ModalDesativar } from '@/components/ui/ModalDesativar'
 import { Toast } from '@/components/ui/Toast'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { SkeletonTable } from '@/components/ui/SkeletonTable'
-import { BuscaTabela } from '@/components/ui/BuscaTabela'
 import type { CategoriaIngrediente } from '@/types/estoque'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
@@ -19,7 +18,6 @@ export function CategoriasPage() {
   const { categorias, loading, erro, recarregar, desativar } = useCategorias()
   const podeEditar = temPapel(...PAPEIS_EDICAO)
 
-  const [busca, setBusca] = useState('')
   const [modalAberto, setModalAberto] = useState(false)
   const [categoriaEditando, setCategoriaEditando] = useState<CategoriaIngrediente | null>(null)
   const [salvando, setSalvando] = useState(false)
@@ -84,17 +82,9 @@ export function CategoriasPage() {
       {!loading && erro && (
         <div className="state-error" role="alert">{erro}</div>
       )}
-      {!loading && !erro && categorias.length > 0 && (
-        <BuscaTabela
-          id="busca-categorias"
-          busca={busca}
-          onBuscaChange={setBusca}
-          placeholder="Buscar por nome…"
-        />
-      )}
       {!loading && !erro && (
         <TabelaCategorias
-          categorias={busca.trim() ? categorias.filter(c => c.nome.toLowerCase().includes(busca.toLowerCase())) : categorias}
+          categorias={categorias}
           podeEditar={podeEditar}
           onEditar={abrirEditar}
           onDesativar={setParaDesativar}

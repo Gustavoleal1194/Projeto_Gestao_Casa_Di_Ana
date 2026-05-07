@@ -10,7 +10,6 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { SkeletonTable } from '@/components/ui/SkeletonTable'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { StatusBadge } from '@/components/ui/StatusBadge'
-import { BuscaTabela } from '@/components/ui/BuscaTabela'
 import type { ProdutoResumo } from '@/types/producao'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
@@ -21,18 +20,9 @@ export function ProdutosPage() {
   const { produtos, loading, erro, desativar } = useProdutos()
   const podeEditar = temPapel(...PAPEIS_EDICAO)
 
-  const [busca, setBusca] = useState('')
   const [paraDesativar, setParaDesativar] = useState<ProdutoResumo | null>(null)
   const [desativando, setDesativando] = useState(false)
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
-
-  const produtosFiltrados = busca.trim()
-    ? produtos.filter(p => {
-        const termo = busca.toLowerCase()
-        return p.nome.toLowerCase().includes(termo)
-          || (p.categoriaNome ?? '').toLowerCase().includes(termo)
-      })
-    : produtos
 
   const handleDesativar = async () => {
     if (!paraDesativar) return
@@ -69,16 +59,6 @@ export function ProdutosPage() {
         <div className="state-error" role="alert">{erro}</div>
       )}
 
-      {/* ── Busca ──────────────────────────────────────────────────────── */}
-      {!loading && !erro && produtos.length > 0 && (
-        <BuscaTabela
-          id="busca-produtos"
-          busca={busca}
-          onBuscaChange={setBusca}
-          placeholder="Buscar por nome ou categoria…"
-        />
-      )}
-
       {/* ── Tabela ─────────────────────────────────────────────────────── */}
       {!loading && !erro && (
         <div className="ada-surface-card">
@@ -112,13 +92,7 @@ export function ProdutosPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {produtosFiltrados.length === 0 ? (
-                    <tr>
-                      <td colSpan={podeEditar ? 5 : 4} className="table-td text-center py-8 text-sm" style={{ color: 'var(--ada-muted)' }}>
-                        Nenhum produto encontrado para "{busca}".
-                      </td>
-                    </tr>
-                  ) : produtosFiltrados.map(p => (
+                  {produtos.map(p => (
                     <tr key={p.id} className="table-row group">
                       <td className="table-td">
                         <div className="flex items-center gap-2.5">

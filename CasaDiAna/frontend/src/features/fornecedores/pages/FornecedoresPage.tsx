@@ -11,7 +11,6 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { SkeletonTable } from '@/components/ui/SkeletonTable'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { StatusBadge } from '@/components/ui/StatusBadge'
-import { BuscaTabela } from '@/components/ui/BuscaTabela'
 import type { Fornecedor } from '@/types/estoque'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
@@ -22,19 +21,9 @@ export function FornecedoresPage() {
   const { fornecedores, loading, erro, desativar } = useFornecedores()
   const podeEditar = temPapel(...PAPEIS_EDICAO)
 
-  const [busca, setBusca] = useState('')
   const [paraDesativar, setParaDesativar] = useState<Fornecedor | null>(null)
   const [desativando, setDesativando] = useState(false)
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
-
-  const fornecedoresFiltrados = busca.trim()
-    ? fornecedores.filter(f => {
-        const termo = busca.toLowerCase()
-        return f.razaoSocial.toLowerCase().includes(termo)
-          || (f.nomeFantasia ?? '').toLowerCase().includes(termo)
-          || (f.cnpj ?? '').includes(termo)
-      })
-    : fornecedores
 
   const handleDesativar = async () => {
     if (!paraDesativar) return
@@ -71,16 +60,6 @@ export function FornecedoresPage() {
         <div className="state-error" role="alert">{erro}</div>
       )}
 
-      {/* ── Busca ──────────────────────────────────────────────────────── */}
-      {!loading && !erro && fornecedores.length > 0 && (
-        <BuscaTabela
-          id="busca-fornecedores"
-          busca={busca}
-          onBuscaChange={setBusca}
-          placeholder="Buscar por razão social, nome fantasia ou CNPJ…"
-        />
-      )}
-
       {/* ── Tabela ─────────────────────────────────────────────────────── */}
       {!loading && !erro && (
         <div className="ada-surface-card">
@@ -108,13 +87,7 @@ export function FornecedoresPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {fornecedoresFiltrados.length === 0 ? (
-                    <tr>
-                      <td colSpan={podeEditar ? 5 : 4} className="table-td text-center py-8 text-sm" style={{ color: 'var(--ada-muted)' }}>
-                        Nenhum fornecedor encontrado para "{busca}".
-                      </td>
-                    </tr>
-                  ) : fornecedoresFiltrados.map(f => (
+                  {fornecedores.map(f => (
                     <tr key={f.id} className="table-row group">
                       <td className="table-td">
                         <div className="flex items-center gap-2.5">

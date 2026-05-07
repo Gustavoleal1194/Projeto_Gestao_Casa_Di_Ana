@@ -9,7 +9,6 @@ import { Toast } from '@/components/ui/Toast'
 import { Spinner } from '@/components/form/Spinner'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { SkeletonTable } from '@/components/ui/SkeletonTable'
-import { BuscaTabela } from '@/components/ui/BuscaTabela'
 
 const PAPEIS = [
   'Admin',
@@ -69,18 +68,10 @@ const fieldCls = [
 
 export function UsuariosPage() {
   const [usuarios, setUsuarios] = useState<UsuarioDto[]>([])
-  const [busca, setBusca] = useState('')
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
 
-  const usuariosFiltrados = busca.trim()
-    ? usuarios.filter(u => {
-        const termo = busca.toLowerCase()
-        return u.nome.toLowerCase().includes(termo)
-          || u.email.toLowerCase().includes(termo)
-      })
-    : usuarios
   const [modal, setModal] = useState<ModalTipo>(null)
   const [usuarioSelecionado, setUsuarioSelecionado] = useState<UsuarioDto | null>(null)
   const [salvando, setSalvando] = useState(false)
@@ -205,16 +196,6 @@ export function UsuariosPage() {
         <div className="state-error" role="alert">{erro}</div>
       )}
 
-      {/* ── Busca ──────────────────────────────────────────────────────── */}
-      {!loading && !erro && usuarios.length > 0 && (
-        <BuscaTabela
-          id="busca-usuarios"
-          busca={busca}
-          onBuscaChange={setBusca}
-          placeholder="Buscar por nome ou e-mail…"
-        />
-      )}
-
       {/* ── Tabela ─────────────────────────────────────────────────────── */}
       {!loading && !erro && (
         <div className="ada-surface-card">
@@ -250,13 +231,7 @@ export function UsuariosPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {usuariosFiltrados.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} className="table-td text-center py-8 text-sm" style={{ color: 'var(--ada-muted)' }}>
-                        Nenhum usuário encontrado para "{busca}".
-                      </td>
-                    </tr>
-                  ) : usuariosFiltrados.map(u => (
+                  {usuarios.map(u => (
                     <tr key={u.id} className="table-row group">
                       <td className="table-td">
                         <div className="flex items-center gap-2.5">

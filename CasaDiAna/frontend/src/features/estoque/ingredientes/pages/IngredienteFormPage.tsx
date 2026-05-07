@@ -46,7 +46,7 @@ export function IngredienteFormPage() {
   const fecharToast = useCallback(() => setToast(null), [])
 
   const { form, salvar } = useIngredienteForm({ ingredienteExistente: ingrediente })
-  const { register, handleSubmit, watch, reset, setValue, formState: { errors } } = form
+  const { register, handleSubmit, watch, reset, setValue, clearErrors, formState: { errors } } = form
 
   // Ao carregar ingrediente no modo edição, resetar o form com os dados
   useEffect(() => {
@@ -73,9 +73,9 @@ export function IngredienteFormPage() {
     setValue('_ehPacote', ehPacote)
     if (!ehPacote) {
       setValue('quantidadeEmbalagem', '')
-      form.clearErrors('quantidadeEmbalagem')
+      clearErrors('quantidadeEmbalagem')
     }
-  }, [ehPacote, setValue, form]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ehPacote, setValue, clearErrors])
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onSubmit = handleSubmit(async (values: any) => {

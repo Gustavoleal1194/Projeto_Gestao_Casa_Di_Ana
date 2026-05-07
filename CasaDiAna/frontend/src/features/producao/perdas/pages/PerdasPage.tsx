@@ -22,10 +22,12 @@ import { ConfirmacaoPerdasModal, type DadosConfirmacaoPerdas } from '../componen
 const perdaSchema = z.object({
   produtoId: z.string().min(1, 'Produto obrigatório.'),
   data: z.string().min(1, 'Data obrigatória.'),
-  quantidade: z
-    .string()
-    .min(1, 'Quantidade obrigatória.')
-    .refine(v => Number(v) > 0, 'Deve ser maior que zero.'),
+  quantidade: z.preprocess(
+    (v) => (v === '' || v == null ? undefined : Number(v)),
+    z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Deve ser um número' })
+      .int('Deve ser um número inteiro')
+      .positive('Deve ser maior que zero')
+  ),
   justificativa: z
     .string()
     .min(1, 'Justificativa obrigatória.')
@@ -59,7 +61,7 @@ export function PerdasPage() {
     useForm<PerdaFormValues>({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       resolver: zodResolver(perdaSchema) as any,
-      defaultValues: { produtoId: '', data: hoje(), quantidade: '', justificativa: '' },
+      defaultValues: { produtoId: '', data: hoje(), quantidade: undefined, justificativa: '' },
     })
 
   const carregar = useCallback(async (filtroDe: string, filtroAte: string) => {
@@ -90,16 +92,16 @@ export function PerdasPage() {
       await perdasService.registrar({
         produtoId: values.produtoId,
         data: values.data,
-        quantidade: Number(values.quantidade),
+        quantidade: values.quantidade,
         justificativa: values.justificativa.trim(),
       })
       const produtoNome = produtos.find(p => p.id === values.produtoId)?.nome ?? '—'
       setModalAberto(false)
-      resetForm({ produtoId: '', data: hoje(), quantidade: '', justificativa: '' })
+      resetForm({ produtoId: '', data: hoje(), quantidade: undefined, justificativa: '' })
       carregar(de, ate)
       setConfirma({
         produtoNome,
-        quantidade: Number(values.quantidade),
+        quantidade: values.quantidade,
         motivo: values.justificativa.trim(),
         horario: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
       })
@@ -121,7 +123,7 @@ export function PerdasPage() {
         subtitulo={loading ? 'Carregando…' : `${perdas.length} registro${perdas.length !== 1 ? 's' : ''} no período`}
         actions={
           <button
-            onClick={() => { resetForm({ produtoId: '', data: hoje(), quantidade: '', justificativa: '' }); setModalAberto(true) }}
+            onClick={() => { resetForm({ produtoId: '', data: hoje(), quantidade: undefined, justificativa: '' }); setModalAberto(true) }}
             className="btn-primary"
           >
             <PlusIcon className="h-4 w-4" aria-hidden="true" />

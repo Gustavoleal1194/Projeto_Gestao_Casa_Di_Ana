@@ -59,8 +59,8 @@ export function IngredienteFormPage() {
   const { register, handleSubmit, watch, reset, setValue, clearErrors, formState: { errors } } = form
 
   // Watchs para auto-geração de código
-  const nomeAtual = watch('nome')
-  const codigoAtual = watch('codigoInterno')
+  const nomeAtual = watch('nome') ?? ''
+  const codigoAtual = watch('codigoInterno') ?? ''
 
   // Ao carregar ingrediente no modo edição, resetar o form com os dados
   useEffect(() => {

@@ -48,7 +48,7 @@ export interface AtualizarProdutoInput extends CriarProdutoInput {
 
 export interface ProdutoFormValues {
   nome: string
-  precoVenda: string
+  precoVenda: number | undefined
   categoriaProdutoId: string
   descricao: string
 }
@@ -103,7 +103,7 @@ export interface RegistrarProducaoInput {
 export interface ProducaoFormValues {
   produtoId: string
   data: string
-  quantidadeProduzida: string
+  quantidadeProduzida: number | undefined
   observacoes: string
 }
 
@@ -126,7 +126,7 @@ export interface RegistrarVendaInput {
 export interface VendaFormValues {
   produtoId: string
   data: string
-  quantidadeVendida: string
+  quantidadeVendida: number | undefined
 }
 
 // ─── Perda de Produto ─────────────────────────────────────────────────────────

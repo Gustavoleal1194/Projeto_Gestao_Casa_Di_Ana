@@ -57,7 +57,8 @@ export interface Ingrediente {
   estoqueMaximo: number | null
   estaBaixoDoMinimo: boolean
   observacoes: string | null
-  quantidadeEmbalagem: string | null
+  quantidadeEmbalagemValor: number | null
+  unidadeEmbalagem: string | null
   ativo: boolean
   atualizadoEm: string
 }
@@ -70,7 +71,8 @@ export interface CriarIngredienteInput {
   categoriaId?: string | null
   estoqueMaximo?: number | null
   observacoes?: string | null
-  quantidadeEmbalagem?: string | null
+  quantidadeEmbalagemValor?: number
+  unidadeEmbalagem?: string
 }
 
 export interface AtualizarIngredienteInput extends CriarIngredienteInput {
@@ -82,10 +84,11 @@ export interface IngredienteFormValues {
   codigoInterno: string
   categoriaId: string
   unidadeMedidaId: string
-  estoqueMinimo: string
-  estoqueMaximo: string
+  estoqueMinimo: number | undefined
+  estoqueMaximo: number | undefined
   observacoes: string
-  quantidadeEmbalagem: string
+  quantidadeEmbalagemValor: number | undefined
+  unidadeEmbalagem: string
   _ehPacote?: boolean
 }
 
@@ -185,7 +188,7 @@ export interface EntradaFormValues {
   numeroNotaFiscal: string
   recebidoPor: string
   observacoes: string
-  itens: { ingredienteId: string; quantidade: string; custoUnitario: string }[]
+  itens: { ingredienteId: string; quantidade: number | undefined; custoUnitario: number | undefined }[]
 }
 
 // ─── Inventários ──────────────────────────────────────────────────────────────

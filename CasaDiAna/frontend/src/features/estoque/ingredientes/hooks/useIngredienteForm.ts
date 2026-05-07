@@ -6,7 +6,7 @@ import { ingredientesService } from '../services/ingredientesService'
 import type { Ingrediente, IngredienteFormValues } from '@/types/estoque'
 
 // ─── Helpers z.preprocess ─────────────────────────────────────────────────────
-const numeroObrigatorio = (msg = 'Campo obrigatório') =>
+const numeroObrigatorio = () =>
   z.preprocess(
     (v) => (v === '' || v == null ? undefined : Number(v)),
     z
@@ -35,7 +35,7 @@ export const ingredienteSchema = z
       .string()
       .min(1, 'Unidade de medida é obrigatória')
       .refine((v) => !isNaN(Number(v)) && Number(v) > 0, 'Selecione uma unidade'),
-    estoqueMinimo: numeroObrigatorio('Estoque mínimo é obrigatório'),
+    estoqueMinimo: numeroObrigatorio(),
     estoqueMaximo: numeroOpcionalPositivo,
     observacoes: z.string().max(500, 'Máximo 500 caracteres').optional().or(z.literal('')),
     quantidadeEmbalagemValor: numeroOpcionalPositivo,

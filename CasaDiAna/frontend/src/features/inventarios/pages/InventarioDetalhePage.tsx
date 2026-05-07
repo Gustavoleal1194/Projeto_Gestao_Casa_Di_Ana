@@ -72,7 +72,7 @@ export function InventarioDetalhePage() {
   const emAndamento = inventario?.status === 'EmAndamento'
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<ItemFormValues>({
-    resolver: zodResolver(itemSchema),
+    resolver: zodResolver(itemSchema) as any,
     defaultValues: { ingredienteId: '', quantidadeContada: undefined, observacoes: '' },
   })
 

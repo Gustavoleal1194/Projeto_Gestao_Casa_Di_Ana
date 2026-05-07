@@ -41,7 +41,8 @@ public class CriarIngredienteCommandHandler : IRequestHandler<CriarIngredienteCo
             request.CategoriaId,
             request.EstoqueMaximo,
             request.Observacoes,
-            request.QuantidadeEmbalagem);
+            request.QuantidadeEmbalagemValor,
+            request.UnidadeEmbalagem);
 
         await _ingredientes.AdicionarAsync(ingrediente, cancellationToken);
         await _ingredientes.SalvarAsync(cancellationToken);
@@ -56,5 +57,7 @@ public class CriarIngredienteCommandHandler : IRequestHandler<CriarIngredienteCo
         i.CategoriaId, i.Categoria?.Nome,
         i.UnidadeMedidaId, i.UnidadeMedida?.Codigo ?? string.Empty,
         i.EstoqueAtual, i.EstoqueMinimo, i.EstoqueMaximo,
-        i.EstaBaixoDoMinimo(), i.Observacoes, i.QuantidadeEmbalagem, i.Ativo, i.AtualizadoEm);
+        i.EstaBaixoDoMinimo(), i.Observacoes,
+        i.QuantidadeEmbalagemValor, i.UnidadeEmbalagem,
+        i.Ativo, i.AtualizadoEm);
 }

@@ -27,8 +27,12 @@ public class AtualizarIngredienteCommandValidator : AbstractValidator<AtualizarI
             .MaximumLength(30).When(x => x.CodigoInterno != null)
             .WithMessage("Código interno deve ter no máximo 30 caracteres.");
 
-        RuleFor(x => x.QuantidadeEmbalagem)
-            .MaximumLength(100).When(x => x.QuantidadeEmbalagem != null)
-            .WithMessage("Quantidade por embalagem deve ter no máximo 100 caracteres.");
+        RuleFor(x => x.QuantidadeEmbalagemValor)
+            .GreaterThan(0).When(x => x.QuantidadeEmbalagemValor.HasValue)
+            .WithMessage("Quantidade por embalagem deve ser maior que 0.");
+
+        RuleFor(x => x.UnidadeEmbalagem)
+            .Must(u => u == null || u == "ml" || u == "g")
+            .WithMessage("Unidade de embalagem deve ser 'ml' ou 'g'.");
     }
 }

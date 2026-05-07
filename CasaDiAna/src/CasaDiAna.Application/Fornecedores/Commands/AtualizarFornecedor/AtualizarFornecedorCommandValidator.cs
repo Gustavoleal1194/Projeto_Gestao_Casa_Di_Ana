@@ -25,7 +25,7 @@ public class AtualizarFornecedorCommandValidator : AbstractValidator<AtualizarFo
             .WithMessage("E-mail inválido.");
 
         RuleFor(x => x.Telefone)
-            .MaximumLength(20).When(x => x.Telefone != null)
-            .WithMessage("Telefone deve ter no máximo 20 caracteres.");
+            .Matches(@"^\d{10,11}$").When(x => x.Telefone != null)
+            .WithMessage("Telefone deve conter DDD + número (10 ou 11 dígitos numéricos).");
     }
 }

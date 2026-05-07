@@ -109,7 +109,6 @@ export function FornecedorFormPage() {
                   placeholder="00.000.000/0000-00"
                   inputMode="numeric"
                   name={field.name}
-                  ref={field.ref}
                   value={field.value}
                   onChange={e => field.onChange(formatarCnpj(e.target.value))}
                   onBlur={field.onBlur}
@@ -130,7 +129,6 @@ export function FornecedorFormPage() {
                   placeholder="(11) 99999-9999"
                   inputMode="numeric"
                   name={field.name}
-                  ref={field.ref}
                   value={field.value}
                   onChange={e => field.onChange(formatarTelefone(e.target.value))}
                   onBlur={field.onBlur}

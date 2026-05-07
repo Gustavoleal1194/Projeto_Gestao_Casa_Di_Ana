@@ -12,13 +12,11 @@ import { ConfirmacaoCriacaoRapidaModal, type DadosConfirmacaoCriacaoRapida } fro
 
 const schema = z.object({
   nome: z.string().min(2, 'Nome deve ter ao menos 2 caracteres.').max(100, 'Máximo 100 caracteres.'),
-  precoVenda: z
-    .string()
-    .min(1, 'Preço é obrigatório.')
-    .refine(
-      v => !isNaN(parseFloat(v.replace(',', '.'))) && parseFloat(v.replace(',', '.')) >= 0,
-      'Informe um preço válido.'
-    ),
+  precoVenda: z.preprocess(
+    (v) => (v === '' || v == null ? undefined : Number(v)),
+    z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Deve ser um número' })
+      .positive('Deve ser maior que zero')
+  ),
   categoriaProdutoId: z.string().optional(),
 })
 type FormValues = z.infer<typeof schema>
@@ -42,7 +40,7 @@ export function QuickCreateProductModal({ nomeInicial, precoInicial, onSalvo, on
     resolver: zodResolver(schema) as any,
     defaultValues: {
       nome: nomeInicial,
-      precoVenda: precoInicial != null ? precoInicial.toFixed(2).replace('.', ',') : '',
+      precoVenda: precoInicial != null ? precoInicial : undefined,
       categoriaProdutoId: '',
     },
   })
@@ -65,7 +63,7 @@ export function QuickCreateProductModal({ nomeInicial, precoInicial, onSalvo, on
     try {
       const produto = await produtosService.criar({
         nome: values.nome,
-        precoVenda: parseFloat(values.precoVenda.replace(',', '.')),
+        precoVenda: values.precoVenda as number,
         categoriaProdutoId: values.categoriaProdutoId || null,
       })
       setProdutoCriado(produto)

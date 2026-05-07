@@ -5,10 +5,11 @@ import type { Produto, ProdutoFormValues, CriarProdutoInput } from '@/types/prod
 
 export const produtoSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório.').max(150, 'Máximo de 150 caracteres.'),
-  precoVenda: z
-    .string()
-    .min(1, 'Preço de venda é obrigatório.')
-    .refine(v => Number(v) >= 0, 'Preço deve ser ≥ 0.'),
+  precoVenda: z.preprocess(
+    (v) => (v === '' || v == null ? undefined : Number(v)),
+    z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Deve ser um número' })
+      .positive('Deve ser maior que zero')
+  ),
   categoriaProdutoId: z.string(),
   descricao: z.string(),
 })
@@ -16,7 +17,7 @@ export const produtoSchema = z.object({
 export function produtoParaForm(p: Produto): ProdutoFormValues {
   return {
     nome: p.nome,
-    precoVenda: String(p.precoVenda),
+    precoVenda: p.precoVenda,
     categoriaProdutoId: p.categoriaProdutoId ?? '',
     descricao: p.descricao ?? '',
   }
@@ -25,7 +26,7 @@ export function produtoParaForm(p: Produto): ProdutoFormValues {
 export function formParaInput(values: ProdutoFormValues): CriarProdutoInput {
   return {
     nome: values.nome,
-    precoVenda: Number(values.precoVenda),
+    precoVenda: values.precoVenda as number,
     categoriaProdutoId: values.categoriaProdutoId || null,
     descricao: values.descricao || null,
   }
@@ -37,7 +38,7 @@ export function useProdutoForm() {
     resolver: zodResolver(produtoSchema) as any,
     defaultValues: {
       nome: '',
-      precoVenda: '',
+      precoVenda: undefined,
       categoriaProdutoId: '',
       descricao: '',
     },

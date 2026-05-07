@@ -17,6 +17,16 @@ import { FormCard } from '@/components/form/FormCard'
 import { LoadingState } from '@/components/ui/LoadingState'
 import type { Ingrediente } from '@/types/estoque'
 
+function gerarCodigoInterno(nome: string): string {
+  const palavras = nome.trim().split(/\s+/).filter(Boolean)
+  const prefixo = palavras
+    .slice(0, 3)
+    .map(p => p[0].toUpperCase())
+    .join('')
+  const sufixo = String(Math.floor(Math.random() * 900) + 100)
+  return `${prefixo}-${sufixo}`
+}
+
 export function IngredienteFormPage() {
   const { id } = useParams<{ id?: string }>()
   const navigate = useNavigate()
@@ -48,6 +58,10 @@ export function IngredienteFormPage() {
   const { form, salvar } = useIngredienteForm({ ingredienteExistente: ingrediente })
   const { register, handleSubmit, watch, reset, setValue, clearErrors, formState: { errors } } = form
 
+  // Watchs para auto-geração de código
+  const nomeAtual = watch('nome')
+  const codigoAtual = watch('codigoInterno')
+
   // Ao carregar ingrediente no modo edição, resetar o form com os dados
   useEffect(() => {
     if (ingrediente) {
@@ -76,6 +90,14 @@ export function IngredienteFormPage() {
       clearErrors('quantidadeEmbalagem')
     }
   }, [ehPacote, setValue, clearErrors])
+
+  // Auto-gera código interno quando nome é preenchido e código está vazio (somente criação)
+  useEffect(() => {
+    if (!modoEdicao && nomeAtual.trim().length >= 3 && !codigoAtual.trim()) {
+      setValue('codigoInterno', gerarCodigoInterno(nomeAtual))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nomeAtual])
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onSubmit = handleSubmit(async (values: any) => {

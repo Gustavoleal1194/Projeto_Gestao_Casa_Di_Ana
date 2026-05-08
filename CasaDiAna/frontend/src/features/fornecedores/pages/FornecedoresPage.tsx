@@ -132,7 +132,7 @@ export function FornecedoresPage() {
                             </p>
                             {f.nomeFantasia && (
                               <p className="text-xs mt-0.5" style={{ color: 'var(--ada-muted)' }}>
-                                {f.nomeFantasia}
+                                {destacar(f.nomeFantasia, busca)}
                               </p>
                             )}
                           </div>

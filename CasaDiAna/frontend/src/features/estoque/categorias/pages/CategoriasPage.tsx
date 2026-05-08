@@ -79,7 +79,7 @@ export function CategoriasPage() {
         breadcrumb={['Cadastros', 'Categorias']}
         subtitulo={loading ? 'Carregando…' : `${categorias.length} categoria${categorias.length !== 1 ? 's' : ''} cadastrada${categorias.length !== 1 ? 's' : ''}`}
         actions={podeEditar ? (
-          <button onClick={abrirCriar} className="btn-primary">
+          <button type="button" onClick={abrirCriar} className="btn-primary">
             <PlusIcon className="h-4 w-4" aria-hidden="true" />
             Nova Categoria
           </button>

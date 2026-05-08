@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PlusIcon } from '@heroicons/react/20/solid'
 import { TruckIcon } from '@heroicons/react/24/outline'
 import { TabelaAcoesLinha } from '@/components/ui/TabelaAcoesLinha'
 import { useFornecedores } from '../hooks/useFornecedores'
+import { FiltrosFornecedores } from '../components/FiltrosFornecedores'
+import { destacar } from '@/utils/destacar'
 import { useAuthStore } from '@/store/authStore'
 import { ModalDesativar } from '@/components/ui/ModalDesativar'
 import { Toast } from '@/components/ui/Toast'
@@ -20,6 +22,18 @@ export function FornecedoresPage() {
   const { temPapel } = useAuthStore()
   const { fornecedores, loading, erro, desativar } = useFornecedores()
   const podeEditar = temPapel(...PAPEIS_EDICAO)
+
+  const [busca, setBusca] = useState('')
+
+  const filtrados = useMemo(() => {
+    const termo = busca.toLowerCase().trim()
+    if (!termo) return fornecedores
+    return fornecedores.filter(f =>
+      f.razaoSocial.toLowerCase().includes(termo)
+      || (f.nomeFantasia ?? '').toLowerCase().includes(termo)
+      || (f.cnpj ?? '').toLowerCase().includes(termo)
+    )
+  }, [fornecedores, busca])
 
   const [paraDesativar, setParaDesativar] = useState<Fornecedor | null>(null)
   const [desativando, setDesativando] = useState(false)
@@ -52,6 +66,12 @@ export function FornecedoresPage() {
             Novo Fornecedor
           </button>
         ) : undefined}
+      />
+
+      {/* ── Filtros ──────────────────────────────────────────────────────── */}
+      <FiltrosFornecedores
+        busca={busca}
+        onBuscaChange={setBusca}
       />
 
       {/* ── Estados ────────────────────────────────────────────────────── */}
@@ -87,14 +107,28 @@ export function FornecedoresPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {fornecedores.map(f => (
+                  {filtrados.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={podeEditar ? 5 : 4}
+                        className="table-td text-center py-10 text-sm"
+                        style={{ color: 'var(--ada-muted)' }}
+                      >
+                        Nenhum resultado para{' '}
+                        <span className="font-semibold" style={{ color: 'var(--ada-heading)' }}>
+                          "{busca}"
+                        </span>
+                        .
+                      </td>
+                    </tr>
+                  ) : filtrados.map(f => (
                     <tr key={f.id} className="table-row group">
                       <td className="table-td">
                         <div className="flex items-center gap-2.5">
                           <span className="accent-bar shrink-0" aria-hidden="true" />
                           <div>
                             <p className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>
-                              {f.razaoSocial}
+                              {destacar(f.razaoSocial, busca)}
                             </p>
                             {f.nomeFantasia && (
                               <p className="text-xs mt-0.5" style={{ color: 'var(--ada-muted)' }}>

@@ -197,7 +197,7 @@ export function UsuariosPage() {
         breadcrumb={['Configurações', 'Usuários']}
         subtitulo={loading ? 'Carregando…' : `${usuarios.length} usuário${usuarios.length !== 1 ? 's' : ''} cadastrado${usuarios.length !== 1 ? 's' : ''}`}
         actions={
-          <button onClick={abrirCriar} className="btn-primary">
+          <button type="button" onClick={abrirCriar} className="btn-primary">
             <PlusIcon className="h-4 w-4" aria-hidden="true" />
             Novo Usuário
           </button>

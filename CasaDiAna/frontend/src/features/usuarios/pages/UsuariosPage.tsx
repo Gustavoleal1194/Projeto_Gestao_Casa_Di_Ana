@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { PlusIcon } from '@heroicons/react/20/solid'
 import { KeyIcon, ShieldExclamationIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { usuariosService, type UsuarioDto, type CriarUsuarioInput } from '../services/usuariosService'
@@ -9,6 +9,8 @@ import { Toast } from '@/components/ui/Toast'
 import { Spinner } from '@/components/form/Spinner'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { SkeletonTable } from '@/components/ui/SkeletonTable'
+import { FiltrosUsuarios } from '../components/FiltrosUsuarios'
+import { destacar } from '@/utils/destacar'
 
 const PAPEIS = [
   'Admin',
@@ -68,6 +70,18 @@ const fieldCls = [
 
 export function UsuariosPage() {
   const [usuarios, setUsuarios] = useState<UsuarioDto[]>([])
+  const [busca, setBusca] = useState('')
+  const [papel, setPapel] = useState('')
+
+  const filtrados = useMemo(() => {
+    const termo = busca.toLowerCase().trim()
+    return usuarios.filter(u => {
+      if (termo && !u.nome.toLowerCase().includes(termo) && !u.email.toLowerCase().includes(termo)) return false
+      if (papel && u.papel !== papel) return false
+      return true
+    })
+  }, [usuarios, busca, papel])
+
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
@@ -190,6 +204,14 @@ export function UsuariosPage() {
         }
       />
 
+      {/* ── Filtros ──────────────────────────────────────────────────────── */}
+      <FiltrosUsuarios
+        busca={busca}
+        onBuscaChange={setBusca}
+        papel={papel}
+        onPapelChange={setPapel}
+      />
+
       {/* ── Estados ────────────────────────────────────────────────────── */}
       {loading && <SkeletonTable colunas={5} linhas={4} />}
       {!loading && erro && (
@@ -231,13 +253,27 @@ export function UsuariosPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {usuarios.map(u => (
+                  {filtrados.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={7}
+                        className="table-td text-center py-10 text-sm"
+                        style={{ color: 'var(--ada-muted)' }}
+                      >
+                        Nenhum resultado para{' '}
+                        <span className="font-semibold" style={{ color: 'var(--ada-heading)' }}>
+                          "{busca || PAPEL_LABEL[papel] || 'filtros ativos'}"
+                        </span>
+                        .
+                      </td>
+                    </tr>
+                  ) : filtrados.map(u => (
                     <tr key={u.id} className="table-row group">
                       <td className="table-td">
                         <div className="flex items-center gap-2.5">
                           <span className="accent-bar shrink-0" aria-hidden="true" />
                           <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>
-                            {u.nome}
+                            {destacar(u.nome, busca)}
                           </span>
                         </div>
                       </td>

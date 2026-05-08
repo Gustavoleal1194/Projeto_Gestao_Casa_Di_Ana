@@ -306,6 +306,7 @@ export function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
+  const [buscaMargem, setBuscaMargem] = useState('')
 
   const carregar = useCallback(async (filtroDe: string, filtroAte: string) => {
     setLoading(true)
@@ -365,8 +366,14 @@ export function DashboardPage() {
   // ── Chart: Margem (horizontal ranking) ─────────────────────────────────
   const chartMargem = data?.prodVendas
     .filter(i => i.margemLucro != null)
-    .map(i => ({ nome: nomeCurto(i.produtoNome), margem: Number(i.margemLucro!.toFixed(1)) }))
+    .map(i => ({ nome: nomeCurto(i.produtoNome), nomeCompleto: i.produtoNome, margem: Number(i.margemLucro!.toFixed(1)) }))
     .sort((a, b) => b.margem - a.margem) ?? []
+
+  const chartMargemFiltrado = useMemo(() => {
+    if (!buscaMargem.trim()) return chartMargem.slice(0, 10)
+    const termo = buscaMargem.toLowerCase()
+    return chartMargem.filter(i => i.nomeCompleto.toLowerCase().includes(termo))
+  }, [data, buscaMargem])
 
   const margemCor = (v: number) => v >= 30 ? '#10b981' : v >= 0 ? '#f59e0b' : '#f43f5e'
 
@@ -516,7 +523,7 @@ export function DashboardPage() {
     yAxis: {
       type: 'category',
       inverse: true,
-      data: chartMargem.map(i => i.nome),
+      data: chartMargemFiltrado.map(i => i.nome),
       axisLabel: { color: chartAxis.bodyColor, fontSize: 11, fontFamily: 'DM Sans, system-ui, sans-serif' },
       axisLine: { show: false },
       axisTick: { show: false },
@@ -530,7 +537,7 @@ export function DashboardPage() {
           color: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
           borderRadius: [0, 4, 4, 0],
         },
-        data: chartMargem.map(i => ({
+        data: chartMargemFiltrado.map(i => ({
           value: i.margem,
           itemStyle: { color: margemCor(i.margem), borderRadius: [0, 4, 4, 0], opacity: 0.88 },
           label: {
@@ -950,10 +957,14 @@ export function DashboardPage() {
                 </div>
               </ChartContainer>
             ) : (
-              // Horizontal ranking para múltiplos produtos
+              // Horizontal ranking com busca e top 10 padrão
               <ChartContainer
                 titulo="Margem de Lucro por Produto"
-                subtitulo="Ordenado do maior para o menor"
+                subtitulo={
+                  buscaMargem.trim()
+                    ? `${chartMargemFiltrado.length} produto${chartMargemFiltrado.length !== 1 ? 's' : ''} encontrado${chartMargemFiltrado.length !== 1 ? 's' : ''}`
+                    : `Top 10 de ${chartMargem.length} — ordenado do maior para o menor`
+                }
                 rodape={
                   <div className="flex items-center gap-5 flex-wrap">
                     {([
@@ -969,12 +980,68 @@ export function DashboardPage() {
                   </div>
                 }
               >
-                <ReactECharts
-                  option={optionMargem}
-                  style={{ height: Math.max(200, chartMargem.length * 44) }}
-                  notMerge
-                  lazyUpdate
-                />
+                {/* Busca inline */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    marginBottom: 14,
+                    padding: '7px 12px',
+                    background: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)',
+                    border: '1px solid var(--ada-border)',
+                    borderRadius: 9,
+                  }}
+                >
+                  <svg
+                    width="13" height="13" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                    style={{ flexShrink: 0, color: 'var(--ada-muted)' }}
+                    aria-hidden="true"
+                  >
+                    <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
+                  </svg>
+                  <input
+                    type="text"
+                    placeholder={`Buscar entre ${chartMargem.length} produtos…`}
+                    value={buscaMargem}
+                    onChange={e => setBuscaMargem(e.target.value)}
+                    style={{
+                      flex: 1,
+                      background: 'none',
+                      border: 'none',
+                      outline: 'none',
+                      fontSize: 12.5,
+                      color: 'var(--ada-heading)',
+                      fontFamily: 'DM Sans, system-ui, sans-serif',
+                    }}
+                  />
+                  {buscaMargem && (
+                    <button
+                      type="button"
+                      onClick={() => setBuscaMargem('')}
+                      aria-label="Limpar busca"
+                      style={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ada-muted)', padding: 0, flexShrink: 0 }}
+                    >
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+
+                {chartMargemFiltrado.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-32 gap-1.5" style={{ color: 'var(--ada-placeholder)' }}>
+                    <p className="text-[12px]">Nenhum produto para "{buscaMargem}".</p>
+                  </div>
+                ) : (
+                  <ReactECharts
+                    option={optionMargem}
+                    style={{ height: Math.max(200, chartMargemFiltrado.length * 44) }}
+                    notMerge
+                    lazyUpdate
+                  />
+                )}
               </ChartContainer>
             )}
           </div>

@@ -61,7 +61,7 @@ export function FornecedoresPage() {
         breadcrumb={['Cadastros', 'Fornecedores']}
         subtitulo={loading ? 'Carregando…' : `${fornecedores.length} fornecedor${fornecedores.length !== 1 ? 'es' : ''} cadastrado${fornecedores.length !== 1 ? 's' : ''}`}
         actions={podeEditar ? (
-          <button onClick={() => navigate('/fornecedores/novo')} className="btn-primary">
+          <button type="button" onClick={() => navigate('/fornecedores/novo')} className="btn-primary">
             <PlusIcon className="h-4 w-4" aria-hidden="true" />
             Novo Fornecedor
           </button>

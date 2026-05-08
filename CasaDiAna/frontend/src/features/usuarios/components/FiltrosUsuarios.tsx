@@ -62,7 +62,6 @@ export function FiltrosUsuarios({
         background: 'linear-gradient(180deg, var(--ada-surface) 0%, var(--ada-bg) 100%)',
         border: '1px solid var(--ada-border)',
         borderRadius: 20,
-        overflow: 'hidden',
         boxShadow:
           '0 1px 0 rgba(255,255,255,.04) inset, 0 20px 60px rgba(0,0,0,.40), 0 8px 24px rgba(0,0,0,.28)',
         marginBottom: 24,

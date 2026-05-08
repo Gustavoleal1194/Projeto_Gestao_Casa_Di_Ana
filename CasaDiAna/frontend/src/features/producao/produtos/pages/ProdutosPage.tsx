@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PlusIcon } from '@heroicons/react/20/solid'
 import { PencilSquareIcon, TrashIcon, DocumentTextIcon, CubeIcon } from '@heroicons/react/20/solid'
@@ -11,6 +11,9 @@ import { SkeletonTable } from '@/components/ui/SkeletonTable'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import type { ProdutoResumo } from '@/types/producao'
+import { useCategoriasProduto } from '@/features/producao/categorias-produto/hooks/useCategoriasProduto'
+import { FiltrosProdutos } from '../components/FiltrosProdutos'
+import { destacar } from '@/utils/destacar'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
 
@@ -19,6 +22,23 @@ export function ProdutosPage() {
   const { temPapel } = useAuthStore()
   const { produtos, loading, erro, desativar } = useProdutos()
   const podeEditar = temPapel(...PAPEIS_EDICAO)
+
+  const { categorias } = useCategoriasProduto()
+
+  const [busca, setBusca] = useState('')
+  const [categoriaId, setCategoriaId] = useState('')
+
+  const filtrados = useMemo(() => {
+    const termo = busca.toLowerCase().trim()
+    return produtos.filter(p => {
+      if (termo && !p.nome.toLowerCase().includes(termo)) return false
+      if (categoriaId) {
+        const cat = categorias.find(c => c.id === categoriaId)
+        if (cat && p.categoriaNome !== cat.nome) return false
+      }
+      return true
+    })
+  }, [produtos, busca, categoriaId, categorias])
 
   const [paraDesativar, setParaDesativar] = useState<ProdutoResumo | null>(null)
   const [desativando, setDesativando] = useState(false)
@@ -51,6 +71,15 @@ export function ProdutosPage() {
             Novo Produto
           </button>
         ) : undefined}
+      />
+
+      {/* ── Filtros ──────────────────────────────────────────────────── */}
+      <FiltrosProdutos
+        busca={busca}
+        onBuscaChange={setBusca}
+        categoriaId={categoriaId}
+        onCategoriaChange={setCategoriaId}
+        categorias={categorias}
       />
 
       {/* ── Estados ────────────────────────────────────────────────────── */}
@@ -92,13 +121,27 @@ export function ProdutosPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {produtos.map(p => (
+                  {filtrados.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={podeEditar ? 5 : 4}
+                        className="table-td text-center py-10 text-sm"
+                        style={{ color: 'var(--ada-muted)' }}
+                      >
+                        Nenhum resultado para{' '}
+                        <span className="font-semibold" style={{ color: 'var(--ada-heading)' }}>
+                          "{busca || categorias.find(c => c.id === categoriaId)?.nome}"
+                        </span>
+                        .
+                      </td>
+                    </tr>
+                  ) : filtrados.map(p => (
                     <tr key={p.id} className="table-row group">
                       <td className="table-td">
                         <div className="flex items-center gap-2.5">
                           <span className="accent-bar shrink-0" aria-hidden="true" />
                           <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>
-                            {p.nome}
+                            {destacar(p.nome, busca)}
                           </span>
                         </div>
                       </td>

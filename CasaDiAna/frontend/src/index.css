@@ -934,3 +934,13 @@ input:-webkit-autofill:active {
 @keyframes sparkle    { 0% { transform: scale(0) rotate(0deg); opacity: 0; } 50% { opacity: 1; } 100% { transform: scale(1) rotate(45deg); opacity: 0; } }
 @keyframes float      { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
 @keyframes ripple     { from { transform: scale(0.6); opacity: 0.6; } to { transform: scale(2.2); opacity: 0; } }
+
+/* ── Filter animations ──────────────────────────────────────────────── */
+@keyframes pillIn {
+  from { opacity: 0; transform: translateY(4px) scale(.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes dotPulseFilter {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .45; }
+}

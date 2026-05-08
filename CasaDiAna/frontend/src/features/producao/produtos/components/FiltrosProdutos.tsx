@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import type { CategoriaProduto } from '@/types/producao'
 
 interface Props {
@@ -18,26 +19,41 @@ export function FiltrosProdutos({
 }: Props) {
   const [focado, setFocado] = useState(false)
   const [dropdownAberto, setDropdownAberto] = useState(false)
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 })
   const chipRef = useRef<HTMLDivElement>(null)
+  const btnRef = useRef<HTMLButtonElement>(null)
 
   const temFiltroAtivo = !!busca || !!categoriaId
   const catSelecionada = categorias.find(c => c.id === categoriaId)
 
+  const fechar = useCallback(() => setDropdownAberto(false), [])
+
+  const abrirDropdown = () => {
+    if (btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect()
+      setDropdownPos({ top: r.bottom + 6, left: r.left })
+    }
+    setDropdownAberto(d => !d)
+  }
+
   useEffect(() => {
     if (!dropdownAberto) return
     const handle = (e: MouseEvent) => {
-      if (!chipRef.current?.contains(e.target as Node)) setDropdownAberto(false)
+      const target = e.target as Node
+      if (!btnRef.current?.contains(target) && !(e.target as Element).closest?.('[data-filtros-dropdown]')) {
+        fechar()
+      }
     }
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setDropdownAberto(false)
-    }
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') fechar() }
     document.addEventListener('mousedown', handle)
     document.addEventListener('keydown', handleKey)
+    document.addEventListener('scroll', fechar, true)
     return () => {
       document.removeEventListener('mousedown', handle)
       document.removeEventListener('keydown', handleKey)
+      document.removeEventListener('scroll', fechar, true)
     }
-  }, [dropdownAberto])
+  }, [dropdownAberto, fechar])
 
   const limparTudo = () => { onBuscaChange(''); onCategoriaChange('') }
 
@@ -203,8 +219,9 @@ export function FiltrosProdutos({
         {/* Chip — Categoria */}
         <div ref={chipRef} style={{ position: 'relative' }}>
           <button
+            ref={btnRef}
             type="button"
-            onClick={() => setDropdownAberto(d => !d)}
+            onClick={abrirDropdown}
             aria-expanded={dropdownAberto}
             aria-haspopup="listbox"
             style={{
@@ -266,14 +283,15 @@ export function FiltrosProdutos({
             </svg>
           </button>
 
-          {/* Dropdown */}
-          {dropdownAberto && (
+          {/* Dropdown — renderizado via portal para escapar de qualquer overflow */}
+          {dropdownAberto && createPortal(
             <div
+              data-filtros-dropdown
               style={{
-                position: 'absolute',
-                top: 'calc(100% + 6px)',
-                left: 0,
-                zIndex: 50,
+                position: 'fixed',
+                top: dropdownPos.top,
+                left: dropdownPos.left,
+                zIndex: 9999,
                 background: 'var(--ada-surface)',
                 border: '1px solid var(--ada-border)',
                 borderRadius: 12,
@@ -385,7 +403,8 @@ export function FiltrosProdutos({
                   {cat.nome}
                 </button>
               ))}
-            </div>
+            </div>,
+            document.body
           )}
         </div>
       </div>

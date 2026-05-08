@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PlusIcon } from '@heroicons/react/20/solid'
-import { PencilSquareIcon, TrashIcon, DocumentTextIcon, CubeIcon } from '@heroicons/react/20/solid'
+import { PlusIcon, PencilSquareIcon, TrashIcon, DocumentTextIcon, CubeIcon } from '@heroicons/react/20/solid'
 import { useProdutos } from '../hooks/useProdutos'
 import { useAuthStore } from '@/store/authStore'
 import { ModalDesativar } from '@/components/ui/ModalDesativar'
@@ -66,7 +65,7 @@ export function ProdutosPage() {
         breadcrumb={['Produção', 'Produtos']}
         subtitulo={loading ? 'Carregando…' : `${produtos.length} produto${produtos.length !== 1 ? 's' : ''} cadastrado${produtos.length !== 1 ? 's' : ''}`}
         actions={podeEditar ? (
-          <button onClick={() => navigate('/producao/produtos/novo')} className="btn-primary">
+          <button type="button" onClick={() => navigate('/producao/produtos/novo')} className="btn-primary">
             <PlusIcon className="h-4 w-4" aria-hidden="true" />
             Novo Produto
           </button>
@@ -98,7 +97,7 @@ export function ProdutosPage() {
               titulo="Nenhum produto cadastrado"
               descricao="Cadastre um produto para registrar produção e vendas."
               action={podeEditar ? (
-                <button onClick={() => navigate('/producao/produtos/novo')} className="btn-primary">
+                <button type="button" onClick={() => navigate('/producao/produtos/novo')} className="btn-primary">
                   <PlusIcon className="h-4 w-4" aria-hidden="true" />
                   Novo Produto
                 </button>
@@ -130,7 +129,7 @@ export function ProdutosPage() {
                       >
                         Nenhum resultado para{' '}
                         <span className="font-semibold" style={{ color: 'var(--ada-heading)' }}>
-                          "{busca || categorias.find(c => c.id === categoriaId)?.nome}"
+                          "{busca || categorias.find(c => c.id === categoriaId)?.nome || 'filtros ativos'}"
                         </span>
                         .
                       </td>
@@ -162,6 +161,7 @@ export function ProdutosPage() {
                         <td className="table-td" style={{ textAlign: 'right' }}>
                           <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
                             <button
+                              type="button"
                               onClick={() => navigate(`/producao/produtos/${p.id}/ficha-tecnica`)}
                               aria-label={`Ficha técnica de ${p.nome}`}
                               title="Ficha Técnica"
@@ -170,6 +170,7 @@ export function ProdutosPage() {
                               <DocumentTextIcon className="h-4 w-4" aria-hidden="true" />
                             </button>
                             <button
+                              type="button"
                               onClick={() => navigate(`/producao/produtos/${p.id}/editar`)}
                               aria-label={`Editar ${p.nome}`}
                               className="row-action-btn"
@@ -177,6 +178,7 @@ export function ProdutosPage() {
                               <PencilSquareIcon className="h-4 w-4" aria-hidden="true" />
                             </button>
                             <button
+                              type="button"
                               onClick={() => setParaDesativar(p)}
                               aria-label={`Desativar ${p.nome}`}
                               className="row-action-btn danger"

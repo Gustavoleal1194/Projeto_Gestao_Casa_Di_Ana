@@ -28,8 +28,15 @@ export function FiltrosProdutos({
     const handle = (e: MouseEvent) => {
       if (!chipRef.current?.contains(e.target as Node)) setDropdownAberto(false)
     }
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setDropdownAberto(false)
+    }
     document.addEventListener('mousedown', handle)
-    return () => document.removeEventListener('mousedown', handle)
+    document.addEventListener('keydown', handleKey)
+    return () => {
+      document.removeEventListener('mousedown', handle)
+      document.removeEventListener('keydown', handleKey)
+    }
   }, [dropdownAberto])
 
   const limparTudo = () => { onBuscaChange(''); onCategoriaChange('') }
@@ -133,6 +140,7 @@ export function FiltrosProdutos({
           />
           {busca && (
             <button
+              type="button"
               onClick={() => onBuscaChange('')}
               aria-label="Limpar busca"
               style={{
@@ -196,7 +204,10 @@ export function FiltrosProdutos({
         {/* Chip — Categoria */}
         <div ref={chipRef} style={{ position: 'relative' }}>
           <button
+            type="button"
             onClick={() => setDropdownAberto(d => !d)}
+            aria-expanded={dropdownAberto}
+            aria-haspopup="listbox"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -275,6 +286,7 @@ export function FiltrosProdutos({
               }}
             >
               <button
+                type="button"
                 onClick={() => { onCategoriaChange(''); setDropdownAberto(false) }}
                 style={{
                   display: 'flex',
@@ -324,6 +336,7 @@ export function FiltrosProdutos({
               </button>
               {categorias.map(cat => (
                 <button
+                  type="button"
                   key={cat.id}
                   onClick={() => { onCategoriaChange(cat.id); setDropdownAberto(false) }}
                   style={{
@@ -455,6 +468,7 @@ export function FiltrosProdutos({
               </span>
               <span style={{ padding: '5px 9px' }}>{busca}</span>
               <button
+                type="button"
                 onClick={() => onBuscaChange('')}
                 aria-label="Remover filtro de busca"
                 style={{
@@ -516,6 +530,7 @@ export function FiltrosProdutos({
               </span>
               <span style={{ padding: '5px 9px' }}>{catSelecionada.nome}</span>
               <button
+                type="button"
                 onClick={() => onCategoriaChange('')}
                 aria-label="Remover filtro de categoria"
                 style={{
@@ -545,6 +560,7 @@ export function FiltrosProdutos({
           )}
 
           <button
+            type="button"
             onClick={limparTudo}
             style={{
               marginLeft: 'auto',

@@ -1,6 +1,6 @@
-import React from 'react'
+import type { ReactNode } from 'react'
 
-export function destacar(texto: string, termo: string): React.ReactNode {
+export function destacar(texto: string, termo: string): ReactNode {
   if (!termo.trim()) return texto
   const partes = texto.split(new RegExp(`(${termo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'))
   return partes.map((parte, i) =>

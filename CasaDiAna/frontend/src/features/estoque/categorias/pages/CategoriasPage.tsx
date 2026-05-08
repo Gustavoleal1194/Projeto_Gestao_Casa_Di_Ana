@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { PlusIcon } from '@heroicons/react/20/solid'
 import { useCategorias } from '../hooks/useCategorias'
 import { categoriasService } from '../services/categoriasService'
 import { useAuthStore } from '@/store/authStore'
 import { TabelaCategorias } from '../components/TabelaCategorias'
+import { FiltrosCategorias } from '../components/FiltrosCategorias'
 import { ModalCategoria } from '../components/ModalCategoria'
 import { ModalDesativar } from '@/components/ui/ModalDesativar'
 import { Toast } from '@/components/ui/Toast'
@@ -17,6 +18,14 @@ export function CategoriasPage() {
   const { temPapel } = useAuthStore()
   const { categorias, loading, erro, recarregar, desativar } = useCategorias()
   const podeEditar = temPapel(...PAPEIS_EDICAO)
+
+  const [busca, setBusca] = useState('')
+
+  const filtradas = useMemo(() => {
+    const termo = busca.toLowerCase().trim()
+    if (!termo) return categorias
+    return categorias.filter(c => c.nome.toLowerCase().includes(termo))
+  }, [categorias, busca])
 
   const [modalAberto, setModalAberto] = useState(false)
   const [categoriaEditando, setCategoriaEditando] = useState<CategoriaIngrediente | null>(null)
@@ -77,6 +86,12 @@ export function CategoriasPage() {
         ) : undefined}
       />
 
+      {/* ── Filtros ──────────────────────────────────────────────────────── */}
+      <FiltrosCategorias
+        busca={busca}
+        onBuscaChange={setBusca}
+      />
+
       {/* ── Estados ────────────────────────────────────────────────────── */}
       {loading && <SkeletonTable colunas={3} linhas={4} />}
       {!loading && erro && (
@@ -84,10 +99,11 @@ export function CategoriasPage() {
       )}
       {!loading && !erro && (
         <TabelaCategorias
-          categorias={categorias}
+          categorias={filtradas}
           podeEditar={podeEditar}
           onEditar={abrirEditar}
           onDesativar={setParaDesativar}
+          busca={busca}
         />
       )}
 

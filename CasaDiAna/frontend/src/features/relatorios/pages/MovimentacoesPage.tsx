@@ -1,22 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { ArrowDownTrayIcon, ArrowsRightLeftIcon } from '@heroicons/react/24/outline'
 import { relatoriosService } from '../services/relatoriosService'
 import { ingredientesService } from '@/features/estoque/ingredientes/services/ingredientesService'
 import { gerarPdfMovimentacoes } from '@/lib/pdf'
+import { FiltrosMovimentacoes } from '../components/FiltrosMovimentacoes'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
-import { FiltroPeriodo, gerarChipsPeriodo } from '@/components/ui/FiltroPeriodo'
 import type { MovimentacaoRelatorio, IngredienteResumo } from '@/types/estoque'
-
-const TIPOS: { valor: string; rotulo: string }[] = [
-  { valor: '',               rotulo: 'Todos' },
-  { valor: 'Entrada',        rotulo: 'Entrada' },
-  { valor: 'AjustePositivo', rotulo: 'Ajuste Positivo' },
-  { valor: 'AjusteNegativo', rotulo: 'Ajuste Negativo' },
-  { valor: 'SaidaProducao',  rotulo: 'Saída — Produção' },
-]
 
 const TIPO_LABEL: Record<string, string> = {
   Entrada:        'Entrada',
@@ -43,17 +34,22 @@ export function MovimentacoesPage() {
   const [ate, setAte] = useState(hoje)
   const [tipo, setTipo] = useState('')
   const [ingredienteId, setIngredienteId] = useState('')
+  const [busca, setBusca] = useState('')
 
-  useEffect(() => {
-    ingredientesService.listar().then(setIngredientes).catch(() => {})
-    carregar()
-  }, [])
-
-  const carregar = async () => {
+  const carregar = async (
+    filtroDe = de,
+    filtroAte = ate,
+    filtroTipo = tipo,
+    filtroIngredienteId = ingredienteId
+  ) => {
     setLoading(true)
     setErro(null)
     try {
-      const data = await relatoriosService.movimentacoes(de, ate, tipo || undefined, ingredienteId || undefined)
+      const data = await relatoriosService.movimentacoes(
+        filtroDe, filtroAte,
+        filtroTipo || undefined,
+        filtroIngredienteId || undefined
+      )
       setMovimentacoes(data)
     } catch {
       setErro('Erro ao carregar movimentações.')
@@ -62,14 +58,31 @@ export function MovimentacoesPage() {
     }
   }
 
-  const handleFiltrar = (e?: React.FormEvent) => { e?.preventDefault(); carregar() }
+  useEffect(() => {
+    ingredientesService.listar().then(setIngredientes).catch(() => {})
+    carregar()
+  }, [])
+
+  const handleDeChange = (v: string) => { setDe(v); carregar(v, ate, tipo, ingredienteId) }
+  const handleAteChange = (v: string) => { setAte(v); carregar(de, v, tipo, ingredienteId) }
+  const handleTipoChange = (v: string) => { setTipo(v); carregar(de, ate, v, ingredienteId) }
+  const handleIngredienteChange = (v: string) => { setIngredienteId(v); carregar(de, ate, tipo, v) }
+
+  const movimentacoesFiltradas = useMemo(() => {
+    if (!busca) return movimentacoes
+    const termo = busca.toLowerCase()
+    return movimentacoes.filter(m =>
+      m.ingredienteNome.toLowerCase().includes(termo) ||
+      (m.referenciaTipo ?? '').toLowerCase().includes(termo)
+    )
+  }, [movimentacoes, busca])
 
   return (
     <div className="ada-page">
       <PageHeader
         titulo="Movimentações de Estoque"
         breadcrumb={['Relatórios', 'Movimentações']}
-        subtitulo={loading ? 'Carregando…' : `${movimentacoes.length} movimentação(ões) no período`}
+        subtitulo={loading ? 'Carregando…' : `${movimentacoesFiltradas.length} movimentação(ões)`}
         actions={movimentacoes.length > 0 ? (
           <button onClick={() => gerarPdfMovimentacoes(movimentacoes, de, ate)} className="btn-secondary">
             <ArrowDownTrayIcon className="h-4 w-4" aria-hidden="true" />
@@ -78,34 +91,23 @@ export function MovimentacoesPage() {
         ) : undefined}
       />
 
-      <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar movimentações">
-        <FiltroPeriodo de={de} onChangeDe={setDe} ate={ate} onChangeAte={setAte} />
-        <div>
-          <label className="filter-label">Tipo</label>
-          <select value={tipo} onChange={e => setTipo(e.target.value)} className="filter-input">
-            {TIPOS.map(t => <option key={t.valor} value={t.valor}>{t.rotulo}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="filter-label">Ingrediente</label>
-          <select value={ingredienteId} onChange={e => setIngredienteId(e.target.value)} className="filter-input">
-            <option value="">Todos</option>
-            {ingredientes.map(i => <option key={i.id} value={i.id}>{i.nome}</option>)}
-          </select>
-        </div>
-        <FilterBarActions
-          loading={loading}
-          chips={[
-            ...gerarChipsPeriodo(de, ate, () => setDe(''), () => setAte('')),
-            ...(tipo ? [{ label: `Tipo: ${TIPOS.find(t => t.valor === tipo)?.rotulo ?? tipo}`, onRemove: () => setTipo('') }] : []),
-            ...(ingredienteId ? [{ label: `Ingrediente: ${ingredientes.find(i => i.id === ingredienteId)?.nome ?? ingredienteId}`, onRemove: () => setIngredienteId('') }] : []),
-          ]}
-        />
-      </FilterBar>
+      <FiltrosMovimentacoes
+        busca={busca}
+        onBuscaChange={setBusca}
+        de={de}
+        onDeChange={handleDeChange}
+        ate={ate}
+        onAteChange={handleAteChange}
+        tipo={tipo}
+        onTipoChange={handleTipoChange}
+        ingredienteId={ingredienteId}
+        onIngredienteChange={handleIngredienteChange}
+        ingredientes={ingredientes}
+      />
 
       {loading && <LoadingState mensagem="Carregando movimentações…" />}
       {!loading && erro && <div className="state-error" role="alert">{erro}</div>}
-      {!loading && !erro && movimentacoes.length === 0 && (
+      {!loading && !erro && movimentacoesFiltradas.length === 0 && (
         <div className="ada-surface-card">
           <EmptyState
             icon={<ArrowsRightLeftIcon className="w-7 h-7" />}
@@ -115,7 +117,7 @@ export function MovimentacoesPage() {
           />
         </div>
       )}
-      {!loading && !erro && movimentacoes.length > 0 && (
+      {!loading && !erro && movimentacoesFiltradas.length > 0 && (
         <div className="ada-surface-card">
           <div className="overflow-x-auto">
             <table className="w-full" role="table">
@@ -130,7 +132,7 @@ export function MovimentacoesPage() {
                 </tr>
               </thead>
               <tbody>
-                {movimentacoes.map(m => (
+                {movimentacoesFiltradas.map(m => (
                   <tr key={m.id} className="table-row">
                     <td className="table-td whitespace-nowrap">
                       <span className="text-xs tabular-nums" style={{ color: 'var(--ada-muted)' }}>

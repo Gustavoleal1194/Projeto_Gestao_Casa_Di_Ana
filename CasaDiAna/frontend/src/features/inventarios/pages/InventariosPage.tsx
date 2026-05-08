@@ -1,8 +1,10 @@
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PlusIcon } from '@heroicons/react/20/solid'
 import { ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline'
 import { useInventarios } from '../hooks/useInventarios'
 import { useAuthStore } from '@/store/authStore'
+import { FiltrosInventarios } from '../components/FiltrosInventarios'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { SkeletonTable } from '@/components/ui/SkeletonTable'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -33,6 +35,21 @@ export function InventariosPage() {
   const { inventarios, loading, erro } = useInventarios()
   const podeCriar = temPapel(...PAPEIS_EDICAO)
 
+  const [busca, setBusca] = useState('')
+  const [status, setStatus] = useState('')
+
+  const filtrados = useMemo(() => {
+    let result = inventarios
+    if (busca) {
+      const termo = busca.toLowerCase()
+      result = result.filter(inv => (inv.descricao ?? '').toLowerCase().includes(termo))
+    }
+    if (status) {
+      result = result.filter(inv => inv.status === status)
+    }
+    return result
+  }, [inventarios, busca, status])
+
   return (
     <div className="ada-page">
 
@@ -46,6 +63,13 @@ export function InventariosPage() {
             Novo Inventário
           </button>
         ) : undefined}
+      />
+
+      <FiltrosInventarios
+        busca={busca}
+        onBuscaChange={setBusca}
+        status={status}
+        onStatusChange={setStatus}
       />
 
       {/* ── Estados ────────────────────────────────────────────────────── */}
@@ -76,7 +100,13 @@ export function InventariosPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {inventarios.map(inv => (
+                  {filtrados.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="table-td text-center py-10 text-sm" style={{ color: 'var(--ada-muted)' }}>
+                        Nenhum resultado para os filtros selecionados.
+                      </td>
+                    </tr>
+                  ) : filtrados.map(inv => (
                     <tr
                       key={inv.id}
                       onClick={() => navigate(`/inventarios/${inv.id}`)}

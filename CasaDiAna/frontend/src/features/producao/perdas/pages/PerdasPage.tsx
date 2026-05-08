@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -13,8 +13,7 @@ import { Spinner } from '@/components/form/Spinner'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
-import { FiltroPeriodo, gerarChipsPeriodo } from '@/components/ui/FiltroPeriodo'
+import { FiltrosPerdas } from '../components/FiltrosPerdas'
 import type { PerdaProduto } from '@/types/producao'
 import type { ProdutoResumo } from '@/types/producao'
 import { ConfirmacaoPerdasModal, type DadosConfirmacaoPerdas } from '../components/ConfirmacaoPerdasModal'
@@ -55,6 +54,7 @@ export function PerdasPage() {
   const [modalAberto, setModalAberto] = useState(false)
   const [de, setDe] = useState(primeiroDoMes())
   const [ate, setAte] = useState(hoje())
+  const [busca, setBusca] = useState('')
   const [confirma, setConfirma] = useState<DadosConfirmacaoPerdas | null>(null)
 
   const { register, handleSubmit, reset: resetForm, formState: { errors: formErrors, isSubmitting } } =
@@ -82,10 +82,17 @@ export function PerdasPage() {
     carregar(primeiroDoMes(), hoje())
   }, [carregar])
 
-  const handleFiltrar = (e?: React.FormEvent) => {
-    e?.preventDefault()
-    carregar(de, ate)
-  }
+  const handleDeChange = (v: string) => { setDe(v); carregar(v, ate) }
+  const handleAteChange = (v: string) => { setAte(v); carregar(de, v) }
+
+  const perdasFiltradas = useMemo(() => {
+    if (!busca) return perdas
+    const termo = busca.toLowerCase()
+    return perdas.filter(p =>
+      p.produtoNome.toLowerCase().includes(termo) ||
+      p.justificativa.toLowerCase().includes(termo)
+    )
+  }, [perdas, busca])
 
   const onSubmitPerda = async (values: PerdaFormValues) => {
     try {
@@ -132,24 +139,23 @@ export function PerdasPage() {
         }
       />
 
-      {/* ── Filtros ─────────────────────────────────────────────────────── */}
-      <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar perdas">
-        <FiltroPeriodo de={de} onChangeDe={setDe} ate={ate} onChangeAte={setAte} idDe="perdas-de" idAte="perdas-ate" />
-        <FilterBarActions
-          loading={loading}
-          chips={[
-            ...gerarChipsPeriodo(de, ate, () => setDe(''), () => setAte('')),
-          ]}
-        />
-        {perdas.length > 0 && (
-          <span className="ml-auto text-sm" style={{ color: 'var(--ada-muted)' }}>
-            {perdas.length} registro(s) — total de{' '}
-            <span className="font-semibold" style={{ color: 'var(--ada-error-text)' }}>
-              {totalPerdas.toFixed(0)} un.
-            </span>
+      <FiltrosPerdas
+        busca={busca}
+        onBuscaChange={setBusca}
+        de={de}
+        onDeChange={handleDeChange}
+        ate={ate}
+        onAteChange={handleAteChange}
+      />
+
+      {perdas.length > 0 && (
+        <div className="mb-4 text-sm" style={{ color: 'var(--ada-muted)' }}>
+          {perdas.length} registro(s) — total de{' '}
+          <span className="font-semibold" style={{ color: 'var(--ada-error-text)' }}>
+            {totalPerdas.toFixed(0)} un.
           </span>
-        )}
-      </FilterBar>
+        </div>
+      )}
 
       {/* ── Estados ────────────────────────────────────────────────────── */}
       {loading && <LoadingState mensagem="Carregando registros…" />}
@@ -179,7 +185,13 @@ export function PerdasPage() {
                 </tr>
               </thead>
               <tbody>
-                {perdas.map(p => (
+                {perdasFiltradas.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="table-td text-center py-10 text-sm" style={{ color: 'var(--ada-muted)' }}>
+                      Nenhum resultado para "{busca}".
+                    </td>
+                  </tr>
+                ) : perdasFiltradas.map(p => (
                   <tr key={p.id} className="table-row">
                     <td className="table-td">
                       <span className="text-sm" style={{ color: 'var(--ada-body)' }}>
@@ -274,7 +286,6 @@ export function PerdasPage() {
                 {...register('justificativa')}
                 erro={formErrors.justificativa?.message}
               />
-
             </div>
             <div className="modal-footer">
               <button

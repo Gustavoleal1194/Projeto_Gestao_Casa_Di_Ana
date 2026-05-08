@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import { relatoriosService } from '../services/relatoriosService'
 import { gerarPdfEstoqueAtual } from '@/lib/pdf'
+import { FiltrosEstoqueAtual } from '../components/FiltrosEstoqueAtual'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -12,6 +13,7 @@ export function EstoqueAtualPage() {
   const [loading, setLoading] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
   const [apenasAbaixo, setApenasAbaixo] = useState(false)
+  const [busca, setBusca] = useState('')
 
   const carregar = async (filtro: boolean) => {
     setLoading(true)
@@ -28,42 +30,44 @@ export function EstoqueAtualPage() {
 
   useEffect(() => { carregar(false) }, [])
 
-  const handleToggle = () => {
-    const novo = !apenasAbaixo
-    setApenasAbaixo(novo)
-    carregar(novo)
+  const handleApenasAbaixoChange = (v: boolean) => {
+    setApenasAbaixo(v)
+    carregar(v)
   }
+
+  const itensFiltrados = useMemo(() => {
+    if (!busca) return itens
+    const termo = busca.toLowerCase()
+    return itens.filter(item =>
+      item.nome.toLowerCase().includes(termo) ||
+      (item.categoriaNome ?? '').toLowerCase().includes(termo)
+    )
+  }, [itens, busca])
 
   return (
     <div className="ada-page">
       <PageHeader
         titulo="Estoque Atual"
         breadcrumb={['Relatórios', 'Estoque Atual']}
-        subtitulo={loading ? 'Carregando…' : `${itens.length} ingrediente(s)`}
-        actions={
-          <div className="flex items-center gap-4">
-            {itens.length > 0 && (
-              <button onClick={() => gerarPdfEstoqueAtual(itens, apenasAbaixo)} className="btn-secondary">
-                <ArrowDownTrayIcon className="h-4 w-4" aria-hidden="true" />
-                Baixar PDF
-              </button>
-            )}
-            <label className="flex items-center gap-2 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={apenasAbaixo}
-                onChange={handleToggle}
-                className="h-4 w-4 accent-amber-700"
-              />
-              <span className="text-sm" style={{ color: 'var(--ada-body)' }}>Apenas abaixo do mínimo</span>
-            </label>
-          </div>
-        }
+        subtitulo={loading ? 'Carregando…' : `${itensFiltrados.length} ingrediente(s)`}
+        actions={itens.length > 0 ? (
+          <button onClick={() => gerarPdfEstoqueAtual(itens, apenasAbaixo)} className="btn-secondary">
+            <ArrowDownTrayIcon className="h-4 w-4" aria-hidden="true" />
+            Baixar PDF
+          </button>
+        ) : undefined}
+      />
+
+      <FiltrosEstoqueAtual
+        busca={busca}
+        onBuscaChange={setBusca}
+        apenasAbaixo={apenasAbaixo}
+        onApenasAbaixoChange={handleApenasAbaixoChange}
       />
 
       {loading && <LoadingState mensagem="Carregando estoque…" />}
       {!loading && erro && <div className="state-error" role="alert">{erro}</div>}
-      {!loading && !erro && itens.length === 0 && (
+      {!loading && !erro && itensFiltrados.length === 0 && (
         <div className="state-loading">
           <p className="text-sm font-semibold" style={{ color: 'var(--ada-body)', fontFamily: 'Sora, system-ui, sans-serif' }}>
             Nenhum ingrediente encontrado
@@ -73,7 +77,7 @@ export function EstoqueAtualPage() {
           </p>
         </div>
       )}
-      {!loading && !erro && itens.length > 0 && (
+      {!loading && !erro && itensFiltrados.length > 0 && (
         <div className="ada-surface-card">
           <div className="overflow-x-auto">
             <table className="w-full" role="table">
@@ -88,7 +92,7 @@ export function EstoqueAtualPage() {
                 </tr>
               </thead>
               <tbody>
-                {itens.map(item => (
+                {itensFiltrados.map(item => (
                   <tr
                     key={item.ingredienteId}
                     className="table-row"
@@ -104,10 +108,7 @@ export function EstoqueAtualPage() {
                       <span className="text-sm" style={{ color: 'var(--ada-muted)' }}>{item.categoriaNome ?? '—'}</span>
                     </td>
                     <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
-                      <span
-                        className="text-sm font-semibold"
-                        style={{ color: item.estaBaixoDoMinimo ? 'var(--ada-error-text)' : 'var(--ada-heading)' }}
-                      >
+                      <span className="text-sm font-semibold" style={{ color: item.estaBaixoDoMinimo ? 'var(--ada-error-text)' : 'var(--ada-heading)' }}>
                         {item.estoqueAtual} {item.unidadeMedidaCodigo}
                       </span>
                     </td>

@@ -1,15 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PlusIcon } from '@heroicons/react/20/solid'
-import { CalendarIcon, FireIcon } from '@heroicons/react/24/outline'
+import { FireIcon } from '@heroicons/react/24/outline'
 import { useProducaoDiaria } from '../hooks/useProducaoDiaria'
 import { useAuthStore } from '@/store/authStore'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
+import { FiltrosProducaoDiaria } from '../components/FiltrosProducaoDiaria'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
-import { FiltroPeriodo, gerarChipsPeriodo } from '@/components/ui/FiltroPeriodo'
 import type { ProdutoResumo } from '@/types/producao'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
@@ -21,16 +20,26 @@ export function ProducaoDiariaPage() {
   const podeEditar = temPapel(...PAPEIS_EDICAO)
   const [produtos, setProdutos] = useState<ProdutoResumo[]>([])
   const [produtoFiltro, setProdutoFiltro] = useState('')
+  const [busca, setBusca] = useState('')
 
   useEffect(() => {
     produtosService.listar().then(setProdutos).catch(() => {})
-    carregar()
-  }, [carregar])
+  }, [])
 
-  const handleFiltrar = (e?: React.FormEvent) => {
-    e?.preventDefault()
-    carregar(de, ate, produtoFiltro || undefined)
-  }
+  useEffect(() => { carregar() }, [])
+
+  const handleDeChange = (v: string) => { setDe(v); carregar(v, ate, produtoFiltro || undefined) }
+  const handleAteChange = (v: string) => { setAte(v); carregar(de, v, produtoFiltro || undefined) }
+  const handleProdutoChange = (v: string) => { setProdutoFiltro(v); carregar(de, ate, v || undefined) }
+
+  const producoesFiltradas = useMemo(() => {
+    if (!busca) return producoes
+    const termo = busca.toLowerCase()
+    return producoes.filter(p =>
+      p.produtoNome.toLowerCase().includes(termo) ||
+      (p.observacoes ?? '').toLowerCase().includes(termo)
+    )
+  }, [producoes, busca])
 
   return (
     <div className="ada-page">
@@ -47,36 +56,17 @@ export function ProducaoDiariaPage() {
         ) : undefined}
       />
 
-      {/* ── Filtros ─────────────────────────────────────────────────────── */}
-      <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar produção">
-        <CalendarIcon className="h-4 w-4 shrink-0" style={{ color: 'var(--ada-placeholder)' }} aria-hidden="true" />
-        <FiltroPeriodo
-          de={de}
-          onChangeDe={setDe}
-          ate={ate}
-          onChangeAte={setAte}
-        />
-        <div>
-          <label htmlFor="prod-produto" className="filter-label">Produto</label>
-          <select
-            id="prod-produto"
-            value={produtoFiltro}
-            onChange={e => setProdutoFiltro(e.target.value)}
-            className="filter-input"
-            style={{ paddingRight: '2rem' }}
-          >
-            <option value="">Todos</option>
-            {produtos.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
-          </select>
-        </div>
-        <FilterBarActions
-          loading={loading}
-          chips={[
-            ...gerarChipsPeriodo(de, ate, () => setDe(''), () => setAte('')),
-            ...(produtoFiltro ? [{ label: `Produto: ${produtos.find(p => p.id === produtoFiltro)?.nome ?? produtoFiltro}`, onRemove: () => setProdutoFiltro('') }] : []),
-          ]}
-        />
-      </FilterBar>
+      <FiltrosProducaoDiaria
+        busca={busca}
+        onBuscaChange={setBusca}
+        de={de}
+        onDeChange={handleDeChange}
+        ate={ate}
+        onAteChange={handleAteChange}
+        produtoId={produtoFiltro}
+        onProdutoChange={handleProdutoChange}
+        produtos={produtos}
+      />
 
       {/* ── Estados ────────────────────────────────────────────────────── */}
       {loading && <LoadingState mensagem="Carregando produções…" />}
@@ -107,7 +97,13 @@ export function ProducaoDiariaPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {producoes.map(p => (
+                  {producoesFiltradas.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="table-td text-center py-10 text-sm" style={{ color: 'var(--ada-muted)' }}>
+                        Nenhum resultado para "{busca}".
+                      </td>
+                    </tr>
+                  ) : producoesFiltradas.map(p => (
                     <tr key={p.id} className="table-row">
                       <td className="table-td">
                         <span className="text-sm" style={{ color: 'var(--ada-body)' }}>

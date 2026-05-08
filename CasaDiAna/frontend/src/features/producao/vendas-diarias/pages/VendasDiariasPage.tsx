@@ -1,15 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PlusIcon } from '@heroicons/react/20/solid'
-import { CalendarIcon, BanknotesIcon } from '@heroicons/react/24/outline'
+import { BanknotesIcon } from '@heroicons/react/24/outline'
 import { useVendasDiarias } from '../hooks/useVendasDiarias'
 import { useAuthStore } from '@/store/authStore'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
+import { FiltrosVendasDiarias } from '../components/FiltrosVendasDiarias'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
-import { FiltroPeriodo, gerarChipsPeriodo } from '@/components/ui/FiltroPeriodo'
 import type { ProdutoResumo } from '@/types/producao'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
@@ -21,16 +20,23 @@ export function VendasDiariasPage() {
   const podeEditar = temPapel(...PAPEIS_EDICAO)
   const [produtos, setProdutos] = useState<ProdutoResumo[]>([])
   const [produtoFiltro, setProdutoFiltro] = useState('')
+  const [busca, setBusca] = useState('')
 
   useEffect(() => {
     produtosService.listar().then(setProdutos).catch(() => {})
-    carregar()
-  }, [carregar])
+  }, [])
 
-  const handleFiltrar = (e?: React.FormEvent) => {
-    e?.preventDefault()
-    carregar(de, ate, produtoFiltro || undefined)
-  }
+  useEffect(() => { carregar() }, [])
+
+  const handleDeChange = (v: string) => { setDe(v); carregar(v, ate, produtoFiltro || undefined) }
+  const handleAteChange = (v: string) => { setAte(v); carregar(de, v, produtoFiltro || undefined) }
+  const handleProdutoChange = (v: string) => { setProdutoFiltro(v); carregar(de, ate, v || undefined) }
+
+  const vendasFiltradas = useMemo(() => {
+    if (!busca) return vendas
+    const termo = busca.toLowerCase()
+    return vendas.filter(v => v.produtoNome.toLowerCase().includes(termo))
+  }, [vendas, busca])
 
   return (
     <div className="ada-page">
@@ -47,31 +53,17 @@ export function VendasDiariasPage() {
         ) : undefined}
       />
 
-      {/* ── Filtros ─────────────────────────────────────────────────────── */}
-      <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar vendas">
-        <CalendarIcon className="h-4 w-4 shrink-0" style={{ color: 'var(--ada-placeholder)' }} aria-hidden="true" />
-        <FiltroPeriodo de={de} onChangeDe={setDe} ate={ate} onChangeAte={setAte} idDe="venda-de" idAte="venda-ate" />
-        <div>
-          <label htmlFor="venda-produto" className="filter-label">Produto</label>
-          <select
-            id="venda-produto"
-            value={produtoFiltro}
-            onChange={e => setProdutoFiltro(e.target.value)}
-            className="filter-input"
-            style={{ paddingRight: '2rem' }}
-          >
-            <option value="">Todos</option>
-            {produtos.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
-          </select>
-        </div>
-        <FilterBarActions
-          loading={loading}
-          chips={[
-            ...gerarChipsPeriodo(de, ate, () => setDe(''), () => setAte('')),
-            ...(produtoFiltro ? [{ label: `Produto: ${produtos.find(p => p.id === produtoFiltro)?.nome ?? produtoFiltro}`, onRemove: () => setProdutoFiltro('') }] : []),
-          ]}
-        />
-      </FilterBar>
+      <FiltrosVendasDiarias
+        busca={busca}
+        onBuscaChange={setBusca}
+        de={de}
+        onDeChange={handleDeChange}
+        ate={ate}
+        onAteChange={handleAteChange}
+        produtoId={produtoFiltro}
+        onProdutoChange={handleProdutoChange}
+        produtos={produtos}
+      />
 
       {/* ── Estados ────────────────────────────────────────────────────── */}
       {loading && <LoadingState mensagem="Carregando vendas…" />}
@@ -101,7 +93,13 @@ export function VendasDiariasPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {vendas.map(v => (
+                  {vendasFiltradas.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="table-td text-center py-10 text-sm" style={{ color: 'var(--ada-muted)' }}>
+                        Nenhum resultado para "{busca}".
+                      </td>
+                    </tr>
+                  ) : vendasFiltradas.map(v => (
                     <tr key={v.id} className="table-row">
                       <td className="table-td">
                         <span className="text-sm" style={{ color: 'var(--ada-body)' }}>

@@ -29,6 +29,7 @@ export function CorrecaoEstoquePage() {
   const [erro, setErro] = useState<string | null>(null)
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
   const [busca, setBusca] = useState('')
+  const [focadoBusca, setFocadoBusca] = useState(false)
 
   const carregar = async () => {
     setLoading(true)
@@ -110,22 +111,50 @@ export function CorrecaoEstoquePage() {
         }
       />
 
-      {/* Barra de busca */}
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Buscar ingrediente ou categoria..."
-          value={busca}
-          onChange={e => setBusca(e.target.value)}
-          className="w-full max-w-sm rounded-lg px-3 py-2 text-sm outline-none transition-all
-                     focus-visible:ring-2 focus-visible:ring-[#C4870A]/25 focus-visible:border-[#C4870A]"
-          style={{
-            border: '1px solid var(--ada-border)',
-            background: 'var(--ada-surface)',
-            color: 'var(--ada-heading)',
-            boxShadow: 'var(--shadow-xs)',
-          }}
-        />
+      {/* Barra de busca — premium shell */}
+      <div style={{
+        position: 'relative',
+        background: 'linear-gradient(180deg, var(--ada-surface) 0%, var(--ada-bg) 100%)',
+        border: '1px solid var(--ada-border)', borderRadius: 20,
+        boxShadow: '0 1px 0 rgba(255,255,255,.04) inset, 0 20px 60px rgba(0,0,0,.40), 0 8px 24px rgba(0,0,0,.28)',
+        marginBottom: 24,
+      }}>
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 80% 60px at 50% 0%, rgba(212,150,12,.10) 0%, transparent 100%)' }} aria-hidden="true" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '16px 20px', borderBottom: busca ? '1px solid var(--ada-border-sub)' : 'none', position: 'relative' }}>
+          <div onFocus={() => setFocadoBusca(true)} onBlur={() => setFocadoBusca(false)} style={{
+            position: 'relative', flex: 1, display: 'flex', alignItems: 'center', gap: 12,
+            padding: '0 14px', height: 48, background: 'var(--ada-surface-2)',
+            border: `1px solid ${focadoBusca ? 'rgba(240,176,48,.45)' : 'var(--ada-border)'}`, borderRadius: 12,
+            transition: 'border-color 200ms ease, box-shadow 200ms ease',
+            boxShadow: focadoBusca ? '0 0 0 4px rgba(212,150,12,.10), 0 0 24px -4px rgba(240,176,48,.35)' : 'none',
+          }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: focadoBusca ? '#F0B030' : 'var(--ada-muted)', transition: 'color 200ms ease' }} aria-hidden="true">
+              <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
+            </svg>
+            <label htmlFor="busca-correcao" className="sr-only">Buscar ingrediente</label>
+            <input id="busca-correcao" type="text" placeholder="Buscar ingrediente ou categoria…" value={busca} onChange={e => setBusca(e.target.value)} autoComplete="off" style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: 14.5, fontWeight: 500, color: 'var(--ada-heading)', letterSpacing: '-.005em', height: '100%' }} />
+            {busca && (
+              <button type="button" onClick={() => setBusca('')} aria-label="Limpar busca" style={{ width: 22, height: 22, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', background: 'rgba(255,255,255,.06)', color: 'var(--ada-muted)', cursor: 'pointer', flexShrink: 0 }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+              </button>
+            )}
+          </div>
+        </div>
+        {busca && (
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, padding: '12px 20px', background: 'linear-gradient(90deg, rgba(212,150,12,.04) 0%, transparent 60%)' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: 'ui-monospace, monospace', fontSize: 10.5, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '.14em', color: '#F0B030', paddingRight: 4 }}>
+              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#F0B030', boxShadow: '0 0 6px rgba(240,176,48,.35)', animation: 'dotPulseFilter 2s ease infinite', display: 'inline-block' }} aria-hidden="true" />
+              Ativos
+            </span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', background: 'rgba(212,150,12,.12)', border: '1px solid rgba(240,176,48,.28)', borderRadius: 8, fontSize: 12, fontWeight: 500, color: 'var(--ada-heading)', overflow: 'hidden', animation: 'pillIn 250ms cubic-bezier(.34,1.56,.64,1)' }}>
+              <span style={{ padding: '5px 9px', fontFamily: 'ui-monospace, monospace', fontSize: 10.5, fontWeight: 500, color: '#F0B030', textTransform: 'uppercase', letterSpacing: '.08em', background: 'rgba(212,150,12,.10)', borderRight: '1px solid rgba(240,176,48,.20)' }}>Busca</span>
+              <span style={{ padding: '5px 9px' }}>{busca}</span>
+              <button type="button" onClick={() => setBusca('')} aria-label="Remover filtro de busca" style={{ padding: '5px 9px 5px 4px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ada-muted)', display: 'flex', alignItems: 'center' }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+              </button>
+            </span>
+          </div>
+        )}
       </div>
 
       {alteradas.length > 0 && (

@@ -1,14 +1,13 @@
-import { useEffect } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PlusIcon } from '@heroicons/react/20/solid'
-import { CalendarIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline'
+import { ArchiveBoxIcon } from '@heroicons/react/24/outline'
 import { useEntradas } from '../hooks/useEntradas'
 import { useAuthStore } from '@/store/authStore'
+import { FiltrosEntradas } from '../components/FiltrosEntradas'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { SkeletonTable } from '@/components/ui/SkeletonTable'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
-import { FiltroPeriodo, gerarChipsPeriodo } from '@/components/ui/FiltroPeriodo'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
@@ -33,9 +32,26 @@ export function EntradasPage() {
   const { entradas, loading, erro, de, ate, atualizarDe, atualizarAte, carregar } = useEntradas()
   const podeCriar = temPapel(...PAPEIS_EDICAO)
 
+  const [busca, setBusca] = useState('')
+  const [status, setStatus] = useState('')
+
+  // Reactive fetch: fires on mount and whenever carregar ref changes (dates updated)
   useEffect(() => { carregar() }, [carregar])
 
-  const handleFiltrar = (e?: React.FormEvent) => { e?.preventDefault(); carregar() }
+  const filtrados = useMemo(() => {
+    let result = entradas
+    if (busca) {
+      const termo = busca.toLowerCase()
+      result = result.filter(e =>
+        e.fornecedorNome.toLowerCase().includes(termo) ||
+        (e.numeroNotaFiscal ?? '').toLowerCase().includes(termo)
+      )
+    }
+    if (status) {
+      result = result.filter(e => e.status === status)
+    }
+    return result
+  }, [entradas, busca, status])
 
   return (
     <div className="ada-page">
@@ -52,23 +68,19 @@ export function EntradasPage() {
         ) : undefined}
       />
 
-      {/* ── Filtro de período ───────────────────────────────────────────── */}
-      <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar entradas">
-        <CalendarIcon className="h-4 w-4 shrink-0" style={{ color: 'var(--ada-placeholder)' }} aria-hidden="true" />
-        <FiltroPeriodo
-          de={de}
-          onChangeDe={atualizarDe}
-          ate={ate}
-          onChangeAte={atualizarAte}
-        />
-        <FilterBarActions
-          loading={loading}
-          chips={gerarChipsPeriodo(de, ate, () => atualizarDe(''), () => atualizarAte(''))}
-        />
-      </FilterBar>
+      <FiltrosEntradas
+        busca={busca}
+        onBuscaChange={setBusca}
+        de={de}
+        onDeChange={atualizarDe}
+        ate={ate}
+        onAteChange={atualizarAte}
+        status={status}
+        onStatusChange={setStatus}
+      />
 
       {/* ── Estados ────────────────────────────────────────────────────── */}
-      {loading && <SkeletonTable colunas={6} linhas={5} />}
+      {loading && <SkeletonTable colunas={7} linhas={5} />}
       {!loading && erro && (
         <div className="state-error" role="alert">{erro}</div>
       )}
@@ -98,7 +110,13 @@ export function EntradasPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {entradas.map(e => (
+                  {filtrados.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="table-td text-center py-10 text-sm" style={{ color: 'var(--ada-muted)' }}>
+                        Nenhum resultado para os filtros selecionados.
+                      </td>
+                    </tr>
+                  ) : filtrados.map(e => (
                     <tr
                       key={e.id}
                       onClick={() => navigate(`/entradas/${e.id}`)}

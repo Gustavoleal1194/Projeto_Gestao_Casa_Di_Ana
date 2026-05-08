@@ -1,4 +1,5 @@
-import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/20/solid'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import type { CategoriaIngrediente } from '@/types/estoque'
 
 interface Props {
@@ -20,115 +21,703 @@ export function FiltrosIngredientes({
   onApenasAbaixoMinimoChange,
   categorias,
 }: Props) {
+  const [focado, setFocado] = useState(false)
+  const [dropdownAberto, setDropdownAberto] = useState(false)
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 })
+  const btnRef = useRef<HTMLButtonElement>(null)
+
   const temFiltroAtivo = !!busca || !!categoriaId || apenasAbaixoMinimo
+  const catSelecionada = categorias.find(c => c.id === categoriaId)
+
+  const fechar = useCallback(() => setDropdownAberto(false), [])
+
+  const abrirDropdown = () => {
+    if (btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect()
+      setDropdownPos({ top: r.bottom + 6, left: r.left })
+    }
+    setDropdownAberto(d => !d)
+  }
+
+  useEffect(() => {
+    if (!dropdownAberto) return
+    const handle = (e: MouseEvent) => {
+      const target = e.target as Node
+      if (!btnRef.current?.contains(target) && !(e.target as Element).closest?.('[data-filtros-dropdown]')) {
+        fechar()
+      }
+    }
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') fechar() }
+    document.addEventListener('mousedown', handle)
+    document.addEventListener('keydown', handleKey)
+    document.addEventListener('scroll', fechar, true)
+    return () => {
+      document.removeEventListener('mousedown', handle)
+      document.removeEventListener('keydown', handleKey)
+      document.removeEventListener('scroll', fechar, true)
+    }
+  }, [dropdownAberto, fechar])
+
+  const limparTudo = () => {
+    onBuscaChange('')
+    onCategoriaChange('')
+    onApenasAbaixoMinimoChange(false)
+  }
 
   return (
     <div
-      className="rounded-xl p-4 mb-4 flex flex-wrap gap-3 items-center"
       style={{
-        background: 'var(--ada-surface)',
+        position: 'relative',
+        background: 'linear-gradient(180deg, var(--ada-surface) 0%, var(--ada-bg) 100%)',
         border: '1px solid var(--ada-border)',
-        boxShadow: 'var(--shadow-xs)',
+        borderRadius: 20,
+        boxShadow:
+          '0 1px 0 rgba(255,255,255,.04) inset, 0 20px 60px rgba(0,0,0,.40), 0 8px 24px rgba(0,0,0,.28)',
+        marginBottom: 24,
       }}
     >
-      {/* Ícone de filtro */}
-      <FunnelIcon
-        className="h-4 w-4 shrink-0"
+      {/* Amber top glow */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          background:
+            'radial-gradient(ellipse 80% 60px at 50% 0%, rgba(212,150,12,.10) 0%, transparent 100%)',
+        }}
         aria-hidden="true"
-        style={{ color: temFiltroAtivo ? '#C4870A' : 'var(--ada-placeholder)' }}
       />
 
-      {/* Busca por nome */}
-      <div className="relative flex-1 min-w-[200px]">
-        <MagnifyingGlassIcon
-          className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none"
-          aria-hidden="true"
-          style={{ color: 'var(--ada-placeholder)' }}
-        />
-        <label htmlFor="busca-ingrediente" className="sr-only">Buscar ingrediente</label>
-        <input
-          id="busca-ingrediente"
-          type="search"
-          name="busca"
-          placeholder="Buscar por nome…"
-          value={busca}
-          onChange={e => onBuscaChange(e.target.value)}
-          className="w-full rounded-lg border pl-9 pr-3 py-2 text-sm outline-none transition-all duration-200
-                     focus-visible:ring-2 focus-visible:ring-[#C4870A]/25 focus-visible:border-[#C4870A]"
+      {/* Top row — search input */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 16,
+          padding: '16px 20px',
+          borderBottom: '1px solid var(--ada-border-sub)',
+          position: 'relative',
+        }}
+      >
+        <div
+          onFocus={() => setFocado(true)}
+          onBlur={() => setFocado(false)}
           style={{
+            position: 'relative',
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            padding: '0 14px',
+            height: 48,
             background: 'var(--ada-surface-2)',
-            border: '1px solid var(--ada-border)',
-            color: 'var(--ada-heading)',
-          }}
-        />
-      </div>
-
-      {/* Filtro por categoria */}
-      <div className="relative min-w-[180px]">
-        <label htmlFor="filtro-categoria" className="sr-only">Filtrar por categoria</label>
-        <select
-          id="filtro-categoria"
-          name="categoria"
-          value={categoriaId}
-          onChange={e => onCategoriaChange(e.target.value)}
-          className="w-full rounded-lg border px-3 py-2 text-sm appearance-none outline-none pr-8
-                     transition-all duration-200 cursor-pointer
-                     focus-visible:ring-2 focus-visible:ring-[#C4870A]/25 focus-visible:border-[#C4870A]"
-          style={{
-            background: 'var(--ada-surface-2)',
-            border: '1px solid var(--ada-border)',
-            color: categoriaId ? 'var(--ada-heading)' : 'var(--ada-muted)',
+            border: `1px solid ${focado ? 'rgba(240,176,48,.45)' : 'var(--ada-border)'}`,
+            borderRadius: 12,
+            transition: 'border-color 200ms ease, box-shadow 200ms ease',
+            boxShadow: focado
+              ? '0 0 0 4px rgba(212,150,12,.10), 0 0 24px -4px rgba(240,176,48,.35)'
+              : 'none',
           }}
         >
-          <option value="">Todas as categorias</option>
-          {categorias.map(c => (
-            <option key={c.id} value={c.id}>{c.nome}</option>
-          ))}
-        </select>
-        <svg
-          className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none w-3.5 h-3.5"
-          style={{ color: 'var(--ada-muted)' }}
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          aria-hidden="true"
-        >
-          <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 011.06 0L10 11.94l3.72-3.72a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.22 9.28a.75.75 0 010-1.06z" clipRule="evenodd"/>
-        </svg>
-      </div>
-
-      {/* Toggle abaixo do mínimo */}
-      <label className="flex items-center gap-2.5 cursor-pointer select-none group">
-        <div className="relative shrink-0">
-          <input
-            type="checkbox"
-            checked={apenasAbaixoMinimo}
-            onChange={e => onApenasAbaixoMinimoChange(e.target.checked)}
-            className="sr-only"
-            id="filtro-abaixo-minimo"
-          />
-          <div
-            className="w-8 h-4.5 rounded-full transition-all duration-200 flex items-center"
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
             style={{
-              background: apenasAbaixoMinimo ? '#C4870A' : 'var(--ada-border)',
-              padding: '2px',
+              flexShrink: 0,
+              color: focado ? '#F0B030' : 'var(--ada-muted)',
+              transition: 'color 200ms ease',
             }}
             aria-hidden="true"
           >
-            <div
-              className="w-3.5 h-3.5 rounded-full bg-white shadow-sm transition-transform duration-200"
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
+          </svg>
+          <label htmlFor="busca-ingrediente" className="sr-only">
+            Buscar ingrediente
+          </label>
+          <input
+            id="busca-ingrediente"
+            type="text"
+            placeholder="Buscar por nome…"
+            value={busca}
+            onChange={e => onBuscaChange(e.target.value)}
+            autoComplete="off"
+            style={{
+              flex: 1,
+              background: 'none',
+              border: 'none',
+              outline: 'none',
+              fontSize: 14.5,
+              fontWeight: 500,
+              color: 'var(--ada-heading)',
+              letterSpacing: '-.005em',
+              height: '100%',
+            }}
+          />
+          {busca && (
+            <button
+              type="button"
+              onClick={() => onBuscaChange('')}
+              aria-label="Limpar busca"
               style={{
-                transform: apenasAbaixoMinimo ? 'translateX(13px)' : 'translateX(0)',
+                width: 22,
+                height: 22,
+                borderRadius: 6,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: 'none',
+                background: 'rgba(255,255,255,.06)',
+                color: 'var(--ada-muted)',
+                cursor: 'pointer',
+                flexShrink: 0,
+                transition: 'all 150ms',
               }}
-            />
-          </div>
+            >
+              <svg
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              >
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          )}
         </div>
+      </div>
+
+      {/* Filter chip rail */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '12px 20px',
+          borderBottom: '1px solid var(--ada-border-sub)',
+          overflowX: 'auto',
+          scrollbarWidth: 'none',
+        }}
+      >
         <span
-          className="text-sm transition-colors duration-150"
-          style={{ color: apenasAbaixoMinimo ? '#C4870A' : 'var(--ada-muted-dim)' }}
+          style={{
+            fontFamily: 'ui-monospace, monospace',
+            fontSize: 10.5,
+            fontWeight: 500,
+            textTransform: 'uppercase',
+            letterSpacing: '.14em',
+            color: 'var(--ada-placeholder)',
+            flexShrink: 0,
+            paddingRight: 6,
+          }}
         >
-          Abaixo do mínimo
+          Filtros
         </span>
-      </label>
+
+        {/* Chip — Categoria */}
+        <div style={{ position: 'relative' }}>
+          <button
+            ref={btnRef}
+            type="button"
+            onClick={abrirDropdown}
+            aria-expanded={dropdownAberto}
+            aria-haspopup="listbox"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 7,
+              padding: '7px 12px',
+              background: categoriaId
+                ? 'linear-gradient(180deg, rgba(240,176,48,.10), rgba(212,150,12,.06))'
+                : 'var(--ada-surface-2)',
+              border: `1px solid ${categoriaId ? 'rgba(240,176,48,.35)' : 'var(--ada-border)'}`,
+              borderRadius: 9,
+              fontSize: 12.5,
+              fontWeight: 500,
+              color: categoriaId ? 'var(--ada-heading)' : 'var(--ada-body)',
+              cursor: 'pointer',
+              userSelect: 'none',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              transition: 'all 150ms ease',
+              boxShadow: categoriaId
+                ? '0 0 0 1px rgba(240,176,48,.10) inset, 0 4px 12px -4px rgba(240,176,48,.35)'
+                : 'none',
+            }}
+          >
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              style={{
+                flexShrink: 0,
+                color: categoriaId ? '#F0B030' : 'var(--ada-muted)',
+                transition: 'color 150ms',
+              }}
+              aria-hidden="true"
+            >
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+            {catSelecionada ? catSelecionada.nome : 'Categoria'}
+            <svg
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              style={{ opacity: 0.5 }}
+              aria-hidden="true"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+
+          {dropdownAberto && createPortal(
+            <div
+              data-filtros-dropdown
+              style={{
+                position: 'fixed',
+                top: dropdownPos.top,
+                left: dropdownPos.left,
+                zIndex: 9999,
+                background: 'var(--ada-surface)',
+                border: '1px solid var(--ada-border)',
+                borderRadius: 12,
+                boxShadow:
+                  '0 24px 56px rgba(0,0,0,.55), 0 8px 16px rgba(0,0,0,.3), 0 1px 0 rgba(255,255,255,.04) inset',
+                minWidth: 200,
+                padding: 6,
+                animation: 'pillIn 180ms cubic-bezier(.34,1.56,.64,1)',
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => { onCategoriaChange(''); setDropdownAberto(false) }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  width: '100%',
+                  padding: '7px 10px',
+                  borderRadius: 7,
+                  fontSize: 13,
+                  color: !categoriaId ? 'var(--ada-heading)' : 'var(--ada-body)',
+                  cursor: 'pointer',
+                  border: 'none',
+                  background: !categoriaId ? 'var(--ada-surface-2)' : 'none',
+                  transition: 'background 100ms',
+                  fontFamily: 'inherit',
+                  textAlign: 'left',
+                }}
+              >
+                <span
+                  style={{
+                    width: 16,
+                    height: 16,
+                    borderRadius: 4,
+                    flexShrink: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: !categoriaId ? 'none' : '1.5px solid var(--ada-border)',
+                    background: !categoriaId ? '#D4960C' : 'none',
+                  }}
+                >
+                  {!categoriaId && (
+                    <svg
+                      width="10"
+                      height="10"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#0A0E16"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                    >
+                      <path d="m4 12 5 5L20 6" />
+                    </svg>
+                  )}
+                </span>
+                Todas as categorias
+              </button>
+              {categorias.map(cat => (
+                <button
+                  type="button"
+                  key={cat.id}
+                  onClick={() => { onCategoriaChange(cat.id); setDropdownAberto(false) }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    width: '100%',
+                    padding: '7px 10px',
+                    borderRadius: 7,
+                    fontSize: 13,
+                    color: categoriaId === cat.id ? 'var(--ada-heading)' : 'var(--ada-body)',
+                    cursor: 'pointer',
+                    border: 'none',
+                    background: categoriaId === cat.id ? 'var(--ada-surface-2)' : 'none',
+                    transition: 'background 100ms',
+                    fontFamily: 'inherit',
+                    textAlign: 'left',
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 16,
+                      height: 16,
+                      borderRadius: 4,
+                      flexShrink: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: categoriaId === cat.id ? 'none' : '1.5px solid var(--ada-border)',
+                      background: categoriaId === cat.id ? '#D4960C' : 'none',
+                    }}
+                  >
+                    {categoriaId === cat.id && (
+                      <svg
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#0A0E16"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                      >
+                        <path d="m4 12 5 5L20 6" />
+                      </svg>
+                    )}
+                  </span>
+                  {cat.nome}
+                </button>
+              ))}
+            </div>,
+            document.body
+          )}
+        </div>
+
+        {/* Chip — Abaixo do mínimo (toggle) */}
+        <button
+          type="button"
+          onClick={() => onApenasAbaixoMinimoChange(!apenasAbaixoMinimo)}
+          aria-pressed={apenasAbaixoMinimo}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 7,
+            padding: '7px 12px',
+            background: apenasAbaixoMinimo
+              ? 'linear-gradient(180deg, rgba(240,176,48,.10), rgba(212,150,12,.06))'
+              : 'var(--ada-surface-2)',
+            border: `1px solid ${apenasAbaixoMinimo ? 'rgba(240,176,48,.35)' : 'var(--ada-border)'}`,
+            borderRadius: 9,
+            fontSize: 12.5,
+            fontWeight: 500,
+            color: apenasAbaixoMinimo ? 'var(--ada-heading)' : 'var(--ada-body)',
+            cursor: 'pointer',
+            userSelect: 'none',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+            transition: 'all 150ms ease',
+            boxShadow: apenasAbaixoMinimo
+              ? '0 0 0 1px rgba(240,176,48,.10) inset, 0 4px 12px -4px rgba(240,176,48,.35)'
+              : 'none',
+          }}
+        >
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{
+              flexShrink: 0,
+              color: apenasAbaixoMinimo ? '#F0B030' : 'var(--ada-muted)',
+              transition: 'color 150ms',
+            }}
+            aria-hidden="true"
+          >
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          Abaixo do mínimo
+        </button>
+      </div>
+
+      {/* Active pills bar — only when any filter is active */}
+      {temFiltroAtivo && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 8,
+            padding: '12px 20px',
+            background: 'linear-gradient(90deg, rgba(212,150,12,.04) 0%, transparent 60%)',
+            borderBottom: '1px solid var(--ada-border-sub)',
+          }}
+        >
+          {/* Active label with pulsing dot */}
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              fontFamily: 'ui-monospace, monospace',
+              fontSize: 10.5,
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '.14em',
+              color: '#F0B030',
+              paddingRight: 4,
+            }}
+          >
+            <span
+              style={{
+                width: 5,
+                height: 5,
+                borderRadius: '50%',
+                background: '#F0B030',
+                boxShadow: '0 0 6px rgba(240,176,48,.35)',
+                animation: 'dotPulseFilter 2s ease infinite',
+                flexShrink: 0,
+                display: 'inline-block',
+              }}
+              aria-hidden="true"
+            />
+            Ativos
+          </span>
+
+          {/* Busca pill */}
+          {busca && (
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                background: 'rgba(212,150,12,.12)',
+                border: '1px solid rgba(240,176,48,.28)',
+                borderRadius: 8,
+                fontSize: 12,
+                fontWeight: 500,
+                color: 'var(--ada-heading)',
+                overflow: 'hidden',
+                animation: 'pillIn 250ms cubic-bezier(.34,1.56,.64,1)',
+              }}
+            >
+              <span
+                style={{
+                  padding: '5px 9px',
+                  fontFamily: 'ui-monospace, monospace',
+                  fontSize: 10.5,
+                  fontWeight: 500,
+                  color: '#F0B030',
+                  textTransform: 'uppercase',
+                  letterSpacing: '.08em',
+                  background: 'rgba(212,150,12,.10)',
+                  borderRight: '1px solid rgba(240,176,48,.20)',
+                }}
+              >
+                Busca
+              </span>
+              <span style={{ padding: '5px 9px' }}>{busca}</span>
+              <button
+                type="button"
+                onClick={() => onBuscaChange('')}
+                aria-label="Remover filtro de busca"
+                style={{
+                  padding: '5px 9px 5px 4px',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--ada-muted)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  transition: 'color 150ms',
+                }}
+              >
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                >
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </span>
+          )}
+
+          {/* Categoria pill */}
+          {catSelecionada && (
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                background: 'rgba(212,150,12,.12)',
+                border: '1px solid rgba(240,176,48,.28)',
+                borderRadius: 8,
+                fontSize: 12,
+                fontWeight: 500,
+                color: 'var(--ada-heading)',
+                overflow: 'hidden',
+                animation: 'pillIn 250ms cubic-bezier(.34,1.56,.64,1)',
+              }}
+            >
+              <span
+                style={{
+                  padding: '5px 9px',
+                  fontFamily: 'ui-monospace, monospace',
+                  fontSize: 10.5,
+                  fontWeight: 500,
+                  color: '#F0B030',
+                  textTransform: 'uppercase',
+                  letterSpacing: '.08em',
+                  background: 'rgba(212,150,12,.10)',
+                  borderRight: '1px solid rgba(240,176,48,.20)',
+                }}
+              >
+                Categoria
+              </span>
+              <span style={{ padding: '5px 9px' }}>{catSelecionada.nome}</span>
+              <button
+                type="button"
+                onClick={() => onCategoriaChange('')}
+                aria-label="Remover filtro de categoria"
+                style={{
+                  padding: '5px 9px 5px 4px',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--ada-muted)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  transition: 'color 150ms',
+                }}
+              >
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                >
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </span>
+          )}
+
+          {/* Abaixo do mínimo pill */}
+          {apenasAbaixoMinimo && (
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                background: 'rgba(212,150,12,.12)',
+                border: '1px solid rgba(240,176,48,.28)',
+                borderRadius: 8,
+                fontSize: 12,
+                fontWeight: 500,
+                color: 'var(--ada-heading)',
+                overflow: 'hidden',
+                animation: 'pillIn 250ms cubic-bezier(.34,1.56,.64,1)',
+              }}
+            >
+              <span
+                style={{
+                  padding: '5px 9px',
+                  fontFamily: 'ui-monospace, monospace',
+                  fontSize: 10.5,
+                  fontWeight: 500,
+                  color: '#F0B030',
+                  textTransform: 'uppercase',
+                  letterSpacing: '.08em',
+                  background: 'rgba(212,150,12,.10)',
+                  borderRight: '1px solid rgba(240,176,48,.20)',
+                }}
+              >
+                Estoque
+              </span>
+              <span style={{ padding: '5px 9px' }}>Abaixo do mínimo</span>
+              <button
+                type="button"
+                onClick={() => onApenasAbaixoMinimoChange(false)}
+                aria-label="Remover filtro de abaixo do mínimo"
+                style={{
+                  padding: '5px 9px 5px 4px',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--ada-muted)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  transition: 'color 150ms',
+                }}
+              >
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                >
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </span>
+          )}
+
+          <button
+            type="button"
+            onClick={limparTudo}
+            style={{
+              marginLeft: 'auto',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'ui-monospace, monospace',
+              fontSize: 11,
+              fontWeight: 500,
+              color: 'var(--ada-muted)',
+              letterSpacing: '.06em',
+              padding: '5px 10px',
+              borderRadius: 6,
+              transition: 'color 150ms, background 150ms',
+            }}
+          >
+            Limpar tudo
+          </button>
+        </div>
+      )}
     </div>
   )
 }

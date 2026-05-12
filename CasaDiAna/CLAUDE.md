@@ -2,6 +2,46 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+---
+
+## ⚠️ LEIA ANTES DE QUALQUER COISA — METODOLOGIA OBRIGATÓRIA
+
+Este projeto é o **portfólio de carreira de Gustavo**. O objetivo é ser contratado por grandes empresas (nível Google, Nubank, iFood). Todo código entregue deve passar no code review dessas empresas.
+
+### Padrão de qualidade — inegociável
+
+**Antes de escrever qualquer código:**
+1. Existe padrão repetido em mais de um lugar? → criar abstração/primitivo primeiro, feature depois
+2. O componente vai ter mais de 80 linhas? → provavelmente está faltando decomposição
+3. Existe algum estilo, lógica ou JSX duplicado? → extrair para componente ou utilitário compartilhado
+4. A abordagem passaria num PR review de empresa top? → se não, não entregar
+
+**Proibido absolutamente:**
+- Copy-paste de blocos de código entre arquivos com variações mínimas
+- Inline styles repetidos em múltiplos componentes (usar tokens CSS ou componentes)
+- Componentes de feature com mais de 80–100 linhas (decompor em primitivos)
+- Entregar rápido e errado — qualidade sempre vem antes de velocidade
+- Começar a implementar sem ter definido a estrutura de abstrações
+
+**Fluxo obrigatório para qualquer feature com padrão repetido:**
+```
+1. Definir primitivos/componentes compartilhados → propor ao Gustavo
+2. Implementar os primitivos em components/ui/
+3. Implementar as features usando os primitivos — arquivos finos (30–60 linhas)
+4. Nunca inverter essa ordem
+```
+
+**Se perceber no meio da implementação que vai duplicar código:** parar, informar Gustavo, propor a abstração correta antes de continuar.
+
+### Gestão de tokens — responsabilidade crítica
+
+Gustavo tem limite semanal de tokens. Retrabalho causado por código ruim consome o token dele.
+- Planejar antes de executar — nunca sair codando sem entender a estrutura completa
+- Propor a abordagem e aguardar confirmação em tasks grandes ou com padrões repetidos
+- Uma task bem feita de primeira vale mais do que três tasks refeitas
+
+---
+
 ## Projeto
 
 Sistema de Gestão Operacional para a cafeteria **Casa di Ana**. Backend ASP.NET Core 8 (Clean Architecture + CQRS) + Frontend React 18 + TypeScript + Tailwind CSS v4. Todo conteúdo em português do Brasil.

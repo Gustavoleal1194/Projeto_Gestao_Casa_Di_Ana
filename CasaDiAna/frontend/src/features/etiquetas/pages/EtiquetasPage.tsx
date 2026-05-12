@@ -81,7 +81,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
     return (
       <div style={{
         width: 300,
-        height: 240,
+        height: 150,
         background: '#FDFAF5',
         border: '2px solid #C4870A',
         outline: '1px solid #C4870A',
@@ -94,8 +94,8 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
         boxShadow: '0 4px 20px rgba(196,135,10,0.15)',
       }}>
         {/* Top content */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px 20px 10px', gap: 6 }}>
-          <img src="/images/image.png" alt="Logo" style={{ height: 70, width: 'auto', objectFit: 'contain' }} />
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 18px 6px', gap: 4 }}>
+          <img src="/images/image.png" alt="Logo" style={{ height: 39, width: 'auto', objectFit: 'contain' }} />
 
           {/* Ornament */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', margin: '4px 0' }}>
@@ -104,7 +104,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
             <div style={{ flex: 1, height: 0.5, background: '#C4870A', opacity: 0.6 }} />
           </div>
 
-          <div style={{ fontSize: 18, fontWeight: 700, color: '#2C1A0E', textAlign: 'center', lineHeight: 1.2, letterSpacing: 0.3 }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: '#2C1A0E', textAlign: 'center', lineHeight: 1.15, letterSpacing: 0.3 }}>
             {nomeExibido}
           </div>
 
@@ -120,8 +120,8 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           alignItems: 'center',
           justifyContent: 'center',
           gap: 12,
-          padding: '8px 16px',
-          margin: '0 12px 12px',
+          padding: '6px 16px',
+          margin: '0 12px 9px',
           borderRadius: 2,
         }}>
           <span style={{ fontSize: 8, color: '#C4870A', letterSpacing: 2, textTransform: 'uppercase' }}>
@@ -139,11 +139,11 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
     return (
       <div
         style={{
-          width: 210,
-          height: 90,
+          width: 280,
+          height: 160,
           border: '1.5px solid #999',
           borderRadius: 4,
-          padding: '8px 10px',
+          padding: '12px 14px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
@@ -152,8 +152,8 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           fontFamily: 'Arial, sans-serif',
         }}
       >
-        <div style={{ fontSize: 15, fontWeight: 700 }}>{nomeExibido}</div>
-        <div style={{ fontSize: 11, marginTop: 6, color: '#333' }}>Val.: {validade}</div>
+        <div style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.15 }}>{nomeExibido}</div>
+        <div style={{ fontSize: 12, marginTop: 8, color: '#333' }}>Val.: {validade}</div>
       </div>
     )
   }
@@ -478,7 +478,7 @@ export function EtiquetasPage() {
 
   const tiposOpcoes: { valor: TipoEtiqueta; label: string; desc: string; dim: string }[] = [
     { valor: 1, label: 'Completa', desc: 'Logo + Nome + Validade', dim: '100×50mm' },
-    { valor: 2, label: 'Simples', desc: 'Nome + Validade', dim: '70×30mm' },
+    { valor: 2, label: 'Simples', desc: 'Nome + Validade', dim: '70×40mm' },
     { valor: 3, label: 'Nutricional', desc: 'Tabela Nutricional', dim: '80×120mm' },
   ]
 

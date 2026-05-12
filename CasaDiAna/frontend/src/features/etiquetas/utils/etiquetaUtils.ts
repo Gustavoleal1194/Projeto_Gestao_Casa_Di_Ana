@@ -19,12 +19,43 @@ export function imprimirEtiquetaHtml(html: string): void {
   }, 8000)
 }
 
+const ETIQUETA_COMPLETA = { largura: '100mm', altura: '50mm' }
+const ETIQUETA_SIMPLES = { largura: '70mm', altura: '40mm' }
+const ETIQUETA_NUTRICIONAL = { largura: '80mm', altura: '120mm' }
+
 export function baseStyle(largura: string, altura: string): string {
   return `
     @page { size: ${largura} ${altura}; margin: 0 !important; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { margin: 0 !important; padding: 0 !important; background: #fff; font-family: Arial, Helvetica, sans-serif; }
-    .etiqueta { width: ${largura}; height: ${altura}; padding: 3mm 4mm; display: flex; flex-direction: column; page-break-after: always; overflow: hidden; }
+    html, body {
+      width: ${largura};
+      min-width: ${largura};
+      max-width: ${largura};
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #fff;
+      font-family: Arial, Helvetica, sans-serif;
+      overflow: visible;
+    }
+    body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    .etiqueta {
+      width: ${largura};
+      min-width: ${largura};
+      max-width: ${largura};
+      height: ${altura};
+      min-height: ${altura};
+      max-height: ${altura};
+      padding: 3mm 4mm;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    .etiqueta:not(:last-child) {
+      break-after: page;
+      page-break-after: always;
+    }
   `
 }
 
@@ -81,7 +112,7 @@ export function htmlEtiquetaCompleta(
   <meta charset="UTF-8">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <style>
-    ${baseStyle('100mm', '50mm')}
+    ${baseStyle(ETIQUETA_COMPLETA.largura, ETIQUETA_COMPLETA.altura)}
 
     .etiqueta {
       background: #FDFAF5;
@@ -167,7 +198,7 @@ export function htmlEtiquetaCompleta(
 </html>`
 }
 
-// ─── Etiqueta Simples (100×50mm) ─────────────────────────────────────────────
+// ─── Etiqueta Simples (70×40mm) ──────────────────────────────────────────────
 
 export function htmlEtiquetaSimples(
   produtoNome: string,
@@ -187,25 +218,28 @@ export function htmlEtiquetaSimples(
 <head>
   <meta charset="UTF-8">
   <style>
-    ${baseStyle('100mm', '50mm')}
+    ${baseStyle(ETIQUETA_SIMPLES.largura, ETIQUETA_SIMPLES.altura)}
 
     .etiqueta {
       border: 0.5mm solid #333;
       justify-content: center;
       align-items: center;
       text-align: center;
-      gap: 3mm;
+      gap: 2.5mm;
     }
 
     .nome {
-      font-size: 14pt;
+      font-size: 12pt;
       font-weight: bold;
       color: #1a1a1a;
       word-break: break-word;
+      line-height: 1.15;
+      max-height: 21mm;
+      overflow: hidden;
     }
 
     .validade {
-      font-size: 10pt;
+      font-size: 9pt;
       color: #333;
     }
   </style>
@@ -286,7 +320,8 @@ export function htmlEtiquetaNutricional(
   }
 
   const etiqueta = `
-    <div style="width:76mm; border:0.8mm solid #000; font-family:'Arial Narrow',Arial,sans-serif; display:flex; flex-direction:column; page-break-after:always; background:#fff; color:#000;">
+    <div class="etiqueta">
+      <div class="nutricional">
 
       <div style="border-bottom:0.8mm solid #000; padding:1.2mm 2mm 0.8mm; text-align:center; background:#fff;">
         <div style="font-size:8pt; font-weight:bold; letter-spacing:0.5px; color:#000;">INFORMAÇÃO NUTRICIONAL</div>
@@ -343,6 +378,7 @@ export function htmlEtiquetaNutricional(
         <span><strong>Val:</strong> ${validade}</span>
         <span style="font-style:italic;">Casa di Ana</span>
       </div>
+      </div>
     </div>`
 
   const etiquetas = Array(quantidade).fill(etiqueta).join('')
@@ -352,9 +388,23 @@ export function htmlEtiquetaNutricional(
 <head>
   <meta charset="UTF-8">
   <style>
-    @page { size: 80mm 120mm; margin: 0 !important; }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { margin: 0 !important; padding: 0 !important; background: #fff; }
+    ${baseStyle(ETIQUETA_NUTRICIONAL.largura, ETIQUETA_NUTRICIONAL.altura)}
+    .etiqueta {
+      align-items: center;
+      justify-content: flex-start;
+      padding: 2mm;
+    }
+    .nutricional {
+      width: 76mm;
+      max-height: 116mm;
+      border: 0.8mm solid #000;
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #fff;
+      color: #000;
+    }
   </style>
 </head>
 <body>${etiquetas}</body>

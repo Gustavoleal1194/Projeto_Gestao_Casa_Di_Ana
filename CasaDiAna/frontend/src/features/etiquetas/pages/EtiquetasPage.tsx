@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { PrinterIcon, ClockIcon } from '@heroicons/react/24/outline'
+import { ArrowDownTrayIcon, PrinterIcon, ClockIcon } from '@heroicons/react/24/outline'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import { ingredientesService } from '@/features/estoque/ingredientes/services/ingredientesService'
 import { etiquetasService, type TipoEtiqueta, type HistoricoImpressao, type ModeloNutricional } from '@/lib/etiquetasService'
@@ -9,7 +9,9 @@ import {
   imprimirEtiquetaHtml,
   htmlEtiquetaCompleta,
   htmlEtiquetaSimples,
+  htmlEtiquetaNutricional,
   baixarEtiquetaNutricionalZpl,
+  type NutriValues,
 } from '../utils/etiquetaUtils'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -379,6 +381,35 @@ export function EtiquetasPage() {
       .catch(() => {})
   }, [produtoId, tipo])
 
+  const montarNutriValues = (): NutriValues => ({
+    porcao: nutri.porcao || '100g',
+    kcal: nutri.valorEnergeticoKcal || '-',
+    kj: nutri.valorEnergeticoKJ || '-',
+    carbo: nutri.carboidratos || '-',
+    acucares: nutri.acucaresTotais || '-',
+    acucaresAdic: nutri.acucaresAdicionados || '-',
+    proteinas: nutri.proteinas || '-',
+    gorduras: nutri.gordurasTotais || '-',
+    gordSat: nutri.gordurasSaturadas || '-',
+    gordTrans: nutri.gordurasTrans || '-',
+    fibra: nutri.fibraAlimentar || '-',
+    sodio: nutri.sodio || '-',
+    porcoesPorEmbalagem: nutri.porcoesPorEmbalagem || '',
+    medidaCaseira: nutri.medidaCaseira || '',
+  })
+
+  const registrarImpressaoProduto = async () => {
+    if (!produto) return
+
+    const novo = await etiquetasService.registrarImpressao({
+      produtoId: produto.id,
+      tipoEtiqueta: tipo,
+      quantidade,
+      dataProducao,
+    })
+    setHistorico(prev => [novo, ...prev])
+  }
+
   const handleImprimir = async () => {
     const isIngrediente = tipoItem === 'ingrediente'
     const nomeParaImpressao = isIngrediente
@@ -405,7 +436,7 @@ export function EtiquetasPage() {
       } else if (tipo === 1) {
         html = htmlEtiquetaCompleta(nomeParaImpressao, dataPtBr, validadePtBr, quantidade, logoBase64)
       } else {
-        baixarEtiquetaNutricionalZpl(
+        html = htmlEtiquetaNutricional(
           nomeParaImpressao,
           dataPtBr,
           validadePtBr,
@@ -431,17 +462,41 @@ export function EtiquetasPage() {
 
       if (html) imprimirEtiquetaHtml(html)
 
-      if (!isIngrediente && produto) {
-        const novo = await etiquetasService.registrarImpressao({
-          produtoId: produto.id,
-          tipoEtiqueta: tipo,
-          quantidade,
-          dataProducao,
-        })
-        setHistorico(prev => [novo, ...prev])
-      }
+      if (!isIngrediente) await registrarImpressaoProduto()
     } catch {
       setErro('Erro ao registrar impressão. A etiqueta pode ter sido impressa mesmo assim.')
+    } finally {
+      setImprimindo(false)
+    }
+  }
+
+  const handleGerarZplNutricional = async () => {
+    if (!produto) return
+
+    setImprimindo(true)
+    setErro(null)
+
+    if (!dataValidade) {
+      setErro('Informe a data de validade.')
+      setImprimindo(false)
+      return
+    }
+
+    try {
+      const validadePtBr = formatarDataLocal(dataValidade)
+      const dataPtBr = formatarDataLocal(dataProducao)
+
+      baixarEtiquetaNutricionalZpl(
+        produto.nome,
+        dataPtBr,
+        validadePtBr,
+        quantidade,
+        montarNutriValues(),
+      )
+
+      await registrarImpressaoProduto()
+    } catch {
+      setErro('Erro ao gerar ZPL. Tente novamente.')
     } finally {
       setImprimindo(false)
     }
@@ -783,19 +838,49 @@ export function EtiquetasPage() {
             </p>
           )}
 
-          <button
-            onClick={handleImprimir}
-            disabled={(tipoItem === 'produto' ? !produto : !ingredienteId) || imprimindo}
-            className="w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white transition-opacity disabled:opacity-40"
-            style={{ background: 'var(--sb-accent)' }}
-          >
-            <PrinterIcon className="h-4 w-4" />
-            {imprimindo
-              ? 'Processando...'
-              : tipoItem === 'produto' && tipo === 3
-                ? `Gerar ZPL ${quantidade} ${quantidade === 1 ? 'etiqueta' : 'etiquetas'}`
+          {tipoItem === 'produto' && tipo === 3 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button
+                onClick={handleImprimir}
+                disabled={!produto || imprimindo}
+                className="w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white transition-opacity disabled:opacity-40"
+                style={{ background: 'var(--sb-accent)' }}
+              >
+                <PrinterIcon className="h-4 w-4" />
+                {imprimindo
+                  ? 'Processando...'
+                  : `Imprimir ${quantidade} ${quantidade === 1 ? 'etiqueta' : 'etiquetas'}`}
+              </button>
+              <button
+                type="button"
+                onClick={handleGerarZplNutricional}
+                disabled={!produto || imprimindo}
+                className="w-full flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-semibold transition-opacity disabled:opacity-40"
+                style={{
+                  background: 'var(--ada-bg)',
+                  borderColor: 'var(--ada-border)',
+                  color: 'var(--ada-body)',
+                }}
+              >
+                <ArrowDownTrayIcon className="h-4 w-4" />
+                {imprimindo
+                  ? 'Processando...'
+                  : `Gerar ZPL ${quantidade} ${quantidade === 1 ? 'etiqueta' : 'etiquetas'}`}
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleImprimir}
+              disabled={(tipoItem === 'produto' ? !produto : !ingredienteId) || imprimindo}
+              className="w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white transition-opacity disabled:opacity-40"
+              style={{ background: 'var(--sb-accent)' }}
+            >
+              <PrinterIcon className="h-4 w-4" />
+              {imprimindo
+                ? 'Processando...'
                 : `Imprimir ${quantidade} ${quantidade === 1 ? 'etiqueta' : 'etiquetas'}`}
-          </button>
+            </button>
+          )}
         </div>
 
         {/* ── Prévia ── */}

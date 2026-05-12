@@ -201,7 +201,8 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
 
   return (
     <div style={{
-      width: 260,
+      width: 300,
+      minHeight: 450,
       border: '2px solid #000',
       fontFamily: "'Arial Narrow', Arial, sans-serif",
       background: '#fff',
@@ -479,7 +480,7 @@ export function EtiquetasPage() {
   const tiposOpcoes: { valor: TipoEtiqueta; label: string; desc: string; dim: string }[] = [
     { valor: 1, label: 'Completa', desc: 'Logo + Nome + Validade', dim: '100×50mm' },
     { valor: 2, label: 'Simples', desc: 'Nome + Validade', dim: '70×40mm' },
-    { valor: 3, label: 'Nutricional', desc: 'Tabela Nutricional', dim: '80×120mm' },
+    { valor: 3, label: 'Nutricional', desc: 'Tabela Nutricional', dim: '100×150mm' },
   ]
 
   return (

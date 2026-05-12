@@ -21,7 +21,7 @@ export function imprimirEtiquetaHtml(html: string): void {
 
 const ETIQUETA_COMPLETA = { largura: '100mm', altura: '50mm' }
 const ETIQUETA_SIMPLES = { largura: '70mm', altura: '40mm' }
-const ETIQUETA_NUTRICIONAL = { largura: '80mm', altura: '120mm' }
+const ETIQUETA_NUTRICIONAL = { largura: '100mm', altura: '150mm' }
 
 export function baseStyle(largura: string, altura: string): string {
   return `
@@ -248,7 +248,7 @@ export function htmlEtiquetaSimples(
 </html>`
 }
 
-// ─── Etiqueta Nutricional (80×120mm) ─────────────────────────────────────────
+// ─── Etiqueta Nutricional (100×150mm) ────────────────────────────────────────
 
 function parsePorcaoGramas(porcao: string): number {
   const match = porcao.match(/(\d+(?:[.,]\d+)?)\s*(?:g|ml)\b/i)
@@ -395,8 +395,8 @@ export function htmlEtiquetaNutricional(
       padding: 2mm;
     }
     .nutricional {
-      width: 76mm;
-      max-height: 116mm;
+      width: 96mm;
+      max-height: 146mm;
       border: 0.8mm solid #000;
       font-family: 'Arial Narrow', Arial, sans-serif;
       display: flex;

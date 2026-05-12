@@ -487,32 +487,25 @@ export function htmlEtiquetaNutricional(
   const etiqueta = `
     <div class="etiqueta">
       <div class="nutricional">
+      <div class="nutri-title">INFORMAÇÃO NUTRICIONAL</div>
+      <div class="line title-line"></div>
+      <div class="product-name">${produtoNome}</div>
+      <div class="line product-line"></div>
+      <div class="portion"><strong>Porção:</strong> ${porcaoLabel}${porcoesPorEmb ? ` - ${porcoesPorEmb}` : ''}</div>
 
-      <div style="border-bottom:0.8mm solid #000; padding:1.2mm 2mm 0.8mm; text-align:center; background:#fff;">
-        <div style="font-size:13px; font-weight:bold; letter-spacing:0.5px; color:#000;">INFORMAÇÃO NUTRICIONAL</div>
-      </div>
-
-      <div style="padding:0.8mm 2mm; font-size:10px; border-bottom:0.5mm solid #000; line-height:1.5; background:#fff; color:#000;">
-        <strong>Porção:</strong> ${porcaoLabel}${porcoesPorEmb ? `<br>${porcoesPorEmb}` : ''}
-      </div>
-
-      <div style="border-bottom:0.8mm solid #000; padding:0.5mm 2mm; font-size:10px; background:#fff; color:#000;">
-        <strong>${produtoNome}</strong>
-      </div>
-
-      <table style="width:100%; border-collapse:collapse; background:#fff;">
+      <table class="nutri-table">
         <colgroup>
-          <col style="width:42%">
-          <col style="width:22%">
-          <col style="width:14%">
-          <col style="width:22%">
+          <col style="width:43.75%">
+          <col style="width:19.375%">
+          <col style="width:12.125%">
+          <col style="width:24.75%">
         </colgroup>
         <thead>
-          <tr style="border-bottom:0.4mm solid #000; background:#fff;">
-            <th style="font-size:9px; font-weight:bold; padding:0.6mm 1mm; text-align:left; color:#000;">Nutrientes</th>
-            <th style="font-size:9px; font-weight:bold; padding:0.6mm 1mm; text-align:right; border-left:0.3mm solid #000; color:#000;">Porção</th>
-            <th style="font-size:9px; font-weight:bold; padding:0.6mm 1mm; text-align:center; border-left:0.3mm solid #000; color:#000;">%VD*</th>
-            <th style="font-size:9px; font-weight:bold; padding:0.6mm 1mm; text-align:right; border-left:0.3mm solid #000; color:#000;">100g/ml</th>
+          <tr>
+            <th>Nutrientes</th>
+            <th>Porção</th>
+            <th>%VD*</th>
+            <th>100g/ml</th>
           </tr>
         </thead>
         <tbody>
@@ -534,11 +527,12 @@ export function htmlEtiquetaNutricional(
         </tbody>
       </table>
 
-      <div style="padding:0.8mm 1.5mm; font-size:9px; color:#222; line-height:1.4; border-top:0.8mm solid #000; border-bottom:0.5mm solid #000;">
+      <div class="note">
         *Percentual de valores diários fornecidos pela porção. **Valor Diário não estabelecido. Valores diários de referência com base em uma dieta de 2000 kcal ou 8400 kJ.
       </div>
 
-      <div style="display:flex; justify-content:space-between; padding:1mm 2mm; font-size:9.5px;">
+      <div class="line footer-line"></div>
+      <div class="footer">
         <span><strong>Fab:</strong> ${dataProducao}</span>
         <span><strong>Val:</strong> ${validade}</span>
         <span style="font-style:italic;">Casa di Ana</span>
@@ -565,7 +559,7 @@ export function htmlEtiquetaNutricional(
       overflow: visible !important;
     }
     .etiqueta {
-      position: static;
+      position: relative;
       display: block;
       width: 100mm;
       min-width: 100mm;
@@ -573,41 +567,104 @@ export function htmlEtiquetaNutricional(
       height: 150mm;
       min-height: 150mm;
       max-height: 150mm;
-      padding: 2mm;
-      overflow: visible;
+      padding: 0;
+      overflow: hidden;
       page-break-inside: avoid;
       break-inside: avoid;
     }
     .nutricional {
-      position: static;
-      top: auto;
-      left: auto;
-      width: 100%;
-      height: auto;
-      max-height: none;
-      border: 0.55mm solid #000;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100mm;
+      height: 138.75mm;
+      max-height: 138.75mm;
+      border: 0.38mm solid #000;
       font-family: 'Arial Narrow', Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      overflow: visible;
+      overflow: hidden;
       background: #fff;
       color: #000;
     }
-    table {
-      width: 100%;
+    .nutri-title {
+      position: absolute;
+      top: 1mm;
+      left: 1mm;
+      width: 98mm;
+      height: 5mm;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 5mm;
+      letter-spacing: 0;
+      text-align: center;
+      color: #000;
+      overflow: hidden;
+    }
+    .line {
+      position: absolute;
+      left: 0;
+      width: 100mm;
+      height: 0.25mm;
+      background: #000;
+    }
+    .title-line {
+      top: 6.75mm;
+      height: 0.25mm;
+    }
+    .product-name {
+      position: absolute;
+      top: 8.75mm;
+      left: 1.25mm;
+      width: 97.5mm;
+      height: 6.8mm;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 3.35mm;
+      text-align: center;
+      color: #000;
+      overflow: hidden;
+      overflow-wrap: anywhere;
+    }
+    .product-line {
+      top: 16.5mm;
+      height: 0.25mm;
+    }
+    .portion {
+      position: absolute;
+      top: 18.5mm;
+      left: 1.25mm;
+      width: 97.5mm;
+      height: 4.25mm;
+      font-size: 10px;
+      line-height: 2.1mm;
+      color: #000;
+      overflow: hidden;
+      overflow-wrap: anywhere;
+    }
+    .nutri-table {
+      position: absolute;
+      top: 23.125mm;
+      left: 0;
+      width: 100mm;
+      height: 61.25mm;
       border-collapse: collapse;
       table-layout: fixed;
       background: #fff;
+      border: 0.25mm solid #000;
     }
     thead tr,
     tbody tr {
       break-inside: avoid;
       page-break-inside: avoid;
+      height: 5.625mm;
+      border-bottom: 0.125mm solid #000;
+    }
+    thead tr {
+      height: 5mm;
       border-bottom: 0.25mm solid #000;
     }
     th,
     td {
-      padding: 0.5mm 1mm;
+      padding: 0.35mm 0.75mm;
       font-size: 10px;
       line-height: 1.18;
       vertical-align: top;
@@ -615,9 +672,24 @@ export function htmlEtiquetaNutricional(
       overflow: hidden;
       overflow-wrap: anywhere;
     }
+    th {
+      font-weight: 700;
+      vertical-align: middle;
+    }
+    th:first-child,
+    td:first-child {
+      text-align: left;
+    }
+    th:nth-child(2),
+    th:nth-child(4) {
+      text-align: right;
+    }
+    th:nth-child(3) {
+      text-align: center;
+    }
     th:not(:first-child),
     td:not(:first-child) {
-      border-left: 0.25mm solid #000;
+      border-left: 0.125mm solid #000;
     }
     .bold {
       font-weight: bold;
@@ -626,7 +698,7 @@ export function htmlEtiquetaNutricional(
       padding-left: 3mm;
     }
     .indent-2 {
-      padding-left: 5mm;
+      padding-left: 5.25mm;
     }
     .num {
       text-align: right;
@@ -638,6 +710,37 @@ export function htmlEtiquetaNutricional(
     }
     .muted {
       color: #444;
+    }
+    .note {
+      position: absolute;
+      top: 86.625mm;
+      left: 1mm;
+      width: 98mm;
+      height: 18mm;
+      font-size: 8.5px;
+      line-height: 1.22;
+      color: #000;
+      overflow: hidden;
+    }
+    .footer-line {
+      top: 126.25mm;
+      height: 0.25mm;
+    }
+    .footer {
+      position: absolute;
+      top: 128.75mm;
+      left: 1mm;
+      width: 98mm;
+      height: 5mm;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 2mm;
+      font-size: 10px;
+      line-height: 1.2;
+      color: #000;
+      overflow: hidden;
+      white-space: nowrap;
     }
   </style>
 </head>

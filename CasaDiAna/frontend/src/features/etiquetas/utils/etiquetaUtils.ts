@@ -284,14 +284,20 @@ function parsePorcaoGramas(porcao: string): number {
   return match ? parseFloat(match[1].replace(',', '.')) : 0
 }
 
+function parseValorNutricional(value: string): number {
+  const normalized = value.trim().replace(',', '.')
+  const parsed = Number(normalized)
+  return Number.isFinite(parsed) ? parsed : 0
+}
+
 function fmt100(value: number, porcaoG: number): string {
-  if (!value || !porcaoG) return '—'
+  if (!porcaoG) return '—'
   const v = (value / porcaoG) * 100
   return v % 1 === 0 ? String(Math.round(v)) : v.toFixed(1)
 }
 
 function fmtPeso(value: number, porcaoG: number, pesoG: number): string {
-  if (!value || !porcaoG) return '—'
+  if (!porcaoG) return '—'
   const v = (value / porcaoG) * pesoG
   return v % 1 === 0 ? String(Math.round(v)) : v.toFixed(1)
 }
@@ -303,17 +309,17 @@ export function zplEtiquetaNutricional(
   quantidade: number,
   nutri: NutriValues,
 ): string {
-  const kcal = Number(nutri.kcal) || 0
-  const kj = Number(nutri.kj) || 0
-  const carbo = Number(nutri.carbo) || 0
-  const acucares = Number(nutri.acucares) || 0
-  const acucaresAdic = Number(nutri.acucaresAdic) || 0
-  const prot = Number(nutri.proteinas) || 0
-  const gord = Number(nutri.gorduras) || 0
-  const gordSat = Number(nutri.gordSat) || 0
-  const gordTrans = Number(nutri.gordTrans) || 0
-  const fibra = Number(nutri.fibra) || 0
-  const sodio = Number(nutri.sodio) || 0
+  const kcal = parseValorNutricional(nutri.kcal)
+  const kj = parseValorNutricional(nutri.kj)
+  const carbo = parseValorNutricional(nutri.carbo)
+  const acucares = parseValorNutricional(nutri.acucares)
+  const acucaresAdic = parseValorNutricional(nutri.acucaresAdic)
+  const prot = parseValorNutricional(nutri.proteinas)
+  const gord = parseValorNutricional(nutri.gorduras)
+  const gordSat = parseValorNutricional(nutri.gordSat)
+  const gordTrans = parseValorNutricional(nutri.gordTrans)
+  const fibra = parseValorNutricional(nutri.fibra)
+  const sodio = parseValorNutricional(nutri.sodio)
   const porcaoG = parsePorcaoGramas(nutri.porcao)
   const dash = '-'
 
@@ -438,17 +444,17 @@ export function htmlEtiquetaNutricional(
   quantidade: number,
   nutri: NutriValues,
 ): string {
-  const kcal = Number(nutri.kcal) || 0
-  const kj = Number(nutri.kj) || 0
-  const carbo = Number(nutri.carbo) || 0
-  const acucares = Number(nutri.acucares) || 0
-  const acucaresAdic = Number(nutri.acucaresAdic) || 0
-  const prot = Number(nutri.proteinas) || 0
-  const gord = Number(nutri.gorduras) || 0
-  const gordSat = Number(nutri.gordSat) || 0
-  const gordTrans = Number(nutri.gordTrans) || 0
-  const fibra = Number(nutri.fibra) || 0
-  const sodio = Number(nutri.sodio) || 0
+  const kcal = parseValorNutricional(nutri.kcal)
+  const kj = parseValorNutricional(nutri.kj)
+  const carbo = parseValorNutricional(nutri.carbo)
+  const acucares = parseValorNutricional(nutri.acucares)
+  const acucaresAdic = parseValorNutricional(nutri.acucaresAdic)
+  const prot = parseValorNutricional(nutri.proteinas)
+  const gord = parseValorNutricional(nutri.gorduras)
+  const gordSat = parseValorNutricional(nutri.gordSat)
+  const gordTrans = parseValorNutricional(nutri.gordTrans)
+  const fibra = parseValorNutricional(nutri.fibra)
+  const sodio = parseValorNutricional(nutri.sodio)
   const porcaoG = parsePorcaoGramas(nutri.porcao)
 
   const vd = (v: number, ref: number) =>
@@ -596,7 +602,7 @@ export function htmlEtiquetaNutricional(
       left: 1mm;
       width: 92mm;
       height: 5mm;
-      font-size: 16px;
+      font-size: 18px;
       font-weight: 700;
       line-height: 5mm;
       letter-spacing: 0;
@@ -621,7 +627,7 @@ export function htmlEtiquetaNutricional(
       left: 1.25mm;
       width: 91.5mm;
       height: 6.8mm;
-      font-size: 13px;
+      font-size: 15px;
       font-weight: 700;
       line-height: 3.35mm;
       text-align: center;
@@ -639,7 +645,7 @@ export function htmlEtiquetaNutricional(
       left: 1.25mm;
       width: 91.5mm;
       height: 4.25mm;
-      font-size: 10px;
+      font-size: 12px;
       line-height: 2.1mm;
       color: #000;
       overflow: hidden;
@@ -670,7 +676,7 @@ export function htmlEtiquetaNutricional(
     th,
     td {
       padding: 0.35mm 0.75mm;
-      font-size: 10px;
+      font-size: 12px;
       line-height: 1.18;
       vertical-align: top;
       color: #000;
@@ -722,7 +728,7 @@ export function htmlEtiquetaNutricional(
       left: 1mm;
       width: 92mm;
       height: 18mm;
-      font-size: 8.5px;
+      font-size: 10.5px;
       line-height: 1.22;
       color: #000;
       overflow: hidden;
@@ -741,7 +747,7 @@ export function htmlEtiquetaNutricional(
       align-items: flex-start;
       justify-content: space-between;
       gap: 2mm;
-      font-size: 10px;
+      font-size: 12px;
       line-height: 1.2;
       color: #000;
       overflow: hidden;

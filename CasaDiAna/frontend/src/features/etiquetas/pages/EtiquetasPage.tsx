@@ -38,14 +38,20 @@ function parsePorcaoGramas(porcao: string): number {
   return match ? parseFloat(match[1].replace(',', '.')) : 0
 }
 
+function parseValorNutricional(value: string): number {
+  const normalized = value.trim().replace(',', '.')
+  const parsed = Number(normalized)
+  return Number.isFinite(parsed) ? parsed : 0
+}
+
 function fmt100(value: number, porcaoG: number): string {
-  if (!value || !porcaoG) return '—'
+  if (!porcaoG) return '—'
   const v = (value / porcaoG) * 100
   return v % 1 === 0 ? String(Math.round(v)) : v.toFixed(1)
 }
 
 function fmtPeso(value: number, porcaoG: number, pesoG: number): string {
-  if (!value || !porcaoG) return '—'
+  if (!porcaoG) return '—'
   const v = (value / porcaoG) * pesoG
   return v % 1 === 0 ? String(Math.round(v)) : v.toFixed(1)
 }
@@ -167,17 +173,17 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
   }
 
   // Nutricional
-  const kcalNum = Number(nutri.valorEnergeticoKcal) || 0
-  const kjNum = Number(nutri.valorEnergeticoKJ) || 0
-  const carboNum = Number(nutri.carboidratos) || 0
-  const acucaresNum = Number(nutri.acucaresTotais) || 0
-  const acucaresAdicNum = Number(nutri.acucaresAdicionados) || 0
-  const protNum = Number(nutri.proteinas) || 0
-  const gordNum = Number(nutri.gordurasTotais) || 0
-  const gordSatNum = Number(nutri.gordurasSaturadas) || 0
-  const gordTransNum = Number(nutri.gordurasTrans) || 0
-  const fibraNum = Number(nutri.fibraAlimentar) || 0
-  const sodioNum = Number(nutri.sodio) || 0
+  const kcalNum = parseValorNutricional(nutri.valorEnergeticoKcal)
+  const kjNum = parseValorNutricional(nutri.valorEnergeticoKJ)
+  const carboNum = parseValorNutricional(nutri.carboidratos)
+  const acucaresNum = parseValorNutricional(nutri.acucaresTotais)
+  const acucaresAdicNum = parseValorNutricional(nutri.acucaresAdicionados)
+  const protNum = parseValorNutricional(nutri.proteinas)
+  const gordNum = parseValorNutricional(nutri.gordurasTotais)
+  const gordSatNum = parseValorNutricional(nutri.gordurasSaturadas)
+  const gordTransNum = parseValorNutricional(nutri.gordurasTrans)
+  const fibraNum = parseValorNutricional(nutri.fibraAlimentar)
+  const sodioNum = parseValorNutricional(nutri.sodio)
   const porcaoG = parsePorcaoGramas(nutri.porcao || '100g')
 
   const vdPrev = (v: number, ref: number) => v > 0 ? `${Math.round((v / ref) * 100)}%` : '—'
@@ -231,19 +237,19 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           overflow: 'hidden',
         }}
       >
-        <div style={{ position: 'absolute', top: 3, left: 3, width: 276, height: 15, fontSize: 16, fontWeight: 700, lineHeight: '15px', textAlign: 'center', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: 3, left: 3, width: 276, height: 15, fontSize: 18, fontWeight: 700, lineHeight: '15px', textAlign: 'center', overflow: 'hidden' }}>
           INFORMAÇÃO NUTRICIONAL
         </div>
         <div style={{ position: 'absolute', top: 20.25, left: 0, width: 282, height: 1, background: '#000' }} />
-        <div style={{ position: 'absolute', top: 26.25, left: 3.75, width: 274.5, height: 20.4, fontSize: 13, fontWeight: 700, lineHeight: '10px', textAlign: 'center', overflow: 'hidden', overflowWrap: 'anywhere' }}>
+        <div style={{ position: 'absolute', top: 26.25, left: 3.75, width: 274.5, height: 20.4, fontSize: 15, fontWeight: 700, lineHeight: '10px', textAlign: 'center', overflow: 'hidden', overflowWrap: 'anywhere' }}>
           {nomeExibido}
         </div>
         <div style={{ position: 'absolute', top: 49.5, left: 0, width: 282, height: 1, background: '#000' }} />
-        <div style={{ position: 'absolute', top: 55.5, left: 3.75, width: 274.5, height: 12.75, fontSize: 10, lineHeight: '6.3px', overflow: 'hidden', overflowWrap: 'anywhere' }}>
+        <div style={{ position: 'absolute', top: 55.5, left: 3.75, width: 274.5, height: 12.75, fontSize: 12, lineHeight: '6.3px', overflow: 'hidden', overflowWrap: 'anywhere' }}>
           <strong>Porção:</strong> {porcaoLabel}{porcoesPorEmb ? ` - ${porcoesPorEmb}` : ''}
         </div>
 
-        <table style={{ position: 'absolute', top: 69.375, left: 0, width: 282, height: 183.75, border: '0.75px solid #000', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: 10, background: '#fff' }}>
+        <table style={{ position: 'absolute', top: 69.375, left: 0, width: 282, height: 183.75, border: '0.75px solid #000', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: 12, background: '#fff' }}>
           <colgroup>
             <col style={{ width: '43.75%' }} />
             <col style={{ width: '19.375%' }} />
@@ -278,11 +284,11 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           </tbody>
         </table>
 
-        <div style={{ position: 'absolute', top: 259.875, left: 3, width: 276, height: 54, fontSize: 8.5, lineHeight: 1.22, overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: 259.875, left: 3, width: 276, height: 54, fontSize: 10.5, lineHeight: 1.22, overflow: 'hidden' }}>
           *Percentual de valores diários fornecidos pela porção. **Valor Diário não estabelecido. Valores diários de referência com base em uma dieta de 2000 kcal ou 8400 kJ.
         </div>
         <div style={{ position: 'absolute', top: 378.75, left: 0, width: 282, height: 1, background: '#000' }} />
-        <div style={{ position: 'absolute', top: 386.25, left: 3, width: 276, height: 15, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 6, fontSize: 10, lineHeight: 1.2, overflow: 'hidden', whiteSpace: 'nowrap' }}>
+        <div style={{ position: 'absolute', top: 386.25, left: 3, width: 276, height: 15, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 6, fontSize: 12, lineHeight: 1.2, overflow: 'hidden', whiteSpace: 'nowrap' }}>
           <span><strong>Fab:</strong> {dataFabPrev}</span>
           <span><strong>Val:</strong> {validadePrev}</span>
           <span style={{ fontStyle: 'italic' }}>Casa di Ana</span>
@@ -533,17 +539,17 @@ export function EtiquetasPage() {
     try {
       await etiquetasService.salvarModeloNutricional(produto.id, {
         porcao: nutri.porcao || '100g',
-        valorEnergeticoKcal: Number(nutri.valorEnergeticoKcal) || 0,
-        valorEnergeticoKJ: Number(nutri.valorEnergeticoKJ) || 0,
-        carboidratos: Number(nutri.carboidratos) || 0,
-        acucaresTotais: Number(nutri.acucaresTotais) || 0,
-        acucaresAdicionados: Number(nutri.acucaresAdicionados) || 0,
-        proteinas: Number(nutri.proteinas) || 0,
-        gordurasTotais: Number(nutri.gordurasTotais) || 0,
-        gordurasSaturadas: Number(nutri.gordurasSaturadas) || 0,
-        gordurasTrans: Number(nutri.gordurasTrans) || 0,
-        fibraAlimentar: Number(nutri.fibraAlimentar) || 0,
-        sodio: Number(nutri.sodio) || 0,
+        valorEnergeticoKcal: parseValorNutricional(nutri.valorEnergeticoKcal),
+        valorEnergeticoKJ: parseValorNutricional(nutri.valorEnergeticoKJ),
+        carboidratos: parseValorNutricional(nutri.carboidratos),
+        acucaresTotais: parseValorNutricional(nutri.acucaresTotais),
+        acucaresAdicionados: parseValorNutricional(nutri.acucaresAdicionados),
+        proteinas: parseValorNutricional(nutri.proteinas),
+        gordurasTotais: parseValorNutricional(nutri.gordurasTotais),
+        gordurasSaturadas: parseValorNutricional(nutri.gordurasSaturadas),
+        gordurasTrans: parseValorNutricional(nutri.gordurasTrans),
+        fibraAlimentar: parseValorNutricional(nutri.fibraAlimentar),
+        sodio: parseValorNutricional(nutri.sodio),
         porcoesPorEmbalagem: nutri.porcoesPorEmbalagem ? Number(nutri.porcoesPorEmbalagem) : null,
         medidaCaseira: nutri.medidaCaseira || null,
       })

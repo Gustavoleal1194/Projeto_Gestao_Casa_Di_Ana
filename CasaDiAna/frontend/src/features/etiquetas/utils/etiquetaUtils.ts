@@ -490,14 +490,14 @@ export function htmlEtiquetaNutricional(
       <div class="nutricional">
 
       <div style="border-bottom:0.8mm solid #000; padding:1.2mm 2mm 0.8mm; text-align:center; background:#fff;">
-        <div style="font-size:8pt; font-weight:bold; letter-spacing:0.5px; color:#000;">INFORMAÇÃO NUTRICIONAL</div>
+        <div style="font-size:13px; font-weight:bold; letter-spacing:0.5px; color:#000;">INFORMAÇÃO NUTRICIONAL</div>
       </div>
 
-      <div style="padding:0.8mm 2mm; font-size:6pt; border-bottom:0.5mm solid #000; line-height:1.5; background:#fff; color:#000;">
+      <div style="padding:0.8mm 2mm; font-size:10px; border-bottom:0.5mm solid #000; line-height:1.5; background:#fff; color:#000;">
         <strong>Porção:</strong> ${porcaoLabel}${porcoesPorEmb ? `<br>${porcoesPorEmb}` : ''}
       </div>
 
-      <div style="border-bottom:0.8mm solid #000; padding:0.5mm 2mm; font-size:6pt; background:#fff; color:#000;">
+      <div style="border-bottom:0.8mm solid #000; padding:0.5mm 2mm; font-size:10px; background:#fff; color:#000;">
         <strong>${produtoNome}</strong>
       </div>
 
@@ -510,10 +510,10 @@ export function htmlEtiquetaNutricional(
         </colgroup>
         <thead>
           <tr style="border-bottom:0.4mm solid #000; background:#fff;">
-            <th style="font-size:5pt; font-weight:bold; padding:0.6mm 1mm; text-align:left; color:#000;">Nutrientes</th>
-            <th style="font-size:5pt; font-weight:bold; padding:0.6mm 1mm; text-align:right; border-left:0.3mm solid #000; color:#000;">Porção</th>
-            <th style="font-size:5pt; font-weight:bold; padding:0.6mm 1mm; text-align:center; border-left:0.3mm solid #000; color:#000;">%VD*</th>
-            <th style="font-size:5pt; font-weight:bold; padding:0.6mm 1mm; text-align:right; border-left:0.3mm solid #000; color:#000;">100g/ml</th>
+            <th style="font-size:9px; font-weight:bold; padding:0.6mm 1mm; text-align:left; color:#000;">Nutrientes</th>
+            <th style="font-size:9px; font-weight:bold; padding:0.6mm 1mm; text-align:right; border-left:0.3mm solid #000; color:#000;">Porção</th>
+            <th style="font-size:9px; font-weight:bold; padding:0.6mm 1mm; text-align:center; border-left:0.3mm solid #000; color:#000;">%VD*</th>
+            <th style="font-size:9px; font-weight:bold; padding:0.6mm 1mm; text-align:right; border-left:0.3mm solid #000; color:#000;">100g/ml</th>
           </tr>
         </thead>
         <tbody>
@@ -535,11 +535,11 @@ export function htmlEtiquetaNutricional(
         </tbody>
       </table>
 
-      <div style="padding:0.8mm 1.5mm; font-size:5pt; color:#222; line-height:1.4; border-top:0.8mm solid #000; border-bottom:0.5mm solid #000;">
+      <div style="padding:0.8mm 1.5mm; font-size:9px; color:#222; line-height:1.4; border-top:0.8mm solid #000; border-bottom:0.5mm solid #000;">
         *Percentual de valores diários fornecidos pela porção. **Valor Diário não estabelecido. Valores diários de referência com base em uma dieta de 2000 kcal ou 8400 kJ.
       </div>
 
-      <div style="display:flex; justify-content:space-between; padding:1mm 2mm; font-size:5.5pt;">
+      <div style="display:flex; justify-content:space-between; padding:1mm 2mm; font-size:9.5px;">
         <span><strong>Fab:</strong> ${dataProducao}</span>
         <span><strong>Val:</strong> ${validade}</span>
         <span style="font-style:italic;">Casa di Ana</span>
@@ -609,7 +609,7 @@ export function htmlEtiquetaNutricional(
     th,
     td {
       padding: 0.5mm 1mm;
-      font-size: 6pt;
+      font-size: 10px;
       line-height: 1.18;
       vertical-align: top;
       color: #000;

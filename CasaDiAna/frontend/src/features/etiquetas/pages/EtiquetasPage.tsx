@@ -9,7 +9,7 @@ import {
   imprimirEtiquetaHtml,
   htmlEtiquetaCompleta,
   htmlEtiquetaSimples,
-  htmlEtiquetaNutricional,
+  baixarEtiquetaNutricionalZpl,
 } from '../utils/etiquetaUtils'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -405,7 +405,7 @@ export function EtiquetasPage() {
       } else if (tipo === 1) {
         html = htmlEtiquetaCompleta(nomeParaImpressao, dataPtBr, validadePtBr, quantidade, logoBase64)
       } else {
-        html = htmlEtiquetaNutricional(
+        baixarEtiquetaNutricionalZpl(
           nomeParaImpressao,
           dataPtBr,
           validadePtBr,
@@ -429,7 +429,7 @@ export function EtiquetasPage() {
         )
       }
 
-      imprimirEtiquetaHtml(html)
+      if (html) imprimirEtiquetaHtml(html)
 
       if (!isIngrediente && produto) {
         const novo = await etiquetasService.registrarImpressao({
@@ -792,7 +792,9 @@ export function EtiquetasPage() {
             <PrinterIcon className="h-4 w-4" />
             {imprimindo
               ? 'Processando...'
-              : `Imprimir ${quantidade} ${quantidade === 1 ? 'etiqueta' : 'etiquetas'}`}
+              : tipoItem === 'produto' && tipo === 3
+                ? `Gerar ZPL ${quantidade} ${quantidade === 1 ? 'etiqueta' : 'etiquetas'}`
+                : `Imprimir ${quantidade} ${quantidade === 1 ? 'etiqueta' : 'etiquetas'}`}
           </button>
         </div>
 

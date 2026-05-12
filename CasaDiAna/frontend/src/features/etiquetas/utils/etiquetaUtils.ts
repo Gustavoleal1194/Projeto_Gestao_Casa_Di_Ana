@@ -76,6 +76,35 @@ export interface NutriValues {
   medidaCaseira: string
 }
 
+function zplEscape(value: string): string {
+  return value.replace(/[\^~\\]/g, ' ').trim()
+}
+
+function zplText(
+  x: number,
+  y: number,
+  text: string,
+  width: number,
+  height: number,
+  font = 22,
+  align: 'L' | 'C' | 'R' = 'L',
+  lines = 1,
+): string {
+  return `^FO${x},${y}^A0N,${height},${font}^FB${width},${lines},2,${align},0^FD${zplEscape(text)}^FS`
+}
+
+function downloadTexto(nomeArquivo: string, conteudo: string, mime = 'text/plain'): void {
+  const blob = new Blob([conteudo], { type: `${mime};charset=utf-8` })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = nomeArquivo
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
+}
+
 // ─── Etiqueta Completa (100×50mm) ────────────────────────────────────────────
 
 export function htmlEtiquetaCompleta(
@@ -259,6 +288,141 @@ function fmt100(value: number, porcaoG: number): string {
   if (!value || !porcaoG) return '—'
   const v = (value / porcaoG) * 100
   return v % 1 === 0 ? String(Math.round(v)) : v.toFixed(1)
+}
+
+export function zplEtiquetaNutricional(
+  produtoNome: string,
+  dataProducao: string,
+  validade: string,
+  quantidade: number,
+  nutri: NutriValues,
+): string {
+  const kcal = Number(nutri.kcal) || 0
+  const kj = Number(nutri.kj) || 0
+  const carbo = Number(nutri.carbo) || 0
+  const acucares = Number(nutri.acucares) || 0
+  const acucaresAdic = Number(nutri.acucaresAdic) || 0
+  const prot = Number(nutri.proteinas) || 0
+  const gord = Number(nutri.gorduras) || 0
+  const gordSat = Number(nutri.gordSat) || 0
+  const gordTrans = Number(nutri.gordTrans) || 0
+  const fibra = Number(nutri.fibra) || 0
+  const sodio = Number(nutri.sodio) || 0
+  const porcaoG = parsePorcaoGramas(nutri.porcao)
+  const dash = '-'
+
+  const vd = (value: number, ref: number) =>
+    value > 0 ? `${Math.round((value / ref) * 100)}%` : dash
+  const valor100 = (value: number, unit: string) => `${fmt100(value, porcaoG)} ${unit}`
+  const porcaoLabel = nutri.medidaCaseira
+    ? `${nutri.porcao} (${nutri.medidaCaseira})`
+    : nutri.porcao
+
+  type Row = { indent: 0 | 1 | 2; bold: boolean; nome: string; porcao: string; vd: string; cem: string }
+  const rows: Row[] = [
+    {
+      indent: 0,
+      bold: true,
+      nome: 'Valor energetico',
+      porcao: kcal > 0 ? `${nutri.kcal} kcal / ${nutri.kj} kJ` : dash,
+      vd: vd(kcal, 2000),
+      cem: kcal > 0 ? `${fmt100(kcal, porcaoG)} kcal / ${fmt100(kj, porcaoG)} kJ` : dash,
+    },
+    { indent: 0, bold: true, nome: 'Carboidratos', porcao: carbo > 0 ? `${nutri.carbo} g` : dash, vd: vd(carbo, 300), cem: valor100(carbo, 'g') },
+    { indent: 1, bold: false, nome: 'Acucares totais', porcao: acucares > 0 ? `${nutri.acucares} g` : dash, vd: '**', cem: valor100(acucares, 'g') },
+    { indent: 2, bold: false, nome: 'Acucares adicionados', porcao: acucaresAdic > 0 ? `${nutri.acucaresAdic} g` : dash, vd: '**', cem: valor100(acucaresAdic, 'g') },
+    { indent: 0, bold: true, nome: 'Proteinas', porcao: prot > 0 ? `${nutri.proteinas} g` : dash, vd: vd(prot, 75), cem: valor100(prot, 'g') },
+    { indent: 0, bold: true, nome: 'Gorduras totais', porcao: gord > 0 ? `${nutri.gorduras} g` : dash, vd: vd(gord, 65), cem: valor100(gord, 'g') },
+    { indent: 1, bold: false, nome: 'Gorduras saturadas', porcao: gordSat > 0 ? `${nutri.gordSat} g` : dash, vd: vd(gordSat, 22), cem: valor100(gordSat, 'g') },
+    { indent: 1, bold: false, nome: 'Gorduras trans', porcao: gordTrans > 0 ? `${nutri.gordTrans} g` : dash, vd: '**', cem: valor100(gordTrans, 'g') },
+    { indent: 0, bold: true, nome: 'Fibra alimentar', porcao: fibra > 0 ? `${nutri.fibra} g` : dash, vd: vd(fibra, 25), cem: valor100(fibra, 'g') },
+    { indent: 0, bold: true, nome: 'Sodio', porcao: sodio > 0 ? `${nutri.sodio} mg` : dash, vd: vd(sodio, 2300), cem: valor100(sodio, 'mg') },
+  ]
+
+  const labelWidth = 800
+  const labelHeight = 1200
+  const left = 24
+  const right = 776
+  const tableTop = 235
+  const headerHeight = 46
+  const rowHeight = 53
+  const tableHeight = headerHeight + rows.length * rowHeight
+  const col1 = left
+  const col2 = 350
+  const col3 = 505
+  const col4 = 602
+
+  const drawLine = (x: number, y: number, w: number, h: number) => `^FO${x},${y}^GB${w},${h},2^FS`
+  const drawBox = (x: number, y: number, w: number, h: number, t = 3) => `^FO${x},${y}^GB${w},${h},${t}^FS`
+
+  const renderLabel = () => {
+    const zplRows = rows.map((row, index) => {
+      const y = tableTop + headerHeight + index * rowHeight + 11
+      const nameX = col1 + 10 + (row.indent * 18)
+      const nameFont = row.bold ? 22 : 21
+      return [
+        zplText(nameX, y, row.nome, col2 - nameX - 8, nameFont, nameFont, 'L', 1),
+        zplText(col2 + 6, y, row.porcao, col3 - col2 - 12, 19, 19, 'R', 2),
+        zplText(col3 + 4, y, row.vd, col4 - col3 - 8, 19, 19, 'C', 1),
+        zplText(col4 + 6, y, row.cem, right - col4 - 12, 19, 19, 'R', 2),
+      ].join('\n')
+    }).join('\n')
+
+    const horizontalLines = Array.from({ length: rows.length + 1 }, (_, index) =>
+      drawLine(left, tableTop + headerHeight + index * rowHeight, right - left, 1),
+    ).join('\n')
+
+    return `^XA
+^CI28
+^PW${labelWidth}
+^LL${labelHeight}
+^LH0,0
+^LS0
+^MNY
+^PR3
+${drawBox(16, 16, 768, 1168, 3)}
+${zplText(left, 40, 'INFORMACAO NUTRICIONAL', right - left, 34, 34, 'C')}
+${drawLine(left, 88, right - left, 2)}
+${zplText(left + 10, 108, produtoNome, right - left - 20, 28, 28, 'C', 2)}
+${drawLine(left, 178, right - left, 2)}
+${zplText(left + 10, 195, `Porcao: ${porcaoLabel}${nutri.porcoesPorEmbalagem ? ` - ${nutri.porcoesPorEmbalagem} porcoes por embalagem` : ''}`, right - left - 20, 21, 21, 'L', 2)}
+${drawBox(left, tableTop, right - left, tableHeight, 2)}
+${drawLine(col2, tableTop, 1, tableHeight)}
+${drawLine(col3, tableTop, 1, tableHeight)}
+${drawLine(col4, tableTop, 1, tableHeight)}
+${drawLine(left, tableTop + headerHeight, right - left, 2)}
+${zplText(col1 + 10, tableTop + 13, 'Nutrientes', col2 - col1 - 18, 21, 21, 'L')}
+${zplText(col2 + 6, tableTop + 13, 'Porcao', col3 - col2 - 12, 21, 21, 'R')}
+${zplText(col3 + 4, tableTop + 13, '%VD*', col4 - col3 - 8, 21, 21, 'C')}
+${zplText(col4 + 6, tableTop + 13, '100g/ml', right - col4 - 12, 21, 21, 'R')}
+${horizontalLines}
+${zplRows}
+${zplText(left + 8, tableTop + tableHeight + 24, '*Percentual de valores diarios fornecidos pela porcao. **Valor Diario nao estabelecido. Valores diarios de referencia com base em uma dieta de 2000 kcal ou 8400 kJ.', right - left - 16, 18, 18, 'L', 4)}
+${drawLine(left, 1084, right - left, 2)}
+${zplText(left + 8, 1104, `Fab: ${dataProducao}`, 220, 22, 22, 'L')}
+${zplText(left + 260, 1104, `Val: ${validade}`, 220, 22, 22, 'L')}
+${zplText(right - 210, 1104, 'Casa di Ana', 200, 22, 22, 'R')}
+^XZ`
+  }
+
+  return Array.from({ length: Math.max(1, quantidade) }, renderLabel).join('\n')
+}
+
+export function baixarEtiquetaNutricionalZpl(
+  produtoNome: string,
+  dataProducao: string,
+  validade: string,
+  quantidade: number,
+  nutri: NutriValues,
+): void {
+  const nomeArquivo = `etiqueta-nutricional-${produtoNome
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/gi, '-')
+    .replace(/^-|-$/g, '')
+    .toLowerCase() || 'produto'}.zpl`
+
+  downloadTexto(nomeArquivo, zplEtiquetaNutricional(produtoNome, dataProducao, validade, quantidade, nutri))
 }
 
 export function htmlEtiquetaNutricional(

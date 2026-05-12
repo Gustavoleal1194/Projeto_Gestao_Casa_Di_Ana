@@ -394,13 +394,13 @@ export function htmlEtiquetaNutricional(
       width: 100mm !important;
       min-width: 100mm !important;
       max-width: 100mm !important;
-      height: auto !important;
-      min-height: 0 !important;
-      max-height: none !important;
+      height: 150mm !important;
+      min-height: 150mm !important;
+      max-height: 150mm !important;
       overflow: visible !important;
     }
     .etiqueta {
-      position: relative;
+      position: static;
       display: block;
       width: 100mm;
       min-width: 100mm;
@@ -409,22 +409,22 @@ export function htmlEtiquetaNutricional(
       min-height: 150mm;
       max-height: 150mm;
       padding: 2mm;
-      overflow: hidden;
+      overflow: visible;
       page-break-inside: avoid;
       break-inside: avoid;
     }
     .nutricional {
-      position: absolute;
-      top: 2mm;
-      left: 2mm;
-      width: 96mm;
-      height: 146mm;
-      max-height: 146mm;
+      position: static;
+      top: auto;
+      left: auto;
+      width: 100%;
+      height: auto;
+      max-height: none;
       border: 0.55mm solid #000;
       font-family: 'Arial Narrow', Arial, sans-serif;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow: visible;
       background: #fff;
       color: #000;
     }

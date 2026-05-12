@@ -380,7 +380,6 @@ export function zplEtiquetaNutricional(
 ^LS0
 ^LT0
 ^PON
-^MNY
 ^PR3
 ${drawBox(0, 0, 800, 1110, 3)}
 ${zplText(left + 8, 8, 'INFORMACAO NUTRICIONAL', right - left - 16, 32, 32, 'C')}

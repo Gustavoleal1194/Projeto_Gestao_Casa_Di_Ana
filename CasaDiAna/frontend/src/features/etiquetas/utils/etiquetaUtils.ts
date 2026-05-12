@@ -301,19 +301,19 @@ export function htmlEtiquetaNutricional(
     vdVal: string,
     c100: string,
   ) => {
-    const pl = indent === 2 ? '5mm' : indent === 1 ? '3mm' : '1mm'
+    const indentClass = indent === 2 ? 'indent-2' : indent === 1 ? 'indent-1' : ''
     return `
-    <tr style="border-bottom:0.3mm solid #000;">
-      <td style="font-weight:${bold ? 'bold' : 'normal'}; padding:0.4mm 1mm 0.4mm ${pl}; font-size:5.5pt; line-height:1.3;">
+    <tr>
+      <td class="${bold ? 'bold' : ''} ${indentClass}">
         ${nome}
       </td>
-      <td style="text-align:right; padding:0.4mm 1mm; font-size:5.5pt; border-left:0.3mm solid #000; white-space:nowrap; line-height:1.3;">
+      <td class="num">
         ${qty}
       </td>
-      <td style="text-align:center; padding:0.4mm 1mm; font-size:5.5pt; border-left:0.3mm solid #000; white-space:nowrap; line-height:1.3;">
+      <td class="vd">
         ${vdVal}
       </td>
-      <td style="text-align:right; padding:0.4mm 1mm; font-size:5.5pt; border-left:0.3mm solid #000; white-space:nowrap; line-height:1.3; color:#555;">
+      <td class="num muted">
         ${c100}
       </td>
     </tr>`
@@ -389,21 +389,90 @@ export function htmlEtiquetaNutricional(
   <meta charset="UTF-8">
   <style>
     ${baseStyle(ETIQUETA_NUTRICIONAL.largura, ETIQUETA_NUTRICIONAL.altura)}
+    @page { size: 100mm 150mm portrait; margin: 0 !important; }
+    html, body {
+      width: 100mm !important;
+      min-width: 100mm !important;
+      max-width: 100mm !important;
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: none !important;
+      overflow: visible !important;
+    }
     .etiqueta {
-      align-items: center;
-      justify-content: flex-start;
+      position: relative;
+      display: block;
+      width: 100mm;
+      min-width: 100mm;
+      max-width: 100mm;
+      height: 150mm;
+      min-height: 150mm;
+      max-height: 150mm;
       padding: 2mm;
+      overflow: hidden;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .nutricional {
+      position: absolute;
+      top: 2mm;
+      left: 2mm;
       width: 96mm;
+      height: 146mm;
       max-height: 146mm;
-      border: 0.8mm solid #000;
+      border: 0.55mm solid #000;
       font-family: 'Arial Narrow', Arial, sans-serif;
       display: flex;
       flex-direction: column;
       overflow: hidden;
       background: #fff;
       color: #000;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      background: #fff;
+    }
+    thead tr,
+    tbody tr {
+      break-inside: avoid;
+      page-break-inside: avoid;
+      border-bottom: 0.25mm solid #000;
+    }
+    th,
+    td {
+      padding: 0.5mm 1mm;
+      font-size: 6pt;
+      line-height: 1.18;
+      vertical-align: top;
+      color: #000;
+      overflow: hidden;
+      overflow-wrap: anywhere;
+    }
+    th:not(:first-child),
+    td:not(:first-child) {
+      border-left: 0.25mm solid #000;
+    }
+    .bold {
+      font-weight: bold;
+    }
+    .indent-1 {
+      padding-left: 3mm;
+    }
+    .indent-2 {
+      padding-left: 5mm;
+    }
+    .num {
+      text-align: right;
+      white-space: normal;
+    }
+    .vd {
+      text-align: center;
+      white-space: normal;
+    }
+    .muted {
+      color: #444;
     }
   </style>
 </head>

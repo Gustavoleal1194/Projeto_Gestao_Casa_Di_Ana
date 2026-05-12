@@ -44,6 +44,12 @@ function fmt100(value: number, porcaoG: number): string {
   return v % 1 === 0 ? String(Math.round(v)) : v.toFixed(1)
 }
 
+function fmtPeso(value: number, porcaoG: number, pesoG: number): string {
+  if (!value || !porcaoG) return '—'
+  const v = (value / porcaoG) * pesoG
+  return v % 1 === 0 ? String(Math.round(v)) : v.toFixed(1)
+}
+
 // ─── Preview das etiquetas ───────────────────────────────────────────────────
 
 interface PreviewProps {
@@ -181,88 +187,106 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
     ? `${nutri.porcao || '100g'} (${nutri.medidaCaseira})`
     : (nutri.porcao || '100g')
 
-  type Row = { bold: boolean; indent: 0 | 1 | 2; nome: string; qty: string; vdVal: string; c100: string }
+  type Row = { bold: boolean; indent: 0 | 1 | 2; nome: string; cem: string; cinquenta: string; vdVal: string }
   const rows: Row[] = [
-    { bold: true, indent: 0, nome: 'Valor energético', qty: kcalNum > 0 ? `${nutri.valorEnergeticoKcal} kcal / ${nutri.valorEnergeticoKJ} kJ` : '—', vdVal: vdPrev(kcalNum, 2000), c100: kcalNum > 0 ? `${fmt100(kcalNum, porcaoG)} kcal` : '—' },
-    { bold: true, indent: 0, nome: 'Carboidratos', qty: carboNum > 0 ? `${nutri.carboidratos} g` : '—', vdVal: vdPrev(carboNum, 300), c100: `${fmt100(carboNum, porcaoG)} g` },
-    { bold: false, indent: 1, nome: 'Açúcares totais', qty: acucaresNum > 0 ? `${nutri.acucaresTotais} g` : '—', vdVal: nd, c100: `${fmt100(acucaresNum, porcaoG)} g` },
-    { bold: false, indent: 2, nome: 'Açúcares adicionados', qty: acucaresAdicNum > 0 ? `${nutri.acucaresAdicionados} g` : '—', vdVal: nd, c100: `${fmt100(acucaresAdicNum, porcaoG)} g` },
-    { bold: true, indent: 0, nome: 'Proteínas', qty: protNum > 0 ? `${nutri.proteinas} g` : '—', vdVal: vdPrev(protNum, 75), c100: `${fmt100(protNum, porcaoG)} g` },
-    { bold: true, indent: 0, nome: 'Gorduras totais', qty: gordNum > 0 ? `${nutri.gordurasTotais} g` : '—', vdVal: vdPrev(gordNum, 65), c100: `${fmt100(gordNum, porcaoG)} g` },
-    { bold: false, indent: 1, nome: 'Gorduras saturadas', qty: gordSatNum > 0 ? `${nutri.gordurasSaturadas} g` : '—', vdVal: vdPrev(gordSatNum, 22), c100: `${fmt100(gordSatNum, porcaoG)} g` },
-    { bold: false, indent: 1, nome: 'Gorduras trans', qty: gordTransNum > 0 ? `${nutri.gordurasTrans} g` : '—', vdVal: nd, c100: `${fmt100(gordTransNum, porcaoG)} g` },
-    { bold: true, indent: 0, nome: 'Fibra alimentar', qty: fibraNum > 0 ? `${nutri.fibraAlimentar} g` : '—', vdVal: vdPrev(fibraNum, 25), c100: `${fmt100(fibraNum, porcaoG)} g` },
-    { bold: true, indent: 0, nome: 'Sódio', qty: sodioNum > 0 ? `${nutri.sodio} mg` : '—', vdVal: vdPrev(sodioNum, 2300), c100: `${fmt100(sodioNum, porcaoG)} mg` },
+    { bold: true, indent: 0, nome: 'Valor energético', cem: kcalNum > 0 ? `${fmt100(kcalNum, porcaoG)} kcal / ${fmt100(kjNum, porcaoG)} kJ` : '—', cinquenta: kcalNum > 0 ? `${fmtPeso(kcalNum, porcaoG, 50)} kcal / ${fmtPeso(kjNum, porcaoG, 50)} kJ` : '—', vdVal: vdPrev(kcalNum, 2000) },
+    { bold: true, indent: 0, nome: 'Carboidratos', cem: `${fmt100(carboNum, porcaoG)} g`, cinquenta: `${fmtPeso(carboNum, porcaoG, 50)} g`, vdVal: vdPrev(carboNum, 300) },
+    { bold: false, indent: 1, nome: 'Açúcares totais', cem: `${fmt100(acucaresNum, porcaoG)} g`, cinquenta: `${fmtPeso(acucaresNum, porcaoG, 50)} g`, vdVal: nd },
+    { bold: false, indent: 2, nome: 'Açúcares adicionados', cem: `${fmt100(acucaresAdicNum, porcaoG)} g`, cinquenta: `${fmtPeso(acucaresAdicNum, porcaoG, 50)} g`, vdVal: nd },
+    { bold: true, indent: 0, nome: 'Proteínas', cem: `${fmt100(protNum, porcaoG)} g`, cinquenta: `${fmtPeso(protNum, porcaoG, 50)} g`, vdVal: vdPrev(protNum, 75) },
+    { bold: true, indent: 0, nome: 'Gorduras totais', cem: `${fmt100(gordNum, porcaoG)} g`, cinquenta: `${fmtPeso(gordNum, porcaoG, 50)} g`, vdVal: vdPrev(gordNum, 65) },
+    { bold: false, indent: 1, nome: 'Gorduras saturadas', cem: `${fmt100(gordSatNum, porcaoG)} g`, cinquenta: `${fmtPeso(gordSatNum, porcaoG, 50)} g`, vdVal: vdPrev(gordSatNum, 22) },
+    { bold: false, indent: 1, nome: 'Gorduras trans', cem: `${fmt100(gordTransNum, porcaoG)} g`, cinquenta: `${fmtPeso(gordTransNum, porcaoG, 50)} g`, vdVal: nd },
+    { bold: true, indent: 0, nome: 'Fibra alimentar', cem: `${fmt100(fibraNum, porcaoG)} g`, cinquenta: `${fmtPeso(fibraNum, porcaoG, 50)} g`, vdVal: vdPrev(fibraNum, 25) },
+    { bold: true, indent: 0, nome: 'Sódio', cem: `${fmt100(sodioNum, porcaoG)} mg`, cinquenta: `${fmtPeso(sodioNum, porcaoG, 50)} mg`, vdVal: vdPrev(sodioNum, 2300) },
   ]
-
-  // suppress unused warning
-  void kjNum
 
   const validadePrev = dataValidade ? formatarDataLocal(dataValidade) : '—'
   const dataFabPrev = formatarDataLocal(dataProducao)
+  const porcoesPorEmb = nutri.porcoesPorEmbalagem
+    ? `${nutri.porcoesPorEmbalagem} porções por embalagem`
+    : ''
 
   return (
-    <div style={{
-      width: 300,
-      minHeight: 450,
-      border: '2px solid #000',
-      fontFamily: "'Arial Narrow', Arial, sans-serif",
-      background: '#fff',
-      color: '#000',
-      fontSize: 0,
-    }}>
-      {/* Header */}
-      <div style={{ background: '#fff', color: '#000', padding: '4px 6px 3px', textAlign: 'center', borderBottom: '1.5px solid #000' }}>
-        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.5 }}>INFORMAÇÃO NUTRICIONAL</div>
-        <div style={{ fontSize: 8, marginTop: 1 }}>{nomeExibido}</div>
-      </div>
+    <div
+      style={{
+        width: 300,
+        height: 450,
+        position: 'relative',
+        overflow: 'hidden',
+        fontFamily: "'Arial Narrow', Arial, sans-serif",
+        background: '#fff',
+        color: '#000',
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          top: 6,
+          left: 9,
+          width: 282,
+          height: 416.25,
+          border: '1.14px solid #000',
+          background: '#fff',
+          overflow: 'hidden',
+        }}
+      >
+        <div style={{ position: 'absolute', top: 3, left: 3, width: 276, height: 15, fontSize: 16, fontWeight: 700, lineHeight: '15px', textAlign: 'center', overflow: 'hidden' }}>
+          INFORMAÇÃO NUTRICIONAL
+        </div>
+        <div style={{ position: 'absolute', top: 20.25, left: 0, width: 282, height: 1, background: '#000' }} />
+        <div style={{ position: 'absolute', top: 26.25, left: 3.75, width: 274.5, height: 20.4, fontSize: 13, fontWeight: 700, lineHeight: '10px', textAlign: 'center', overflow: 'hidden', overflowWrap: 'anywhere' }}>
+          {nomeExibido}
+        </div>
+        <div style={{ position: 'absolute', top: 49.5, left: 0, width: 282, height: 1, background: '#000' }} />
+        <div style={{ position: 'absolute', top: 55.5, left: 3.75, width: 274.5, height: 12.75, fontSize: 10, lineHeight: '6.3px', overflow: 'hidden', overflowWrap: 'anywhere' }}>
+          <strong>Porção:</strong> {porcaoLabel}{porcoesPorEmb ? ` - ${porcoesPorEmb}` : ''}
+        </div>
 
-      {/* Porção */}
-      <div style={{ padding: '3px 6px', fontSize: 7.5, borderBottom: '1.5px solid #000', lineHeight: 1.5 }}>
-        <strong>Porção:</strong> {porcaoLabel}
-        {nutri.porcoesPorEmbalagem ? <><br />{nutri.porcoesPorEmbalagem} porções por embalagem</> : null}
-      </div>
-
-      {/* Tabela */}
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 7 }}>
-        <thead>
-          <tr style={{ background: '#fff', borderBottom: '1px solid #000' }}>
-            <th style={{ fontWeight: 700, padding: '2px 3px', textAlign: 'left', width: '40%' }}>Nutrientes</th>
-            <th style={{ fontWeight: 700, padding: '2px 3px', textAlign: 'right', borderLeft: '1px solid #000', width: '24%' }}>Porção</th>
-            <th style={{ fontWeight: 700, padding: '2px 3px', textAlign: 'center', borderLeft: '1px solid #000', width: '14%' }}>%VD*</th>
-            <th style={{ fontWeight: 700, padding: '2px 3px', textAlign: 'right', borderLeft: '1px solid #000', width: '22%' }}>100g/100ml</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr key={r.nome} style={{ borderBottom: '0.5px solid #000' }}>
-              <td style={{ fontWeight: r.bold ? 700 : 400, padding: `1px 3px 1px ${r.indent === 2 ? '16px' : r.indent === 1 ? '8px' : '3px'}`, fontSize: 7, lineHeight: 1.3 }}>
-                {r.nome}
-              </td>
-              <td style={{ textAlign: 'right', padding: '1px 3px', borderLeft: '1px solid #000', fontSize: 7, lineHeight: 1.3 }}>
-                {r.qty}
-              </td>
-              <td style={{ textAlign: 'center', padding: '1px 3px', borderLeft: '1px solid #000', fontSize: 7, color: '#333', lineHeight: 1.3 }}>
-                {r.vdVal}
-              </td>
-              <td style={{ textAlign: 'right', padding: '1px 3px', borderLeft: '1px solid #000', fontSize: 7, color: '#555', lineHeight: 1.3 }}>
-                {r.c100}
-              </td>
+        <table style={{ position: 'absolute', top: 69.375, left: 0, width: 282, height: 183.75, border: '0.75px solid #000', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: 10, background: '#fff' }}>
+          <colgroup>
+            <col style={{ width: '43.75%' }} />
+            <col style={{ width: '19.375%' }} />
+            <col style={{ width: '12.125%' }} />
+            <col style={{ width: '24.75%' }} />
+          </colgroup>
+          <thead>
+            <tr style={{ height: 15, borderBottom: '0.75px solid #000' }}>
+              <th style={{ fontWeight: 700, padding: '1px 2px', textAlign: 'left', verticalAlign: 'middle' }}>&nbsp;</th>
+              <th style={{ fontWeight: 700, padding: '1px 2px', textAlign: 'right', verticalAlign: 'middle', borderLeft: '0.5px solid #000' }}>100g</th>
+              <th style={{ fontWeight: 700, padding: '1px 2px', textAlign: 'right', verticalAlign: 'middle', borderLeft: '0.5px solid #000' }}>50g</th>
+              <th style={{ fontWeight: 700, padding: '1px 2px', textAlign: 'center', verticalAlign: 'middle', borderLeft: '0.5px solid #000' }}>%VD(*)</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.nome} style={{ height: 16.875, borderBottom: '0.5px solid #000' }}>
+                <td style={{ fontWeight: r.bold ? 700 : 400, padding: `1px 2px 1px ${r.indent === 2 ? '15.75px' : r.indent === 1 ? '9px' : '2px'}`, lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'anywhere' }}>
+                  {r.nome}
+                </td>
+                <td style={{ textAlign: 'right', padding: '1px 2px', borderLeft: '0.5px solid #000', lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'anywhere' }}>
+                  {r.cem}
+                </td>
+                <td style={{ textAlign: 'right', padding: '1px 2px', borderLeft: '0.5px solid #000', color: '#444', lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'anywhere' }}>
+                  {r.cinquenta}
+                </td>
+                <td style={{ textAlign: 'center', padding: '1px 2px', borderLeft: '0.5px solid #000', lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden' }}>
+                  {r.vdVal}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-      {/* Footer */}
-      <div style={{ padding: '2px 5px', fontSize: 5.5, color: '#333', lineHeight: 1.4, borderTop: '1.5px solid #000', borderBottom: '1px solid #000' }}>
-        *Percentual de valores diários fornecidos pela porção. **Valor Diário não estabelecido. Valores diários de referência com base em dieta de 2000 kcal ou 8400 kJ.
-      </div>
-
-      {/* Datas */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 6px', fontSize: 6.5 }}>
-        <span><strong>Fab:</strong> {dataFabPrev}</span>
-        <span><strong>Val:</strong> {validadePrev}</span>
-        <span style={{ fontStyle: 'italic', opacity: 0.7 }}>Casa di Ana</span>
+        <div style={{ position: 'absolute', top: 259.875, left: 3, width: 276, height: 54, fontSize: 8.5, lineHeight: 1.22, overflow: 'hidden' }}>
+          *Percentual de valores diários fornecidos pela porção. **Valor Diário não estabelecido. Valores diários de referência com base em uma dieta de 2000 kcal ou 8400 kJ.
+        </div>
+        <div style={{ position: 'absolute', top: 378.75, left: 0, width: 282, height: 1, background: '#000' }} />
+        <div style={{ position: 'absolute', top: 386.25, left: 3, width: 276, height: 15, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 6, fontSize: 10, lineHeight: 1.2, overflow: 'hidden', whiteSpace: 'nowrap' }}>
+          <span><strong>Fab:</strong> {dataFabPrev}</span>
+          <span><strong>Val:</strong> {validadePrev}</span>
+          <span style={{ fontStyle: 'italic' }}>Casa di Ana</span>
+        </div>
       </div>
     </div>
   )

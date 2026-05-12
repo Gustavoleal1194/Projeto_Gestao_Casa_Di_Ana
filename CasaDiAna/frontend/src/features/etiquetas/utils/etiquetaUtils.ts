@@ -290,6 +290,12 @@ function fmt100(value: number, porcaoG: number): string {
   return v % 1 === 0 ? String(Math.round(v)) : v.toFixed(1)
 }
 
+function fmtPeso(value: number, porcaoG: number, pesoG: number): string {
+  if (!value || !porcaoG) return '—'
+  const v = (value / porcaoG) * pesoG
+  return v % 1 === 0 ? String(Math.round(v)) : v.toFixed(1)
+}
+
 export function zplEtiquetaNutricional(
   produtoNome: string,
   dataProducao: string,
@@ -318,25 +324,25 @@ export function zplEtiquetaNutricional(
     ? `${nutri.porcao} (${nutri.medidaCaseira})`
     : nutri.porcao
 
-  type Row = { indent: 0 | 1 | 2; bold: boolean; nome: string; porcao: string; vd: string; cem: string }
+  type Row = { indent: 0 | 1 | 2; bold: boolean; nome: string; cem: string; cinquenta: string; vd: string }
   const rows: Row[] = [
     {
       indent: 0,
       bold: true,
       nome: 'Valor energetico',
-      porcao: kcal > 0 ? `${nutri.kcal} kcal / ${nutri.kj} kJ` : dash,
-      vd: vd(kcal, 2000),
       cem: kcal > 0 ? `${fmt100(kcal, porcaoG)} kcal / ${fmt100(kj, porcaoG)} kJ` : dash,
+      cinquenta: kcal > 0 ? `${fmtPeso(kcal, porcaoG, 50)} kcal / ${fmtPeso(kj, porcaoG, 50)} kJ` : dash,
+      vd: vd(kcal, 2000),
     },
-    { indent: 0, bold: true, nome: 'Carboidratos', porcao: carbo > 0 ? `${nutri.carbo} g` : dash, vd: vd(carbo, 300), cem: valor100(carbo, 'g') },
-    { indent: 1, bold: false, nome: 'Acucares totais', porcao: acucares > 0 ? `${nutri.acucares} g` : dash, vd: '**', cem: valor100(acucares, 'g') },
-    { indent: 2, bold: false, nome: 'Acucares adicionados', porcao: acucaresAdic > 0 ? `${nutri.acucaresAdic} g` : dash, vd: '**', cem: valor100(acucaresAdic, 'g') },
-    { indent: 0, bold: true, nome: 'Proteinas', porcao: prot > 0 ? `${nutri.proteinas} g` : dash, vd: vd(prot, 75), cem: valor100(prot, 'g') },
-    { indent: 0, bold: true, nome: 'Gorduras totais', porcao: gord > 0 ? `${nutri.gorduras} g` : dash, vd: vd(gord, 65), cem: valor100(gord, 'g') },
-    { indent: 1, bold: false, nome: 'Gorduras saturadas', porcao: gordSat > 0 ? `${nutri.gordSat} g` : dash, vd: vd(gordSat, 22), cem: valor100(gordSat, 'g') },
-    { indent: 1, bold: false, nome: 'Gorduras trans', porcao: gordTrans > 0 ? `${nutri.gordTrans} g` : dash, vd: '**', cem: valor100(gordTrans, 'g') },
-    { indent: 0, bold: true, nome: 'Fibra alimentar', porcao: fibra > 0 ? `${nutri.fibra} g` : dash, vd: vd(fibra, 25), cem: valor100(fibra, 'g') },
-    { indent: 0, bold: true, nome: 'Sodio', porcao: sodio > 0 ? `${nutri.sodio} mg` : dash, vd: vd(sodio, 2300), cem: valor100(sodio, 'mg') },
+    { indent: 0, bold: true, nome: 'Carboidratos', cem: valor100(carbo, 'g'), cinquenta: `${fmtPeso(carbo, porcaoG, 50)} g`, vd: vd(carbo, 300) },
+    { indent: 1, bold: false, nome: 'Acucares totais', cem: valor100(acucares, 'g'), cinquenta: `${fmtPeso(acucares, porcaoG, 50)} g`, vd: '**' },
+    { indent: 2, bold: false, nome: 'Acucares adicionados', cem: valor100(acucaresAdic, 'g'), cinquenta: `${fmtPeso(acucaresAdic, porcaoG, 50)} g`, vd: '**' },
+    { indent: 0, bold: true, nome: 'Proteinas', cem: valor100(prot, 'g'), cinquenta: `${fmtPeso(prot, porcaoG, 50)} g`, vd: vd(prot, 75) },
+    { indent: 0, bold: true, nome: 'Gorduras totais', cem: valor100(gord, 'g'), cinquenta: `${fmtPeso(gord, porcaoG, 50)} g`, vd: vd(gord, 65) },
+    { indent: 1, bold: false, nome: 'Gorduras saturadas', cem: valor100(gordSat, 'g'), cinquenta: `${fmtPeso(gordSat, porcaoG, 50)} g`, vd: vd(gordSat, 22) },
+    { indent: 1, bold: false, nome: 'Gorduras trans', cem: valor100(gordTrans, 'g'), cinquenta: `${fmtPeso(gordTrans, porcaoG, 50)} g`, vd: '**' },
+    { indent: 0, bold: true, nome: 'Fibra alimentar', cem: valor100(fibra, 'g'), cinquenta: `${fmtPeso(fibra, porcaoG, 50)} g`, vd: vd(fibra, 25) },
+    { indent: 0, bold: true, nome: 'Sodio', cem: valor100(sodio, 'mg'), cinquenta: `${fmtPeso(sodio, porcaoG, 50)} mg`, vd: vd(sodio, 2300) },
   ]
 
   const labelWidth = 800
@@ -362,9 +368,9 @@ export function zplEtiquetaNutricional(
       const nameFont = row.bold ? 22 : 21
       return [
         zplText(nameX, y, row.nome, col2 - nameX - 8, nameFont, nameFont, 'L', 1),
-        zplText(col2 + 6, y, row.porcao, col3 - col2 - 12, 19, 19, 'R', 2),
-        zplText(col3 + 4, y, row.vd, col4 - col3 - 8, 19, 19, 'C', 1),
-        zplText(col4 + 6, y, row.cem, right - col4 - 12, 19, 19, 'R', 2),
+        zplText(col2 + 6, y, row.cem, col3 - col2 - 12, 19, 19, 'R', 2),
+        zplText(col3 + 4, y, row.cinquenta, col4 - col3 - 8, 19, 19, 'R', 2),
+        zplText(col4 + 6, y, row.vd, right - col4 - 12, 19, 19, 'C', 1),
       ].join('\n')
     }).join('\n')
 
@@ -392,10 +398,9 @@ ${drawLine(col2, tableTop, 1, tableHeight)}
 ${drawLine(col3, tableTop, 1, tableHeight)}
 ${drawLine(col4, tableTop, 1, tableHeight)}
 ${drawLine(left, tableTop + headerHeight, right - left, 2)}
-${zplText(col1 + 10, tableTop + 13, 'Nutrientes', col2 - col1 - 18, 21, 21, 'L')}
-${zplText(col2 + 6, tableTop + 13, 'Porcao', col3 - col2 - 12, 21, 21, 'R')}
-${zplText(col3 + 4, tableTop + 13, '%VD*', col4 - col3 - 8, 21, 21, 'C')}
-${zplText(col4 + 6, tableTop + 13, '100g/ml', right - col4 - 12, 21, 21, 'R')}
+${zplText(col2 + 6, tableTop + 13, '100g', col3 - col2 - 12, 21, 21, 'R')}
+${zplText(col3 + 4, tableTop + 13, '50g', col4 - col3 - 8, 21, 21, 'R')}
+${zplText(col4 + 6, tableTop + 13, '%VD(*)', right - col4 - 12, 21, 21, 'C')}
 ${horizontalLines}
 ${zplRows}
 ${zplText(left + 8, tableTop + tableHeight + 18, '*Percentual de valores diarios fornecidos pela porcao. **Valor Diario nao estabelecido. Valores diarios de referencia com base em uma dieta de 2000 kcal ou 8400 kJ.', right - left - 16, 17, 17, 'L', 4)}
@@ -462,9 +467,9 @@ export function htmlEtiquetaNutricional(
     bold: boolean,
     indent: 0 | 1 | 2,
     nome: string,
-    qty: string,
+    cem: string,
+    cinquenta: string,
     vdVal: string,
-    c100: string,
   ) => {
     const indentClass = indent === 2 ? 'indent-2' : indent === 1 ? 'indent-1' : ''
     return `
@@ -473,13 +478,13 @@ export function htmlEtiquetaNutricional(
         ${nome}
       </td>
       <td class="num">
-        ${qty}
+        ${cem}
+      </td>
+      <td class="num muted">
+        ${cinquenta}
       </td>
       <td class="vd">
         ${vdVal}
-      </td>
-      <td class="num muted">
-        ${c100}
       </td>
     </tr>`
   }
@@ -502,28 +507,28 @@ export function htmlEtiquetaNutricional(
         </colgroup>
         <thead>
           <tr>
-            <th>Nutrientes</th>
-            <th>Porção</th>
-            <th>%VD*</th>
-            <th>100g/ml</th>
+            <th>&nbsp;</th>
+            <th>100g</th>
+            <th>50g</th>
+            <th>%VD(*)</th>
           </tr>
         </thead>
         <tbody>
           ${row(true, 0,
             'Valor energético',
-            `${nutri.kcal} kcal / ${nutri.kj} kJ`,
-            vd(kcal, 2000),
             kcal > 0 ? `${fmt100(kcal, porcaoG)} kcal / ${fmt100(kj, porcaoG)} kJ` : '—',
+            kcal > 0 ? `${fmtPeso(kcal, porcaoG, 50)} kcal / ${fmtPeso(kj, porcaoG, 50)} kJ` : '—',
+            vd(kcal, 2000),
           )}
-          ${row(true, 0, 'Carboidratos', `${nutri.carbo} g`, vd(carbo, 300), `${fmt100(carbo, porcaoG)} g`)}
-          ${row(false, 1, 'Açúcares totais', `${nutri.acucares} g`, nd, `${fmt100(acucares, porcaoG)} g`)}
-          ${row(false, 2, 'Açúcares adicionados', `${nutri.acucaresAdic} g`, nd, `${fmt100(acucaresAdic, porcaoG)} g`)}
-          ${row(true, 0, 'Proteínas', `${nutri.proteinas} g`, vd(prot, 75), `${fmt100(prot, porcaoG)} g`)}
-          ${row(true, 0, 'Gorduras totais', `${nutri.gorduras} g`, vd(gord, 65), `${fmt100(gord, porcaoG)} g`)}
-          ${row(false, 1, 'Gorduras saturadas', `${nutri.gordSat} g`, vd(gordSat, 22), `${fmt100(gordSat, porcaoG)} g`)}
-          ${row(false, 1, 'Gorduras trans', `${nutri.gordTrans} g`, nd, `${fmt100(gordTrans, porcaoG)} g`)}
-          ${row(true, 0, 'Fibra alimentar', `${nutri.fibra} g`, vd(fibra, 25), `${fmt100(fibra, porcaoG)} g`)}
-          ${row(true, 0, 'Sódio', `${nutri.sodio} mg`, vd(sodio, 2300), `${fmt100(sodio, porcaoG)} mg`)}
+          ${row(true, 0, 'Carboidratos', `${fmt100(carbo, porcaoG)} g`, `${fmtPeso(carbo, porcaoG, 50)} g`, vd(carbo, 300))}
+          ${row(false, 1, 'Açúcares totais', `${fmt100(acucares, porcaoG)} g`, `${fmtPeso(acucares, porcaoG, 50)} g`, nd)}
+          ${row(false, 2, 'Açúcares adicionados', `${fmt100(acucaresAdic, porcaoG)} g`, `${fmtPeso(acucaresAdic, porcaoG, 50)} g`, nd)}
+          ${row(true, 0, 'Proteínas', `${fmt100(prot, porcaoG)} g`, `${fmtPeso(prot, porcaoG, 50)} g`, vd(prot, 75))}
+          ${row(true, 0, 'Gorduras totais', `${fmt100(gord, porcaoG)} g`, `${fmtPeso(gord, porcaoG, 50)} g`, vd(gord, 65))}
+          ${row(false, 1, 'Gorduras saturadas', `${fmt100(gordSat, porcaoG)} g`, `${fmtPeso(gordSat, porcaoG, 50)} g`, vd(gordSat, 22))}
+          ${row(false, 1, 'Gorduras trans', `${fmt100(gordTrans, porcaoG)} g`, `${fmtPeso(gordTrans, porcaoG, 50)} g`, nd)}
+          ${row(true, 0, 'Fibra alimentar', `${fmt100(fibra, porcaoG)} g`, `${fmtPeso(fibra, porcaoG, 50)} g`, vd(fibra, 25))}
+          ${row(true, 0, 'Sódio', `${fmt100(sodio, porcaoG)} mg`, `${fmtPeso(sodio, porcaoG, 50)} mg`, vd(sodio, 2300))}
         </tbody>
       </table>
 

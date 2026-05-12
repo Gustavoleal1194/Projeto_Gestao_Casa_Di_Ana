@@ -341,11 +341,11 @@ export function zplEtiquetaNutricional(
 
   const labelWidth = 800
   const labelHeight = 1200
-  const left = 24
-  const right = 776
-  const tableTop = 210
+  const left = 0
+  const right = 800
+  const tableTop = 185
   const headerHeight = 40
-  const rowHeight = 46
+  const rowHeight = 45
   const tableHeight = headerHeight + rows.length * rowHeight
   const col1 = left
   const col2 = 350
@@ -382,12 +382,12 @@ export function zplEtiquetaNutricional(
 ^PON
 ^MNY
 ^PR3
-${drawBox(16, 8, 768, 1128, 3)}
-${zplText(left, 28, 'INFORMACAO NUTRICIONAL', right - left, 32, 32, 'C')}
-${drawLine(left, 72, right - left, 2)}
-${zplText(left + 10, 90, produtoNome, right - left - 20, 26, 26, 'C', 2)}
-${drawLine(left, 155, right - left, 2)}
-${zplText(left + 10, 172, `Porcao: ${porcaoLabel}${nutri.porcoesPorEmbalagem ? ` - ${nutri.porcoesPorEmbalagem} porcoes por embalagem` : ''}`, right - left - 20, 20, 20, 'L', 2)}
+${drawBox(0, 0, 800, 1110, 3)}
+${zplText(left + 8, 8, 'INFORMACAO NUTRICIONAL', right - left - 16, 32, 32, 'C')}
+${drawLine(left, 54, right - left, 2)}
+${zplText(left + 10, 70, produtoNome, right - left - 20, 26, 26, 'C', 2)}
+${drawLine(left, 132, right - left, 2)}
+${zplText(left + 10, 148, `Porcao: ${porcaoLabel}${nutri.porcoesPorEmbalagem ? ` - ${nutri.porcoesPorEmbalagem} porcoes por embalagem` : ''}`, right - left - 20, 20, 20, 'L', 2)}
 ${drawBox(left, tableTop, right - left, tableHeight, 2)}
 ${drawLine(col2, tableTop, 1, tableHeight)}
 ${drawLine(col3, tableTop, 1, tableHeight)}
@@ -400,10 +400,10 @@ ${zplText(col4 + 6, tableTop + 13, '100g/ml', right - col4 - 12, 21, 21, 'R')}
 ${horizontalLines}
 ${zplRows}
 ${zplText(left + 8, tableTop + tableHeight + 18, '*Percentual de valores diarios fornecidos pela porcao. **Valor Diario nao estabelecido. Valores diarios de referencia com base em uma dieta de 2000 kcal ou 8400 kJ.', right - left - 16, 17, 17, 'L', 4)}
-${drawLine(left, 1032, right - left, 2)}
-${zplText(left + 8, 1052, `Fab: ${dataProducao}`, 220, 21, 21, 'L')}
-${zplText(left + 260, 1052, `Val: ${validade}`, 220, 21, 21, 'L')}
-${zplText(right - 210, 1052, 'Casa di Ana', 200, 21, 21, 'R')}
+${drawLine(left, 1010, right - left, 2)}
+${zplText(left + 8, 1030, `Fab: ${dataProducao}`, 220, 21, 21, 'L')}
+${zplText(left + 260, 1030, `Val: ${validade}`, 220, 21, 21, 'L')}
+${zplText(right - 210, 1030, 'Casa di Ana', 200, 21, 21, 'R')}
 ^XZ`
   }
 

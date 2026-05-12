@@ -574,9 +574,9 @@ export function htmlEtiquetaNutricional(
     }
     .nutricional {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100mm;
+      top: 2mm;
+      left: 3mm;
+      width: 94mm;
       height: 138.75mm;
       max-height: 138.75mm;
       border: 0.38mm solid #000;
@@ -589,7 +589,7 @@ export function htmlEtiquetaNutricional(
       position: absolute;
       top: 1mm;
       left: 1mm;
-      width: 98mm;
+      width: 92mm;
       height: 5mm;
       font-size: 16px;
       font-weight: 700;
@@ -602,7 +602,7 @@ export function htmlEtiquetaNutricional(
     .line {
       position: absolute;
       left: 0;
-      width: 100mm;
+      width: 94mm;
       height: 0.25mm;
       background: #000;
     }
@@ -614,7 +614,7 @@ export function htmlEtiquetaNutricional(
       position: absolute;
       top: 8.75mm;
       left: 1.25mm;
-      width: 97.5mm;
+      width: 91.5mm;
       height: 6.8mm;
       font-size: 13px;
       font-weight: 700;
@@ -632,7 +632,7 @@ export function htmlEtiquetaNutricional(
       position: absolute;
       top: 18.5mm;
       left: 1.25mm;
-      width: 97.5mm;
+      width: 91.5mm;
       height: 4.25mm;
       font-size: 10px;
       line-height: 2.1mm;
@@ -644,7 +644,7 @@ export function htmlEtiquetaNutricional(
       position: absolute;
       top: 23.125mm;
       left: 0;
-      width: 100mm;
+      width: 94mm;
       height: 61.25mm;
       border-collapse: collapse;
       table-layout: fixed;
@@ -715,7 +715,7 @@ export function htmlEtiquetaNutricional(
       position: absolute;
       top: 86.625mm;
       left: 1mm;
-      width: 98mm;
+      width: 92mm;
       height: 18mm;
       font-size: 8.5px;
       line-height: 1.22;
@@ -730,7 +730,7 @@ export function htmlEtiquetaNutricional(
       position: absolute;
       top: 128.75mm;
       left: 1mm;
-      width: 98mm;
+      width: 92mm;
       height: 5mm;
       display: flex;
       align-items: flex-start;

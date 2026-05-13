@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import axios from 'axios'
 import { ArrowDownTrayIcon, PrinterIcon, ClockIcon } from '@heroicons/react/24/outline'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import { ingredientesService } from '@/features/estoque/ingredientes/services/ingredientesService'
@@ -42,6 +43,19 @@ function parseValorNutricional(value: string): number {
   const match = value.trim().replace(',', '.').match(/-?\d+(?:\.\d+)?/)
   const parsed = match ? Number(match[0]) : 0
   return Number.isFinite(parsed) ? parsed : 0
+}
+
+function parsePorcoesPorEmbalagem(value: string): number | null {
+  const parsed = Number(value.trim().replace(',', '.'))
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null
+}
+
+function obterMensagemErroApi(error: unknown, fallback: string): string {
+  if (!axios.isAxiosError(error)) return fallback
+
+  const data = error.response?.data as { erros?: string[]; mensagem?: string; message?: string } | undefined
+  if (data?.erros?.length) return data.erros.join(' ')
+  return data?.mensagem ?? data?.message ?? fallback
 }
 
 function fmt100(value: number, porcaoG: number): string {
@@ -209,7 +223,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
   const dataFabPrev = formatarDataLocal(dataProducao)
   const tableTop = 60
   const tableHeight = 159.3
-  const noteTop = tableTop + tableHeight + 30
+  const noteTop = tableTop + tableHeight + 39
   const porcoesPorEmb = nutri.porcoesPorEmbalagem
     ? `${nutri.porcoesPorEmbalagem} porções por embalagem`
     : ''
@@ -537,8 +551,9 @@ export function EtiquetasPage() {
     if (!produto) return
     setSalvandoModelo(true)
     setModeloSalvo(false)
+    setErro(null)
     try {
-      await etiquetasService.salvarModeloNutricional(produto.id, {
+      const modeloAtualizado = await etiquetasService.salvarModeloNutricional(produto.id, {
         porcao: nutri.porcao || '100g',
         valorEnergeticoKcal: parseValorNutricional(nutri.valorEnergeticoKcal),
         valorEnergeticoKJ: parseValorNutricional(nutri.valorEnergeticoKJ),
@@ -551,13 +566,14 @@ export function EtiquetasPage() {
         gordurasTrans: parseValorNutricional(nutri.gordurasTrans),
         fibraAlimentar: parseValorNutricional(nutri.fibraAlimentar),
         sodio: parseValorNutricional(nutri.sodio),
-        porcoesPorEmbalagem: nutri.porcoesPorEmbalagem ? Number(nutri.porcoesPorEmbalagem) : null,
+        porcoesPorEmbalagem: parsePorcoesPorEmbalagem(nutri.porcoesPorEmbalagem),
         medidaCaseira: nutri.medidaCaseira || null,
       })
+      setModeloNutricional(modeloAtualizado)
       setModeloSalvo(true)
       setTimeout(() => setModeloSalvo(false), 3000)
-    } catch {
-      setErro('Erro ao salvar modelo nutricional.')
+    } catch (error) {
+      setErro(obterMensagemErroApi(error, 'Erro ao salvar modelo nutricional.'))
     } finally {
       setSalvandoModelo(false)
     }
@@ -790,6 +806,7 @@ export function EtiquetasPage() {
               </div>
 
               <button
+                type="button"
                 onClick={handleSalvarModelo}
                 disabled={!produto || salvandoModelo}
                 className="w-full rounded-lg px-3 py-2 text-xs font-semibold transition-opacity disabled:opacity-40"

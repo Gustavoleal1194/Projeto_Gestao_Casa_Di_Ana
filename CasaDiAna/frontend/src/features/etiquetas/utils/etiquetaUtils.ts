@@ -359,7 +359,7 @@ export function zplEtiquetaNutricional(
   const headerHeight = 40
   const rowHeight = 45
   const tableHeight = headerHeight + rows.length * rowHeight
-  const noteTop = tableTop + tableHeight + 36
+  const noteTop = tableTop + tableHeight + 70
   const col1 = left
   const col2 = 350
   const col3 = 505
@@ -726,7 +726,7 @@ export function htmlEtiquetaNutricional(
     }
     .note {
       position: absolute;
-      top: 78.5mm;
+      top: 81.5mm;
       left: 1mm;
       width: 62mm;
       height: 23.5mm;

@@ -19,10 +19,6 @@ import {
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-function formatarData(isoStr: string): string {
-  return new Date(isoStr).toLocaleDateString('pt-BR')
-}
-
 // Formata datas vindas de input[type=date] (YYYY-MM-DD) sem conversão de timezone
 function formatarDataLocal(yyyymmdd: string): string {
   const [year, month, day] = yyyymmdd.split('-')

@@ -207,6 +207,9 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
 
   const validadePrev = dataValidade ? formatarDataLocal(dataValidade) : '—'
   const dataFabPrev = formatarDataLocal(dataProducao)
+  const tableTop = 60
+  const tableHeight = 159.3
+  const noteTop = tableTop + tableHeight + 12.7
   const porcoesPorEmb = nutri.porcoesPorEmbalagem
     ? `${nutri.porcoesPorEmbalagem} porções por embalagem`
     : ''
@@ -247,7 +250,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           <strong>Porção:</strong> {porcaoLabel}{porcoesPorEmb ? ` - ${porcoesPorEmb}` : ''}
         </div>
 
-        <table style={{ position: 'absolute', top: 60, left: 0, width: 192, height: 159.3, border: '0.75px solid #000', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: 12, background: '#fff' }}>
+        <table style={{ position: 'absolute', top: tableTop, left: 0, width: 192, height: tableHeight, border: '0.75px solid #000', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: 12, background: '#fff', overflow: 'hidden', zIndex: 1 }}>
           <colgroup>
             <col style={{ width: '43.75%' }} />
             <col style={{ width: '19.375%' }} />
@@ -282,7 +285,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           </tbody>
         </table>
 
-        <div style={{ position: 'absolute', top: 225.3, left: 3, width: 186, height: 46.8, fontSize: 10.5, lineHeight: 1.22, overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: noteTop, left: 3, width: 186, height: 46.8, fontSize: 10.5, lineHeight: 1.22, overflow: 'hidden', background: '#fff', zIndex: 2 }}>
           *Percentual de valores diários fornecidos pela porção. **Valor Diário não estabelecido. Valores diários de referência com base em uma dieta de 2000 kcal ou 8400 kJ.
         </div>
         <div style={{ position: 'absolute', top: 328.2, left: 0, width: 192, height: 1, background: '#000' }} />

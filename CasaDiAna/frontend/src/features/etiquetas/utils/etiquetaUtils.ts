@@ -359,6 +359,7 @@ export function zplEtiquetaNutricional(
   const headerHeight = 40
   const rowHeight = 45
   const tableHeight = headerHeight + rows.length * rowHeight
+  const noteTop = tableTop + tableHeight + 36
   const col1 = left
   const col2 = 350
   const col3 = 505
@@ -409,7 +410,7 @@ ${zplText(col3 + 4, tableTop + 13, '50g', col4 - col3 - 8, 21, 21, 'R')}
 ${zplText(col4 + 6, tableTop + 13, '%VD(*)', right - col4 - 12, 21, 21, 'C')}
 ${horizontalLines}
 ${zplRows}
-${zplText(left + 8, tableTop + tableHeight + 18, '*Percentual de valores diarios fornecidos pela porcao. **Valor Diario nao estabelecido. Valores diarios de referencia com base em uma dieta de 2000 kcal ou 8400 kJ.', right - left - 16, 17, 17, 'L', 4)}
+${zplText(left + 8, noteTop, '*Percentual de valores diarios fornecidos pela porcao. **Valor Diario nao estabelecido. Valores diarios de referencia com base em uma dieta de 2000 kcal ou 8400 kJ.', right - left - 16, 17, 17, 'L', 4)}
 ${drawLine(left, 1010, right - left, 2)}
 ${zplText(left + 8, 1030, `Fab: ${dataProducao}`, 220, 21, 21, 'L')}
 ${zplText(left + 260, 1030, `Val: ${validade}`, 220, 21, 21, 'L')}
@@ -659,6 +660,8 @@ export function htmlEtiquetaNutricional(
       table-layout: fixed;
       background: #fff;
       border: 0.25mm solid #000;
+      overflow: hidden;
+      z-index: 1;
     }
     thead tr,
     tbody tr {
@@ -723,14 +726,16 @@ export function htmlEtiquetaNutricional(
     }
     .note {
       position: absolute;
-      top: 75.1mm;
+      top: 78.5mm;
       left: 1mm;
       width: 62mm;
-      height: 15.6mm;
-      font-size: 10.5px;
-      line-height: 1.22;
+      height: 23.5mm;
+      font-size: 10px;
+      line-height: 1.18;
       color: #000;
       overflow: hidden;
+      background: #fff;
+      z-index: 2;
     }
     .footer-line {
       top: 109.4mm;

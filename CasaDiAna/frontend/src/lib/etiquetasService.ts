@@ -19,7 +19,19 @@ export interface RegistrarImpressaoInput {
   dataProducao: string
 }
 
-export interface ModeloNutricional {
+export interface VdCampos {
+  vdValorEnergetico: string | null
+  vdCarboidratos: string | null
+  vdAcucaresAdicionados: string | null
+  vdProteinas: string | null
+  vdGordurasTotais: string | null
+  vdGordurasSaturadas: string | null
+  vdGordurasTrans: string | null
+  vdFibraAlimentar: string | null
+  vdSodio: string | null
+}
+
+export interface ModeloNutricional extends VdCampos {
   id: string
   produtoId: string
   porcao: string
@@ -38,7 +50,7 @@ export interface ModeloNutricional {
   medidaCaseira: string | null
 }
 
-export interface ModeloNutricionalResumo {
+export interface ModeloNutricionalResumo extends VdCampos {
   id: string
   produtoId: string
   produtoNome: string
@@ -58,7 +70,7 @@ export interface ModeloNutricionalResumo {
   medidaCaseira: string | null
 }
 
-export interface SalvarModeloNutricionalInput {
+export interface SalvarModeloNutricionalInput extends VdCampos {
   porcao: string
   valorEnergeticoKcal: number
   valorEnergeticoKJ: number

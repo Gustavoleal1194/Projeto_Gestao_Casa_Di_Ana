@@ -28,6 +28,17 @@ public class ModeloEtiquetaNutricionalConfiguration
         builder.Property(m => m.Sodio).HasColumnName("sodio").HasPrecision(10, 2).IsRequired();
         builder.Property(m => m.PorcoesPorEmbalagem).HasColumnName("porcoes_por_embalagem");
         builder.Property(m => m.MedidaCaseira).HasColumnName("medida_caseira").HasMaxLength(100);
+
+        builder.Property(m => m.VdValorEnergetico).HasColumnName("vd_valor_energetico").HasMaxLength(20);
+        builder.Property(m => m.VdCarboidratos).HasColumnName("vd_carboidratos").HasMaxLength(20);
+        builder.Property(m => m.VdAcucaresAdicionados).HasColumnName("vd_acucares_adicionados").HasMaxLength(20);
+        builder.Property(m => m.VdProteinas).HasColumnName("vd_proteinas").HasMaxLength(20);
+        builder.Property(m => m.VdGordurasTotais).HasColumnName("vd_gorduras_totais").HasMaxLength(20);
+        builder.Property(m => m.VdGordurasSaturadas).HasColumnName("vd_gorduras_saturadas").HasMaxLength(20);
+        builder.Property(m => m.VdGordurasTrans).HasColumnName("vd_gorduras_trans").HasMaxLength(20);
+        builder.Property(m => m.VdFibraAlimentar).HasColumnName("vd_fibra_alimentar").HasMaxLength(20);
+        builder.Property(m => m.VdSodio).HasColumnName("vd_sodio").HasMaxLength(20);
+
         builder.Property(m => m.CriadoEm).HasColumnName("criado_em").IsRequired();
         builder.Property(m => m.AtualizadoEm).HasColumnName("atualizado_em").IsRequired();
 

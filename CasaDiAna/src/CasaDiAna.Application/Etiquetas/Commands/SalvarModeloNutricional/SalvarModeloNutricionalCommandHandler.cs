@@ -46,7 +46,16 @@ public class SalvarModeloNutricionalCommandHandler
                 request.FibraAlimentar,
                 request.Sodio,
                 request.PorcoesPorEmbalagem,
-                request.MedidaCaseira);
+                request.MedidaCaseira,
+                request.VdValorEnergetico,
+                request.VdCarboidratos,
+                request.VdAcucaresAdicionados,
+                request.VdProteinas,
+                request.VdGordurasTotais,
+                request.VdGordurasSaturadas,
+                request.VdGordurasTrans,
+                request.VdFibraAlimentar,
+                request.VdSodio);
 
             await _modelos.AdicionarAsync(novo, cancellationToken);
             await _modelos.SalvarAsync(cancellationToken);
@@ -67,7 +76,16 @@ public class SalvarModeloNutricionalCommandHandler
             request.FibraAlimentar,
             request.Sodio,
             request.PorcoesPorEmbalagem,
-            request.MedidaCaseira);
+            request.MedidaCaseira,
+            request.VdValorEnergetico,
+            request.VdCarboidratos,
+            request.VdAcucaresAdicionados,
+            request.VdProteinas,
+            request.VdGordurasTotais,
+            request.VdGordurasSaturadas,
+            request.VdGordurasTrans,
+            request.VdFibraAlimentar,
+            request.VdSodio);
 
         await _modelos.SalvarAsync(cancellationToken);
         return ToDto(existente);
@@ -89,5 +107,14 @@ public class SalvarModeloNutricionalCommandHandler
         m.FibraAlimentar,
         m.Sodio,
         m.PorcoesPorEmbalagem,
-        m.MedidaCaseira);
+        m.MedidaCaseira,
+        m.VdValorEnergetico,
+        m.VdCarboidratos,
+        m.VdAcucaresAdicionados,
+        m.VdProteinas,
+        m.VdGordurasTotais,
+        m.VdGordurasSaturadas,
+        m.VdGordurasTrans,
+        m.VdFibraAlimentar,
+        m.VdSodio);
 }

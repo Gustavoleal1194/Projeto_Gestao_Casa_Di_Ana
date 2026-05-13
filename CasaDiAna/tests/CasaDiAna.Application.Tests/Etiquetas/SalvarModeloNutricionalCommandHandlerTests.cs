@@ -33,7 +33,16 @@ public class SalvarModeloNutricionalCommandHandlerTests
         FibraAlimentar: 3m,
         Sodio: 120m,
         PorcoesPorEmbalagem: 4,
-        MedidaCaseira: "1 fatia");
+        MedidaCaseira: "1 fatia",
+        VdValorEnergetico: "25",
+        VdCarboidratos: "10",
+        VdAcucaresAdicionados: null,
+        VdProteinas: "16",
+        VdGordurasTotais: "11",
+        VdGordurasSaturadas: "9",
+        VdGordurasTrans: null,
+        VdFibraAlimentar: "12",
+        VdSodio: "5");
 
     private static ModeloEtiquetaNutricional CriarModeloExistente(Guid produtoId) =>
         ModeloEtiquetaNutricional.Criar(
@@ -89,6 +98,10 @@ public class SalvarModeloNutricionalCommandHandlerTests
         resultado.Sodio.Should().Be(120m);
         resultado.PorcoesPorEmbalagem.Should().Be(4);
         resultado.MedidaCaseira.Should().Be("1 fatia");
+        resultado.VdValorEnergetico.Should().Be("25");
+        resultado.VdCarboidratos.Should().Be("10");
+        resultado.VdAcucaresAdicionados.Should().BeNull();
+        resultado.VdProteinas.Should().Be("16");
         _modelos.Verify(r => r.AdicionarAsync(It.IsAny<ModeloEtiquetaNutricional>(), default), Times.Never);
         _modelos.Verify(r => r.SalvarAsync(default), Times.Once);
     }

@@ -19,6 +19,17 @@ public class ModeloEtiquetaNutricional
     public decimal Sodio { get; private set; }
     public int? PorcoesPorEmbalagem { get; private set; }
     public string? MedidaCaseira { get; private set; }
+
+    public string? VdValorEnergetico { get; private set; }
+    public string? VdCarboidratos { get; private set; }
+    public string? VdAcucaresAdicionados { get; private set; }
+    public string? VdProteinas { get; private set; }
+    public string? VdGordurasTotais { get; private set; }
+    public string? VdGordurasSaturadas { get; private set; }
+    public string? VdGordurasTrans { get; private set; }
+    public string? VdFibraAlimentar { get; private set; }
+    public string? VdSodio { get; private set; }
+
     public DateTime CriadoEm { get; private set; }
     public DateTime AtualizadoEm { get; private set; }
 
@@ -39,7 +50,16 @@ public class ModeloEtiquetaNutricional
         decimal fibraAlimentar,
         decimal sodio,
         int? porcoesPorEmbalagem,
-        string? medidaCaseira)
+        string? medidaCaseira,
+        string? vdValorEnergetico = null,
+        string? vdCarboidratos = null,
+        string? vdAcucaresAdicionados = null,
+        string? vdProteinas = null,
+        string? vdGordurasTotais = null,
+        string? vdGordurasSaturadas = null,
+        string? vdGordurasTrans = null,
+        string? vdFibraAlimentar = null,
+        string? vdSodio = null)
     {
         return new ModeloEtiquetaNutricional
         {
@@ -59,6 +79,15 @@ public class ModeloEtiquetaNutricional
             Sodio = sodio,
             PorcoesPorEmbalagem = porcoesPorEmbalagem,
             MedidaCaseira = medidaCaseira,
+            VdValorEnergetico = NullIfEmpty(vdValorEnergetico),
+            VdCarboidratos = NullIfEmpty(vdCarboidratos),
+            VdAcucaresAdicionados = NullIfEmpty(vdAcucaresAdicionados),
+            VdProteinas = NullIfEmpty(vdProteinas),
+            VdGordurasTotais = NullIfEmpty(vdGordurasTotais),
+            VdGordurasSaturadas = NullIfEmpty(vdGordurasSaturadas),
+            VdGordurasTrans = NullIfEmpty(vdGordurasTrans),
+            VdFibraAlimentar = NullIfEmpty(vdFibraAlimentar),
+            VdSodio = NullIfEmpty(vdSodio),
             CriadoEm = DateTime.UtcNow,
             AtualizadoEm = DateTime.UtcNow,
         };
@@ -78,7 +107,16 @@ public class ModeloEtiquetaNutricional
         decimal fibraAlimentar,
         decimal sodio,
         int? porcoesPorEmbalagem,
-        string? medidaCaseira)
+        string? medidaCaseira,
+        string? vdValorEnergetico,
+        string? vdCarboidratos,
+        string? vdAcucaresAdicionados,
+        string? vdProteinas,
+        string? vdGordurasTotais,
+        string? vdGordurasSaturadas,
+        string? vdGordurasTrans,
+        string? vdFibraAlimentar,
+        string? vdSodio)
     {
         Porcao = porcao;
         ValorEnergeticoKcal = valorEnergeticoKcal;
@@ -94,6 +132,18 @@ public class ModeloEtiquetaNutricional
         Sodio = sodio;
         PorcoesPorEmbalagem = porcoesPorEmbalagem;
         MedidaCaseira = medidaCaseira;
+        VdValorEnergetico = NullIfEmpty(vdValorEnergetico);
+        VdCarboidratos = NullIfEmpty(vdCarboidratos);
+        VdAcucaresAdicionados = NullIfEmpty(vdAcucaresAdicionados);
+        VdProteinas = NullIfEmpty(vdProteinas);
+        VdGordurasTotais = NullIfEmpty(vdGordurasTotais);
+        VdGordurasSaturadas = NullIfEmpty(vdGordurasSaturadas);
+        VdGordurasTrans = NullIfEmpty(vdGordurasTrans);
+        VdFibraAlimentar = NullIfEmpty(vdFibraAlimentar);
+        VdSodio = NullIfEmpty(vdSodio);
         AtualizadoEm = DateTime.UtcNow;
     }
+
+    private static string? NullIfEmpty(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

@@ -279,7 +279,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           <div><strong>Porção:</strong> {porcaoLabel}</div>
         </div>
 
-        <table style={{ position: 'absolute', top: tableTop, left: 0, width: 196, height: tableHeight, borderTop: '1px solid #000', borderBottom: '1px solid #000', borderCollapse: 'separate', borderSpacing: 0, tableLayout: 'fixed', fontSize: 12, background: '#fff', overflow: 'hidden', zIndex: 1 }}>
+        <table style={{ position: 'absolute', top: tableTop, left: 0, width: 196, height: tableHeight, borderTop: '1.14px solid #000', borderBottom: '1.14px solid #000', borderCollapse: 'separate', borderSpacing: 0, tableLayout: 'fixed', fontSize: 12, background: '#fff', overflow: 'hidden', zIndex: 1 }}>
           <colgroup>
             <col style={{ width: '56%' }} />
             <col style={{ width: '15%' }} />
@@ -433,7 +433,15 @@ export function EtiquetasPage() {
             gordurasTrans: String(modelo.gordurasTrans),
             fibraAlimentar: String(modelo.fibraAlimentar),
             sodio: String(modelo.sodio),
-            ...CAMPOS_VD_VAZIOS,
+            vdValorEnergetico: modelo.vdValorEnergetico ?? '',
+            vdCarboidratos: modelo.vdCarboidratos ?? '',
+            vdAcucaresAdicionados: modelo.vdAcucaresAdicionados ?? '',
+            vdProteinas: modelo.vdProteinas ?? '',
+            vdGordurasTotais: modelo.vdGordurasTotais ?? '',
+            vdGordurasSaturadas: modelo.vdGordurasSaturadas ?? '',
+            vdGordurasTrans: modelo.vdGordurasTrans ?? '',
+            vdFibraAlimentar: modelo.vdFibraAlimentar ?? '',
+            vdSodio: modelo.vdSodio ?? '',
           })
         } else {
           setNutri({ porcao: '100g', medidaCaseira: '', porcoesPorEmbalagem: '', valorEnergeticoKcal: '', valorEnergeticoKJ: '', carboidratos: '', acucaresTotais: '', acucaresAdicionados: '', proteinas: '', gordurasTotais: '', gordurasSaturadas: '', gordurasTrans: '', fibraAlimentar: '', sodio: '', ...CAMPOS_VD_VAZIOS })
@@ -602,6 +610,15 @@ export function EtiquetasPage() {
         sodio: parseValorNutricional(nutri.sodio),
         porcoesPorEmbalagem: parsePorcoesPorEmbalagem(nutri.porcoesPorEmbalagem),
         medidaCaseira: nutri.medidaCaseira || null,
+        vdValorEnergetico: nutri.vdValorEnergetico || null,
+        vdCarboidratos: nutri.vdCarboidratos || null,
+        vdAcucaresAdicionados: nutri.vdAcucaresAdicionados || null,
+        vdProteinas: nutri.vdProteinas || null,
+        vdGordurasTotais: nutri.vdGordurasTotais || null,
+        vdGordurasSaturadas: nutri.vdGordurasSaturadas || null,
+        vdGordurasTrans: nutri.vdGordurasTrans || null,
+        vdFibraAlimentar: nutri.vdFibraAlimentar || null,
+        vdSodio: nutri.vdSodio || null,
       })
       setModeloNutricional(modeloAtualizado)
       setModeloSalvo(true)
@@ -793,7 +810,15 @@ export function EtiquetasPage() {
                         gordurasTrans: String(m.gordurasTrans),
                         fibraAlimentar: String(m.fibraAlimentar),
                         sodio: String(m.sodio),
-                        ...CAMPOS_VD_VAZIOS,
+                        vdValorEnergetico: m.vdValorEnergetico ?? '',
+                        vdCarboidratos: m.vdCarboidratos ?? '',
+                        vdAcucaresAdicionados: m.vdAcucaresAdicionados ?? '',
+                        vdProteinas: m.vdProteinas ?? '',
+                        vdGordurasTotais: m.vdGordurasTotais ?? '',
+                        vdGordurasSaturadas: m.vdGordurasSaturadas ?? '',
+                        vdGordurasTrans: m.vdGordurasTrans ?? '',
+                        vdFibraAlimentar: m.vdFibraAlimentar ?? '',
+                        vdSodio: m.vdSodio ?? '',
                       })
                     }}
                     className="w-full rounded-lg px-3 py-2 text-sm border outline-none"

@@ -18,4 +18,13 @@ public record SalvarModeloNutricionalCommand(
     decimal FibraAlimentar,
     decimal Sodio,
     int? PorcoesPorEmbalagem,
-    string? MedidaCaseira) : IRequest<ModeloEtiquetaNutricionalDto>;
+    string? MedidaCaseira,
+    string? VdValorEnergetico,
+    string? VdCarboidratos,
+    string? VdAcucaresAdicionados,
+    string? VdProteinas,
+    string? VdGordurasTotais,
+    string? VdGordurasSaturadas,
+    string? VdGordurasTrans,
+    string? VdFibraAlimentar,
+    string? VdSodio) : IRequest<ModeloEtiquetaNutricionalDto>;

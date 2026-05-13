@@ -35,7 +35,16 @@ public class ListarModelosNutricionaisQueryHandler
                 m.FibraAlimentar,
                 m.Sodio,
                 m.PorcoesPorEmbalagem,
-                m.MedidaCaseira))
+                m.MedidaCaseira,
+                m.VdValorEnergetico,
+                m.VdCarboidratos,
+                m.VdAcucaresAdicionados,
+                m.VdProteinas,
+                m.VdGordurasTotais,
+                m.VdGordurasSaturadas,
+                m.VdGordurasTrans,
+                m.VdFibraAlimentar,
+                m.VdSodio))
             .ToList();
     }
 }

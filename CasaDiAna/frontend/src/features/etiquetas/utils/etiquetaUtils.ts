@@ -21,7 +21,7 @@ export function imprimirEtiquetaHtml(html: string): void {
 
 const ETIQUETA_COMPLETA = { largura: '100mm', altura: '50mm' }
 const ETIQUETA_SIMPLES = { largura: '70mm', altura: '40mm' }
-const ETIQUETA_NUTRICIONAL = { largura: '100mm', altura: '150mm' }
+const ETIQUETA_NUTRICIONAL = { largura: '70mm', altura: '130mm' }
 
 export function baseStyle(largura: string, altura: string): string {
   return `
@@ -277,7 +277,7 @@ export function htmlEtiquetaSimples(
 </html>`
 }
 
-// ─── Etiqueta Nutricional (100×150mm) ────────────────────────────────────────
+// ─── Etiqueta Nutricional (70×130mm) ─────────────────────────────────────────
 
 function parsePorcaoGramas(porcao: string): number {
   const match = porcao.match(/(\d+(?:[.,]\d+)?)\s*(?:g|ml)\b/i)
@@ -557,25 +557,25 @@ export function htmlEtiquetaNutricional(
   <meta charset="UTF-8">
   <style>
     ${baseStyle(ETIQUETA_NUTRICIONAL.largura, ETIQUETA_NUTRICIONAL.altura)}
-    @page { size: 100mm 150mm portrait; margin: 0 !important; }
+    @page { size: 70mm 130mm portrait; margin: 0 !important; }
     html, body {
-      width: 100mm !important;
-      min-width: 100mm !important;
-      max-width: 100mm !important;
-      height: 150mm !important;
-      min-height: 150mm !important;
-      max-height: 150mm !important;
+      width: 70mm !important;
+      min-width: 70mm !important;
+      max-width: 70mm !important;
+      height: 130mm !important;
+      min-height: 130mm !important;
+      max-height: 130mm !important;
       overflow: visible !important;
     }
     .etiqueta {
       position: relative;
       display: block;
-      width: 100mm;
-      min-width: 100mm;
-      max-width: 100mm;
-      height: 150mm;
-      min-height: 150mm;
-      max-height: 150mm;
+      width: 70mm;
+      min-width: 70mm;
+      max-width: 70mm;
+      height: 130mm;
+      min-height: 130mm;
+      max-height: 130mm;
       padding: 0;
       overflow: hidden;
       page-break-inside: avoid;
@@ -585,9 +585,9 @@ export function htmlEtiquetaNutricional(
       position: absolute;
       top: 2mm;
       left: 3mm;
-      width: 94mm;
-      height: 138.75mm;
-      max-height: 138.75mm;
+      width: 64mm;
+      height: 120mm;
+      max-height: 120mm;
       border: 0.38mm solid #000;
       font-family: 'Arial Narrow', Arial, sans-serif;
       overflow: hidden;
@@ -598,7 +598,7 @@ export function htmlEtiquetaNutricional(
       position: absolute;
       top: 1mm;
       left: 1mm;
-      width: 92mm;
+      width: 62mm;
       height: 5mm;
       font-size: 18px;
       font-weight: 700;
@@ -611,50 +611,50 @@ export function htmlEtiquetaNutricional(
     .line {
       position: absolute;
       left: 0;
-      width: 94mm;
+      width: 64mm;
       height: 0.25mm;
       background: #000;
     }
     .title-line {
-      top: 6.75mm;
+      top: 5.85mm;
       height: 0.25mm;
     }
     .product-name {
       position: absolute;
-      top: 8.75mm;
+      top: 7.6mm;
       left: 1.25mm;
-      width: 91.5mm;
-      height: 6.8mm;
+      width: 61.5mm;
+      height: 5.9mm;
       font-size: 15px;
       font-weight: 700;
-      line-height: 3.35mm;
+      line-height: 2.9mm;
       text-align: center;
       color: #000;
       overflow: hidden;
       overflow-wrap: anywhere;
     }
     .product-line {
-      top: 16.5mm;
+      top: 14.3mm;
       height: 0.25mm;
     }
     .portion {
       position: absolute;
-      top: 18.5mm;
+      top: 16mm;
       left: 1.25mm;
-      width: 91.5mm;
-      height: 4.25mm;
+      width: 61.5mm;
+      height: 3.7mm;
       font-size: 12px;
-      line-height: 2.1mm;
+      line-height: 1.85mm;
       color: #000;
       overflow: hidden;
       overflow-wrap: anywhere;
     }
     .nutri-table {
       position: absolute;
-      top: 23.125mm;
+      top: 20mm;
       left: 0;
-      width: 94mm;
-      height: 61.25mm;
+      width: 64mm;
+      height: 53.1mm;
       border-collapse: collapse;
       table-layout: fixed;
       background: #fff;
@@ -664,11 +664,11 @@ export function htmlEtiquetaNutricional(
     tbody tr {
       break-inside: avoid;
       page-break-inside: avoid;
-      height: 5.625mm;
+      height: 4.88mm;
       border-bottom: 0.125mm solid #000;
     }
     thead tr {
-      height: 5mm;
+      height: 4.35mm;
       border-bottom: 0.25mm solid #000;
     }
     th,
@@ -722,24 +722,24 @@ export function htmlEtiquetaNutricional(
     }
     .note {
       position: absolute;
-      top: 86.625mm;
+      top: 75.1mm;
       left: 1mm;
-      width: 92mm;
-      height: 18mm;
+      width: 62mm;
+      height: 15.6mm;
       font-size: 10.5px;
       line-height: 1.22;
       color: #000;
       overflow: hidden;
     }
     .footer-line {
-      top: 126.25mm;
+      top: 109.4mm;
       height: 0.25mm;
     }
     .footer {
       position: absolute;
-      top: 128.75mm;
+      top: 111.6mm;
       left: 1mm;
-      width: 92mm;
+      width: 62mm;
       height: 5mm;
       display: flex;
       align-items: flex-start;

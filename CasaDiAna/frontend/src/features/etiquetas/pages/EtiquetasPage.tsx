@@ -214,8 +214,8 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
   return (
     <div
       style={{
-        width: 300,
-        height: 450,
+        width: 210,
+        height: 390,
         position: 'relative',
         overflow: 'hidden',
         fontFamily: "'Arial Narrow', Arial, sans-serif",
@@ -228,26 +228,26 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           position: 'absolute',
           top: 6,
           left: 9,
-          width: 282,
-          height: 416.25,
+          width: 192,
+          height: 360,
           border: '1.14px solid #000',
           background: '#fff',
           overflow: 'hidden',
         }}
       >
-        <div style={{ position: 'absolute', top: 3, left: 3, width: 276, height: 15, fontSize: 18, fontWeight: 700, lineHeight: '15px', textAlign: 'center', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: 3, left: 3, width: 186, height: 15, fontSize: 18, fontWeight: 700, lineHeight: '15px', textAlign: 'center', overflow: 'hidden' }}>
           INFORMAÇÃO NUTRICIONAL
         </div>
-        <div style={{ position: 'absolute', top: 20.25, left: 0, width: 282, height: 1, background: '#000' }} />
-        <div style={{ position: 'absolute', top: 26.25, left: 3.75, width: 274.5, height: 20.4, fontSize: 15, fontWeight: 700, lineHeight: '10px', textAlign: 'center', overflow: 'hidden', overflowWrap: 'anywhere' }}>
+        <div style={{ position: 'absolute', top: 17.55, left: 0, width: 192, height: 1, background: '#000' }} />
+        <div style={{ position: 'absolute', top: 22.8, left: 3.75, width: 184.5, height: 17.7, fontSize: 15, fontWeight: 700, lineHeight: '8.7px', textAlign: 'center', overflow: 'hidden', overflowWrap: 'anywhere' }}>
           {nomeExibido}
         </div>
-        <div style={{ position: 'absolute', top: 49.5, left: 0, width: 282, height: 1, background: '#000' }} />
-        <div style={{ position: 'absolute', top: 55.5, left: 3.75, width: 274.5, height: 12.75, fontSize: 12, lineHeight: '6.3px', overflow: 'hidden', overflowWrap: 'anywhere' }}>
+        <div style={{ position: 'absolute', top: 42.9, left: 0, width: 192, height: 1, background: '#000' }} />
+        <div style={{ position: 'absolute', top: 48, left: 3.75, width: 184.5, height: 11.1, fontSize: 12, lineHeight: '5.55px', overflow: 'hidden', overflowWrap: 'anywhere' }}>
           <strong>Porção:</strong> {porcaoLabel}{porcoesPorEmb ? ` - ${porcoesPorEmb}` : ''}
         </div>
 
-        <table style={{ position: 'absolute', top: 69.375, left: 0, width: 282, height: 183.75, border: '0.75px solid #000', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: 12, background: '#fff' }}>
+        <table style={{ position: 'absolute', top: 60, left: 0, width: 192, height: 159.3, border: '0.75px solid #000', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: 12, background: '#fff' }}>
           <colgroup>
             <col style={{ width: '43.75%' }} />
             <col style={{ width: '19.375%' }} />
@@ -255,7 +255,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
             <col style={{ width: '24.75%' }} />
           </colgroup>
           <thead>
-            <tr style={{ height: 15, borderBottom: '0.75px solid #000' }}>
+            <tr style={{ height: 13.05, borderBottom: '0.75px solid #000' }}>
               <th style={{ fontWeight: 700, padding: '1px 2px', textAlign: 'left', verticalAlign: 'middle' }}>&nbsp;</th>
               <th style={{ fontWeight: 700, padding: '1px 2px', textAlign: 'right', verticalAlign: 'middle', borderLeft: '0.5px solid #000' }}>100g</th>
               <th style={{ fontWeight: 700, padding: '1px 2px', textAlign: 'right', verticalAlign: 'middle', borderLeft: '0.5px solid #000' }}>50g</th>
@@ -264,7 +264,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.nome} style={{ height: 16.875, borderBottom: '0.5px solid #000' }}>
+              <tr key={r.nome} style={{ height: 14.64, borderBottom: '0.5px solid #000' }}>
                 <td style={{ fontWeight: r.bold ? 700 : 400, padding: `1px 2px 1px ${r.indent === 2 ? '15.75px' : r.indent === 1 ? '9px' : '2px'}`, lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'anywhere' }}>
                   {r.nome}
                 </td>
@@ -282,11 +282,11 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           </tbody>
         </table>
 
-        <div style={{ position: 'absolute', top: 259.875, left: 3, width: 276, height: 54, fontSize: 10.5, lineHeight: 1.22, overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: 225.3, left: 3, width: 186, height: 46.8, fontSize: 10.5, lineHeight: 1.22, overflow: 'hidden' }}>
           *Percentual de valores diários fornecidos pela porção. **Valor Diário não estabelecido. Valores diários de referência com base em uma dieta de 2000 kcal ou 8400 kJ.
         </div>
-        <div style={{ position: 'absolute', top: 378.75, left: 0, width: 282, height: 1, background: '#000' }} />
-        <div style={{ position: 'absolute', top: 386.25, left: 3, width: 276, height: 15, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 6, fontSize: 12, lineHeight: 1.2, overflow: 'hidden', whiteSpace: 'nowrap' }}>
+        <div style={{ position: 'absolute', top: 328.2, left: 0, width: 192, height: 1, background: '#000' }} />
+        <div style={{ position: 'absolute', top: 334.8, left: 3, width: 186, height: 15, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 6, fontSize: 12, lineHeight: 1.2, overflow: 'hidden', whiteSpace: 'nowrap' }}>
           <span><strong>Fab:</strong> {dataFabPrev}</span>
           <span><strong>Val:</strong> {validadePrev}</span>
           <span style={{ fontStyle: 'italic' }}>Casa di Ana</span>
@@ -345,7 +345,7 @@ export function EtiquetasPage() {
     if (!el) return
     const observer = new ResizeObserver(([entry]) => {
       const available = entry.contentRect.width - 48 // 24px padding de cada lado
-      const scale = Math.min(1.55, available / 300)
+      const scale = Math.min(1.55, available / 210)
       setPreviewScale(Math.max(0.6, scale))
     })
     observer.observe(el)
@@ -563,7 +563,7 @@ export function EtiquetasPage() {
   const tiposOpcoes: { valor: TipoEtiqueta; label: string; desc: string; dim: string }[] = [
     { valor: 1, label: 'Completa', desc: 'Logo + Nome + Validade', dim: '100×50mm' },
     { valor: 2, label: 'Simples', desc: 'Nome + Validade', dim: '70×40mm' },
-    { valor: 3, label: 'Nutricional', desc: 'Tabela Nutricional', dim: '100×150mm' },
+    { valor: 3, label: 'Nutricional', desc: 'Tabela Nutricional', dim: '70×130mm' },
   ]
 
   return (

@@ -153,7 +153,7 @@ export function htmlEtiquetaCompleta(
     ${baseStyle(ETIQUETA_COMPLETA.largura, ETIQUETA_COMPLETA.altura)}
 
     .etiqueta {
-      background: #FDFAF5;
+      background: #fff;
       padding: 2mm 3mm;
       justify-content: space-between;
     }
@@ -166,7 +166,7 @@ export function htmlEtiquetaCompleta(
     }
 
     .logo {
-      height: 13mm;
+      height: 16mm;
       width: auto;
       object-fit: contain;
     }
@@ -175,7 +175,7 @@ export function htmlEtiquetaCompleta(
       font-family: 'Playfair Display', Georgia, serif;
       font-size: 13pt;
       font-weight: 700;
-      color: #2C1A0E;
+      color: #000;
       letter-spacing: 0.5px;
     }
 
@@ -190,21 +190,21 @@ export function htmlEtiquetaCompleta(
     .ornamento .linha {
       flex: 1;
       height: 0.3mm;
-      background: #C4870A;
+      background: #333;
       opacity: 0.6;
     }
 
     .ornamento .diamante {
-      color: #C4870A;
+      color: #333;
       font-size: 5pt;
       line-height: 1;
     }
 
     .produto {
       font-family: 'Playfair Display', Georgia, serif;
-      font-size: 14pt;
+      font-size: 12pt;
       font-weight: 700;
-      color: #2C1A0E;
+      color: #000;
       text-align: center;
       line-height: 1.2;
       word-break: break-word;
@@ -219,16 +219,16 @@ export function htmlEtiquetaCompleta(
       justify-content: space-between;
       align-items: center;
       font-family: Arial, sans-serif;
-      font-size: 6pt;
-      color: #5C3A1E;
-      border-top: 0.3mm solid #C4870A;
+      font-size: 8pt;
+      color: #333;
+      border-top: 0.3mm solid #333;
       padding-top: 1mm;
       flex: 0 0 auto;
     }
 
     .val-data {
       font-weight: bold;
-      color: #2C1A0E;
+      color: #000;
     }
   </style>
 </head>

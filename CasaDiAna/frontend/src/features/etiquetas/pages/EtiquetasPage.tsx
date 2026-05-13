@@ -127,40 +127,38 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
       <div style={{
         width: 300,
         height: 150,
-        background: '#FDFAF5',
-        border: '2px solid #C4870A',
-        outline: '1px solid #C4870A',
-        outlineOffset: 3,
+        background: '#fff',
+        border: '1.5px solid #222',
         borderRadius: 2,
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
         fontFamily: 'Georgia, serif',
-        boxShadow: '0 4px 20px rgba(196,135,10,0.15)',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
       }}>
         {/* Top content */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 18px 6px', gap: 4 }}>
-          <img src="/images/image.png" alt="Logo" style={{ height: 39, width: 'auto', objectFit: 'contain' }} />
+          <img src="/images/image.png" alt="Logo" style={{ height: 48, width: 'auto', objectFit: 'contain' }} />
 
           {/* Ornament */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', margin: '4px 0' }}>
-            <div style={{ flex: 1, height: 0.5, background: '#C4870A', opacity: 0.6 }} />
-            <span style={{ color: '#C4870A', fontSize: 8 }}>◆</span>
-            <div style={{ flex: 1, height: 0.5, background: '#C4870A', opacity: 0.6 }} />
+            <div style={{ flex: 1, height: 0.5, background: '#444', opacity: 0.6 }} />
+            <span style={{ color: '#444', fontSize: 8 }}>◆</span>
+            <div style={{ flex: 1, height: 0.5, background: '#444', opacity: 0.6 }} />
           </div>
 
-          <div style={{ fontSize: 18, fontWeight: 700, color: '#2C1A0E', textAlign: 'center', lineHeight: 1.15, letterSpacing: 0.3 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#000', textAlign: 'center', lineHeight: 1.15, letterSpacing: 0.3 }}>
             {nomeExibido}
           </div>
 
-          <div style={{ fontSize: 8, color: '#8B6347', marginTop: 4 }}>
+          <div style={{ fontSize: 10, color: '#444', marginTop: 4 }}>
             Fabricação: {dataPtBr}
           </div>
         </div>
 
         {/* Validade bar */}
         <div style={{
-          background: '#5C3A1E',
+          background: '#111',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -169,10 +167,10 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           margin: '0 12px 9px',
           borderRadius: 2,
         }}>
-          <span style={{ fontSize: 8, color: '#C4870A', letterSpacing: 2, textTransform: 'uppercase' }}>
+          <span style={{ fontSize: 9, color: '#bbb', letterSpacing: 2, textTransform: 'uppercase' }}>
             Válido Até
           </span>
-          <span style={{ fontSize: 14, fontWeight: 700, color: '#FDFAF5', letterSpacing: 0.5 }}>
+          <span style={{ fontSize: 16, fontWeight: 700, color: '#fff', letterSpacing: 0.5 }}>
             {validade}
           </span>
         </div>

@@ -187,8 +187,6 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
   const porcaoG = parsePorcaoGramas(nutri.porcao || '100g')
 
   const vdPrev = (v: number, ref: number) => v > 0 ? `${Math.round((v / ref) * 100)}%` : '—'
-  const nd = '**'
-
   const porcaoLabel = nutri.medidaCaseira
     ? `${nutri.porcao || '100g'} (${nutri.medidaCaseira})`
     : (nutri.porcao || '100g')
@@ -197,12 +195,12 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
   const rows: Row[] = [
     { bold: true, indent: 0, nome: 'Valor energético', cem: kcalNum > 0 ? `${fmt100(kcalNum, porcaoG)} kcal / ${fmt100(kjNum, porcaoG)} kJ` : '—', cinquenta: kcalNum > 0 ? `${fmtPeso(kcalNum, porcaoG, 50)} kcal / ${fmtPeso(kjNum, porcaoG, 50)} kJ` : '—', vdVal: vdPrev(kcalNum, 2000) },
     { bold: true, indent: 0, nome: 'Carboidratos', cem: `${fmt100(carboNum, porcaoG)} g`, cinquenta: `${fmtPeso(carboNum, porcaoG, 50)} g`, vdVal: vdPrev(carboNum, 300) },
-    { bold: false, indent: 1, nome: 'Açúcares totais', cem: `${fmt100(acucaresNum, porcaoG)} g`, cinquenta: `${fmtPeso(acucaresNum, porcaoG, 50)} g`, vdVal: nd },
-    { bold: false, indent: 2, nome: 'Açúcares adicionados', cem: `${fmt100(acucaresAdicNum, porcaoG)} g`, cinquenta: `${fmtPeso(acucaresAdicNum, porcaoG, 50)} g`, vdVal: nd },
+    { bold: false, indent: 1, nome: 'Açúcares totais', cem: `${fmt100(acucaresNum, porcaoG)} g`, cinquenta: `${fmtPeso(acucaresNum, porcaoG, 50)} g`, vdVal: vdPrev(acucaresNum, 50) },
+    { bold: false, indent: 2, nome: 'Açúcares adicionados', cem: `${fmt100(acucaresAdicNum, porcaoG)} g`, cinquenta: `${fmtPeso(acucaresAdicNum, porcaoG, 50)} g`, vdVal: vdPrev(acucaresAdicNum, 50) },
     { bold: true, indent: 0, nome: 'Proteínas', cem: `${fmt100(protNum, porcaoG)} g`, cinquenta: `${fmtPeso(protNum, porcaoG, 50)} g`, vdVal: vdPrev(protNum, 75) },
     { bold: true, indent: 0, nome: 'Gorduras totais', cem: `${fmt100(gordNum, porcaoG)} g`, cinquenta: `${fmtPeso(gordNum, porcaoG, 50)} g`, vdVal: vdPrev(gordNum, 65) },
     { bold: false, indent: 1, nome: 'Gorduras saturadas', cem: `${fmt100(gordSatNum, porcaoG)} g`, cinquenta: `${fmtPeso(gordSatNum, porcaoG, 50)} g`, vdVal: vdPrev(gordSatNum, 22) },
-    { bold: false, indent: 1, nome: 'Gorduras trans', cem: `${fmt100(gordTransNum, porcaoG)} g`, cinquenta: `${fmtPeso(gordTransNum, porcaoG, 50)} g`, vdVal: nd },
+    { bold: false, indent: 1, nome: 'Gorduras trans', cem: `${fmt100(gordTransNum, porcaoG)} g`, cinquenta: `${fmtPeso(gordTransNum, porcaoG, 50)} g`, vdVal: vdPrev(gordTransNum, 2) },
     { bold: true, indent: 0, nome: 'Fibra alimentar', cem: `${fmt100(fibraNum, porcaoG)} g`, cinquenta: `${fmtPeso(fibraNum, porcaoG, 50)} g`, vdVal: vdPrev(fibraNum, 25) },
     { bold: true, indent: 0, nome: 'Sódio', cem: `${fmt100(sodioNum, porcaoG)} mg`, cinquenta: `${fmtPeso(sodioNum, porcaoG, 50)} mg`, vdVal: vdPrev(sodioNum, 2300) },
   ]

@@ -459,8 +459,6 @@ export function htmlEtiquetaNutricional(
 
   const vd = (v: number, ref: number) =>
     v > 0 ? `${Math.round((v / ref) * 100)}%` : '—'
-  const nd = '**'
-
   const porcaoLabel = nutri.medidaCaseira
     ? `${nutri.porcao} (${nutri.medidaCaseira})`
     : nutri.porcao
@@ -527,12 +525,12 @@ export function htmlEtiquetaNutricional(
             vd(kcal, 2000),
           )}
           ${row(true, 0, 'Carboidratos', `${fmt100(carbo, porcaoG)} g`, `${fmtPeso(carbo, porcaoG, 50)} g`, vd(carbo, 300))}
-          ${row(false, 1, 'Açúcares totais', `${fmt100(acucares, porcaoG)} g`, `${fmtPeso(acucares, porcaoG, 50)} g`, nd)}
-          ${row(false, 2, 'Açúcares adicionados', `${fmt100(acucaresAdic, porcaoG)} g`, `${fmtPeso(acucaresAdic, porcaoG, 50)} g`, nd)}
+          ${row(false, 1, 'Açúcares totais', `${fmt100(acucares, porcaoG)} g`, `${fmtPeso(acucares, porcaoG, 50)} g`, vd(acucares, 50))}
+          ${row(false, 2, 'Açúcares adicionados', `${fmt100(acucaresAdic, porcaoG)} g`, `${fmtPeso(acucaresAdic, porcaoG, 50)} g`, vd(acucaresAdic, 50))}
           ${row(true, 0, 'Proteínas', `${fmt100(prot, porcaoG)} g`, `${fmtPeso(prot, porcaoG, 50)} g`, vd(prot, 75))}
           ${row(true, 0, 'Gorduras totais', `${fmt100(gord, porcaoG)} g`, `${fmtPeso(gord, porcaoG, 50)} g`, vd(gord, 65))}
           ${row(false, 1, 'Gorduras saturadas', `${fmt100(gordSat, porcaoG)} g`, `${fmtPeso(gordSat, porcaoG, 50)} g`, vd(gordSat, 22))}
-          ${row(false, 1, 'Gorduras trans', `${fmt100(gordTrans, porcaoG)} g`, `${fmtPeso(gordTrans, porcaoG, 50)} g`, nd)}
+          ${row(false, 1, 'Gorduras trans', `${fmt100(gordTrans, porcaoG)} g`, `${fmtPeso(gordTrans, porcaoG, 50)} g`, vd(gordTrans, 2))}
           ${row(true, 0, 'Fibra alimentar', `${fmt100(fibra, porcaoG)} g`, `${fmtPeso(fibra, porcaoG, 50)} g`, vd(fibra, 25))}
           ${row(true, 0, 'Sódio', `${fmt100(sodio, porcaoG)} mg`, `${fmtPeso(sodio, porcaoG, 50)} mg`, vd(sodio, 2300))}
         </tbody>

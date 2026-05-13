@@ -366,7 +366,7 @@ export function zplEtiquetaNutricional(
   const headerHeight = 32
   const rowHeight = 34
   const tableHeight = headerHeight + rows.length * rowHeight
-  const noteTop = tableTop + tableHeight + 6
+  const noteTop = tableTop + tableHeight + 2
   const col1 = left
   const col2 = 458
   const col3 = 575
@@ -408,7 +408,10 @@ ${zplText(left + 10, 70, produtoNome, right - left - 20, 26, 26, 'C', 2)}
 ${drawLine(left, 132, right - left, 2)}
 ${zplText(left + 10, 142, `Porcoes por embalagem: ${nutri.porcoesPorEmbalagem || '-'}`, right - left - 20, 20, 20, 'L')}
 ${zplText(left + 10, 166, `Porcao: ${porcaoLabel}`, right - left - 20, 20, 20, 'L')}
-${drawBox(left, tableTop, right - left, tableHeight, 2)}
+${drawLine(left, tableTop, right - left, 3)}
+${drawLine(left, tableTop + tableHeight, right - left, 3)}
+${drawLine(left, tableTop, 2, tableHeight)}
+${drawLine(right, tableTop, 2, tableHeight)}
 ${drawLine(col2, tableTop, 2, tableHeight)}
 ${drawLine(col3, tableTop, 2, tableHeight)}
 ${drawLine(col4, tableTop, 2, tableHeight)}
@@ -656,7 +659,10 @@ export function htmlEtiquetaNutricional(
       border-spacing: 0;
       table-layout: fixed;
       background: #fff;
-      border: 0.25mm solid #000;
+      border-left: 0.125mm solid #000;
+      border-right: 0.125mm solid #000;
+      border-top: 0.25mm solid #000;
+      border-bottom: 0.25mm solid #000;
       overflow: hidden;
       z-index: 1;
     }
@@ -729,17 +735,20 @@ export function htmlEtiquetaNutricional(
     }
     .note {
       position: absolute;
-      top: 68mm;
+      top: 67.2mm;
       left: 1mm;
       width: 62mm;
-      height: 4mm;
+      height: 3.3mm;
       font-size: 10px;
-      line-height: 4mm;
+      line-height: 1;
       color: #000;
       overflow: hidden;
       background: #fff;
       z-index: 2;
       white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   </style>
 </head>

@@ -239,7 +239,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
 
   const tableTop = 66
   const tableHeight = 132
-  const noteTop = 204
+  const noteTop = 199.5
 
   return (
     <div
@@ -279,7 +279,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           <div><strong>Porção:</strong> {porcaoLabel}</div>
         </div>
 
-        <table style={{ position: 'absolute', top: tableTop, left: 0, width: 196, height: tableHeight, border: '0.5px solid #000', borderCollapse: 'separate', borderSpacing: 0, tableLayout: 'fixed', fontSize: 12, background: '#fff', overflow: 'hidden', zIndex: 1 }}>
+        <table style={{ position: 'absolute', top: tableTop, left: 0, width: 196, height: tableHeight, borderLeft: '0.5px solid #000', borderRight: '0.5px solid #000', borderTop: '1px solid #000', borderBottom: '1px solid #000', borderCollapse: 'separate', borderSpacing: 0, tableLayout: 'fixed', fontSize: 12, background: '#fff', overflow: 'hidden', zIndex: 1 }}>
           <colgroup>
             <col style={{ width: '56%' }} />
             <col style={{ width: '15%' }} />
@@ -317,7 +317,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           </tbody>
         </table>
 
-        <div style={{ position: 'absolute', top: noteTop, left: 3, width: 190, height: 14, fontSize: 10, lineHeight: '14px', overflow: 'hidden', background: '#fff', zIndex: 2, whiteSpace: 'nowrap', textAlign: 'center' }}>
+        <div style={{ position: 'absolute', top: noteTop, left: 3, width: 190, height: 11, fontSize: 10, lineHeight: 1, overflow: 'hidden', background: '#fff', zIndex: 2, whiteSpace: 'nowrap', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           *percentual de valores diários fornecidos pela porção.
         </div>
       </div>

@@ -310,7 +310,6 @@ export function zplEtiquetaNutricional(
   nutri: NutriValues,
 ): string {
   const kcal = parseValorNutricional(nutri.kcal)
-  const kj = parseValorNutricional(nutri.kj)
   const carbo = parseValorNutricional(nutri.carbo)
   const acucares = parseValorNutricional(nutri.acucares)
   const acucaresAdic = parseValorNutricional(nutri.acucaresAdic)
@@ -324,8 +323,8 @@ export function zplEtiquetaNutricional(
   const dash = '-'
 
   const vd = (value: number, ref: number) =>
-    value > 0 ? `${Math.round((value / ref) * 100)}%` : dash
-  const valor100 = (value: number, unit: string) => `${fmt100(value, porcaoG)} ${unit}`
+    value > 0 ? String(Math.round((value / ref) * 100)) : dash
+  const valor100 = (value: number) => fmt100(value, porcaoG)
   const porcaoLabel = nutri.medidaCaseira
     ? `${nutri.porcao} (${nutri.medidaCaseira})`
     : nutri.porcao
@@ -335,35 +334,35 @@ export function zplEtiquetaNutricional(
     {
       indent: 0,
       bold: true,
-      nome: 'Valor energetico',
-      cem: kcal > 0 ? `${fmt100(kcal, porcaoG)} kcal / ${fmt100(kj, porcaoG)} kJ` : dash,
-      cinquenta: kcal > 0 ? `${fmtPeso(kcal, porcaoG, 50)} kcal / ${fmtPeso(kj, porcaoG, 50)} kJ` : dash,
+      nome: 'Valor energetico (kcal)',
+      cem: kcal > 0 ? fmt100(kcal, porcaoG) : dash,
+      cinquenta: kcal > 0 ? fmtPeso(kcal, porcaoG, 50) : dash,
       vd: vd(kcal, 2000),
     },
-    { indent: 0, bold: true, nome: 'Carboidratos', cem: valor100(carbo, 'g'), cinquenta: `${fmtPeso(carbo, porcaoG, 50)} g`, vd: vd(carbo, 300) },
-    { indent: 1, bold: false, nome: 'Acucares totais', cem: valor100(acucares, 'g'), cinquenta: `${fmtPeso(acucares, porcaoG, 50)} g`, vd: '**' },
-    { indent: 2, bold: false, nome: 'Acucares adicionados', cem: valor100(acucaresAdic, 'g'), cinquenta: `${fmtPeso(acucaresAdic, porcaoG, 50)} g`, vd: '**' },
-    { indent: 0, bold: true, nome: 'Proteinas', cem: valor100(prot, 'g'), cinquenta: `${fmtPeso(prot, porcaoG, 50)} g`, vd: vd(prot, 75) },
-    { indent: 0, bold: true, nome: 'Gorduras totais', cem: valor100(gord, 'g'), cinquenta: `${fmtPeso(gord, porcaoG, 50)} g`, vd: vd(gord, 65) },
-    { indent: 1, bold: false, nome: 'Gorduras saturadas', cem: valor100(gordSat, 'g'), cinquenta: `${fmtPeso(gordSat, porcaoG, 50)} g`, vd: vd(gordSat, 22) },
-    { indent: 1, bold: false, nome: 'Gorduras trans', cem: valor100(gordTrans, 'g'), cinquenta: `${fmtPeso(gordTrans, porcaoG, 50)} g`, vd: '**' },
-    { indent: 0, bold: true, nome: 'Fibra alimentar', cem: valor100(fibra, 'g'), cinquenta: `${fmtPeso(fibra, porcaoG, 50)} g`, vd: vd(fibra, 25) },
-    { indent: 0, bold: true, nome: 'Sodio', cem: valor100(sodio, 'mg'), cinquenta: `${fmtPeso(sodio, porcaoG, 50)} mg`, vd: vd(sodio, 2300) },
+    { indent: 0, bold: true, nome: 'Carboidratos (g)', cem: valor100(carbo), cinquenta: fmtPeso(carbo, porcaoG, 50), vd: vd(carbo, 300) },
+    { indent: 1, bold: false, nome: 'Acucares totais (g)', cem: valor100(acucares), cinquenta: fmtPeso(acucares, porcaoG, 50), vd: vd(acucares, 50) },
+    { indent: 2, bold: false, nome: 'Acucares adicionados (g)', cem: valor100(acucaresAdic), cinquenta: fmtPeso(acucaresAdic, porcaoG, 50), vd: vd(acucaresAdic, 50) },
+    { indent: 0, bold: true, nome: 'Proteinas (g)', cem: valor100(prot), cinquenta: fmtPeso(prot, porcaoG, 50), vd: vd(prot, 75) },
+    { indent: 0, bold: true, nome: 'Gorduras totais (g)', cem: valor100(gord), cinquenta: fmtPeso(gord, porcaoG, 50), vd: vd(gord, 65) },
+    { indent: 1, bold: false, nome: 'Gorduras saturadas (g)', cem: valor100(gordSat), cinquenta: fmtPeso(gordSat, porcaoG, 50), vd: vd(gordSat, 22) },
+    { indent: 1, bold: false, nome: 'Gorduras trans (g)', cem: valor100(gordTrans), cinquenta: fmtPeso(gordTrans, porcaoG, 50), vd: vd(gordTrans, 2) },
+    { indent: 0, bold: true, nome: 'Fibra alimentar (g)', cem: valor100(fibra), cinquenta: fmtPeso(fibra, porcaoG, 50), vd: vd(fibra, 25) },
+    { indent: 0, bold: true, nome: 'Sodio (mg)', cem: valor100(sodio), cinquenta: fmtPeso(sodio, porcaoG, 50), vd: vd(sodio, 2300) },
   ]
 
   const labelWidth = 800
   const labelHeight = 1200
   const left = 0
   const right = 800
-  const tableTop = 185
+  const tableTop = 205
   const headerHeight = 40
   const rowHeight = 45
   const tableHeight = headerHeight + rows.length * rowHeight
   const noteTop = tableTop + tableHeight + 105
   const col1 = left
-  const col2 = 350
-  const col3 = 505
-  const col4 = 602
+  const col2 = 420
+  const col3 = 540
+  const col4 = 620
 
   const drawLine = (x: number, y: number, w: number, h: number) => `^FO${x},${y}^GB${w},${h},2^FS`
   const drawBox = (x: number, y: number, w: number, h: number, t = 3) => `^FO${x},${y}^GB${w},${h},${t}^FS`
@@ -371,8 +370,8 @@ export function zplEtiquetaNutricional(
   const renderLabel = () => {
     const zplRows = rows.map((row, index) => {
       const y = tableTop + headerHeight + index * rowHeight + 11
-      const nameX = col1 + 10 + (row.indent * 18)
-      const nameFont = row.bold ? 22 : 21
+      const nameX = col1 + 10 + (row.indent * 16)
+      const nameFont = row.bold ? 19 : 18
       return [
         zplText(nameX, y, row.nome, col2 - nameX - 8, nameFont, nameFont, 'L', 1),
         zplText(col2 + 6, y, row.cem, col3 - col2 - 12, 19, 19, 'R', 2),
@@ -399,7 +398,8 @@ ${zplText(left + 8, 8, 'INFORMACAO NUTRICIONAL', right - left - 16, 32, 32, 'C')
 ${drawLine(left, 54, right - left, 2)}
 ${zplText(left + 10, 70, produtoNome, right - left - 20, 26, 26, 'C', 2)}
 ${drawLine(left, 132, right - left, 2)}
-${zplText(left + 10, 148, `Porcao: ${porcaoLabel}${nutri.porcoesPorEmbalagem ? ` - ${nutri.porcoesPorEmbalagem} porcoes por embalagem` : ''}`, right - left - 20, 20, 20, 'L', 2)}
+${zplText(left + 10, 142, `Porcoes por embalagem: ${nutri.porcoesPorEmbalagem || '-'}`, right - left - 20, 20, 20, 'L')}
+${zplText(left + 10, 166, `Porcao: ${porcaoLabel}`, right - left - 20, 20, 20, 'L')}
 ${drawBox(left, tableTop, right - left, tableHeight, 2)}
 ${drawLine(col2, tableTop, 1, tableHeight)}
 ${drawLine(col3, tableTop, 1, tableHeight)}
@@ -410,7 +410,7 @@ ${zplText(col3 + 4, tableTop + 13, '50g', col4 - col3 - 8, 21, 21, 'R')}
 ${zplText(col4 + 6, tableTop + 13, '%VD(*)', right - col4 - 12, 21, 21, 'C')}
 ${horizontalLines}
 ${zplRows}
-${zplText(left + 8, noteTop, '*Percentual de valores diarios fornecidos pela porcao. **Valor Diario nao estabelecido. Valores diarios de referencia com base em uma dieta de 2000 kcal ou 8400 kJ.', right - left - 16, 17, 17, 'L', 4)}
+${zplText(left + 8, noteTop, '*percentual de valores diarios fornecidos pela porcao.', right - left - 16, 17, 17, 'L', 2)}
 ${drawLine(left, 1010, right - left, 2)}
 ${zplText(left + 8, 1030, `Fab: ${dataProducao}`, 220, 21, 21, 'L')}
 ${zplText(left + 260, 1030, `Val: ${validade}`, 220, 21, 21, 'L')}
@@ -446,7 +446,6 @@ export function htmlEtiquetaNutricional(
   nutri: NutriValues,
 ): string {
   const kcal = parseValorNutricional(nutri.kcal)
-  const kj = parseValorNutricional(nutri.kj)
   const carbo = parseValorNutricional(nutri.carbo)
   const acucares = parseValorNutricional(nutri.acucares)
   const acucaresAdic = parseValorNutricional(nutri.acucaresAdic)
@@ -459,14 +458,10 @@ export function htmlEtiquetaNutricional(
   const porcaoG = parsePorcaoGramas(nutri.porcao)
 
   const vd = (v: number, ref: number) =>
-    v > 0 ? `${Math.round((v / ref) * 100)}%` : '—'
+    v > 0 ? String(Math.round((v / ref) * 100)) : '—'
   const porcaoLabel = nutri.medidaCaseira
     ? `${nutri.porcao} (${nutri.medidaCaseira})`
     : nutri.porcao
-
-  const porcoesPorEmb = nutri.porcoesPorEmbalagem
-    ? `${nutri.porcoesPorEmbalagem} porções por embalagem`
-    : ''
 
   const row = (
     bold: boolean,
@@ -501,14 +496,17 @@ export function htmlEtiquetaNutricional(
       <div class="line title-line"></div>
       <div class="product-name">${produtoNome}</div>
       <div class="line product-line"></div>
-      <div class="portion"><strong>Porção:</strong> ${porcaoLabel}${porcoesPorEmb ? ` - ${porcoesPorEmb}` : ''}</div>
+      <div class="portion">
+        <div><strong>Porções por embalagem:</strong> ${nutri.porcoesPorEmbalagem || '—'}</div>
+        <div><strong>Porção:</strong> ${porcaoLabel}</div>
+      </div>
 
       <table class="nutri-table">
         <colgroup>
-          <col style="width:43.75%">
-          <col style="width:19.375%">
-          <col style="width:12.125%">
-          <col style="width:24.75%">
+          <col style="width:50%">
+          <col style="width:17%">
+          <col style="width:12%">
+          <col style="width:21%">
         </colgroup>
         <thead>
           <tr>
@@ -520,25 +518,25 @@ export function htmlEtiquetaNutricional(
         </thead>
         <tbody>
           ${row(true, 0,
-            'Valor energético',
-            kcal > 0 ? `${fmt100(kcal, porcaoG)} kcal / ${fmt100(kj, porcaoG)} kJ` : '—',
-            kcal > 0 ? `${fmtPeso(kcal, porcaoG, 50)} kcal / ${fmtPeso(kj, porcaoG, 50)} kJ` : '—',
+            'Valor energético (kcal)',
+            kcal > 0 ? fmt100(kcal, porcaoG) : '—',
+            kcal > 0 ? fmtPeso(kcal, porcaoG, 50) : '—',
             vd(kcal, 2000),
           )}
-          ${row(true, 0, 'Carboidratos', `${fmt100(carbo, porcaoG)} g`, `${fmtPeso(carbo, porcaoG, 50)} g`, vd(carbo, 300))}
-          ${row(false, 1, 'Açúcares totais', `${fmt100(acucares, porcaoG)} g`, `${fmtPeso(acucares, porcaoG, 50)} g`, vd(acucares, 50))}
-          ${row(false, 2, 'Açúcares adicionados', `${fmt100(acucaresAdic, porcaoG)} g`, `${fmtPeso(acucaresAdic, porcaoG, 50)} g`, vd(acucaresAdic, 50))}
-          ${row(true, 0, 'Proteínas', `${fmt100(prot, porcaoG)} g`, `${fmtPeso(prot, porcaoG, 50)} g`, vd(prot, 75))}
-          ${row(true, 0, 'Gorduras totais', `${fmt100(gord, porcaoG)} g`, `${fmtPeso(gord, porcaoG, 50)} g`, vd(gord, 65))}
-          ${row(false, 1, 'Gorduras saturadas', `${fmt100(gordSat, porcaoG)} g`, `${fmtPeso(gordSat, porcaoG, 50)} g`, vd(gordSat, 22))}
-          ${row(false, 1, 'Gorduras trans', `${fmt100(gordTrans, porcaoG)} g`, `${fmtPeso(gordTrans, porcaoG, 50)} g`, vd(gordTrans, 2))}
-          ${row(true, 0, 'Fibra alimentar', `${fmt100(fibra, porcaoG)} g`, `${fmtPeso(fibra, porcaoG, 50)} g`, vd(fibra, 25))}
-          ${row(true, 0, 'Sódio', `${fmt100(sodio, porcaoG)} mg`, `${fmtPeso(sodio, porcaoG, 50)} mg`, vd(sodio, 2300))}
+          ${row(true, 0, 'Carboidratos (g)', fmt100(carbo, porcaoG), fmtPeso(carbo, porcaoG, 50), vd(carbo, 300))}
+          ${row(false, 1, 'Açúcares totais (g)', fmt100(acucares, porcaoG), fmtPeso(acucares, porcaoG, 50), vd(acucares, 50))}
+          ${row(false, 2, 'Açúcares adicionados (g)', fmt100(acucaresAdic, porcaoG), fmtPeso(acucaresAdic, porcaoG, 50), vd(acucaresAdic, 50))}
+          ${row(true, 0, 'Proteínas (g)', fmt100(prot, porcaoG), fmtPeso(prot, porcaoG, 50), vd(prot, 75))}
+          ${row(true, 0, 'Gorduras totais (g)', fmt100(gord, porcaoG), fmtPeso(gord, porcaoG, 50), vd(gord, 65))}
+          ${row(false, 1, 'Gorduras saturadas (g)', fmt100(gordSat, porcaoG), fmtPeso(gordSat, porcaoG, 50), vd(gordSat, 22))}
+          ${row(false, 1, 'Gorduras trans (g)', fmt100(gordTrans, porcaoG), fmtPeso(gordTrans, porcaoG, 50), vd(gordTrans, 2))}
+          ${row(true, 0, 'Fibra alimentar (g)', fmt100(fibra, porcaoG), fmtPeso(fibra, porcaoG, 50), vd(fibra, 25))}
+          ${row(true, 0, 'Sódio (mg)', fmt100(sodio, porcaoG), fmtPeso(sodio, porcaoG, 50), vd(sodio, 2300))}
         </tbody>
       </table>
 
       <div class="note">
-        *Percentual de valores diários fornecidos pela porção. **Valor Diário não estabelecido. Valores diários de referência com base em uma dieta de 2000 kcal ou 8400 kJ.
+        *percentual de valores diários fornecidos pela porção.
       </div>
 
       <div class="line footer-line"></div>
@@ -643,16 +641,16 @@ export function htmlEtiquetaNutricional(
       top: 16mm;
       left: 1.25mm;
       width: 61.5mm;
-      height: 3.7mm;
-      font-size: 12px;
-      line-height: 1.85mm;
+      height: 6.5mm;
+      font-size: 10.5px;
+      line-height: 3.2mm;
       color: #000;
       overflow: hidden;
       overflow-wrap: anywhere;
     }
     .nutri-table {
       position: absolute;
-      top: 20mm;
+      top: 23mm;
       left: 0;
       width: 64mm;
       height: 53.1mm;
@@ -692,6 +690,7 @@ export function htmlEtiquetaNutricional(
     th:first-child,
     td:first-child {
       text-align: left;
+      font-size: 10.5px;
     }
     th:nth-child(2),
     th:nth-child(4) {
@@ -708,10 +707,10 @@ export function htmlEtiquetaNutricional(
       font-weight: bold;
     }
     .indent-1 {
-      padding-left: 3mm;
+      padding-left: 2.4mm;
     }
     .indent-2 {
-      padding-left: 5.25mm;
+      padding-left: 4mm;
     }
     .num {
       text-align: right;

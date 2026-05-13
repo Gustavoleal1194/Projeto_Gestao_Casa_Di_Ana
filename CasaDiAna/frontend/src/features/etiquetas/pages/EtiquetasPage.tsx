@@ -188,7 +188,6 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
 
   // Nutricional
   const kcalNum = parseValorNutricional(nutri.valorEnergeticoKcal)
-  const kjNum = parseValorNutricional(nutri.valorEnergeticoKJ)
   const carboNum = parseValorNutricional(nutri.carboidratos)
   const acucaresNum = parseValorNutricional(nutri.acucaresTotais)
   const acucaresAdicNum = parseValorNutricional(nutri.acucaresAdicionados)
@@ -200,33 +199,30 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
   const sodioNum = parseValorNutricional(nutri.sodio)
   const porcaoG = parsePorcaoGramas(nutri.porcao || '100g')
 
-  const vdPrev = (v: number, ref: number) => v > 0 ? `${Math.round((v / ref) * 100)}%` : '—'
+  const vdPrev = (v: number, ref: number) => v > 0 ? String(Math.round((v / ref) * 100)) : '—'
   const porcaoLabel = nutri.medidaCaseira
     ? `${nutri.porcao || '100g'} (${nutri.medidaCaseira})`
     : (nutri.porcao || '100g')
 
   type Row = { bold: boolean; indent: 0 | 1 | 2; nome: string; cem: string; cinquenta: string; vdVal: string }
   const rows: Row[] = [
-    { bold: true, indent: 0, nome: 'Valor energético', cem: kcalNum > 0 ? `${fmt100(kcalNum, porcaoG)} kcal / ${fmt100(kjNum, porcaoG)} kJ` : '—', cinquenta: kcalNum > 0 ? `${fmtPeso(kcalNum, porcaoG, 50)} kcal / ${fmtPeso(kjNum, porcaoG, 50)} kJ` : '—', vdVal: vdPrev(kcalNum, 2000) },
-    { bold: true, indent: 0, nome: 'Carboidratos', cem: `${fmt100(carboNum, porcaoG)} g`, cinquenta: `${fmtPeso(carboNum, porcaoG, 50)} g`, vdVal: vdPrev(carboNum, 300) },
-    { bold: false, indent: 1, nome: 'Açúcares totais', cem: `${fmt100(acucaresNum, porcaoG)} g`, cinquenta: `${fmtPeso(acucaresNum, porcaoG, 50)} g`, vdVal: vdPrev(acucaresNum, 50) },
-    { bold: false, indent: 2, nome: 'Açúcares adicionados', cem: `${fmt100(acucaresAdicNum, porcaoG)} g`, cinquenta: `${fmtPeso(acucaresAdicNum, porcaoG, 50)} g`, vdVal: vdPrev(acucaresAdicNum, 50) },
-    { bold: true, indent: 0, nome: 'Proteínas', cem: `${fmt100(protNum, porcaoG)} g`, cinquenta: `${fmtPeso(protNum, porcaoG, 50)} g`, vdVal: vdPrev(protNum, 75) },
-    { bold: true, indent: 0, nome: 'Gorduras totais', cem: `${fmt100(gordNum, porcaoG)} g`, cinquenta: `${fmtPeso(gordNum, porcaoG, 50)} g`, vdVal: vdPrev(gordNum, 65) },
-    { bold: false, indent: 1, nome: 'Gorduras saturadas', cem: `${fmt100(gordSatNum, porcaoG)} g`, cinquenta: `${fmtPeso(gordSatNum, porcaoG, 50)} g`, vdVal: vdPrev(gordSatNum, 22) },
-    { bold: false, indent: 1, nome: 'Gorduras trans', cem: `${fmt100(gordTransNum, porcaoG)} g`, cinquenta: `${fmtPeso(gordTransNum, porcaoG, 50)} g`, vdVal: vdPrev(gordTransNum, 2) },
-    { bold: true, indent: 0, nome: 'Fibra alimentar', cem: `${fmt100(fibraNum, porcaoG)} g`, cinquenta: `${fmtPeso(fibraNum, porcaoG, 50)} g`, vdVal: vdPrev(fibraNum, 25) },
-    { bold: true, indent: 0, nome: 'Sódio', cem: `${fmt100(sodioNum, porcaoG)} mg`, cinquenta: `${fmtPeso(sodioNum, porcaoG, 50)} mg`, vdVal: vdPrev(sodioNum, 2300) },
+    { bold: true, indent: 0, nome: 'Valor energético (kcal)', cem: kcalNum > 0 ? fmt100(kcalNum, porcaoG) : '—', cinquenta: kcalNum > 0 ? fmtPeso(kcalNum, porcaoG, 50) : '—', vdVal: vdPrev(kcalNum, 2000) },
+    { bold: true, indent: 0, nome: 'Carboidratos (g)', cem: fmt100(carboNum, porcaoG), cinquenta: fmtPeso(carboNum, porcaoG, 50), vdVal: vdPrev(carboNum, 300) },
+    { bold: false, indent: 1, nome: 'Açúcares totais (g)', cem: fmt100(acucaresNum, porcaoG), cinquenta: fmtPeso(acucaresNum, porcaoG, 50), vdVal: vdPrev(acucaresNum, 50) },
+    { bold: false, indent: 2, nome: 'Açúcares adicionados (g)', cem: fmt100(acucaresAdicNum, porcaoG), cinquenta: fmtPeso(acucaresAdicNum, porcaoG, 50), vdVal: vdPrev(acucaresAdicNum, 50) },
+    { bold: true, indent: 0, nome: 'Proteínas (g)', cem: fmt100(protNum, porcaoG), cinquenta: fmtPeso(protNum, porcaoG, 50), vdVal: vdPrev(protNum, 75) },
+    { bold: true, indent: 0, nome: 'Gorduras totais (g)', cem: fmt100(gordNum, porcaoG), cinquenta: fmtPeso(gordNum, porcaoG, 50), vdVal: vdPrev(gordNum, 65) },
+    { bold: false, indent: 1, nome: 'Gorduras saturadas (g)', cem: fmt100(gordSatNum, porcaoG), cinquenta: fmtPeso(gordSatNum, porcaoG, 50), vdVal: vdPrev(gordSatNum, 22) },
+    { bold: false, indent: 1, nome: 'Gorduras trans (g)', cem: fmt100(gordTransNum, porcaoG), cinquenta: fmtPeso(gordTransNum, porcaoG, 50), vdVal: vdPrev(gordTransNum, 2) },
+    { bold: true, indent: 0, nome: 'Fibra alimentar (g)', cem: fmt100(fibraNum, porcaoG), cinquenta: fmtPeso(fibraNum, porcaoG, 50), vdVal: vdPrev(fibraNum, 25) },
+    { bold: true, indent: 0, nome: 'Sódio (mg)', cem: fmt100(sodioNum, porcaoG), cinquenta: fmtPeso(sodioNum, porcaoG, 50), vdVal: vdPrev(sodioNum, 2300) },
   ]
 
   const validadePrev = dataValidade ? formatarDataLocal(dataValidade) : '—'
   const dataFabPrev = formatarDataLocal(dataProducao)
-  const tableTop = 60
+  const tableTop = 66
   const tableHeight = 159.3
   const noteTop = 253.5
-  const porcoesPorEmb = nutri.porcoesPorEmbalagem
-    ? `${nutri.porcoesPorEmbalagem} porções por embalagem`
-    : ''
 
   return (
     <div
@@ -260,16 +256,17 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           {nomeExibido}
         </div>
         <div style={{ position: 'absolute', top: 42.9, left: 0, width: 192, height: 1, background: '#000' }} />
-        <div style={{ position: 'absolute', top: 48, left: 3.75, width: 184.5, height: 11.1, fontSize: 12, lineHeight: '5.55px', overflow: 'hidden', overflowWrap: 'anywhere' }}>
-          <strong>Porção:</strong> {porcaoLabel}{porcoesPorEmb ? ` - ${porcoesPorEmb}` : ''}
+        <div style={{ position: 'absolute', top: 47.1, left: 3.75, width: 184.5, height: 18, fontSize: 10.5, lineHeight: '9px', overflow: 'hidden', overflowWrap: 'anywhere' }}>
+          <div><strong>Porções por embalagem:</strong> {nutri.porcoesPorEmbalagem || '—'}</div>
+          <div><strong>Porção:</strong> {porcaoLabel}</div>
         </div>
 
         <table style={{ position: 'absolute', top: tableTop, left: 0, width: 192, height: tableHeight, border: '0.75px solid #000', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: 12, background: '#fff', overflow: 'hidden', zIndex: 1 }}>
           <colgroup>
-            <col style={{ width: '43.75%' }} />
-            <col style={{ width: '19.375%' }} />
-            <col style={{ width: '12.125%' }} />
-            <col style={{ width: '24.75%' }} />
+            <col style={{ width: '50%' }} />
+            <col style={{ width: '17%' }} />
+            <col style={{ width: '12%' }} />
+            <col style={{ width: '21%' }} />
           </colgroup>
           <thead>
             <tr style={{ height: 13.05, borderBottom: '0.75px solid #000' }}>
@@ -282,7 +279,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           <tbody>
             {rows.map((r) => (
               <tr key={r.nome} style={{ height: 14.64, borderBottom: '0.5px solid #000' }}>
-                <td style={{ fontWeight: 700, padding: `1px 2px 1px ${r.indent === 2 ? '15.75px' : r.indent === 1 ? '9px' : '2px'}`, lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'anywhere' }}>
+                <td style={{ fontWeight: 700, padding: `1px 2px 1px ${r.indent === 2 ? '12px' : r.indent === 1 ? '7px' : '2px'}`, fontSize: 10.5, lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'anywhere' }}>
                   {r.nome}
                 </td>
                 <td style={{ fontWeight: 700, textAlign: 'right', padding: '1px 2px', borderLeft: '0.5px solid #000', lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'anywhere' }}>
@@ -300,7 +297,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
         </table>
 
         <div style={{ position: 'absolute', top: noteTop, left: 3, width: 186, height: 70.5, fontSize: 10, lineHeight: 1.18, overflow: 'hidden', background: '#fff', zIndex: 2 }}>
-          *Percentual de valores diários fornecidos pela porção. **Valor Diário não estabelecido. Valores diários de referência com base em uma dieta de 2000 kcal ou 8400 kJ.
+          *percentual de valores diários fornecidos pela porção.
         </div>
         <div style={{ position: 'absolute', top: 328.2, left: 0, width: 192, height: 1, background: '#000' }} />
         <div style={{ position: 'absolute', top: 334.8, left: 3, width: 186, height: 15, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 6, fontSize: 12, lineHeight: 1.2, overflow: 'hidden', whiteSpace: 'nowrap' }}>

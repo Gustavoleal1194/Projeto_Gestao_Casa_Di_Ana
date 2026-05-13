@@ -1121,21 +1121,7 @@ export function EtiquetasPage() {
         </div>
       </div>
 
-      {/* Modelos nutricionais */}
-      <div
-        className="rounded-xl border"
-        style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)' }}
-      >
-        <div
-          className="px-5 py-4 border-b"
-          style={{ borderColor: 'var(--ada-border)' }}
-        >
-          <h2 className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>
-            Modelos Nutricionais
-          </h2>
-        </div>
-        <ModelosNutricionaisTable modelos={modelosDisponiveis} onRenomear={handleRenomear} onExcluir={handleExcluir} />
-      </div>
+      <ModelosNutricionaisTable modelos={modelosDisponiveis} onRenomear={handleRenomear} onExcluir={handleExcluir} />
 
       <HistoricoImpressoesTable historico={historico} />
     </div>

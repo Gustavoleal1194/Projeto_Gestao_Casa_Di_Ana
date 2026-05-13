@@ -6,8 +6,8 @@ import { produtosService } from '@/features/producao/produtos/services/produtosS
 import { gerarPdfInsumosProducao } from '@/lib/pdf'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { LoadingState } from '@/components/ui/LoadingState'
-import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
-import { FiltroPeriodo, gerarChipsPeriodo } from '@/components/ui/FiltroPeriodo'
+import { FiltrosRelatorio } from '../components/FiltrosRelatorio'
+import { EntityChipDropdown } from '../components/EntityChipDropdown'
 import type { InsumoProducaoDia, IngredienteResumo } from '@/types/estoque'
 import type { ProdutoResumo } from '@/types/producao'
 
@@ -85,31 +85,40 @@ export function InsumosProducaoPage() {
         ) : undefined}
       />
 
-      <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar insumos">
-        <FiltroPeriodo de={de} onChangeDe={setDe} ate={ate} onChangeAte={setAte} />
-        <div>
-          <label className="filter-label">Ingrediente</label>
-          <select value={ingredienteFiltro} onChange={e => setIngredienteFiltro(e.target.value)} className="filter-input">
-            <option value="">Todos</option>
-            {ingredientes.map(i => <option key={i.id} value={i.id}>{i.nome}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="filter-label">Produto</label>
-          <select value={produtoFiltro} onChange={e => setProdutoFiltro(e.target.value)} className="filter-input">
-            <option value="">Todos</option>
-            {produtos.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
-          </select>
-        </div>
-        <FilterBarActions
-          loading={loading}
-          chips={[
-            ...gerarChipsPeriodo(de, ate, () => setDe(''), () => setAte('')),
-            ...(ingredienteFiltro ? [{ label: `Ingrediente: ${ingredientes.find(i => i.id === ingredienteFiltro)?.nome ?? ingredienteFiltro}`, onRemove: () => setIngredienteFiltro('') }] : []),
-            ...(produtoFiltro ? [{ label: `Produto: ${produtos.find(p => p.id === produtoFiltro)?.nome ?? produtoFiltro}`, onRemove: () => setProdutoFiltro('') }] : []),
-          ]}
+      <FiltrosRelatorio
+        de={de} onDeChange={setDe} ate={ate} onAteChange={setAte}
+        onSubmit={handleFiltrar} loading={loading}
+        pills={[
+          ...(de ? [{ tag: 'De', valor: de.split('-').reverse().join('/'), onRemove: () => setDe('') }] : []),
+          ...(ate ? [{ tag: 'Até', valor: ate.split('-').reverse().join('/'), onRemove: () => setAte('') }] : []),
+          ...(ingredienteFiltro ? [{ tag: 'Ingrediente', valor: ingredientes.find(i => i.id === ingredienteFiltro)?.nome ?? ingredienteFiltro, onRemove: () => setIngredienteFiltro('') }] : []),
+          ...(produtoFiltro ? [{ tag: 'Produto', valor: produtos.find(p => p.id === produtoFiltro)?.nome ?? produtoFiltro, onRemove: () => setProdutoFiltro('') }] : []),
+        ]}
+      >
+        <EntityChipDropdown
+          label="Ingrediente"
+          valorAtivo={ingredienteFiltro}
+          opcoes={[{ valor: '', rotulo: 'Todos' }, ...ingredientes.map(i => ({ valor: i.id, rotulo: i.nome }))]}
+          onChange={setIngredienteFiltro}
+          icon={
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M3 2l1.5 1.5L6 2l1.5 1.5L9 2l1.5 1.5L12 2v10l-1.5-.75L9 12l-1.5-.75L6 12l-1.5-.75L3 12V2z" />
+              <path d="M3 12v8a1 1 0 001 1h8a1 1 0 001-1v-8" />
+            </svg>
+          }
         />
-      </FilterBar>
+        <EntityChipDropdown
+          label="Produto"
+          valorAtivo={produtoFiltro}
+          opcoes={[{ valor: '', rotulo: 'Todos' }, ...produtos.map(p => ({ valor: p.id, rotulo: p.nome }))]}
+          onChange={setProdutoFiltro}
+          icon={
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" />
+            </svg>
+          }
+        />
+      </FiltrosRelatorio>
 
       {loading && <LoadingState mensagem="Carregando insumos…" />}
       {!loading && erro && <div className="state-error" role="alert">{erro}</div>}

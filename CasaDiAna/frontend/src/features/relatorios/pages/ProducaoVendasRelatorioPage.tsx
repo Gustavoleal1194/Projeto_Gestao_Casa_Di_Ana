@@ -5,8 +5,8 @@ import { produtosService } from '@/features/producao/produtos/services/produtosS
 import { gerarPdfProducaoVendas } from '@/lib/pdf'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { LoadingState } from '@/components/ui/LoadingState'
-import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
-import { FiltroPeriodo, gerarChipsPeriodo } from '@/components/ui/FiltroPeriodo'
+import { FiltrosRelatorio } from '../components/FiltrosRelatorio'
+import { EntityChipDropdown } from '../components/EntityChipDropdown'
 import type { RelatorioProducaoVendas, RelatorioProducaoVendasItem, ProdutoResumo } from '@/types/producao'
 
 function primeiroDoMes(): string {
@@ -85,23 +85,27 @@ export function ProducaoVendasRelatorioPage() {
         ) : undefined}
       />
 
-      <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar relatório">
-        <FiltroPeriodo de={de} onChangeDe={setDe} ate={ate} onChangeAte={setAte} />
-        <div>
-          <label className="filter-label">Produto</label>
-          <select value={produtoFiltro} onChange={e => setProdutoFiltro(e.target.value)} className="filter-input">
-            <option value="">Todos</option>
-            {produtos.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
-          </select>
-        </div>
-        <FilterBarActions
-          loading={loading}
-          chips={[
-            ...gerarChipsPeriodo(de, ate, () => setDe(''), () => setAte('')),
-            ...(produtoFiltro ? [{ label: `Produto: ${produtos.find(p => p.id === produtoFiltro)?.nome ?? produtoFiltro}`, onRemove: () => setProdutoFiltro('') }] : []),
-          ]}
+      <FiltrosRelatorio
+        de={de} onDeChange={setDe} ate={ate} onAteChange={setAte}
+        onSubmit={handleFiltrar} loading={loading}
+        pills={[
+          ...(de ? [{ tag: 'De', valor: de.split('-').reverse().join('/'), onRemove: () => setDe('') }] : []),
+          ...(ate ? [{ tag: 'Até', valor: ate.split('-').reverse().join('/'), onRemove: () => setAte('') }] : []),
+          ...(produtoFiltro ? [{ tag: 'Produto', valor: produtos.find(p => p.id === produtoFiltro)?.nome ?? produtoFiltro, onRemove: () => setProdutoFiltro('') }] : []),
+        ]}
+      >
+        <EntityChipDropdown
+          label="Produto"
+          valorAtivo={produtoFiltro}
+          opcoes={[{ valor: '', rotulo: 'Todos' }, ...produtos.map(p => ({ valor: p.id, rotulo: p.nome }))]}
+          onChange={setProdutoFiltro}
+          icon={
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" />
+            </svg>
+          }
         />
-      </FilterBar>
+      </FiltrosRelatorio>
 
       {loading && <LoadingState mensagem="Carregando relatório…" />}
       {!loading && erro && <div className="state-error" role="alert">{erro}</div>}

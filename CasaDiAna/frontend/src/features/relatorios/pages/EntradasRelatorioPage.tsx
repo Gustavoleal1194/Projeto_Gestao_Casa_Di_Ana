@@ -4,8 +4,7 @@ import { relatoriosService } from '../services/relatoriosService'
 import { gerarPdfEntradas } from '@/lib/pdf'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { LoadingState } from '@/components/ui/LoadingState'
-import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
-import { FiltroPeriodo, gerarChipsPeriodo } from '@/components/ui/FiltroPeriodo'
+import { FiltrosRelatorio } from '../components/FiltrosRelatorio'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import type { EntradaRelatorioResumo } from '@/types/estoque'
 
@@ -58,14 +57,14 @@ export function EntradasRelatorioPage() {
         ) : undefined}
       />
 
-      <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar entradas">
-        <FiltroPeriodo de={de} onChangeDe={setDe} ate={ate} onChangeAte={setAte} />
-        <FilterBarActions
-          submitLabel="Gerar Relatório"
-          loading={loading}
-          chips={gerarChipsPeriodo(de, ate, () => setDe(''), () => setAte(''))}
-        />
-      </FilterBar>
+      <FiltrosRelatorio
+        de={de} onDeChange={setDe} ate={ate} onAteChange={setAte}
+        onSubmit={handleFiltrar} loading={loading}
+        pills={[
+          ...(de ? [{ tag: 'De', valor: de.split('-').reverse().join('/'), onRemove: () => setDe('') }] : []),
+          ...(ate ? [{ tag: 'Até', valor: ate.split('-').reverse().join('/'), onRemove: () => setAte('') }] : []),
+        ]}
+      />
 
       {loading && <LoadingState mensagem="Carregando relatório…" />}
       {!loading && erro && <div className="state-error" role="alert">{erro}</div>}

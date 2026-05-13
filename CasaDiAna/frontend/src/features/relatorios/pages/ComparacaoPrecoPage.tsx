@@ -11,8 +11,7 @@ import { relatoriosService } from '../services/relatoriosService'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { SkeletonTable } from '@/components/ui/SkeletonTable'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { FilterBar, FilterBarActions } from '@/components/ui/FilterBar'
-import { FiltroPeriodo, gerarChipsPeriodo } from '@/components/ui/FiltroPeriodo'
+import { FiltrosRelatorio } from '../components/FiltrosRelatorio'
 import type { ComparacaoPreco, ComparacaoPrecoIngrediente } from '@/types/estoque'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -325,15 +324,15 @@ export function ComparacaoPrecoPage() {
         subtitulo="Variação de preços de ingredientes entre entradas e fornecedores"
       />
 
-      <FilterBar onSubmit={handleFiltrar} ariaLabel="Filtrar comparação">
-        <FiltroPeriodo de={de} onChangeDe={setDe} ate={ate} onChangeAte={setAte} />
-        <FilterBarActions
-          submitLabel="Gerar Comparação"
-          loadingLabel="Carregando…"
-          loading={loading}
-          chips={gerarChipsPeriodo(de, ate, () => setDe(''), () => setAte(''))}
-        />
-      </FilterBar>
+      <FiltrosRelatorio
+        de={de} onDeChange={setDe} ate={ate} onAteChange={setAte}
+        onSubmit={handleFiltrar} loading={loading}
+        submitLabel="Gerar Comparação"
+        pills={[
+          ...(de ? [{ tag: 'De', valor: de.split('-').reverse().join('/'), onRemove: () => setDe('') }] : []),
+          ...(ate ? [{ tag: 'Até', valor: ate.split('-').reverse().join('/'), onRemove: () => setAte('') }] : []),
+        ]}
+      />
 
       {loading && <SkeletonTable colunas={7} linhas={6} />}
       {!loading && erro && <div className="state-error" role="alert">{erro}</div>}

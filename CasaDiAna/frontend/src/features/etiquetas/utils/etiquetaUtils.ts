@@ -480,7 +480,7 @@ export function htmlEtiquetaNutricional(
       <td class="num">
         ${cem}
       </td>
-      <td class="num muted">
+      <td class="num">
         ${cinquenta}
       </td>
       <td class="vd">
@@ -589,6 +589,7 @@ export function htmlEtiquetaNutricional(
       max-height: 120mm;
       border: 0.38mm solid #000;
       font-family: 'Arial Narrow', Arial, sans-serif;
+      font-weight: 700;
       overflow: hidden;
       background: #fff;
       color: #000;
@@ -719,9 +720,6 @@ export function htmlEtiquetaNutricional(
     .vd {
       text-align: center;
       white-space: normal;
-    }
-    .muted {
-      color: #444;
     }
     .note {
       position: absolute;

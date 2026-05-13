@@ -246,6 +246,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           border: '1.14px solid #000',
           background: '#fff',
           overflow: 'hidden',
+          fontWeight: 700,
         }}
       >
         <div style={{ position: 'absolute', top: 3, left: 3, width: 186, height: 15, fontSize: 18, fontWeight: 700, lineHeight: '15px', textAlign: 'center', overflow: 'hidden' }}>
@@ -285,7 +286,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
                 <td style={{ fontWeight: 700, textAlign: 'right', padding: '1px 2px', borderLeft: '0.5px solid #000', lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'anywhere' }}>
                   {r.cem}
                 </td>
-                <td style={{ fontWeight: 700, textAlign: 'right', padding: '1px 2px', borderLeft: '0.5px solid #000', color: '#444', lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'anywhere' }}>
+                <td style={{ fontWeight: 700, textAlign: 'right', padding: '1px 2px', borderLeft: '0.5px solid #000', color: '#000', lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'anywhere' }}>
                   {r.cinquenta}
                 </td>
                 <td style={{ fontWeight: 700, textAlign: 'center', padding: '1px 2px', borderLeft: '0.5px solid #000', lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden' }}>

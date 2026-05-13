@@ -285,8 +285,8 @@ function parsePorcaoGramas(porcao: string): number {
 }
 
 function parseValorNutricional(value: string): number {
-  const normalized = value.trim().replace(',', '.')
-  const parsed = Number(normalized)
+  const match = value.trim().replace(',', '.').match(/-?\d+(?:\.\d+)?/)
+  const parsed = match ? Number(match[0]) : 0
   return Number.isFinite(parsed) ? parsed : 0
 }
 

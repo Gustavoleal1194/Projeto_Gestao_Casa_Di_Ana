@@ -39,8 +39,8 @@ function parsePorcaoGramas(porcao: string): number {
 }
 
 function parseValorNutricional(value: string): number {
-  const normalized = value.trim().replace(',', '.')
-  const parsed = Number(normalized)
+  const match = value.trim().replace(',', '.').match(/-?\d+(?:\.\d+)?/)
+  const parsed = match ? Number(match[0]) : 0
   return Number.isFinite(parsed) ? parsed : 0
 }
 
@@ -776,9 +776,8 @@ export function EtiquetasPage() {
                       {label} <span className="font-normal" style={{ color: 'var(--ada-muted)' }}>({unit})</span>
                     </label>
                     <input
-                      type="number"
-                      min="0"
-                      step="0.01"
+                      type="text"
+                      inputMode="decimal"
                       placeholder="0"
                       value={nutri[key as keyof typeof nutri]}
                       onChange={e => setNutri(n => ({ ...n, [key]: e.target.value }))}

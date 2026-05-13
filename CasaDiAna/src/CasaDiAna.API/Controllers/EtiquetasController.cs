@@ -1,4 +1,5 @@
 using CasaDiAna.Application.Common;
+using CasaDiAna.Application.Etiquetas.Commands.ExcluirModeloNutricional;
 using CasaDiAna.Application.Etiquetas.Commands.RegistrarImpressao;
 using CasaDiAna.Application.Etiquetas.Commands.RenomearModeloNutricional;
 using CasaDiAna.Application.Etiquetas.Commands.SalvarModeloNutricional;
@@ -76,6 +77,13 @@ public class EtiquetasController : ControllerBase
         var resultado = await _mediator.Send(
             new RenomearModeloNutricionalCommand(produtoId, body.Nome), ct);
         return Ok(ApiResponse<ModeloEtiquetaNutricionalDto>.Ok(resultado));
+    }
+
+    [HttpDelete("modelos-nutricionais/{produtoId:guid}")]
+    public async Task<IActionResult> ExcluirModeloNutricional(Guid produtoId, CancellationToken ct = default)
+    {
+        await _mediator.Send(new ExcluirModeloNutricionalCommand(produtoId), ct);
+        return NoContent();
     }
 
     [HttpPut("modelos-nutricionais/{produtoId:guid}")]

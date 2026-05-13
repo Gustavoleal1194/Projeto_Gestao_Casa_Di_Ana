@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import axios from 'axios'
-import { ArrowDownTrayIcon, PrinterIcon, ClockIcon } from '@heroicons/react/24/outline'
+import { ArrowDownTrayIcon, PrinterIcon } from '@heroicons/react/24/outline'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import { ingredientesService } from '@/features/estoque/ingredientes/services/ingredientesService'
 import { etiquetasService, type TipoEtiqueta, type HistoricoImpressao, type ModeloNutricional, type ModeloNutricionalResumo } from '@/lib/etiquetasService'
 import { ModelosNutricionaisTable } from '../components/ModelosNutricionaisTable'
+import { HistoricoImpressoesTable } from '../components/HistoricoImpressoesTable'
 import type { Produto, ProdutoResumo } from '@/types/producao'
 import type { IngredienteResumo } from '@/types/estoque'
 import {
@@ -641,6 +642,11 @@ export function EtiquetasPage() {
     etiquetasService.listarModelosNutricionais().then(setModelosDisponiveis).catch(() => {})
   }
 
+  const handleExcluir = async (produtoId: string) => {
+    await etiquetasService.excluirModelo(produtoId)
+    etiquetasService.listarModelosNutricionais().then(setModelosDisponiveis).catch(() => {})
+  }
+
   const tiposOpcoes: { valor: TipoEtiqueta; label: string; desc: string; dim: string }[] = [
     { valor: 1, label: 'Completa', desc: 'Logo + Nome + Validade', dim: '100×50mm' },
     { valor: 2, label: 'Simples', desc: 'Nome + Validade', dim: '70×40mm' },
@@ -1132,94 +1138,10 @@ export function EtiquetasPage() {
             Modelos Nutricionais
           </h2>
         </div>
-        <ModelosNutricionaisTable modelos={modelosDisponiveis} onRenomear={handleRenomear} />
+        <ModelosNutricionaisTable modelos={modelosDisponiveis} onRenomear={handleRenomear} onExcluir={handleExcluir} />
       </div>
 
-      {/* Histórico */}
-      <div
-        className="rounded-xl border"
-        style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)' }}
-      >
-        <div
-          className="px-5 py-4 border-b flex items-center gap-2"
-          style={{ borderColor: 'var(--ada-border)' }}
-        >
-          <ClockIcon className="h-4 w-4" style={{ color: 'var(--ada-muted)' }} />
-          <h2 className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>
-            Histórico de Impressões
-          </h2>
-          <span
-            className="ml-auto text-xs px-2 py-0.5 rounded-full"
-            style={{ background: 'var(--ada-hover)', color: 'var(--ada-muted)' }}
-          >
-            Últimas 100
-          </span>
-        </div>
-
-        {historico.length === 0 ? (
-          <div className="p-8 text-center">
-            <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>
-              Nenhuma impressão registrada ainda.
-            </p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--ada-border)' }}>
-                  {['Produto', 'Tipo', 'Qtd', 'Data de Produção', 'Data de Validade', 'Impresso em'].map(h => (
-                    <th
-                      key={h}
-                      className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide"
-                      style={{ color: 'var(--ada-muted)' }}
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {historico.map((h, i) => {
-                  const validade = '—'
-                  return (
-                    <tr
-                      key={h.id}
-                      style={{
-                        borderBottom: '1px solid var(--ada-border)',
-                        background: i % 2 === 0 ? 'transparent' : 'var(--ada-hover)',
-                      }}
-                    >
-                      <td className="px-4 py-3 font-medium" style={{ color: 'var(--ada-heading)' }}>
-                        {h.produtoNome}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className="px-2 py-0.5 rounded text-xs font-medium"
-                          style={{ background: 'var(--ada-hover)', color: 'var(--ada-body)' }}
-                        >
-                          {TIPO_LABELS[h.tipoEtiqueta]}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3" style={{ color: 'var(--ada-body)' }}>
-                        {h.quantidade}
-                      </td>
-                      <td className="px-4 py-3" style={{ color: 'var(--ada-body)' }}>
-                        {formatarData(h.dataProducao)}
-                      </td>
-                      <td className="px-4 py-3" style={{ color: 'var(--ada-body)' }}>
-                        {validade}
-                      </td>
-                      <td className="px-4 py-3 text-xs" style={{ color: 'var(--ada-muted)' }}>
-                        {new Date(h.impressoEm).toLocaleString('pt-BR')}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      <HistoricoImpressoesTable historico={historico} />
     </div>
   )
 }

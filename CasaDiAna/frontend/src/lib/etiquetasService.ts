@@ -128,4 +128,8 @@ export const etiquetasService = {
     )
     return res.data.dados
   },
+
+  async excluirModelo(produtoId: string): Promise<void> {
+    await api.delete(`/etiquetas/modelos-nutricionais/${produtoId}`)
+  },
 }

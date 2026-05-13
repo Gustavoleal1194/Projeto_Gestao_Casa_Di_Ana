@@ -24,6 +24,12 @@ public class ModeloEtiquetaNutricionalRepository : IModeloEtiquetaNutricionalRep
     public async Task AdicionarAsync(ModeloEtiquetaNutricional modelo, CancellationToken ct = default) =>
         await _db.ModelosEtiquetaNutricional.AddAsync(modelo, ct);
 
+    public Task RemoverAsync(ModeloEtiquetaNutricional modelo, CancellationToken ct = default)
+    {
+        _db.ModelosEtiquetaNutricional.Remove(modelo);
+        return Task.CompletedTask;
+    }
+
     public Task<int> SalvarAsync(CancellationToken ct = default) =>
         _db.SaveChangesAsync(ct);
 }

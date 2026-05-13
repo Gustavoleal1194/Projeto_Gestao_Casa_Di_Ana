@@ -774,7 +774,6 @@ export function EtiquetasPage() {
               <div className="grid grid-cols-2 gap-2">
                 {[
                   { key: 'valorEnergeticoKcal', label: 'Valor energético', unit: 'kcal' },
-                  { key: 'valorEnergeticoKJ', label: 'Valor energético', unit: 'kJ' },
                   { key: 'carboidratos', label: 'Carboidratos', unit: 'g' },
                   { key: 'acucaresTotais', label: 'Açúcares totais', unit: 'g' },
                   { key: 'acucaresAdicionados', label: 'Açúcares adicionados', unit: 'g' },

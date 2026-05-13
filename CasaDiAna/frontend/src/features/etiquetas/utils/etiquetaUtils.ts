@@ -360,9 +360,9 @@ export function zplEtiquetaNutricional(
   const tableHeight = headerHeight + rows.length * rowHeight
   const noteTop = tableTop + tableHeight + 76
   const col1 = left
-  const col2 = 420
-  const col3 = 540
-  const col4 = 620
+  const col2 = 458
+  const col3 = 575
+  const col4 = 665
 
   const drawLine = (x: number, y: number, w: number, h: number) => `^FO${x},${y}^GB${w},${h},2^FS`
   const drawBox = (x: number, y: number, w: number, h: number, t = 3) => `^FO${x},${y}^GB${w},${h},${t}^FS`
@@ -370,8 +370,8 @@ export function zplEtiquetaNutricional(
   const renderLabel = () => {
     const zplRows = rows.map((row, index) => {
       const y = tableTop + headerHeight + index * rowHeight + 11
-      const nameX = col1 + 10 + (row.indent * 16)
-      const nameFont = row.bold ? 19 : 18
+      const nameX = col1 + 10 + (row.indent * 8)
+      const nameFont = row.bold ? 17 : 16
       return [
         zplText(nameX, y, row.nome, col2 - nameX - 8, nameFont, nameFont, 'L', 1),
         zplText(col2 + 6, y, row.cem, col3 - col2 - 12, 19, 19, 'R', 2),
@@ -393,7 +393,7 @@ export function zplEtiquetaNutricional(
 ^LT0
 ^PON
 ^PR3
-${drawBox(0, 0, 817, 789, 3)}
+${drawBox(0, 0, 817, 789, 2)}
 ${zplText(left + 8, 8, 'INFORMACAO NUTRICIONAL', right - left - 16, 32, 32, 'C')}
 ${drawLine(left, 54, right - left, 2)}
 ${zplText(left + 10, 70, produtoNome, right - left - 20, 26, 26, 'C', 2)}
@@ -401,9 +401,9 @@ ${drawLine(left, 132, right - left, 2)}
 ${zplText(left + 10, 142, `Porcoes por embalagem: ${nutri.porcoesPorEmbalagem || '-'}`, right - left - 20, 20, 20, 'L')}
 ${zplText(left + 10, 166, `Porcao: ${porcaoLabel}`, right - left - 20, 20, 20, 'L')}
 ${drawBox(left, tableTop, right - left, tableHeight, 2)}
-${drawLine(col2, tableTop, 1, tableHeight)}
-${drawLine(col3, tableTop, 1, tableHeight)}
-${drawLine(col4, tableTop, 1, tableHeight)}
+${drawLine(col2, tableTop, 2, tableHeight)}
+${drawLine(col3, tableTop, 2, tableHeight)}
+${drawLine(col4, tableTop, 2, tableHeight)}
 ${drawLine(left, tableTop + headerHeight, right - left, 2)}
 ${zplText(col2 + 6, tableTop + 13, '100g', col3 - col2 - 12, 21, 21, 'R')}
 ${zplText(col3 + 4, tableTop + 13, '50g', col4 - col3 - 8, 21, 21, 'R')}
@@ -499,10 +499,10 @@ export function htmlEtiquetaNutricional(
 
       <table class="nutri-table">
         <colgroup>
-          <col style="width:50%">
-          <col style="width:17%">
-          <col style="width:12%">
-          <col style="width:21%">
+          <col style="width:56%">
+          <col style="width:15%">
+          <col style="width:11%">
+          <col style="width:18%">
         </colgroup>
         <thead>
           <tr>
@@ -681,7 +681,9 @@ export function htmlEtiquetaNutricional(
     th:first-child,
     td:first-child {
       text-align: left;
-      font-size: 10.5px;
+      font-size: 9.8px;
+      white-space: nowrap;
+      overflow-wrap: normal;
     }
     th:nth-child(2),
     th:nth-child(4) {
@@ -698,10 +700,10 @@ export function htmlEtiquetaNutricional(
       font-weight: bold;
     }
     .indent-1 {
-      padding-left: 2.4mm;
+      padding-left: 1.8mm;
     }
     .indent-2 {
-      padding-left: 4mm;
+      padding-left: 2.4mm;
     }
     .num {
       text-align: right;

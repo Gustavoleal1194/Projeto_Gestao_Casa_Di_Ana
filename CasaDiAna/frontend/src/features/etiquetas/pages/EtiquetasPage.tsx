@@ -262,10 +262,10 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
 
         <table style={{ position: 'absolute', top: tableTop, left: 0, width: 196, height: tableHeight, border: '0.75px solid #000', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: 12, background: '#fff', overflow: 'hidden', zIndex: 1 }}>
           <colgroup>
-            <col style={{ width: '50%' }} />
-            <col style={{ width: '17%' }} />
-            <col style={{ width: '12%' }} />
-            <col style={{ width: '21%' }} />
+            <col style={{ width: '56%' }} />
+            <col style={{ width: '15%' }} />
+            <col style={{ width: '11%' }} />
+            <col style={{ width: '18%' }} />
           </colgroup>
           <thead>
             <tr style={{ height: 13.05, borderBottom: '0.75px solid #000' }}>
@@ -278,7 +278,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           <tbody>
             {rows.map((r) => (
               <tr key={r.nome} style={{ height: 14.64, borderBottom: '0.5px solid #000' }}>
-                <td style={{ fontWeight: 700, padding: `1px 2px 1px ${r.indent === 2 ? '12px' : r.indent === 1 ? '7px' : '2px'}`, fontSize: 10.5, lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'anywhere' }}>
+                <td style={{ fontWeight: 700, padding: `1px 2px 1px ${r.indent === 2 ? '6px' : r.indent === 1 ? '5px' : '2px'}`, fontSize: 9.8, lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'normal', whiteSpace: 'nowrap' }}>
                   {r.nome}
                 </td>
                 <td style={{ fontWeight: 700, textAlign: 'right', padding: '1px 2px', borderLeft: '0.5px solid #000', lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'anywhere' }}>

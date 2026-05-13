@@ -388,8 +388,8 @@ export function zplEtiquetaNutricional(
       ].join('\n')
     }).join('\n')
 
-    const horizontalLines = Array.from({ length: rows.length + 1 }, (_, index) =>
-      drawLine(left, tableTop + headerHeight + index * rowHeight, right - left, 1),
+    const horizontalLines = Array.from({ length: rows.length - 1 }, (_, index) =>
+      drawLine(left, tableTop + headerHeight + (index + 1) * rowHeight, right - left, 1),
     ).join('\n')
 
     return `^XA
@@ -652,7 +652,8 @@ export function htmlEtiquetaNutricional(
       left: 0;
       width: 65.33mm;
       height: 44mm;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
       table-layout: fixed;
       background: #fff;
       border: 0.25mm solid #000;
@@ -664,11 +665,9 @@ export function htmlEtiquetaNutricional(
       break-inside: avoid;
       page-break-inside: avoid;
       height: 4mm;
-      border-bottom: 0.125mm solid #000;
     }
     thead tr {
       height: 3.8mm;
-      border-bottom: 0.25mm solid #000;
     }
     th,
     td {
@@ -684,6 +683,7 @@ export function htmlEtiquetaNutricional(
     th {
       font-weight: 700;
       vertical-align: middle;
+      border-bottom: 0.25mm solid #000;
     }
     th:first-child,
     td:first-child {
@@ -703,6 +703,12 @@ export function htmlEtiquetaNutricional(
     th:not(:first-child),
     td:not(:first-child) {
       border-left: 0.125mm solid #000;
+    }
+    tbody td {
+      border-bottom: 0.125mm solid #000;
+    }
+    tbody tr:last-child td {
+      border-bottom: 0;
     }
     .bold {
       font-weight: bold;

@@ -279,7 +279,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           <div><strong>Porção:</strong> {porcaoLabel}</div>
         </div>
 
-        <table style={{ position: 'absolute', top: tableTop, left: 0, width: 196, height: tableHeight, border: '0.75px solid #000', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: 12, background: '#fff', overflow: 'hidden', zIndex: 1 }}>
+        <table style={{ position: 'absolute', top: tableTop, left: 0, width: 196, height: tableHeight, border: '0.5px solid #000', borderCollapse: 'separate', borderSpacing: 0, tableLayout: 'fixed', fontSize: 12, background: '#fff', overflow: 'hidden', zIndex: 1 }}>
           <colgroup>
             <col style={{ width: '56%' }} />
             <col style={{ width: '15%' }} />
@@ -287,30 +287,33 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
             <col style={{ width: '18%' }} />
           </colgroup>
           <thead>
-            <tr style={{ height: 12, borderBottom: '0.75px solid #000' }}>
-              <th style={{ fontWeight: 700, padding: '0 2px', textAlign: 'left', verticalAlign: 'middle' }}>&nbsp;</th>
-              <th style={{ fontWeight: 700, padding: '0 2px', textAlign: 'right', verticalAlign: 'middle', borderLeft: '0.5px solid #000' }}>100g</th>
-              <th style={{ fontWeight: 700, padding: '0 2px', textAlign: 'right', verticalAlign: 'middle', borderLeft: '0.5px solid #000' }}>50g</th>
-              <th style={{ fontWeight: 700, padding: '0 2px', textAlign: 'center', verticalAlign: 'middle', borderLeft: '0.5px solid #000' }}>%VD(*)</th>
+            <tr style={{ height: 12 }}>
+              <th style={{ fontWeight: 700, padding: '0 2px', textAlign: 'left', verticalAlign: 'middle', borderBottom: '0.5px solid #000' }}>&nbsp;</th>
+              <th style={{ fontWeight: 700, padding: '0 2px', textAlign: 'right', verticalAlign: 'middle', borderLeft: '0.5px solid #000', borderBottom: '0.5px solid #000' }}>100g</th>
+              <th style={{ fontWeight: 700, padding: '0 2px', textAlign: 'right', verticalAlign: 'middle', borderLeft: '0.5px solid #000', borderBottom: '0.5px solid #000' }}>50g</th>
+              <th style={{ fontWeight: 700, padding: '0 2px', textAlign: 'center', verticalAlign: 'middle', borderLeft: '0.5px solid #000', borderBottom: '0.5px solid #000' }}>%VD(*)</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
-              <tr key={r.nome} style={{ height: 12, borderBottom: '0.5px solid #000' }}>
-                <td style={{ fontWeight: 700, padding: `0 2px 0 ${r.indent === 2 ? '6px' : r.indent === 1 ? '5px' : '2px'}`, fontSize: 9.8, lineHeight: 1.18, verticalAlign: 'middle', overflow: 'hidden', overflowWrap: 'normal', whiteSpace: 'nowrap' }}>
+            {rows.map((r, index) => {
+              const bottomBorder = index === rows.length - 1 ? '0' : '0.5px solid #000'
+              return (
+              <tr key={r.nome} style={{ height: 12 }}>
+                <td style={{ fontWeight: 700, padding: `0 2px 0 ${r.indent === 2 ? '6px' : r.indent === 1 ? '5px' : '2px'}`, fontSize: 9.8, lineHeight: 1.18, verticalAlign: 'middle', overflow: 'hidden', overflowWrap: 'normal', whiteSpace: 'nowrap', borderBottom: bottomBorder }}>
                   {r.nome}
                 </td>
-                <td style={{ fontWeight: 700, textAlign: 'right', padding: '0 2px', borderLeft: '0.5px solid #000', lineHeight: 1.05, verticalAlign: 'middle', overflow: 'hidden', overflowWrap: 'anywhere' }}>
+                <td style={{ fontWeight: 700, textAlign: 'right', padding: '0 2px', borderLeft: '0.5px solid #000', borderBottom: bottomBorder, lineHeight: 1.05, verticalAlign: 'middle', overflow: 'hidden', overflowWrap: 'anywhere' }}>
                   {r.cem}
                 </td>
-                <td style={{ fontWeight: 700, textAlign: 'right', padding: '0 2px', borderLeft: '0.5px solid #000', color: '#000', lineHeight: 1.05, verticalAlign: 'middle', overflow: 'hidden', overflowWrap: 'anywhere' }}>
+                <td style={{ fontWeight: 700, textAlign: 'right', padding: '0 2px', borderLeft: '0.5px solid #000', borderBottom: bottomBorder, color: '#000', lineHeight: 1.05, verticalAlign: 'middle', overflow: 'hidden', overflowWrap: 'anywhere' }}>
                   {r.cinquenta}
                 </td>
-                <td style={{ fontWeight: 700, textAlign: 'center', padding: '0 2px', borderLeft: '0.5px solid #000', lineHeight: 1.05, verticalAlign: 'middle', overflow: 'hidden' }}>
+                <td style={{ fontWeight: 700, textAlign: 'center', padding: '0 2px', borderLeft: '0.5px solid #000', borderBottom: bottomBorder, lineHeight: 1.05, verticalAlign: 'middle', overflow: 'hidden' }}>
                   {r.vdVal}
                 </td>
               </tr>
-            ))}
+              )
+            })}
           </tbody>
         </table>
 

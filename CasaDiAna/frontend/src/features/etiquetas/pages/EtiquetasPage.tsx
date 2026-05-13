@@ -220,7 +220,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
 
   const tableTop = 66
   const tableHeight = 159.3
-  const noteTop = 253.5
+  const noteTop = 247.5
 
   return (
     <div
@@ -240,7 +240,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           top: 6,
           left: 9,
           width: 192,
-          height: 360,
+          height: 264,
           border: '1.14px solid #000',
           background: '#fff',
           overflow: 'hidden',

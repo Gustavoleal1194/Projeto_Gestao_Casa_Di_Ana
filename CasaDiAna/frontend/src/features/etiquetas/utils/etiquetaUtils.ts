@@ -585,12 +585,23 @@ export function htmlEtiquetaNutricional(
       width: 65.33mm;
       height: 72mm;
       max-height: 72mm;
-      border: 0.38mm solid #000;
       font-family: 'Arial Narrow', Arial, sans-serif;
       font-weight: 700;
       overflow: hidden;
       background: #fff;
       color: #000;
+    }
+    .nutricional::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      box-sizing: border-box;
+      border: 0.38mm solid #000;
+      pointer-events: none;
+      z-index: 10;
     }
     .nutri-title {
       position: absolute;

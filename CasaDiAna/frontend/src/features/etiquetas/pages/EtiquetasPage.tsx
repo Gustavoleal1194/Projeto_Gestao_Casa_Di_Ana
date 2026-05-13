@@ -279,7 +279,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           <div><strong>Porção:</strong> {porcaoLabel}</div>
         </div>
 
-        <table style={{ position: 'absolute', top: tableTop, left: 0, width: 196, height: tableHeight, borderLeft: '0.5px solid #000', borderRight: '0.5px solid #000', borderTop: '1px solid #000', borderBottom: '1px solid #000', borderCollapse: 'separate', borderSpacing: 0, tableLayout: 'fixed', fontSize: 12, background: '#fff', overflow: 'hidden', zIndex: 1 }}>
+        <table style={{ position: 'absolute', top: tableTop, left: 0, width: 196, height: tableHeight, borderTop: '1px solid #000', borderBottom: '1px solid #000', borderCollapse: 'separate', borderSpacing: 0, tableLayout: 'fixed', fontSize: 12, background: '#fff', overflow: 'hidden', zIndex: 1 }}>
           <colgroup>
             <col style={{ width: '56%' }} />
             <col style={{ width: '15%' }} />

@@ -220,7 +220,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
 
   const tableTop = 66
   const tableHeight = 159.3
-  const noteTop = 247.5
+  const noteTop = 244.5
 
   return (
     <div
@@ -239,8 +239,8 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           position: 'absolute',
           top: 6,
           left: 9,
-          width: 192,
-          height: 264,
+          width: 196,
+          height: 259,
           border: '1.14px solid #000',
           background: '#fff',
           overflow: 'hidden',
@@ -250,17 +250,17 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
         <div style={{ position: 'absolute', top: 3, left: 3, width: 186, height: 15, fontSize: 18, fontWeight: 700, lineHeight: '15px', textAlign: 'center', overflow: 'hidden' }}>
           INFORMAÇÃO NUTRICIONAL
         </div>
-        <div style={{ position: 'absolute', top: 17.55, left: 0, width: 192, height: 1, background: '#000' }} />
+        <div style={{ position: 'absolute', top: 17.55, left: 0, width: 196, height: 1, background: '#000' }} />
         <div style={{ position: 'absolute', top: 22.8, left: 3.75, width: 184.5, height: 17.7, fontSize: 15, fontWeight: 700, lineHeight: '8.7px', textAlign: 'center', overflow: 'hidden', overflowWrap: 'anywhere' }}>
           {nomeExibido}
         </div>
-        <div style={{ position: 'absolute', top: 42.9, left: 0, width: 192, height: 1, background: '#000' }} />
+        <div style={{ position: 'absolute', top: 42.9, left: 0, width: 196, height: 1, background: '#000' }} />
         <div style={{ position: 'absolute', top: 47.1, left: 3.75, width: 184.5, height: 18, fontSize: 10.5, lineHeight: '9px', overflow: 'hidden', overflowWrap: 'anywhere' }}>
           <div><strong>Porções por embalagem:</strong> {nutri.porcoesPorEmbalagem || '—'}</div>
           <div><strong>Porção:</strong> {porcaoLabel}</div>
         </div>
 
-        <table style={{ position: 'absolute', top: tableTop, left: 0, width: 192, height: tableHeight, border: '0.75px solid #000', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: 12, background: '#fff', overflow: 'hidden', zIndex: 1 }}>
+        <table style={{ position: 'absolute', top: tableTop, left: 0, width: 196, height: tableHeight, border: '0.75px solid #000', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: 12, background: '#fff', overflow: 'hidden', zIndex: 1 }}>
           <colgroup>
             <col style={{ width: '50%' }} />
             <col style={{ width: '17%' }} />

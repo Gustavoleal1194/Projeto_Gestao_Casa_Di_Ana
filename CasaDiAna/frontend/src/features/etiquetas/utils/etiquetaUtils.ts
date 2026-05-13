@@ -353,12 +353,12 @@ export function zplEtiquetaNutricional(
   const labelWidth = 800
   const labelHeight = 1200
   const left = 0
-  const right = 800
+  const right = 817
   const tableTop = 205
   const headerHeight = 40
   const rowHeight = 45
   const tableHeight = headerHeight + rows.length * rowHeight
-  const noteTop = tableTop + tableHeight + 89
+  const noteTop = tableTop + tableHeight + 76
   const col1 = left
   const col2 = 420
   const col3 = 540
@@ -393,7 +393,7 @@ export function zplEtiquetaNutricional(
 ^LT0
 ^PON
 ^PR3
-${drawBox(0, 0, 800, 810, 3)}
+${drawBox(0, 0, 817, 789, 3)}
 ${zplText(left + 8, 8, 'INFORMACAO NUTRICIONAL', right - left - 16, 32, 32, 'C')}
 ${drawLine(left, 54, right - left, 2)}
 ${zplText(left + 10, 70, produtoNome, right - left - 20, 26, 26, 'C', 2)}
@@ -574,9 +574,9 @@ export function htmlEtiquetaNutricional(
       position: absolute;
       top: 2mm;
       left: 3mm;
-      width: 64mm;
-      height: 88mm;
-      max-height: 88mm;
+      width: 65.33mm;
+      height: 86.33mm;
+      max-height: 86.33mm;
       border: 0.38mm solid #000;
       font-family: 'Arial Narrow', Arial, sans-serif;
       font-weight: 700;
@@ -601,7 +601,7 @@ export function htmlEtiquetaNutricional(
     .line {
       position: absolute;
       left: 0;
-      width: 64mm;
+      width: 65.33mm;
       height: 0.25mm;
       background: #000;
     }
@@ -643,7 +643,7 @@ export function htmlEtiquetaNutricional(
       position: absolute;
       top: 23mm;
       left: 0;
-      width: 64mm;
+      width: 65.33mm;
       height: 53.1mm;
       border-collapse: collapse;
       table-layout: fixed;
@@ -713,7 +713,7 @@ export function htmlEtiquetaNutricional(
     }
     .note {
       position: absolute;
-      top: 82.5mm;
+      top: 81.5mm;
       left: 1mm;
       width: 62mm;
       height: 4mm;

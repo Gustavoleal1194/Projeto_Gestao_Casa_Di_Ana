@@ -45,6 +45,22 @@ function parseValorNutricional(value: string): number {
   return Number.isFinite(parsed) ? parsed : 0
 }
 
+function sanitizeVdInput(value: string): string {
+  return value.replace(/[^\d.,]/g, '')
+}
+
+const CAMPOS_VD_VAZIOS = {
+  vdValorEnergetico: '',
+  vdCarboidratos: '',
+  vdAcucaresAdicionados: '',
+  vdProteinas: '',
+  vdGordurasTotais: '',
+  vdGordurasSaturadas: '',
+  vdGordurasTrans: '',
+  vdFibraAlimentar: '',
+  vdSodio: '',
+}
+
 function parsePorcoesPorEmbalagem(value: string): number | null {
   const parsed = Number(value.trim().replace(',', '.'))
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null
@@ -84,6 +100,9 @@ interface PreviewProps {
     proteinas: string; gordurasTotais: string; gordurasSaturadas: string;
     gordurasTrans: string; fibraAlimentar: string; sodio: string;
     porcoesPorEmbalagem: string; medidaCaseira: string;
+    vdValorEnergetico: string; vdCarboidratos: string; vdAcucaresAdicionados: string;
+    vdProteinas: string; vdGordurasTotais: string; vdGordurasSaturadas: string;
+    vdGordurasTrans: string; vdFibraAlimentar: string; vdSodio: string;
   }
 }
 
@@ -199,28 +218,28 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
   const sodioNum = parseValorNutricional(nutri.sodio)
   const porcaoG = parsePorcaoGramas(nutri.porcao || '100g')
 
-  const vdPrev = (v: number, ref: number) => v > 0 ? String(Math.round((v / ref) * 100)) : '—'
+  const vdManual = (value: string) => value.trim()
   const porcaoLabel = nutri.medidaCaseira
     ? `${nutri.porcao || '100g'} (${nutri.medidaCaseira})`
     : (nutri.porcao || '100g')
 
   type Row = { bold: boolean; indent: 0 | 1 | 2; nome: string; cem: string; cinquenta: string; vdVal: string }
   const rows: Row[] = [
-    { bold: true, indent: 0, nome: 'Valor energético (kcal)', cem: kcalNum > 0 ? fmt100(kcalNum, porcaoG) : '—', cinquenta: kcalNum > 0 ? fmtPeso(kcalNum, porcaoG, 50) : '—', vdVal: vdPrev(kcalNum, 2000) },
-    { bold: true, indent: 0, nome: 'Carboidratos (g)', cem: fmt100(carboNum, porcaoG), cinquenta: fmtPeso(carboNum, porcaoG, 50), vdVal: vdPrev(carboNum, 300) },
+    { bold: true, indent: 0, nome: 'Valor energético (kcal)', cem: kcalNum > 0 ? fmt100(kcalNum, porcaoG) : '—', cinquenta: kcalNum > 0 ? fmtPeso(kcalNum, porcaoG, 50) : '—', vdVal: vdManual(nutri.vdValorEnergetico) },
+    { bold: true, indent: 0, nome: 'Carboidratos (g)', cem: fmt100(carboNum, porcaoG), cinquenta: fmtPeso(carboNum, porcaoG, 50), vdVal: vdManual(nutri.vdCarboidratos) },
     { bold: false, indent: 1, nome: 'Açúcares totais (g)', cem: fmt100(acucaresNum, porcaoG), cinquenta: fmtPeso(acucaresNum, porcaoG, 50), vdVal: '' },
-    { bold: false, indent: 2, nome: 'Açúcares adicionados (g)', cem: fmt100(acucaresAdicNum, porcaoG), cinquenta: fmtPeso(acucaresAdicNum, porcaoG, 50), vdVal: vdPrev(acucaresAdicNum, 50) },
-    { bold: true, indent: 0, nome: 'Proteínas (g)', cem: fmt100(protNum, porcaoG), cinquenta: fmtPeso(protNum, porcaoG, 50), vdVal: vdPrev(protNum, 75) },
-    { bold: true, indent: 0, nome: 'Gorduras totais (g)', cem: fmt100(gordNum, porcaoG), cinquenta: fmtPeso(gordNum, porcaoG, 50), vdVal: vdPrev(gordNum, 65) },
-    { bold: false, indent: 1, nome: 'Gorduras saturadas (g)', cem: fmt100(gordSatNum, porcaoG), cinquenta: fmtPeso(gordSatNum, porcaoG, 50), vdVal: vdPrev(gordSatNum, 22) },
-    { bold: false, indent: 1, nome: 'Gorduras trans (g)', cem: fmt100(gordTransNum, porcaoG), cinquenta: fmtPeso(gordTransNum, porcaoG, 50), vdVal: vdPrev(gordTransNum, 2) },
-    { bold: true, indent: 0, nome: 'Fibra alimentar (g)', cem: fmt100(fibraNum, porcaoG), cinquenta: fmtPeso(fibraNum, porcaoG, 50), vdVal: vdPrev(fibraNum, 25) },
-    { bold: true, indent: 0, nome: 'Sódio (mg)', cem: fmt100(sodioNum, porcaoG), cinquenta: fmtPeso(sodioNum, porcaoG, 50), vdVal: vdPrev(sodioNum, 2300) },
+    { bold: false, indent: 2, nome: 'Açúcares adicionados (g)', cem: fmt100(acucaresAdicNum, porcaoG), cinquenta: fmtPeso(acucaresAdicNum, porcaoG, 50), vdVal: vdManual(nutri.vdAcucaresAdicionados) },
+    { bold: true, indent: 0, nome: 'Proteínas (g)', cem: fmt100(protNum, porcaoG), cinquenta: fmtPeso(protNum, porcaoG, 50), vdVal: vdManual(nutri.vdProteinas) },
+    { bold: true, indent: 0, nome: 'Gorduras totais (g)', cem: fmt100(gordNum, porcaoG), cinquenta: fmtPeso(gordNum, porcaoG, 50), vdVal: vdManual(nutri.vdGordurasTotais) },
+    { bold: false, indent: 1, nome: 'Gorduras saturadas (g)', cem: fmt100(gordSatNum, porcaoG), cinquenta: fmtPeso(gordSatNum, porcaoG, 50), vdVal: vdManual(nutri.vdGordurasSaturadas) },
+    { bold: false, indent: 1, nome: 'Gorduras trans (g)', cem: fmt100(gordTransNum, porcaoG), cinquenta: fmtPeso(gordTransNum, porcaoG, 50), vdVal: vdManual(nutri.vdGordurasTrans) },
+    { bold: true, indent: 0, nome: 'Fibra alimentar (g)', cem: fmt100(fibraNum, porcaoG), cinquenta: fmtPeso(fibraNum, porcaoG, 50), vdVal: vdManual(nutri.vdFibraAlimentar) },
+    { bold: true, indent: 0, nome: 'Sódio (mg)', cem: fmt100(sodioNum, porcaoG), cinquenta: fmtPeso(sodioNum, porcaoG, 50), vdVal: vdManual(nutri.vdSodio) },
   ]
 
   const tableTop = 66
-  const tableHeight = 159.3
-  const noteTop = 244.5
+  const tableHeight = 132
+  const noteTop = 204
 
   return (
     <div
@@ -240,7 +259,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           top: 6,
           left: 9,
           width: 196,
-          height: 259,
+          height: 216,
           border: '1.14px solid #000',
           background: '#fff',
           overflow: 'hidden',
@@ -268,26 +287,26 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
             <col style={{ width: '18%' }} />
           </colgroup>
           <thead>
-            <tr style={{ height: 13.05, borderBottom: '0.75px solid #000' }}>
-              <th style={{ fontWeight: 700, padding: '1px 2px', textAlign: 'left', verticalAlign: 'middle' }}>&nbsp;</th>
-              <th style={{ fontWeight: 700, padding: '1px 2px', textAlign: 'right', verticalAlign: 'middle', borderLeft: '0.5px solid #000' }}>100g</th>
-              <th style={{ fontWeight: 700, padding: '1px 2px', textAlign: 'right', verticalAlign: 'middle', borderLeft: '0.5px solid #000' }}>50g</th>
-              <th style={{ fontWeight: 700, padding: '1px 2px', textAlign: 'center', verticalAlign: 'middle', borderLeft: '0.5px solid #000' }}>%VD(*)</th>
+            <tr style={{ height: 12, borderBottom: '0.75px solid #000' }}>
+              <th style={{ fontWeight: 700, padding: '0 2px', textAlign: 'left', verticalAlign: 'middle' }}>&nbsp;</th>
+              <th style={{ fontWeight: 700, padding: '0 2px', textAlign: 'right', verticalAlign: 'middle', borderLeft: '0.5px solid #000' }}>100g</th>
+              <th style={{ fontWeight: 700, padding: '0 2px', textAlign: 'right', verticalAlign: 'middle', borderLeft: '0.5px solid #000' }}>50g</th>
+              <th style={{ fontWeight: 700, padding: '0 2px', textAlign: 'center', verticalAlign: 'middle', borderLeft: '0.5px solid #000' }}>%VD(*)</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.nome} style={{ height: 14.64, borderBottom: '0.5px solid #000' }}>
+              <tr key={r.nome} style={{ height: 12, borderBottom: '0.5px solid #000' }}>
                 <td style={{ fontWeight: 700, padding: `0 2px 0 ${r.indent === 2 ? '6px' : r.indent === 1 ? '5px' : '2px'}`, fontSize: 9.8, lineHeight: 1.18, verticalAlign: 'middle', overflow: 'hidden', overflowWrap: 'normal', whiteSpace: 'nowrap' }}>
                   {r.nome}
                 </td>
-                <td style={{ fontWeight: 700, textAlign: 'right', padding: '1px 2px', borderLeft: '0.5px solid #000', lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'anywhere' }}>
+                <td style={{ fontWeight: 700, textAlign: 'right', padding: '0 2px', borderLeft: '0.5px solid #000', lineHeight: 1.05, verticalAlign: 'middle', overflow: 'hidden', overflowWrap: 'anywhere' }}>
                   {r.cem}
                 </td>
-                <td style={{ fontWeight: 700, textAlign: 'right', padding: '1px 2px', borderLeft: '0.5px solid #000', color: '#000', lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'anywhere' }}>
+                <td style={{ fontWeight: 700, textAlign: 'right', padding: '0 2px', borderLeft: '0.5px solid #000', color: '#000', lineHeight: 1.05, verticalAlign: 'middle', overflow: 'hidden', overflowWrap: 'anywhere' }}>
                   {r.cinquenta}
                 </td>
-                <td style={{ fontWeight: 700, textAlign: 'center', padding: '1px 2px', borderLeft: '0.5px solid #000', lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden' }}>
+                <td style={{ fontWeight: 700, textAlign: 'center', padding: '0 2px', borderLeft: '0.5px solid #000', lineHeight: 1.05, verticalAlign: 'middle', overflow: 'hidden' }}>
                   {r.vdVal}
                 </td>
               </tr>
@@ -295,7 +314,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           </tbody>
         </table>
 
-        <div style={{ position: 'absolute', top: noteTop, left: 3, width: 186, height: 14, fontSize: 10, lineHeight: '14px', overflow: 'hidden', background: '#fff', zIndex: 2, whiteSpace: 'nowrap' }}>
+        <div style={{ position: 'absolute', top: noteTop, left: 3, width: 190, height: 14, fontSize: 10, lineHeight: '14px', overflow: 'hidden', background: '#fff', zIndex: 2, whiteSpace: 'nowrap', textAlign: 'center' }}>
           *percentual de valores diários fornecidos pela porção.
         </div>
       </div>
@@ -341,6 +360,7 @@ export function EtiquetasPage() {
     gordurasTrans: '',
     fibraAlimentar: '',
     sodio: '',
+    ...CAMPOS_VD_VAZIOS,
   })
 
   const produto = produtoDetalhe
@@ -410,9 +430,10 @@ export function EtiquetasPage() {
             gordurasTrans: String(modelo.gordurasTrans),
             fibraAlimentar: String(modelo.fibraAlimentar),
             sodio: String(modelo.sodio),
+            ...CAMPOS_VD_VAZIOS,
           })
         } else {
-          setNutri({ porcao: '100g', medidaCaseira: '', porcoesPorEmbalagem: '', valorEnergeticoKcal: '', valorEnergeticoKJ: '', carboidratos: '', acucaresTotais: '', acucaresAdicionados: '', proteinas: '', gordurasTotais: '', gordurasSaturadas: '', gordurasTrans: '', fibraAlimentar: '', sodio: '' })
+          setNutri({ porcao: '100g', medidaCaseira: '', porcoesPorEmbalagem: '', valorEnergeticoKcal: '', valorEnergeticoKJ: '', carboidratos: '', acucaresTotais: '', acucaresAdicionados: '', proteinas: '', gordurasTotais: '', gordurasSaturadas: '', gordurasTrans: '', fibraAlimentar: '', sodio: '', ...CAMPOS_VD_VAZIOS })
         }
       })
       .catch(() => {})
@@ -433,6 +454,15 @@ export function EtiquetasPage() {
     sodio: nutri.sodio || '-',
     porcoesPorEmbalagem: nutri.porcoesPorEmbalagem || '',
     medidaCaseira: nutri.medidaCaseira || '',
+    vdValorEnergetico: nutri.vdValorEnergetico,
+    vdCarboidratos: nutri.vdCarboidratos,
+    vdAcucaresAdicionados: nutri.vdAcucaresAdicionados,
+    vdProteinas: nutri.vdProteinas,
+    vdGordurasTotais: nutri.vdGordurasTotais,
+    vdGordurasSaturadas: nutri.vdGordurasSaturadas,
+    vdGordurasTrans: nutri.vdGordurasTrans,
+    vdFibraAlimentar: nutri.vdFibraAlimentar,
+    vdSodio: nutri.vdSodio,
   })
 
   const registrarImpressaoProduto = async () => {
@@ -493,6 +523,15 @@ export function EtiquetasPage() {
             sodio: nutri.sodio || '—',
             porcoesPorEmbalagem: nutri.porcoesPorEmbalagem || '',
             medidaCaseira: nutri.medidaCaseira || '',
+            vdValorEnergetico: nutri.vdValorEnergetico,
+            vdCarboidratos: nutri.vdCarboidratos,
+            vdAcucaresAdicionados: nutri.vdAcucaresAdicionados,
+            vdProteinas: nutri.vdProteinas,
+            vdGordurasTotais: nutri.vdGordurasTotais,
+            vdGordurasSaturadas: nutri.vdGordurasSaturadas,
+            vdGordurasTrans: nutri.vdGordurasTrans,
+            vdFibraAlimentar: nutri.vdFibraAlimentar,
+            vdSodio: nutri.vdSodio,
           }
         )
       }
@@ -751,6 +790,7 @@ export function EtiquetasPage() {
                         gordurasTrans: String(m.gordurasTrans),
                         fibraAlimentar: String(m.fibraAlimentar),
                         sodio: String(m.sodio),
+                        ...CAMPOS_VD_VAZIOS,
                       })
                     }}
                     className="w-full rounded-lg px-3 py-2 text-sm border outline-none"
@@ -836,6 +876,40 @@ export function EtiquetasPage() {
                     />
                   </div>
                 ))}
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: 'var(--ada-muted)' }}>
+                  %VD manual
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { key: 'vdValorEnergetico', label: 'Valor energético' },
+                    { key: 'vdCarboidratos', label: 'Carboidratos' },
+                    { key: 'vdAcucaresAdicionados', label: 'Açúcares adicionados' },
+                    { key: 'vdProteinas', label: 'Proteínas' },
+                    { key: 'vdGordurasTotais', label: 'Gorduras totais' },
+                    { key: 'vdGordurasSaturadas', label: 'Gord. saturadas' },
+                    { key: 'vdGordurasTrans', label: 'Gorduras trans' },
+                    { key: 'vdFibraAlimentar', label: 'Fibra alimentar' },
+                    { key: 'vdSodio', label: 'Sódio' },
+                  ].map(({ key, label }) => (
+                    <div key={key}>
+                      <label className="block text-xs font-medium mb-1" style={{ color: 'var(--ada-body)' }}>
+                        {label}
+                      </label>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        placeholder="0"
+                        value={nutri[key as keyof typeof nutri]}
+                        onChange={e => setNutri(n => ({ ...n, [key]: sanitizeVdInput(e.target.value) }))}
+                        className="w-full rounded-lg px-3 py-2 text-sm border outline-none"
+                        style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)', color: 'var(--ada-body)' }}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <button

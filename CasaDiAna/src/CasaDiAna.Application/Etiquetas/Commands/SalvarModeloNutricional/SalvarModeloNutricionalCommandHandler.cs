@@ -24,7 +24,7 @@ public class SalvarModeloNutricionalCommandHandler
         SalvarModeloNutricionalCommand request,
         CancellationToken cancellationToken)
     {
-        if (await _produtos.ObterPorIdAsync(request.ProdutoId, cancellationToken) is null)
+        if (!await _produtos.ExisteAsync(request.ProdutoId, cancellationToken))
             throw new DomainException("Produto não encontrado.");
 
         var existente = await _modelos.ObterPorProdutoIdAsync(request.ProdutoId, cancellationToken);
@@ -69,7 +69,6 @@ public class SalvarModeloNutricionalCommandHandler
             request.PorcoesPorEmbalagem,
             request.MedidaCaseira);
 
-        _modelos.Atualizar(existente);
         await _modelos.SalvarAsync(cancellationToken);
         return ToDto(existente);
     }

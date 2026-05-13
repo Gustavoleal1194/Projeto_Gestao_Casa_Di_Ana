@@ -38,6 +38,26 @@ export interface ModeloNutricional {
   medidaCaseira: string | null
 }
 
+export interface ModeloNutricionalResumo {
+  id: string
+  produtoId: string
+  produtoNome: string
+  porcao: string
+  valorEnergeticoKcal: number
+  valorEnergeticoKJ: number
+  carboidratos: number
+  acucaresTotais: number
+  acucaresAdicionados: number
+  proteinas: number
+  gordurasTotais: number
+  gordurasSaturadas: number
+  gordurasTrans: number
+  fibraAlimentar: number
+  sodio: number
+  porcoesPorEmbalagem: number | null
+  medidaCaseira: string | null
+}
+
 export interface SalvarModeloNutricionalInput {
   porcao: string
   valorEnergeticoKcal: number
@@ -80,6 +100,11 @@ export const etiquetasService = {
 
   async salvarModeloNutricional(produtoId: string, input: SalvarModeloNutricionalInput): Promise<ModeloNutricional> {
     const res = await api.put<ApiResponse<ModeloNutricional>>(`/etiquetas/modelos-nutricionais/${produtoId}`, input)
+    return res.data.dados
+  },
+
+  async listarModelosNutricionais(): Promise<ModeloNutricionalResumo[]> {
+    const res = await api.get<ApiResponse<ModeloNutricionalResumo[]>>('/etiquetas/modelos-nutricionais')
     return res.data.dados
   },
 }

@@ -3,6 +3,7 @@ using CasaDiAna.Application.Etiquetas.Commands.RegistrarImpressao;
 using CasaDiAna.Application.Etiquetas.Commands.SalvarModeloNutricional;
 using CasaDiAna.Application.Etiquetas.Dtos;
 using CasaDiAna.Application.Etiquetas.Queries.ListarHistorico;
+using CasaDiAna.Application.Etiquetas.Queries.ListarModelosNutricionais;
 using CasaDiAna.Application.Etiquetas.Queries.ObterModeloNutricional;
 using CasaDiAna.Domain.Enums;
 using MediatR;
@@ -49,6 +50,13 @@ public class EtiquetasController : ControllerBase
     {
         var resultado = await _mediator.Send(new ListarHistoricoQuery(produtoId), ct);
         return Ok(ApiResponse<IReadOnlyList<HistoricoImpressaoDto>>.Ok(resultado));
+    }
+
+    [HttpGet("modelos-nutricionais")]
+    public async Task<IActionResult> ListarModelosNutricionais(CancellationToken ct = default)
+    {
+        var resultado = await _mediator.Send(new ListarModelosNutricionaisQuery(), ct);
+        return Ok(ApiResponse<IReadOnlyList<ModeloNutricionalResumoDto>>.Ok(resultado));
     }
 
     [HttpGet("modelos-nutricionais/{produtoId:guid}")]

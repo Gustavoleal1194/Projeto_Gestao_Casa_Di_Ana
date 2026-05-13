@@ -4,6 +4,7 @@ namespace CasaDiAna.Domain.Interfaces;
 
 public interface IProdutoRepository
 {
+    Task<bool> ExisteAsync(Guid id, CancellationToken ct = default);
     Task<Produto?> ObterPorIdAsync(Guid id, CancellationToken ct = default);
     Task<Produto?> ObterPorIdComFichaAsync(Guid id, CancellationToken ct = default);
     Task<IReadOnlyList<Produto>> ListarAsync(bool apenasAtivos = true, CancellationToken ct = default);

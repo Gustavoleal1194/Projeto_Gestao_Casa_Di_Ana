@@ -11,6 +11,9 @@ public class ProdutoRepository : IProdutoRepository
 
     public ProdutoRepository(AppDbContext db) => _db = db;
 
+    public Task<bool> ExisteAsync(Guid id, CancellationToken ct = default) =>
+        _db.Produtos.AnyAsync(p => p.Id == id, ct);
+
     public Task<Produto?> ObterPorIdAsync(Guid id, CancellationToken ct = default) =>
         _db.Produtos
             .Include(p => p.Categoria)

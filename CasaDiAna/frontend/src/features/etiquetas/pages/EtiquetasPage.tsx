@@ -3,7 +3,7 @@ import axios from 'axios'
 import { ArrowDownTrayIcon, PrinterIcon, ClockIcon } from '@heroicons/react/24/outline'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import { ingredientesService } from '@/features/estoque/ingredientes/services/ingredientesService'
-import { etiquetasService, type TipoEtiqueta, type HistoricoImpressao, type ModeloNutricional } from '@/lib/etiquetasService'
+import { etiquetasService, type TipoEtiqueta, type HistoricoImpressao, type ModeloNutricional, type ModeloNutricionalResumo } from '@/lib/etiquetasService'
 import type { Produto, ProdutoResumo } from '@/types/producao'
 import type { IngredienteResumo } from '@/types/estoque'
 import {
@@ -322,6 +322,7 @@ export function EtiquetasPage() {
   const [imprimindo, setImprimindo] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
   const [modeloNutricional, setModeloNutricional] = useState<ModeloNutricional | null>(null)
+  const [modelosDisponiveis, setModelosDisponiveis] = useState<ModeloNutricionalResumo[]>([])
   const [salvandoModelo, setSalvandoModelo] = useState(false)
   const [modeloSalvo, setModeloSalvo] = useState(false)
   const [logoBase64, setLogoBase64] = useState('')
@@ -365,6 +366,7 @@ export function EtiquetasPage() {
       if (lista.length > 0) setProdutoId(lista[0].id)
     }).catch(() => {})
     etiquetasService.listarHistorico().then(setHistorico).catch(() => {})
+    etiquetasService.listarModelosNutricionais().then(setModelosDisponiveis).catch(() => {})
     ingredientesService.listar().then(lista => {
       setIngredientes(lista)
     }).catch(() => {})
@@ -562,6 +564,7 @@ export function EtiquetasPage() {
       setModeloNutricional(modeloAtualizado)
       setModeloSalvo(true)
       setTimeout(() => setModeloSalvo(false), 3000)
+      etiquetasService.listarModelosNutricionais().then(setModelosDisponiveis).catch(() => {})
     } catch (error) {
       setErro(obterMensagemErroApi(error, 'Erro ao salvar modelo nutricional.'))
     } finally {
@@ -722,6 +725,47 @@ export function EtiquetasPage() {
                   </span>
                 )}
               </div>
+
+              {modelosDisponiveis.filter(m => m.produtoId !== produtoId).length > 0 && (
+                <div>
+                  <label className="block text-xs font-medium mb-1" style={{ color: 'var(--ada-body)' }}>
+                    Carregar de modelo salvo
+                  </label>
+                  <select
+                    value=""
+                    onChange={e => {
+                      const m = modelosDisponiveis.find(x => x.id === e.target.value)
+                      if (!m) return
+                      setNutri({
+                        porcao: m.porcao,
+                        medidaCaseira: m.medidaCaseira ?? '',
+                        porcoesPorEmbalagem: m.porcoesPorEmbalagem != null ? String(m.porcoesPorEmbalagem) : '',
+                        valorEnergeticoKcal: String(m.valorEnergeticoKcal),
+                        valorEnergeticoKJ: String(m.valorEnergeticoKJ),
+                        carboidratos: String(m.carboidratos),
+                        acucaresTotais: String(m.acucaresTotais),
+                        acucaresAdicionados: String(m.acucaresAdicionados),
+                        proteinas: String(m.proteinas),
+                        gordurasTotais: String(m.gordurasTotais),
+                        gordurasSaturadas: String(m.gordurasSaturadas),
+                        gordurasTrans: String(m.gordurasTrans),
+                        fibraAlimentar: String(m.fibraAlimentar),
+                        sodio: String(m.sodio),
+                      })
+                    }}
+                    className="w-full rounded-lg px-3 py-2 text-sm border outline-none"
+                    style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)', color: 'var(--ada-body)' }}
+                  >
+                    <option value="">Selecione um modelo...</option>
+                    {modelosDisponiveis
+                      .filter(m => m.produtoId !== produtoId)
+                      .map(m => (
+                        <option key={m.id} value={m.id}>{m.produtoNome}</option>
+                      ))
+                    }
+                  </select>
+                </div>
+              )}
 
               {/* Porção */}
               <div className="grid grid-cols-2 gap-2">

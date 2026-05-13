@@ -197,7 +197,7 @@ export function HistoricoImpressoesTable({ historico }: Props) {
             {tipoFiltro > 0 && (
               <span style={pillStyle}>
                 <span style={pillLabel}>Tipo</span>
-                <span style={{ padding: '5px 9px' }}>{TIPO_LABELS[tipoFiltro]}</span>
+                <span style={{ padding: '5px 9px' }}>{TIPO_LABELS[tipoFiltro as TipoEtiqueta]}</span>
                 <button type="button" onClick={() => { setTipoFiltro(0); setPagina(1) }} aria-label="Remover filtro de tipo" style={pillRemoveBtn}>{xIcon}</button>
               </span>
             )}

@@ -408,8 +408,8 @@ ${zplText(left + 10, 70, produtoNome, right - left - 20, 26, 26, 'C', 2)}
 ${drawLine(left, 132, right - left, 2)}
 ${zplText(left + 10, 142, `Porcoes por embalagem: ${nutri.porcoesPorEmbalagem || '-'}`, right - left - 20, 20, 20, 'L')}
 ${zplText(left + 10, 166, `Porcao: ${porcaoLabel}`, right - left - 20, 20, 20, 'L')}
-${drawLine(left, tableTop, right - left, 3)}
-${drawLine(left, tableTop + tableHeight, right - left, 3)}
+${drawLine(left, tableTop, right - left, 2)}
+${drawLine(left, tableTop + tableHeight, right - left, 2)}
 ${drawLine(col2, tableTop, 2, tableHeight)}
 ${drawLine(col3, tableTop, 2, tableHeight)}
 ${drawLine(col4, tableTop, 2, tableHeight)}
@@ -657,8 +657,8 @@ export function htmlEtiquetaNutricional(
       border-spacing: 0;
       table-layout: fixed;
       background: #fff;
-      border-top: 0.25mm solid #000;
-      border-bottom: 0.25mm solid #000;
+      border-top: 0.38mm solid #000;
+      border-bottom: 0.38mm solid #000;
       overflow: hidden;
       z-index: 1;
     }

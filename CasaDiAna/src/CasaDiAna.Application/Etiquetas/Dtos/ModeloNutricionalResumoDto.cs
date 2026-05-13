@@ -26,4 +26,5 @@ public record ModeloNutricionalResumoDto(
     string? VdGordurasSaturadas,
     string? VdGordurasTrans,
     string? VdFibraAlimentar,
-    string? VdSodio);
+    string? VdSodio,
+    string? Nome);

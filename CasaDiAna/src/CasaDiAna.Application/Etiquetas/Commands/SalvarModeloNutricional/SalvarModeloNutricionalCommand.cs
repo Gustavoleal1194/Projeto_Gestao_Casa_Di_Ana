@@ -27,4 +27,5 @@ public record SalvarModeloNutricionalCommand(
     string? VdGordurasSaturadas,
     string? VdGordurasTrans,
     string? VdFibraAlimentar,
-    string? VdSodio) : IRequest<ModeloEtiquetaNutricionalDto>;
+    string? VdSodio,
+    string? Nome) : IRequest<ModeloEtiquetaNutricionalDto>;

@@ -29,6 +29,7 @@ export interface VdCampos {
   vdGordurasTrans: string | null
   vdFibraAlimentar: string | null
   vdSodio: string | null
+  nome: string | null
 }
 
 export interface ModeloNutricional extends VdCampos {
@@ -117,6 +118,14 @@ export const etiquetasService = {
 
   async listarModelosNutricionais(): Promise<ModeloNutricionalResumo[]> {
     const res = await api.get<ApiResponse<ModeloNutricionalResumo[]>>('/etiquetas/modelos-nutricionais')
+    return res.data.dados
+  },
+
+  async renomearModelo(produtoId: string, nome: string | null): Promise<ModeloNutricional> {
+    const res = await api.patch<ApiResponse<ModeloNutricional>>(
+      `/etiquetas/modelos-nutricionais/${produtoId}/nome`,
+      { nome },
+    )
     return res.data.dados
   },
 }

@@ -44,7 +44,8 @@ public class ListarModelosNutricionaisQueryHandler
                 m.VdGordurasSaturadas,
                 m.VdGordurasTrans,
                 m.VdFibraAlimentar,
-                m.VdSodio))
+                m.VdSodio,
+                m.Nome))
             .ToList();
     }
 }

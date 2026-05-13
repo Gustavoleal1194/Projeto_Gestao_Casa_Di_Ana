@@ -55,7 +55,8 @@ public class SalvarModeloNutricionalCommandHandler
                 request.VdGordurasSaturadas,
                 request.VdGordurasTrans,
                 request.VdFibraAlimentar,
-                request.VdSodio);
+                request.VdSodio,
+                request.Nome);
 
             await _modelos.AdicionarAsync(novo, cancellationToken);
             await _modelos.SalvarAsync(cancellationToken);
@@ -85,7 +86,8 @@ public class SalvarModeloNutricionalCommandHandler
             request.VdGordurasSaturadas,
             request.VdGordurasTrans,
             request.VdFibraAlimentar,
-            request.VdSodio);
+            request.VdSodio,
+            request.Nome);
 
         await _modelos.SalvarAsync(cancellationToken);
         return ToDto(existente);
@@ -116,5 +118,6 @@ public class SalvarModeloNutricionalCommandHandler
         m.VdGordurasSaturadas,
         m.VdGordurasTrans,
         m.VdFibraAlimentar,
-        m.VdSodio);
+        m.VdSodio,
+        m.Nome);
 }

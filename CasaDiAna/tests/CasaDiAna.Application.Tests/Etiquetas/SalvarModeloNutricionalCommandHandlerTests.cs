@@ -42,7 +42,8 @@ public class SalvarModeloNutricionalCommandHandlerTests
         VdGordurasSaturadas: "9",
         VdGordurasTrans: null,
         VdFibraAlimentar: "12",
-        VdSodio: "5");
+        VdSodio: "5",
+        Nome: "Modelo Teste");
 
     private static ModeloEtiquetaNutricional CriarModeloExistente(Guid produtoId) =>
         ModeloEtiquetaNutricional.Criar(

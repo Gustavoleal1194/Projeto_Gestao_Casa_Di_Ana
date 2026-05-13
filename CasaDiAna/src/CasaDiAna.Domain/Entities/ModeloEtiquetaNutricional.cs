@@ -30,6 +30,8 @@ public class ModeloEtiquetaNutricional
     public string? VdFibraAlimentar { get; private set; }
     public string? VdSodio { get; private set; }
 
+    public string? Nome { get; private set; }
+
     public DateTime CriadoEm { get; private set; }
     public DateTime AtualizadoEm { get; private set; }
 
@@ -59,7 +61,8 @@ public class ModeloEtiquetaNutricional
         string? vdGordurasSaturadas = null,
         string? vdGordurasTrans = null,
         string? vdFibraAlimentar = null,
-        string? vdSodio = null)
+        string? vdSodio = null,
+        string? nome = null)
     {
         return new ModeloEtiquetaNutricional
         {
@@ -88,6 +91,7 @@ public class ModeloEtiquetaNutricional
             VdGordurasTrans = NullIfEmpty(vdGordurasTrans),
             VdFibraAlimentar = NullIfEmpty(vdFibraAlimentar),
             VdSodio = NullIfEmpty(vdSodio),
+            Nome = NullIfEmpty(nome),
             CriadoEm = DateTime.UtcNow,
             AtualizadoEm = DateTime.UtcNow,
         };
@@ -116,7 +120,8 @@ public class ModeloEtiquetaNutricional
         string? vdGordurasSaturadas,
         string? vdGordurasTrans,
         string? vdFibraAlimentar,
-        string? vdSodio)
+        string? vdSodio,
+        string? nome = null)
     {
         Porcao = porcao;
         ValorEnergeticoKcal = valorEnergeticoKcal;
@@ -141,6 +146,13 @@ public class ModeloEtiquetaNutricional
         VdGordurasTrans = NullIfEmpty(vdGordurasTrans);
         VdFibraAlimentar = NullIfEmpty(vdFibraAlimentar);
         VdSodio = NullIfEmpty(vdSodio);
+        Nome = NullIfEmpty(nome);
+        AtualizadoEm = DateTime.UtcNow;
+    }
+
+    public void AtualizarNome(string? nome)
+    {
+        Nome = NullIfEmpty(nome);
         AtualizadoEm = DateTime.UtcNow;
     }
 

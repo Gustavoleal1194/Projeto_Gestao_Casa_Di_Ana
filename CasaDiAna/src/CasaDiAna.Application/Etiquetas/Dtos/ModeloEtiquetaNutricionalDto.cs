@@ -25,4 +25,5 @@ public record ModeloEtiquetaNutricionalDto(
     string? VdGordurasSaturadas,
     string? VdGordurasTrans,
     string? VdFibraAlimentar,
-    string? VdSodio);
+    string? VdSodio,
+    string? Nome);

@@ -4,6 +4,7 @@ import { ArrowDownTrayIcon, PrinterIcon, ClockIcon } from '@heroicons/react/24/o
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import { ingredientesService } from '@/features/estoque/ingredientes/services/ingredientesService'
 import { etiquetasService, type TipoEtiqueta, type HistoricoImpressao, type ModeloNutricional, type ModeloNutricionalResumo } from '@/lib/etiquetasService'
+import { ModelosNutricionaisTable } from '../components/ModelosNutricionaisTable'
 import type { Produto, ProdutoResumo } from '@/types/producao'
 import type { IngredienteResumo } from '@/types/estoque'
 import {
@@ -260,7 +261,6 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           left: 9,
           width: 196,
           height: 216,
-          border: '1.14px solid #000',
           background: '#fff',
           overflow: 'hidden',
           fontWeight: 700,
@@ -320,6 +320,8 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
         <div style={{ position: 'absolute', top: noteTop, left: 3, width: 190, height: 11, fontSize: 10, lineHeight: 1, overflow: 'hidden', background: '#fff', zIndex: 2, whiteSpace: 'nowrap', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           *percentual de valores diários fornecidos pela porção.
         </div>
+        {/* Contorno renderizado por cima de todo o conteúdo — mesmo comportamento do ::after no CSS de impressão */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, border: '1.14px solid #000', pointerEvents: 'none', zIndex: 10, boxSizing: 'border-box' }} />
       </div>
     </div>
   )
@@ -349,6 +351,7 @@ export function EtiquetasPage() {
   const [modeloSalvo, setModeloSalvo] = useState(false)
   const [logoBase64, setLogoBase64] = useState('')
   const [nutri, setNutri] = useState({
+    nome: '',
     porcao: '100g',
     medidaCaseira: '',
     porcoesPorEmbalagem: '',
@@ -419,6 +422,7 @@ export function EtiquetasPage() {
         setModeloNutricional(modelo)
         if (modelo) {
           setNutri({
+            nome: modelo.nome ?? '',
             porcao: modelo.porcao,
             medidaCaseira: modelo.medidaCaseira ?? '',
             porcoesPorEmbalagem: modelo.porcoesPorEmbalagem != null ? String(modelo.porcoesPorEmbalagem) : '',
@@ -444,7 +448,7 @@ export function EtiquetasPage() {
             vdSodio: modelo.vdSodio ?? '',
           })
         } else {
-          setNutri({ porcao: '100g', medidaCaseira: '', porcoesPorEmbalagem: '', valorEnergeticoKcal: '', valorEnergeticoKJ: '', carboidratos: '', acucaresTotais: '', acucaresAdicionados: '', proteinas: '', gordurasTotais: '', gordurasSaturadas: '', gordurasTrans: '', fibraAlimentar: '', sodio: '', ...CAMPOS_VD_VAZIOS })
+          setNutri({ nome: '', porcao: '100g', medidaCaseira: '', porcoesPorEmbalagem: '', valorEnergeticoKcal: '', valorEnergeticoKJ: '', carboidratos: '', acucaresTotais: '', acucaresAdicionados: '', proteinas: '', gordurasTotais: '', gordurasSaturadas: '', gordurasTrans: '', fibraAlimentar: '', sodio: '', ...CAMPOS_VD_VAZIOS })
         }
       })
       .catch(() => {})
@@ -619,6 +623,7 @@ export function EtiquetasPage() {
         vdGordurasTrans: nutri.vdGordurasTrans || null,
         vdFibraAlimentar: nutri.vdFibraAlimentar || null,
         vdSodio: nutri.vdSodio || null,
+        nome: nutri.nome || null,
       })
       setModeloNutricional(modeloAtualizado)
       setModeloSalvo(true)
@@ -629,6 +634,11 @@ export function EtiquetasPage() {
     } finally {
       setSalvandoModelo(false)
     }
+  }
+
+  const handleRenomear = async (produtoId: string, nome: string | null) => {
+    await etiquetasService.renomearModelo(produtoId, nome)
+    etiquetasService.listarModelosNutricionais().then(setModelosDisponiveis).catch(() => {})
   }
 
   const tiposOpcoes: { valor: TipoEtiqueta; label: string; desc: string; dim: string }[] = [
@@ -796,6 +806,7 @@ export function EtiquetasPage() {
                       const m = modelosDisponiveis.find(x => x.id === e.target.value)
                       if (!m) return
                       setNutri({
+                        nome: m.nome ?? '',
                         porcao: m.porcao,
                         medidaCaseira: m.medidaCaseira ?? '',
                         porcoesPorEmbalagem: m.porcoesPorEmbalagem != null ? String(m.porcoesPorEmbalagem) : '',
@@ -834,6 +845,19 @@ export function EtiquetasPage() {
                   </select>
                 </div>
               )}
+
+              {/* Nome do modelo */}
+              <div>
+                <label className="block text-xs font-medium mb-1" style={{ color: 'var(--ada-body)' }}>Nome do modelo</label>
+                <input
+                  type="text"
+                  placeholder={produto?.nome ?? 'Ex: Bolo de Cenoura 50g'}
+                  value={nutri.nome}
+                  onChange={e => setNutri(n => ({ ...n, nome: e.target.value }))}
+                  className="w-full rounded-lg px-3 py-2 text-sm border outline-none"
+                  style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)', color: 'var(--ada-body)' }}
+                />
+              </div>
 
               {/* Porção */}
               <div className="grid grid-cols-2 gap-2">
@@ -1093,6 +1117,22 @@ export function EtiquetasPage() {
             {dataValidade ? ` · Validade: ${formatarDataLocal(dataValidade)}` : ''}
           </p>
         </div>
+      </div>
+
+      {/* Modelos nutricionais */}
+      <div
+        className="rounded-xl border"
+        style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)' }}
+      >
+        <div
+          className="px-5 py-4 border-b"
+          style={{ borderColor: 'var(--ada-border)' }}
+        >
+          <h2 className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>
+            Modelos Nutricionais
+          </h2>
+        </div>
+        <ModelosNutricionaisTable modelos={modelosDisponiveis} onRenomear={handleRenomear} />
       </div>
 
       {/* Histórico */}

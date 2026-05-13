@@ -1,5 +1,6 @@
 using CasaDiAna.Application.Common;
 using CasaDiAna.Application.Etiquetas.Commands.RegistrarImpressao;
+using CasaDiAna.Application.Etiquetas.Commands.RenomearModeloNutricional;
 using CasaDiAna.Application.Etiquetas.Commands.SalvarModeloNutricional;
 using CasaDiAna.Application.Etiquetas.Dtos;
 using CasaDiAna.Application.Etiquetas.Queries.ListarHistorico;
@@ -66,6 +67,17 @@ public class EtiquetasController : ControllerBase
         return Ok(ApiResponse<ModeloEtiquetaNutricionalDto?>.Ok(resultado));
     }
 
+    [HttpPatch("modelos-nutricionais/{produtoId:guid}/nome")]
+    public async Task<IActionResult> RenomearModeloNutricional(
+        Guid produtoId,
+        [FromBody] RenomearModeloNutricionalRequest body,
+        CancellationToken ct = default)
+    {
+        var resultado = await _mediator.Send(
+            new RenomearModeloNutricionalCommand(produtoId, body.Nome), ct);
+        return Ok(ApiResponse<ModeloEtiquetaNutricionalDto>.Ok(resultado));
+    }
+
     [HttpPut("modelos-nutricionais/{produtoId:guid}")]
     public async Task<IActionResult> SalvarModeloNutricional(
         Guid produtoId,
@@ -96,7 +108,8 @@ public class EtiquetasController : ControllerBase
             body.VdGordurasSaturadas,
             body.VdGordurasTrans,
             body.VdFibraAlimentar,
-            body.VdSodio);
+            body.VdSodio,
+            body.Nome);
 
         var resultado = await _mediator.Send(command, ct);
         return Ok(ApiResponse<ModeloEtiquetaNutricionalDto>.Ok(resultado));
@@ -132,4 +145,7 @@ public record SalvarModeloNutricionalRequest(
     string? VdGordurasSaturadas,
     string? VdGordurasTrans,
     string? VdFibraAlimentar,
-    string? VdSodio);
+    string? VdSodio,
+    string? Nome);
+
+public record RenomearModeloNutricionalRequest(string? Nome);

@@ -340,7 +340,7 @@ export function zplEtiquetaNutricional(
       vd: vd(kcal, 2000),
     },
     { indent: 0, bold: true, nome: 'Carboidratos (g)', cem: valor100(carbo), cinquenta: fmtPeso(carbo, porcaoG, 50), vd: vd(carbo, 300) },
-    { indent: 1, bold: false, nome: 'Acucares totais (g)', cem: valor100(acucares), cinquenta: fmtPeso(acucares, porcaoG, 50), vd: vd(acucares, 50) },
+    { indent: 1, bold: false, nome: 'Acucares totais (g)', cem: valor100(acucares), cinquenta: fmtPeso(acucares, porcaoG, 50), vd: '' },
     { indent: 2, bold: false, nome: 'Acucares adicionados (g)', cem: valor100(acucaresAdic), cinquenta: fmtPeso(acucaresAdic, porcaoG, 50), vd: vd(acucaresAdic, 50) },
     { indent: 0, bold: true, nome: 'Proteinas (g)', cem: valor100(prot), cinquenta: fmtPeso(prot, porcaoG, 50), vd: vd(prot, 75) },
     { indent: 0, bold: true, nome: 'Gorduras totais (g)', cem: valor100(gord), cinquenta: fmtPeso(gord, porcaoG, 50), vd: vd(gord, 65) },
@@ -355,10 +355,10 @@ export function zplEtiquetaNutricional(
   const left = 0
   const right = 817
   const tableTop = 205
-  const headerHeight = 34
-  const rowHeight = 36
+  const headerHeight = 32
+  const rowHeight = 34
   const tableHeight = headerHeight + rows.length * rowHeight
-  const noteTop = tableTop + tableHeight + 8
+  const noteTop = tableTop + tableHeight + 6
   const col1 = left
   const col2 = 458
   const col3 = 575
@@ -369,7 +369,7 @@ export function zplEtiquetaNutricional(
 
   const renderLabel = () => {
     const zplRows = rows.map((row, index) => {
-      const y = tableTop + headerHeight + index * rowHeight + 5
+      const y = tableTop + headerHeight + index * rowHeight + 4
       const nameX = col1 + 10 + (row.indent * 8)
       const nameFont = row.bold ? 17 : 16
       return [
@@ -393,7 +393,7 @@ export function zplEtiquetaNutricional(
 ^LT0
 ^PON
 ^PR3
-${drawBox(0, 0, 817, 632, 2)}
+${drawBox(0, 0, 817, 606, 2)}
 ${zplText(left + 8, 8, 'INFORMACAO NUTRICIONAL', right - left - 16, 32, 32, 'C')}
 ${drawLine(left, 54, right - left, 2)}
 ${zplText(left + 10, 70, produtoNome, right - left - 20, 26, 26, 'C', 2)}
@@ -405,9 +405,9 @@ ${drawLine(col2, tableTop, 2, tableHeight)}
 ${drawLine(col3, tableTop, 2, tableHeight)}
 ${drawLine(col4, tableTop, 2, tableHeight)}
 ${drawLine(left, tableTop + headerHeight, right - left, 2)}
-${zplText(col2 + 6, tableTop + 7, '100g', col3 - col2 - 12, 21, 21, 'R')}
-${zplText(col3 + 4, tableTop + 7, '50g', col4 - col3 - 8, 21, 21, 'R')}
-${zplText(col4 + 6, tableTop + 7, '%VD(*)', right - col4 - 12, 21, 21, 'C')}
+${zplText(col2 + 6, tableTop + 6, '100g', col3 - col2 - 12, 21, 21, 'R')}
+${zplText(col3 + 4, tableTop + 6, '50g', col4 - col3 - 8, 21, 21, 'R')}
+${zplText(col4 + 6, tableTop + 6, '%VD(*)', right - col4 - 12, 21, 21, 'C')}
 ${horizontalLines}
 ${zplRows}
 ${zplText(left + 8, noteTop, '*percentual de valores diarios fornecidos pela porcao.', right - left - 16, 17, 17, 'L', 1)}
@@ -520,7 +520,7 @@ export function htmlEtiquetaNutricional(
             vd(kcal, 2000),
           )}
           ${row(true, 0, 'Carboidratos (g)', fmt100(carbo, porcaoG), fmtPeso(carbo, porcaoG, 50), vd(carbo, 300))}
-          ${row(false, 1, 'Açúcares totais (g)', fmt100(acucares, porcaoG), fmtPeso(acucares, porcaoG, 50), vd(acucares, 50))}
+          ${row(false, 1, 'Açúcares totais (g)', fmt100(acucares, porcaoG), fmtPeso(acucares, porcaoG, 50), '')}
           ${row(false, 2, 'Açúcares adicionados (g)', fmt100(acucaresAdic, porcaoG), fmtPeso(acucaresAdic, porcaoG, 50), vd(acucaresAdic, 50))}
           ${row(true, 0, 'Proteínas (g)', fmt100(prot, porcaoG), fmtPeso(prot, porcaoG, 50), vd(prot, 75))}
           ${row(true, 0, 'Gorduras totais (g)', fmt100(gord, porcaoG), fmtPeso(gord, porcaoG, 50), vd(gord, 65))}
@@ -575,8 +575,8 @@ export function htmlEtiquetaNutricional(
       top: 2mm;
       left: 3mm;
       width: 65.33mm;
-      height: 68.6mm;
-      max-height: 68.6mm;
+      height: 72mm;
+      max-height: 72mm;
       border: 0.38mm solid #000;
       font-family: 'Arial Narrow', Arial, sans-serif;
       font-weight: 700;
@@ -644,7 +644,7 @@ export function htmlEtiquetaNutricional(
       top: 23mm;
       left: 0;
       width: 65.33mm;
-      height: 46.3mm;
+      height: 44mm;
       border-collapse: collapse;
       table-layout: fixed;
       background: #fff;
@@ -656,19 +656,19 @@ export function htmlEtiquetaNutricional(
     tbody tr {
       break-inside: avoid;
       page-break-inside: avoid;
-      height: 4.2mm;
+      height: 4mm;
       border-bottom: 0.125mm solid #000;
     }
     thead tr {
-      height: 4mm;
+      height: 3.8mm;
       border-bottom: 0.25mm solid #000;
     }
     th,
     td {
-      padding: 0.08mm 0.75mm;
+      padding: 0.04mm 0.75mm;
       font-size: 12px;
       font-weight: 700;
-      line-height: 1.04;
+      line-height: 1;
       vertical-align: top;
       color: #000;
       overflow: hidden;
@@ -715,7 +715,7 @@ export function htmlEtiquetaNutricional(
     }
     .note {
       position: absolute;
-      top: 70.3mm;
+      top: 68mm;
       left: 1mm;
       width: 62mm;
       height: 4mm;

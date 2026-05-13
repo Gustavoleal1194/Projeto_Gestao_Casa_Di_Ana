@@ -208,7 +208,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
   const rows: Row[] = [
     { bold: true, indent: 0, nome: 'Valor energético (kcal)', cem: kcalNum > 0 ? fmt100(kcalNum, porcaoG) : '—', cinquenta: kcalNum > 0 ? fmtPeso(kcalNum, porcaoG, 50) : '—', vdVal: vdPrev(kcalNum, 2000) },
     { bold: true, indent: 0, nome: 'Carboidratos (g)', cem: fmt100(carboNum, porcaoG), cinquenta: fmtPeso(carboNum, porcaoG, 50), vdVal: vdPrev(carboNum, 300) },
-    { bold: false, indent: 1, nome: 'Açúcares totais (g)', cem: fmt100(acucaresNum, porcaoG), cinquenta: fmtPeso(acucaresNum, porcaoG, 50), vdVal: vdPrev(acucaresNum, 50) },
+    { bold: false, indent: 1, nome: 'Açúcares totais (g)', cem: fmt100(acucaresNum, porcaoG), cinquenta: fmtPeso(acucaresNum, porcaoG, 50), vdVal: '' },
     { bold: false, indent: 2, nome: 'Açúcares adicionados (g)', cem: fmt100(acucaresAdicNum, porcaoG), cinquenta: fmtPeso(acucaresAdicNum, porcaoG, 50), vdVal: vdPrev(acucaresAdicNum, 50) },
     { bold: true, indent: 0, nome: 'Proteínas (g)', cem: fmt100(protNum, porcaoG), cinquenta: fmtPeso(protNum, porcaoG, 50), vdVal: vdPrev(protNum, 75) },
     { bold: true, indent: 0, nome: 'Gorduras totais (g)', cem: fmt100(gordNum, porcaoG), cinquenta: fmtPeso(gordNum, porcaoG, 50), vdVal: vdPrev(gordNum, 65) },

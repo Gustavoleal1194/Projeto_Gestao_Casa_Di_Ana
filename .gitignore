@@ -40,6 +40,9 @@ dashboard/brain_data.json
 _design_bundle/
 neural_network_design.html
 
+# ─── BrainOS — vault Obsidian (memória operacional, não versionar) ───────────
+docs/brain/**/*.md
+
 # ─── Obsidian — estado de UI (gerado automaticamente, não versionar) ─────────
 # workspace.json e graph.json mudam a cada abertura do app — ruído no git
 **/.obsidian/workspace.json

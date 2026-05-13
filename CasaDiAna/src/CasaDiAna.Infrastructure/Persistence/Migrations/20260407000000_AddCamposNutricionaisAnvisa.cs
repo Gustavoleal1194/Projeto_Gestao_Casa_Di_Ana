@@ -1,49 +1,28 @@
+using CasaDiAna.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace CasaDiAna.Infrastructure.Persistence.Migrations
 {
-    /// <inheritdoc />
+    [DbContext(typeof(AppDbContext))]
+    [Migration("20260407000000_AddCamposNutricionaisAnvisa")]
     public partial class AddCamposNutricionaisAnvisa : Migration
     {
-        /// <inheritdoc />
+        // Migration criada manualmente sem Designer.cs — atributo [Migration] adicionado aqui
+        // para que o EF Core a reconheça e aplique via db.Database.Migrate().
+        // Up() usa ADD COLUMN IF NOT EXISTS para ser idempotente em qualquer estado do banco.
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<decimal>(
-                name: "acucares_adicionados",
-                schema: "producao",
-                table: "modelos_etiqueta_nutricional",
-                type: "numeric(10,2)",
-                precision: 10,
-                scale: 2,
-                nullable: false,
-                defaultValue: 0m);
-
-            migrationBuilder.AddColumn<decimal>(
-                name: "gorduras_trans",
-                schema: "producao",
-                table: "modelos_etiqueta_nutricional",
-                type: "numeric(10,2)",
-                precision: 10,
-                scale: 2,
-                nullable: false,
-                defaultValue: 0m);
-
-            migrationBuilder.AddColumn<int>(
-                name: "porcoes_por_embalagem",
-                schema: "producao",
-                table: "modelos_etiqueta_nutricional",
-                type: "integer",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "medida_caseira",
-                schema: "producao",
-                table: "modelos_etiqueta_nutricional",
-                type: "character varying(100)",
-                maxLength: 100,
-                nullable: true);
+            migrationBuilder.Sql("""
+                ALTER TABLE producao.modelos_etiqueta_nutricional
+                    ADD COLUMN IF NOT EXISTS acucares_adicionados  numeric(10,2) NOT NULL DEFAULT 0,
+                    ADD COLUMN IF NOT EXISTS gorduras_trans         numeric(10,2) NOT NULL DEFAULT 0,
+                    ADD COLUMN IF NOT EXISTS porcoes_por_embalagem  integer,
+                    ADD COLUMN IF NOT EXISTS medida_caseira         character varying(100);
+                """);
         }
 
         /// <inheritdoc />

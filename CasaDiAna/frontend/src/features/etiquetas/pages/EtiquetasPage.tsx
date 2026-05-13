@@ -265,16 +265,16 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           <tbody>
             {rows.map((r) => (
               <tr key={r.nome} style={{ height: 14.64, borderBottom: '0.5px solid #000' }}>
-                <td style={{ fontWeight: r.bold ? 700 : 400, padding: `1px 2px 1px ${r.indent === 2 ? '15.75px' : r.indent === 1 ? '9px' : '2px'}`, lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'anywhere' }}>
+                <td style={{ fontWeight: 700, padding: `1px 2px 1px ${r.indent === 2 ? '15.75px' : r.indent === 1 ? '9px' : '2px'}`, lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'anywhere' }}>
                   {r.nome}
                 </td>
-                <td style={{ textAlign: 'right', padding: '1px 2px', borderLeft: '0.5px solid #000', lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'anywhere' }}>
+                <td style={{ fontWeight: 700, textAlign: 'right', padding: '1px 2px', borderLeft: '0.5px solid #000', lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'anywhere' }}>
                   {r.cem}
                 </td>
-                <td style={{ textAlign: 'right', padding: '1px 2px', borderLeft: '0.5px solid #000', color: '#444', lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'anywhere' }}>
+                <td style={{ fontWeight: 700, textAlign: 'right', padding: '1px 2px', borderLeft: '0.5px solid #000', color: '#444', lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'anywhere' }}>
                   {r.cinquenta}
                 </td>
-                <td style={{ textAlign: 'center', padding: '1px 2px', borderLeft: '0.5px solid #000', lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden' }}>
+                <td style={{ fontWeight: 700, textAlign: 'center', padding: '1px 2px', borderLeft: '0.5px solid #000', lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden' }}>
                   {r.vdVal}
                 </td>
               </tr>

@@ -675,6 +675,7 @@ export function htmlEtiquetaNutricional(
     td {
       padding: 0.35mm 0.75mm;
       font-size: 12px;
+      font-weight: 700;
       line-height: 1.18;
       vertical-align: top;
       color: #000;

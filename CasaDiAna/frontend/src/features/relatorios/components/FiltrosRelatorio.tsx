@@ -52,11 +52,6 @@ const pillClose: React.CSSProperties = {
   color: 'var(--ada-muted)', display: 'flex', alignItems: 'center', transition: 'color 150ms',
 }
 
-function fmtData(v: string) {
-  if (!v) return ''
-  const [y, m, d] = v.split('-')
-  return `${d}/${m}/${y}`
-}
 
 export function FiltrosRelatorio({
   de, onDeChange, ate, onAteChange,
@@ -107,7 +102,7 @@ export function FiltrosRelatorio({
             disabled={loading}
             style={{
               marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 8,
-              padding: '8px 18px', borderRadius: 10, border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
+              padding: '8px 18px', borderRadius: 10, cursor: loading ? 'not-allowed' : 'pointer',
               background: loading ? 'var(--ada-surface-2)' : 'linear-gradient(180deg, rgba(240,176,48,.22) 0%, rgba(212,150,12,.14) 100%)',
               color: loading ? 'var(--ada-muted)' : 'var(--ada-heading)',
               fontSize: 13, fontWeight: 600, fontFamily: 'Sora, system-ui, sans-serif',

@@ -304,8 +304,8 @@ function fmtPeso(value: number, porcaoG: number, pesoG: number): string {
 
 export function zplEtiquetaNutricional(
   produtoNome: string,
-  dataProducao: string,
-  validade: string,
+  _dataProducao: string,
+  _validade: string,
   quantidade: number,
   nutri: NutriValues,
 ): string {
@@ -410,11 +410,7 @@ ${zplText(col3 + 4, tableTop + 13, '50g', col4 - col3 - 8, 21, 21, 'R')}
 ${zplText(col4 + 6, tableTop + 13, '%VD(*)', right - col4 - 12, 21, 21, 'C')}
 ${horizontalLines}
 ${zplRows}
-${zplText(left + 8, noteTop, '*percentual de valores diarios fornecidos pela porcao.', right - left - 16, 17, 17, 'L', 2)}
-${drawLine(left, 1010, right - left, 2)}
-${zplText(left + 8, 1030, `Fab: ${dataProducao}`, 220, 21, 21, 'L')}
-${zplText(left + 260, 1030, `Val: ${validade}`, 220, 21, 21, 'L')}
-${zplText(right - 210, 1030, 'Casa di Ana', 200, 21, 21, 'R')}
+${zplText(left + 8, noteTop, '*percentual de valores diarios fornecidos pela porcao.', right - left - 16, 17, 17, 'L', 1)}
 ^XZ`
   }
 
@@ -440,8 +436,8 @@ export function baixarEtiquetaNutricionalZpl(
 
 export function htmlEtiquetaNutricional(
   produtoNome: string,
-  dataProducao: string,
-  validade: string,
+  _dataProducao: string,
+  _validade: string,
   quantidade: number,
   nutri: NutriValues,
 ): string {
@@ -539,12 +535,6 @@ export function htmlEtiquetaNutricional(
         *percentual de valores diários fornecidos pela porção.
       </div>
 
-      <div class="line footer-line"></div>
-      <div class="footer">
-        <span><strong>Fab:</strong> ${dataProducao}</span>
-        <span><strong>Val:</strong> ${validade}</span>
-        <span style="font-style:italic;">Casa di Ana</span>
-      </div>
       </div>
     </div>`
 
@@ -726,32 +716,13 @@ export function htmlEtiquetaNutricional(
       top: 84.5mm;
       left: 1mm;
       width: 62mm;
-      height: 23.5mm;
+      height: 4mm;
       font-size: 10px;
-      line-height: 1.18;
+      line-height: 4mm;
       color: #000;
       overflow: hidden;
       background: #fff;
       z-index: 2;
-    }
-    .footer-line {
-      top: 109.4mm;
-      height: 0.25mm;
-    }
-    .footer {
-      position: absolute;
-      top: 111.6mm;
-      left: 1mm;
-      width: 62mm;
-      height: 5mm;
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 2mm;
-      font-size: 12px;
-      line-height: 1.2;
-      color: #000;
-      overflow: hidden;
       white-space: nowrap;
     }
   </style>

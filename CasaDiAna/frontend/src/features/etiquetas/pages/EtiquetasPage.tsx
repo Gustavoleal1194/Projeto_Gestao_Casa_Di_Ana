@@ -218,8 +218,6 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
     { bold: true, indent: 0, nome: 'Sódio (mg)', cem: fmt100(sodioNum, porcaoG), cinquenta: fmtPeso(sodioNum, porcaoG, 50), vdVal: vdPrev(sodioNum, 2300) },
   ]
 
-  const validadePrev = dataValidade ? formatarDataLocal(dataValidade) : '—'
-  const dataFabPrev = formatarDataLocal(dataProducao)
   const tableTop = 66
   const tableHeight = 159.3
   const noteTop = 253.5
@@ -297,14 +295,8 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           </tbody>
         </table>
 
-        <div style={{ position: 'absolute', top: noteTop, left: 3, width: 186, height: 70.5, fontSize: 10, lineHeight: 1.18, overflow: 'hidden', background: '#fff', zIndex: 2 }}>
+        <div style={{ position: 'absolute', top: noteTop, left: 3, width: 186, height: 14, fontSize: 10, lineHeight: '14px', overflow: 'hidden', background: '#fff', zIndex: 2, whiteSpace: 'nowrap' }}>
           *percentual de valores diários fornecidos pela porção.
-        </div>
-        <div style={{ position: 'absolute', top: 328.2, left: 0, width: 192, height: 1, background: '#000' }} />
-        <div style={{ position: 'absolute', top: 334.8, left: 3, width: 186, height: 15, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 6, fontSize: 12, lineHeight: 1.2, overflow: 'hidden', whiteSpace: 'nowrap' }}>
-          <span><strong>Fab:</strong> {dataFabPrev}</span>
-          <span><strong>Val:</strong> {validadePrev}</span>
-          <span style={{ fontStyle: 'italic' }}>Casa di Ana</span>
         </div>
       </div>
     </div>

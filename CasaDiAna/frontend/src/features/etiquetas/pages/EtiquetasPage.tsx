@@ -223,7 +223,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
   const dataFabPrev = formatarDataLocal(dataProducao)
   const tableTop = 60
   const tableHeight = 159.3
-  const noteTop = tableTop + tableHeight + 39
+  const noteTop = 253.5
   const porcoesPorEmb = nutri.porcoesPorEmbalagem
     ? `${nutri.porcoesPorEmbalagem} porções por embalagem`
     : ''
@@ -299,7 +299,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           </tbody>
         </table>
 
-        <div style={{ position: 'absolute', top: noteTop, left: 3, width: 186, height: 60, fontSize: 9.5, lineHeight: 1.2, overflow: 'hidden', background: '#fff', zIndex: 2 }}>
+        <div style={{ position: 'absolute', top: noteTop, left: 3, width: 186, height: 70.5, fontSize: 10, lineHeight: 1.18, overflow: 'hidden', background: '#fff', zIndex: 2 }}>
           *Percentual de valores diários fornecidos pela porção. **Valor Diário não estabelecido. Valores diários de referência com base em uma dieta de 2000 kcal ou 8400 kJ.
         </div>
         <div style={{ position: 'absolute', top: 328.2, left: 0, width: 192, height: 1, background: '#000' }} />

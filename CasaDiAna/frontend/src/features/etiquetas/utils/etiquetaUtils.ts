@@ -369,7 +369,7 @@ export function zplEtiquetaNutricional(
 
   const renderLabel = () => {
     const zplRows = rows.map((row, index) => {
-      const y = tableTop + headerHeight + index * rowHeight + 4
+      const y = tableTop + headerHeight + index * rowHeight + 8
       const nameX = col1 + 10 + (row.indent * 8)
       const nameFont = row.bold ? 17 : 16
       return [
@@ -684,6 +684,7 @@ export function htmlEtiquetaNutricional(
       font-size: 9.8px;
       white-space: nowrap;
       overflow-wrap: normal;
+      vertical-align: middle;
     }
     th:nth-child(2),
     th:nth-child(4) {

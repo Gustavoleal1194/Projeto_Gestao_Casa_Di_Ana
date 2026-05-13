@@ -278,7 +278,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           <tbody>
             {rows.map((r) => (
               <tr key={r.nome} style={{ height: 14.64, borderBottom: '0.5px solid #000' }}>
-                <td style={{ fontWeight: 700, padding: `1px 2px 1px ${r.indent === 2 ? '6px' : r.indent === 1 ? '5px' : '2px'}`, fontSize: 9.8, lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'normal', whiteSpace: 'nowrap' }}>
+                <td style={{ fontWeight: 700, padding: `0 2px 0 ${r.indent === 2 ? '6px' : r.indent === 1 ? '5px' : '2px'}`, fontSize: 9.8, lineHeight: 1.18, verticalAlign: 'middle', overflow: 'hidden', overflowWrap: 'normal', whiteSpace: 'nowrap' }}>
                   {r.nome}
                 </td>
                 <td style={{ fontWeight: 700, textAlign: 'right', padding: '1px 2px', borderLeft: '0.5px solid #000', lineHeight: 1.18, verticalAlign: 'top', overflow: 'hidden', overflowWrap: 'anywhere' }}>

@@ -49,7 +49,9 @@ public class RegistrarEntradaCommandHandler : IRequestHandler<RegistrarEntradaCo
             _currentUser.UsuarioId,
             request.NumeroNotaFiscal,
             request.RecebidoPor,
-            request.Observacoes);
+            request.Observacoes,
+            request.TemBoleto,
+            request.DataVencimentoBoleto);
 
         // Carrega todos os ingredientes de uma vez
         var ingredienteIds = request.Itens.Select(i => i.IngredienteId).Distinct().ToList();
@@ -118,6 +120,8 @@ public class RegistrarEntradaCommandHandler : IRequestHandler<RegistrarEntradaCo
             e.Observacoes,
             itens,
             itens.Sum(i => i.CustoTotal),
-            e.CriadoEm);
+            e.CriadoEm,
+            e.TemBoleto,
+            e.DataVencimentoBoleto);
     }
 }

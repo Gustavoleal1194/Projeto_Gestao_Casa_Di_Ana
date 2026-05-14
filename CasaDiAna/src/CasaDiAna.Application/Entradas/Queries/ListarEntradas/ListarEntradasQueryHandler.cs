@@ -27,6 +27,8 @@ public class ListarEntradasQueryHandler : IRequestHandler<ListarEntradasQuery, I
             e.RecebidoPor,
             e.Itens.Count,
             e.Itens.Sum(i => i.CustoTotal),
-            e.CriadoEm)).ToList().AsReadOnly();
+            e.CriadoEm,
+            e.TemBoleto,
+            e.DataVencimentoBoleto)).ToList().AsReadOnly();
     }
 }

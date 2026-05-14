@@ -9,4 +9,6 @@ public record RegistrarEntradaCommand(
     IReadOnlyList<ItemEntradaInputDto> Itens,
     string RecebidoPor,
     string? NumeroNotaFiscal = null,
-    string? Observacoes = null) : IRequest<EntradaMercadoriaDto>;
+    string? Observacoes = null,
+    bool TemBoleto = false,
+    DateTime? DataVencimentoBoleto = null) : IRequest<EntradaMercadoriaDto>;

@@ -123,60 +123,61 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
   const dataPtBr = formatarDataLocal(dataProducao)
 
   if (tipo === 1) {
+    // Papel 100×150mm = 300×450px. Conteúdo da etiqueta (100×50mm) ocupa os 150px do topo.
     return (
       <div style={{
-        width: 300, height: 150,
-        background: '#fff', border: '1.5px solid #222', borderRadius: 2,
-        display: 'flex', flexDirection: 'column',
-        padding: '6px 9px',
-        overflow: 'hidden', fontFamily: 'Georgia, serif',
+        width: 300, height: 450,
+        background: '#fff', border: '1.5px solid #aaa', borderRadius: 2,
+        position: 'relative', overflow: 'hidden',
         boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
       }}>
-        {/* Topo: logo */}
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 0 }}>
-          <img src="/images/image.png" alt="Logo" style={{ height: 48, width: 'auto', objectFit: 'contain' }} />
-        </div>
-
-        {/* Ornamento */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, margin: '3px 0' }}>
-          <div style={{ flex: 1, height: 0.5, background: '#333', opacity: 0.6 }} />
-          <span style={{ color: '#333', fontSize: 7 }}>◆</span>
-          <div style={{ flex: 1, height: 0.5, background: '#333', opacity: 0.6 }} />
-        </div>
-
-        {/* Produto — ocupa espaço restante, igual ao flex:1 da impressão */}
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#000', textAlign: 'center', lineHeight: 1.2, wordBreak: 'break-word' }}>
-          {nomeExibido}
-        </div>
-
-        {/* Rodapé: Fab esquerda / Val direita — igual à impressão */}
-        <div style={{ flexShrink: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 9, color: '#333', borderTop: '0.5px solid #333', paddingTop: 3 }}>
-          <span>Fab: {dataPtBr}</span>
-          <span style={{ fontWeight: 700, color: '#000' }}>Val: {validade}</span>
+        <div style={{
+          position: 'absolute', top: 0, left: 0, width: 300, height: 150,
+          display: 'flex', flexDirection: 'column',
+          padding: '6px 9px', boxSizing: 'border-box',
+          fontFamily: 'Georgia, serif',
+          borderBottom: '0.5px dashed #ccc',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 0 }}>
+            <img src="/images/image.png" alt="Logo" style={{ height: 48, width: 'auto', objectFit: 'contain' }} />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, margin: '3px 0' }}>
+            <div style={{ flex: 1, height: 0.5, background: '#333', opacity: 0.6 }} />
+            <span style={{ color: '#333', fontSize: 7 }}>◆</span>
+            <div style={{ flex: 1, height: 0.5, background: '#333', opacity: 0.6 }} />
+          </div>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#000', textAlign: 'center', lineHeight: 1.2, wordBreak: 'break-word' }}>
+            {nomeExibido}
+          </div>
+          <div style={{ flexShrink: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 9, color: '#333', borderTop: '0.5px solid #333', paddingTop: 3 }}>
+            <span>Fab: {dataPtBr}</span>
+            <span style={{ fontWeight: 700, color: '#000' }}>Val: {validade}</span>
+          </div>
         </div>
       </div>
     )
   }
 
   if (tipo === 2) {
+    // Papel 100×150mm = 300×450px. Conteúdo da etiqueta (70×40mm) = 210×120px no topo-esquerdo.
     return (
-      <div
-        style={{
-          width: 280,
-          height: 160,
-          border: '1.5px solid #999',
-          borderRadius: 4,
-          padding: '12px 14px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          background: '#fff',
-          color: '#000',
-          fontFamily: 'Arial, sans-serif',
-        }}
-      >
-        <div style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.15 }}>{nomeExibido}</div>
-        <div style={{ fontSize: 12, marginTop: 8, color: '#333' }}>Val.: {validade}</div>
+      <div style={{
+        width: 300, height: 450,
+        background: '#fff', border: '1.5px solid #aaa', borderRadius: 2,
+        position: 'relative', overflow: 'hidden',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
+      }}>
+        <div style={{
+          position: 'absolute', top: 0, left: 0, width: 210, height: 120,
+          border: '1.5px solid #333',
+          display: 'flex', flexDirection: 'column',
+          justifyContent: 'center', alignItems: 'center', textAlign: 'center',
+          padding: '12px 14px', boxSizing: 'border-box',
+          fontFamily: 'Arial, sans-serif', color: '#000',
+        }}>
+          <div style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.15 }}>{nomeExibido}</div>
+          <div style={{ fontSize: 12, marginTop: 8, color: '#333' }}>Val.: {validade}</div>
+        </div>
       </div>
     )
   }
@@ -217,16 +218,20 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
   const tableHeight = 132
   const noteTop = 199.5
 
+  // Papel 100×150mm = 300×450px. Conteúdo nutricional (70×130mm) ocupa a área superior-esquerda.
   return (
     <div
       style={{
-        width: 210,
-        height: 390,
+        width: 300,
+        height: 450,
         position: 'relative',
         overflow: 'hidden',
         fontFamily: "'Arial Narrow', Arial, sans-serif",
         background: '#fff',
         color: '#000',
+        border: '1.5px solid #aaa',
+        borderRadius: 2,
+        boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
       }}
     >
       <div
@@ -347,15 +352,15 @@ export function EtiquetasPage() {
   const produto = produtoDetalhe
 
   const previewContainerRef = useRef<HTMLDivElement>(null)
-  const [previewScale, setPreviewScale] = useState(1.55)
+  const [previewScale, setPreviewScale] = useState(1.0)
 
   useEffect(() => {
     const el = previewContainerRef.current
     if (!el) return
     const observer = new ResizeObserver(([entry]) => {
       const available = entry.contentRect.width - 48 // 24px padding de cada lado
-      const scale = Math.min(1.55, available / 210)
-      setPreviewScale(Math.max(0.6, scale))
+      const scale = Math.min(1.0, available / 300)
+      setPreviewScale(Math.max(0.5, scale))
     })
     observer.observe(el)
     return () => observer.disconnect()

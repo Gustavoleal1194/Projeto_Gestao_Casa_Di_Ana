@@ -125,54 +125,34 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
   if (tipo === 1) {
     return (
       <div style={{
-        width: 300,
-        height: 150,
-        background: '#fff',
-        border: '1.5px solid #222',
-        borderRadius: 2,
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        fontFamily: 'Georgia, serif',
+        width: 300, height: 150,
+        background: '#fff', border: '1.5px solid #222', borderRadius: 2,
+        display: 'flex', flexDirection: 'column',
+        padding: '6px 9px',
+        overflow: 'hidden', fontFamily: 'Georgia, serif',
         boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
       }}>
-        {/* Top content */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 18px 6px', gap: 4 }}>
+        {/* Topo: logo */}
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 0 }}>
           <img src="/images/image.png" alt="Logo" style={{ height: 48, width: 'auto', objectFit: 'contain' }} />
-
-          {/* Ornament */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', margin: '4px 0' }}>
-            <div style={{ flex: 1, height: 0.5, background: '#444', opacity: 0.6 }} />
-            <span style={{ color: '#444', fontSize: 8 }}>◆</span>
-            <div style={{ flex: 1, height: 0.5, background: '#444', opacity: 0.6 }} />
-          </div>
-
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#000', textAlign: 'center', lineHeight: 1.15, letterSpacing: 0.3 }}>
-            {nomeExibido}
-          </div>
-
-          <div style={{ fontSize: 10, color: '#444', marginTop: 4 }}>
-            Fabricação: {dataPtBr}
-          </div>
         </div>
 
-        {/* Validade bar */}
-        <div style={{
-          background: '#111',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 12,
-          padding: '6px 16px',
-          margin: '0 12px 9px',
-          borderRadius: 2,
-        }}>
-          <span style={{ fontSize: 9, color: '#bbb', letterSpacing: 2, textTransform: 'uppercase' }}>
-            Válido Até
-          </span>
-          <span style={{ fontSize: 16, fontWeight: 700, color: '#fff', letterSpacing: 0.5 }}>
-            {validade}
-          </span>
+        {/* Ornamento */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, margin: '3px 0' }}>
+          <div style={{ flex: 1, height: 0.5, background: '#333', opacity: 0.6 }} />
+          <span style={{ color: '#333', fontSize: 7 }}>◆</span>
+          <div style={{ flex: 1, height: 0.5, background: '#333', opacity: 0.6 }} />
+        </div>
+
+        {/* Produto — ocupa espaço restante, igual ao flex:1 da impressão */}
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#000', textAlign: 'center', lineHeight: 1.2, wordBreak: 'break-word' }}>
+          {nomeExibido}
+        </div>
+
+        {/* Rodapé: Fab esquerda / Val direita — igual à impressão */}
+        <div style={{ flexShrink: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 9, color: '#333', borderTop: '0.5px solid #333', paddingTop: 3 }}>
+          <span>Fab: {dataPtBr}</span>
+          <span style={{ fontWeight: 700, color: '#000' }}>Val: {validade}</span>
         </div>
       </div>
     )

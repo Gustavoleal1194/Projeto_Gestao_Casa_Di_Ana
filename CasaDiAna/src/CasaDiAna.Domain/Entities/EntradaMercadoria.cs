@@ -11,6 +11,8 @@ public class EntradaMercadoria
     public DateTime DataEntrada { get; private set; }
     public string? RecebidoPor { get; private set; }
     public string? Observacoes { get; private set; }
+    public bool TemBoleto { get; private set; }
+    public DateTime? DataVencimentoBoleto { get; private set; }
     public StatusEntrada Status { get; private set; }
     public DateTime CriadoEm { get; private set; }
     public DateTime AtualizadoEm { get; private set; }
@@ -29,7 +31,9 @@ public class EntradaMercadoria
         Guid criadoPor,
         string? numeroNotaFiscal = null,
         string? recebidoPor = null,
-        string? observacoes = null)
+        string? observacoes = null,
+        bool temBoleto = false,
+        DateTime? dataVencimentoBoleto = null)
     {
         return new EntradaMercadoria
         {
@@ -39,6 +43,8 @@ public class EntradaMercadoria
             DataEntrada = dataEntrada,
             RecebidoPor = recebidoPor,
             Observacoes = observacoes,
+            TemBoleto = temBoleto,
+            DataVencimentoBoleto = dataVencimentoBoleto,
             Status = StatusEntrada.Confirmada,
             CriadoEm = DateTime.UtcNow,
             AtualizadoEm = DateTime.UtcNow,

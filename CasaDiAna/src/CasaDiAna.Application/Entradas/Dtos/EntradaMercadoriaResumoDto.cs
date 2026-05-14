@@ -9,4 +9,6 @@ public record EntradaMercadoriaResumoDto(
     string? RecebidoPor,
     int TotalItens,
     decimal CustoTotal,
-    DateTime CriadoEm);
+    DateTime CriadoEm,
+    bool TemBoleto,
+    DateTime? DataVencimentoBoleto);

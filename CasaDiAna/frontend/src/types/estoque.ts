@@ -141,6 +141,8 @@ export interface EntradaMercadoriaResumo {
   totalItens: number
   custoTotal: number
   criadoEm: string
+  temBoleto: boolean
+  dataVencimentoBoleto: string | null
 }
 
 export interface ItemEntrada {
@@ -164,6 +166,8 @@ export interface EntradaMercadoria {
   observacoes: string | null
   custoTotal: number
   criadoEm: string
+  temBoleto: boolean
+  dataVencimentoBoleto: string | null
   itens: ItemEntrada[]
 }
 
@@ -180,6 +184,8 @@ export interface RegistrarEntradaInput {
   recebidoPor: string
   numeroNotaFiscal?: string | null
   observacoes?: string | null
+  temBoleto: boolean
+  dataVencimentoBoleto?: string | null
 }
 
 export interface EntradaFormValues {
@@ -189,6 +195,8 @@ export interface EntradaFormValues {
   recebidoPor: string
   observacoes: string
   itens: { ingredienteId: string; quantidade: number | undefined; custoUnitario: number | undefined }[]
+  temBoleto: boolean
+  dataVencimentoBoleto: string
 }
 
 // ─── Inventários ──────────────────────────────────────────────────────────────

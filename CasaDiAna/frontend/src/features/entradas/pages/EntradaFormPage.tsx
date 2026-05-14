@@ -23,24 +23,27 @@ const entradaSchema = z.object({
   numeroNotaFiscal: z.string().max(60),
   recebidoPor: z.string().min(1, 'Informe quem recebeu os produtos.').max(100),
   observacoes: z.string(),
+  temBoleto: z.boolean().default(false),
+  dataVencimentoBoleto: z.string().optional(),
   itens: z
     .array(
       z.object({
         ingredienteId: z.string().min(1, 'Selecione um ingrediente.'),
         quantidade: z.preprocess(
           (v) => (v === '' || v == null ? undefined : Number(v)),
-          z.number()
-            .positive('Quantidade deve ser maior que 0.')
+          z.number().positive('Quantidade deve ser maior que 0.')
         ),
         custoUnitario: z.preprocess(
           (v) => (v === '' || v == null ? undefined : Number(v)),
-          z.number()
-            .min(0, 'Custo deve ser ≥ 0.')
+          z.number().min(0, 'Custo deve ser ≥ 0.')
         ),
       })
     )
     .min(1, 'Adicione pelo menos um item.'),
-})
+}).refine(
+  (data) => !data.temBoleto || (!!data.dataVencimentoBoleto && data.dataVencimentoBoleto.length > 0),
+  { message: 'Informe a data de vencimento do boleto.', path: ['dataVencimentoBoleto'] }
+)
 
 export function EntradaFormPage() {
   const navigate = useNavigate()
@@ -49,7 +52,7 @@ export function EntradaFormPage() {
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
   const [confirma, setConfirma] = useState<DadosConfirmacaoEntrada | null>(null)
 
-  const { register, control, handleSubmit, reset, formState: { errors, isSubmitting } } =
+  const { register, control, handleSubmit, reset, watch, formState: { errors, isSubmitting } } =
     useForm<EntradaFormValues>({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       resolver: zodResolver(entradaSchema) as any,
@@ -59,9 +62,13 @@ export function EntradaFormPage() {
         numeroNotaFiscal: '',
         recebidoPor: '',
         observacoes: '',
+        temBoleto: false,
+        dataVencimentoBoleto: '',
         itens: [{ ingredienteId: '', quantidade: undefined, custoUnitario: undefined }],
       },
     })
+
+  const temBoleto = watch('temBoleto')
 
   const { fields, append, remove } = useFieldArray({ control, name: 'itens' })
 
@@ -78,6 +85,10 @@ export function EntradaFormPage() {
         recebidoPor: values.recebidoPor,
         numeroNotaFiscal: values.numeroNotaFiscal || null,
         observacoes: values.observacoes || null,
+        temBoleto: values.temBoleto,
+        dataVencimentoBoleto: values.temBoleto && values.dataVencimentoBoleto
+          ? values.dataVencimentoBoleto
+          : null,
         itens: values.itens.map(item => ({
           ingredienteId: item.ingredienteId,
           quantidade: item.quantidade!,
@@ -152,6 +163,35 @@ export function EntradaFormPage() {
               placeholder="Observações (opcional)"
               {...register('observacoes')}
             />
+
+            {/* Boleto */}
+            <div className="col-span-2">
+              <label
+                className="flex items-center gap-3 cursor-pointer select-none"
+                htmlFor="temBoleto"
+              >
+                <input
+                  id="temBoleto"
+                  type="checkbox"
+                  {...register('temBoleto')}
+                  className="h-4 w-4 rounded"
+                  style={{ accentColor: '#C4870A' }}
+                />
+                <span className="text-sm font-medium" style={{ color: 'var(--ada-body)' }}>
+                  Pagamento via boleto
+                </span>
+              </label>
+            </div>
+
+            {temBoleto && (
+              <CampoTexto
+                label="Data de Vencimento do Boleto"
+                obrigatorio
+                type="date"
+                {...register('dataVencimentoBoleto')}
+                erro={errors.dataVencimentoBoleto?.message}
+              />
+            )}
           </div>
 
           <FormSection titulo="Itens da Entrada" />

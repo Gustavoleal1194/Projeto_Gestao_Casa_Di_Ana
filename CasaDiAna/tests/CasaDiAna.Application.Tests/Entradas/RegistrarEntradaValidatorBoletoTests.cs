@@ -55,4 +55,13 @@ public class RegistrarEntradaValidatorBoletoTests
             dataVencimentoBoleto: DateTime.UtcNow.AddDays(10)));
         result.IsValid.Should().BeTrue();
     }
+
+    [Fact]
+    public void Deve_passar_quando_TemBoleto_true_com_data_hoje()
+    {
+        var result = _sut.Validate(ComandoValido(
+            temBoleto: true,
+            dataVencimentoBoleto: DateTime.UtcNow.Date));
+        result.IsValid.Should().BeTrue();
+    }
 }

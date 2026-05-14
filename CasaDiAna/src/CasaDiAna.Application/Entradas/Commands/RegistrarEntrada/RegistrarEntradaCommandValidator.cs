@@ -37,7 +37,7 @@ public class RegistrarEntradaCommandValidator : AbstractValidator<RegistrarEntra
         RuleFor(x => x.DataVencimentoBoleto)
             .NotNull()
             .WithMessage("Informe a data de vencimento do boleto.")
-            .GreaterThanOrEqualTo(DateTime.UtcNow.Date)
+            .GreaterThanOrEqualTo(_ => DateTime.UtcNow.Date)
             .WithMessage("A data de vencimento do boleto deve ser hoje ou no futuro.")
             .When(x => x.TemBoleto);
     }

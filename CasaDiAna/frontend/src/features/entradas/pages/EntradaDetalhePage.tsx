@@ -130,6 +130,22 @@ export function EntradaDetalhePage() {
         </div>
       )}
 
+      {entrada.temBoleto && (
+        <div
+          className="rounded-xl px-4 py-3 text-sm mb-4"
+          style={{ background: 'var(--ada-surface)', border: '1px solid var(--ada-border)' }}
+        >
+          <p>
+            <span className="font-semibold" style={{ color: 'var(--ada-muted)' }}>Boleto: </span>
+            <span style={{ color: 'var(--ada-body)' }}>
+              {entrada.dataVencimentoBoleto
+                ? `Vencimento: ${new Date(entrada.dataVencimentoBoleto).toLocaleDateString('pt-BR')}`
+                : 'Sim (sem data de vencimento)'}
+            </span>
+          </p>
+        </div>
+      )}
+
       <div className="ada-surface-card mb-4">
         <div className="overflow-x-auto">
           <table className="w-full" role="table">

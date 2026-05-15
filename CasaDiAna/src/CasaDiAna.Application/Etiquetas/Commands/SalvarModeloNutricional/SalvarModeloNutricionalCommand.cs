@@ -28,4 +28,8 @@ public record SalvarModeloNutricionalCommand(
     string? VdGordurasTrans,
     string? VdFibraAlimentar,
     string? VdSodio,
-    string? Nome) : IRequest<ModeloEtiquetaNutricionalDto>;
+    string? Nome,
+    bool ContemAlergicos,
+    bool ContemGluten,
+    bool ContemLactose,
+    string? LoteFabricacao) : IRequest<ModeloEtiquetaNutricionalDto>;

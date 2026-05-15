@@ -26,4 +26,8 @@ public record ModeloEtiquetaNutricionalDto(
     string? VdGordurasTrans,
     string? VdFibraAlimentar,
     string? VdSodio,
-    string? Nome);
+    string? Nome,
+    bool ContemAlergicos,
+    bool ContemGluten,
+    bool ContemLactose,
+    string? LoteFabricacao);

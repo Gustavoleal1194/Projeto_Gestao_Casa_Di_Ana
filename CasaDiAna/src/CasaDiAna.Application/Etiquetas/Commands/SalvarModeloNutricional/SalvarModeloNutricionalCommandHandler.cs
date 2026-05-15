@@ -56,7 +56,11 @@ public class SalvarModeloNutricionalCommandHandler
                 request.VdGordurasTrans,
                 request.VdFibraAlimentar,
                 request.VdSodio,
-                request.Nome);
+                request.Nome,
+                request.ContemAlergicos,
+                request.ContemGluten,
+                request.ContemLactose,
+                request.LoteFabricacao);
 
             await _modelos.AdicionarAsync(novo, cancellationToken);
             await _modelos.SalvarAsync(cancellationToken);
@@ -87,7 +91,11 @@ public class SalvarModeloNutricionalCommandHandler
             request.VdGordurasTrans,
             request.VdFibraAlimentar,
             request.VdSodio,
-            request.Nome);
+            request.Nome,
+            request.ContemAlergicos,
+            request.ContemGluten,
+            request.ContemLactose,
+            request.LoteFabricacao);
 
         await _modelos.SalvarAsync(cancellationToken);
         return ToDto(existente);
@@ -119,5 +127,9 @@ public class SalvarModeloNutricionalCommandHandler
         m.VdGordurasTrans,
         m.VdFibraAlimentar,
         m.VdSodio,
-        m.Nome);
+        m.Nome,
+        m.ContemAlergicos,
+        m.ContemGluten,
+        m.ContemLactose,
+        m.LoteFabricacao);
 }

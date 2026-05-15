@@ -31,6 +31,10 @@ public class ModeloEtiquetaNutricional
     public string? VdSodio { get; private set; }
 
     public string? Nome { get; private set; }
+    public bool ContemAlergicos { get; private set; }
+    public bool ContemGluten { get; private set; }
+    public bool ContemLactose { get; private set; }
+    public string? LoteFabricacao { get; private set; }
 
     public DateTime CriadoEm { get; private set; }
     public DateTime AtualizadoEm { get; private set; }
@@ -62,7 +66,11 @@ public class ModeloEtiquetaNutricional
         string? vdGordurasTrans = null,
         string? vdFibraAlimentar = null,
         string? vdSodio = null,
-        string? nome = null)
+        string? nome = null,
+        bool contemAlergicos = false,
+        bool contemGluten = false,
+        bool contemLactose = false,
+        string? loteFabricacao = null)
     {
         return new ModeloEtiquetaNutricional
         {
@@ -92,6 +100,10 @@ public class ModeloEtiquetaNutricional
             VdFibraAlimentar = NullIfEmpty(vdFibraAlimentar),
             VdSodio = NullIfEmpty(vdSodio),
             Nome = NullIfEmpty(nome),
+            ContemAlergicos = contemAlergicos,
+            ContemGluten = contemGluten,
+            ContemLactose = contemLactose,
+            LoteFabricacao = NullIfEmpty(loteFabricacao),
             CriadoEm = DateTime.UtcNow,
             AtualizadoEm = DateTime.UtcNow,
         };
@@ -121,7 +133,11 @@ public class ModeloEtiquetaNutricional
         string? vdGordurasTrans,
         string? vdFibraAlimentar,
         string? vdSodio,
-        string? nome = null)
+        string? nome = null,
+        bool contemAlergicos = false,
+        bool contemGluten = false,
+        bool contemLactose = false,
+        string? loteFabricacao = null)
     {
         Porcao = porcao;
         ValorEnergeticoKcal = valorEnergeticoKcal;
@@ -147,6 +163,10 @@ public class ModeloEtiquetaNutricional
         VdFibraAlimentar = NullIfEmpty(vdFibraAlimentar);
         VdSodio = NullIfEmpty(vdSodio);
         Nome = NullIfEmpty(nome);
+        ContemAlergicos = contemAlergicos;
+        ContemGluten = contemGluten;
+        ContemLactose = contemLactose;
+        LoteFabricacao = NullIfEmpty(loteFabricacao);
         AtualizadoEm = DateTime.UtcNow;
     }
 

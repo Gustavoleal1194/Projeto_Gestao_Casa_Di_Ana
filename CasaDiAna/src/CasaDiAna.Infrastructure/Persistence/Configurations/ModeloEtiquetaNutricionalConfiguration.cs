@@ -40,6 +40,10 @@ public class ModeloEtiquetaNutricionalConfiguration
         builder.Property(m => m.VdSodio).HasColumnName("vd_sodio").HasMaxLength(20);
 
         builder.Property(m => m.Nome).HasColumnName("nome").HasMaxLength(100);
+        builder.Property(m => m.ContemAlergicos).HasColumnName("contem_alergicos").IsRequired().HasDefaultValue(false);
+        builder.Property(m => m.ContemGluten).HasColumnName("contem_gluten").IsRequired().HasDefaultValue(false);
+        builder.Property(m => m.ContemLactose).HasColumnName("contem_lactose").IsRequired().HasDefaultValue(false);
+        builder.Property(m => m.LoteFabricacao).HasColumnName("lote_fabricacao").HasMaxLength(100);
 
         builder.Property(m => m.CriadoEm).HasColumnName("criado_em").IsRequired();
         builder.Property(m => m.AtualizadoEm).HasColumnName("atualizado_em").IsRequired();

@@ -117,7 +117,11 @@ public class EtiquetasController : ControllerBase
             body.VdGordurasTrans,
             body.VdFibraAlimentar,
             body.VdSodio,
-            body.Nome);
+            body.Nome,
+            body.ContemAlergicos,
+            body.ContemGluten,
+            body.ContemLactose,
+            body.LoteFabricacao);
 
         var resultado = await _mediator.Send(command, ct);
         return Ok(ApiResponse<ModeloEtiquetaNutricionalDto>.Ok(resultado));
@@ -154,6 +158,10 @@ public record SalvarModeloNutricionalRequest(
     string? VdGordurasTrans,
     string? VdFibraAlimentar,
     string? VdSodio,
-    string? Nome);
+    string? Nome,
+    bool ContemAlergicos,
+    bool ContemGluten,
+    bool ContemLactose,
+    string? LoteFabricacao);
 
 public record RenomearModeloNutricionalRequest(string? Nome);

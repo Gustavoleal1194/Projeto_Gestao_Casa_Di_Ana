@@ -29,7 +29,7 @@ public record SalvarModeloNutricionalCommand(
     string? VdFibraAlimentar,
     string? VdSodio,
     string? Nome,
-    bool ContemAlergicos,
+    string? AlergicoAlimentar,
     bool ContemGluten,
     bool ContemLactose,
     string? LoteFabricacao,

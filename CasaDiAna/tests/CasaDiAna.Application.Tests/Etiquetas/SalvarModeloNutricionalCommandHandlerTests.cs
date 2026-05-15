@@ -19,7 +19,7 @@ public class SalvarModeloNutricionalCommandHandlerTests
     }
 
     private static SalvarModeloNutricionalCommand CriarCommand(Guid produtoId,
-        bool contemAlergicos = false, bool contemGluten = false,
+        string? alergicoAlimentar = null, bool contemGluten = false,
         bool contemLactose = false, string? loteFabricacao = null,
         string? ingredientes = null) => new(
         ProdutoId: produtoId,
@@ -47,7 +47,7 @@ public class SalvarModeloNutricionalCommandHandlerTests
         VdFibraAlimentar: "12",
         VdSodio: "5",
         Nome: "Modelo Teste",
-        ContemAlergicos: contemAlergicos,
+        AlergicoAlimentar: alergicoAlimentar,
         ContemGluten: contemGluten,
         ContemLactose: contemLactose,
         LoteFabricacao: loteFabricacao,
@@ -87,7 +87,7 @@ public class SalvarModeloNutricionalCommandHandlerTests
         resultado.ProdutoId.Should().Be(produtoId);
         resultado.Porcao.Should().Be("50g");
         resultado.ValorEnergeticoKcal.Should().Be(200m);
-        resultado.ContemAlergicos.Should().BeFalse();
+        resultado.AlergicoAlimentar.Should().BeNull();
         resultado.ContemGluten.Should().BeFalse();
         resultado.ContemLactose.Should().BeFalse();
         resultado.LoteFabricacao.Should().BeNull();
@@ -116,7 +116,7 @@ public class SalvarModeloNutricionalCommandHandlerTests
         resultado.VdCarboidratos.Should().Be("10");
         resultado.VdAcucaresAdicionados.Should().BeNull();
         resultado.VdProteinas.Should().Be("16");
-        resultado.ContemAlergicos.Should().BeFalse();
+        resultado.AlergicoAlimentar.Should().BeNull();
         resultado.ContemGluten.Should().BeFalse();
         resultado.ContemLactose.Should().BeFalse();
         resultado.LoteFabricacao.Should().BeNull();
@@ -137,12 +137,12 @@ public class SalvarModeloNutricionalCommandHandlerTests
         _modelos.Setup(r => r.SalvarAsync(default)).ReturnsAsync(1);
 
         var command = CriarCommand(produtoId,
-            contemAlergicos: true, contemGluten: true,
+            alergicoAlimentar: "amendoim, soja", contemGluten: true,
             contemLactose: false, loteFabricacao: "2026-001");
 
         var resultado = await _handler.Handle(command, CancellationToken.None);
 
-        resultado.ContemAlergicos.Should().BeTrue();
+        resultado.AlergicoAlimentar.Should().Be("amendoim, soja");
         resultado.ContemGluten.Should().BeTrue();
         resultado.ContemLactose.Should().BeFalse();
         resultado.LoteFabricacao.Should().Be("2026-001");

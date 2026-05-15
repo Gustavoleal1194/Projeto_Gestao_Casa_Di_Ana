@@ -83,7 +83,7 @@ export interface NutriValues {
   vdGordurasTrans: string
   vdFibraAlimentar: string
   vdSodio: string
-  contemAlergicos: boolean
+  alergicoAlimentar: string
   contemGluten: boolean
   contemLactose: boolean
   loteFabricacao: string
@@ -425,30 +425,26 @@ ${zplText(col4 + 6, tableTop + 6, '%VD(*)', right - col4 - 12, 21, 21, 'C')}
 ${horizontalLines}
 ${zplRows}
 ${zplText(left + 8, noteTop, '*percentual de valores diarios fornecidos pela porcao.', right - left - 16, 17, 17, 'L', 1)}
-${nutri.ingredientes
-  ? zplText(left + 8, noteTop + 26,
-      `INGREDIENTES: ${nutri.ingredientes}`,
-      right - left - 16, 17, 17, 'L', 5)
-  : ''}
-${nutri.contemAlergicos
-  ? (() => {
-      const ingLines = nutri.ingredientes ? Math.max(1, Math.ceil(nutri.ingredientes.length / 78)) : 0
-      const alerY = noteTop + 26 + ingLines * 26
-      return zplText(left + 8, alerY,
-        `ALERGICOS: ${nutri.contemGluten ? 'Contem gluten' : 'Nao contem gluten'}. ${nutri.contemLactose ? 'Contem lactose' : 'Nao contem lactose'}.`,
-        right - left - 16, 17, 17, 'L', 2)
-    })()
-  : ''}
-${(nutri.loteFabricacao || validade)
-  ? (() => {
-      const ingLines = nutri.ingredientes ? Math.max(1, Math.ceil(nutri.ingredientes.length / 78)) : 0
-      const alerLines = nutri.contemAlergicos ? 2 : 0
-      const loteY = noteTop + 26 + ingLines * 26 + alerLines * 26
-      return zplText(left + 8, loteY,
-        [nutri.loteFabricacao ? `Lote: ${nutri.loteFabricacao}` : '', validade ? `Val.: ${validade}` : ''].filter(Boolean).join('  |  '),
-        right - left - 16, 17, 17, 'L', 1)
-    })()
-  : ''}
+${(() => {
+  const ingLines = nutri.ingredientes ? Math.max(1, Math.ceil(nutri.ingredientes.length / 78)) : 0
+  const alerLines = nutri.alergicoAlimentar ? Math.max(1, Math.ceil(nutri.alergicoAlimentar.length / 78)) : 0
+  let y = noteTop + 26
+  const parts: string[] = []
+  if (nutri.ingredientes)
+    parts.push(zplText(left + 8, y, `INGREDIENTES: ${nutri.ingredientes}`, right - left - 16, 17, 17, 'L', 5))
+  y += ingLines * 26
+  if (nutri.alergicoAlimentar)
+    parts.push(zplText(left + 8, y, `ALERGICOS ALIMENTARES: ${nutri.alergicoAlimentar}`, right - left - 16, 17, 17, 'L', 3))
+  y += alerLines * 26
+  const glutenLactose = `${nutri.contemGluten ? 'Contem gluten' : 'Nao contem gluten'}${nutri.contemLactose ? '. Contem lactose' : ''}.`
+  parts.push(zplText(left + 8, y, glutenLactose, right - left - 16, 17, 17, 'L', 1))
+  y += 26
+  if (nutri.loteFabricacao || validade)
+    parts.push(zplText(left + 8, y,
+      [nutri.loteFabricacao ? `Lote: ${nutri.loteFabricacao}` : '', validade ? `Val.: ${validade}` : ''].filter(Boolean).join('  |  '),
+      right - left - 16, 17, 17, 'L', 1))
+  return parts.join('\n')
+})()}
 ^XZ`
   }
 
@@ -572,8 +568,9 @@ export function htmlEtiquetaNutricional(
         <div class="note">*percentual de valores diários fornecidos pela porção.</div>
         ${nutri.ingredientes ? `
         <div class="ingredientes">INGREDIENTES: ${nutri.ingredientes}</div>` : ''}
-        ${nutri.contemAlergicos ? `
-        <div class="alergenos">ALÉRGICOS: ${nutri.contemGluten ? 'Contém glúten' : 'Não contém glúten'}. ${nutri.contemLactose ? 'Contém lactose' : 'Não contém lactose'}.</div>` : ''}
+        ${nutri.alergicoAlimentar ? `
+        <div class="alergenos">ALERGÊNICOS ALIMENTARES: ${nutri.alergicoAlimentar}</div>` : ''}
+        <div class="gluten-lactose">${nutri.contemGluten ? 'Contém glúten' : 'Não contém glúten'}${nutri.contemLactose ? '. Contém lactose' : ''}.</div>
         ${(nutri.loteFabricacao || validade) ? `
         <div class="lote-validade">${[nutri.loteFabricacao ? `Lote: ${nutri.loteFabricacao}` : '', validade ? `Val.: ${validade}` : ''].filter(Boolean).join('  |  ')}</div>` : ''}
       </div>
@@ -780,6 +777,7 @@ export function htmlEtiquetaNutricional(
       top: 67.2mm;
       left: 1mm;
       width: 62mm;
+      z-index: 2;
     }
     .note {
       font-size: 10px;
@@ -811,6 +809,14 @@ export function htmlEtiquetaNutricional(
       color: #000;
       border-top: 0.38mm solid #000;
       padding-top: 0.5mm;
+      margin-top: 0.5mm;
+      text-transform: uppercase;
+    }
+    .gluten-lactose {
+      font-size: 9px;
+      font-weight: 700;
+      line-height: 1.3;
+      color: #000;
       margin-top: 0.5mm;
       text-transform: uppercase;
     }

@@ -31,7 +31,7 @@ public class ModeloEtiquetaNutricional
     public string? VdSodio { get; private set; }
 
     public string? Nome { get; private set; }
-    public bool ContemAlergicos { get; private set; }
+    public string? AlergicoAlimentar { get; private set; }
     public bool ContemGluten { get; private set; }
     public bool ContemLactose { get; private set; }
     public string? LoteFabricacao { get; private set; }
@@ -68,7 +68,7 @@ public class ModeloEtiquetaNutricional
         string? vdFibraAlimentar = null,
         string? vdSodio = null,
         string? nome = null,
-        bool contemAlergicos = false,
+        string? alergicoAlimentar = null,
         bool contemGluten = false,
         bool contemLactose = false,
         string? loteFabricacao = null,
@@ -102,7 +102,7 @@ public class ModeloEtiquetaNutricional
             VdFibraAlimentar = NullIfEmpty(vdFibraAlimentar),
             VdSodio = NullIfEmpty(vdSodio),
             Nome = NullIfEmpty(nome),
-            ContemAlergicos = contemAlergicos,
+            AlergicoAlimentar = NullIfEmpty(alergicoAlimentar),
             ContemGluten = contemGluten,
             ContemLactose = contemLactose,
             LoteFabricacao = NullIfEmpty(loteFabricacao),
@@ -137,7 +137,7 @@ public class ModeloEtiquetaNutricional
         string? vdFibraAlimentar,
         string? vdSodio,
         string? nome = null,
-        bool contemAlergicos = false,
+        string? alergicoAlimentar = null,
         bool contemGluten = false,
         bool contemLactose = false,
         string? loteFabricacao = null,
@@ -167,7 +167,7 @@ public class ModeloEtiquetaNutricional
         VdFibraAlimentar = NullIfEmpty(vdFibraAlimentar);
         VdSodio = NullIfEmpty(vdSodio);
         Nome = NullIfEmpty(nome);
-        ContemAlergicos = contemAlergicos;
+        AlergicoAlimentar = NullIfEmpty(alergicoAlimentar);
         ContemGluten = contemGluten;
         ContemLactose = contemLactose;
         LoteFabricacao = NullIfEmpty(loteFabricacao);

@@ -101,7 +101,7 @@ interface PreviewProps {
     vdValorEnergetico: string; vdCarboidratos: string; vdAcucaresAdicionados: string;
     vdProteinas: string; vdGordurasTotais: string; vdGordurasSaturadas: string;
     vdGordurasTrans: string; vdFibraAlimentar: string; vdSodio: string;
-    contemAlergicos: boolean; contemGluten: boolean; contemLactose: boolean;
+    alergicoAlimentar: string; contemGluten: boolean; contemLactose: boolean;
     loteFabricacao: string; ingredientes: string;
   }
 }
@@ -308,11 +308,14 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
               INGREDIENTES: {nutri.ingredientes}
             </div>
           )}
-          {nutri.contemAlergicos && (
-            <div style={{ fontSize: 8, fontWeight: 700, lineHeight: 1.2, borderTop: '0.5px solid #000', paddingTop: 1, marginTop: 1, textTransform: 'uppercase' }}>
-              ALÉRGICOS: {nutri.contemGluten ? 'Contém glúten' : 'Não contém glúten'}. {nutri.contemLactose ? 'Contém lactose' : 'Não contém lactose'}.
+          {nutri.alergicoAlimentar && (
+            <div style={{ fontSize: 8, fontWeight: 700, lineHeight: 1.2, borderTop: '0.5px solid #000', paddingTop: 1, marginTop: 1, textTransform: 'uppercase', wordBreak: 'break-word', whiteSpace: 'normal' }}>
+              ALERGÊNICOS ALIMENTARES: {nutri.alergicoAlimentar}
             </div>
           )}
+          <div style={{ fontSize: 7.5, fontWeight: 700, lineHeight: 1.2, marginTop: 1, textTransform: 'uppercase' }}>
+            {nutri.contemGluten ? 'Contém glúten' : 'Não contém glúten'}{nutri.contemLactose ? '. Contém lactose' : ''}.
+          </div>
           {(nutri.loteFabricacao || validade !== '—') && (
             <div style={{ fontSize: 8, fontWeight: 600, lineHeight: 1.2, marginTop: 1 }}>
               {[nutri.loteFabricacao ? `Lote: ${nutri.loteFabricacao}` : '', validade !== '—' ? `Val.: ${validade}` : ''].filter(Boolean).join('  |  ')}
@@ -366,7 +369,7 @@ export function EtiquetasPage() {
     fibraAlimentar: '',
     sodio: '',
     ...CAMPOS_VD_VAZIOS,
-    contemAlergicos: false,
+    alergicoAlimentar: '',
     contemGluten: false,
     contemLactose: false,
     loteFabricacao: '',
@@ -450,14 +453,14 @@ export function EtiquetasPage() {
             vdGordurasTrans: modelo.vdGordurasTrans ?? '',
             vdFibraAlimentar: modelo.vdFibraAlimentar ?? '',
             vdSodio: modelo.vdSodio ?? '',
-            contemAlergicos: modelo.contemAlergicos,
+            alergicoAlimentar: modelo.alergicoAlimentar ?? '',
             contemGluten: modelo.contemGluten,
             contemLactose: modelo.contemLactose,
             loteFabricacao: modelo.loteFabricacao ?? '',
             ingredientes: modelo.ingredientes ?? '',
           })
         } else {
-          setNutri({ nome: '', porcao: '100g', medidaCaseira: '', porcoesPorEmbalagem: '', valorEnergeticoKcal: '', valorEnergeticoKJ: '', carboidratos: '', acucaresTotais: '', acucaresAdicionados: '', proteinas: '', gordurasTotais: '', gordurasSaturadas: '', gordurasTrans: '', fibraAlimentar: '', sodio: '', ...CAMPOS_VD_VAZIOS, contemAlergicos: false, contemGluten: false, contemLactose: false, loteFabricacao: '', ingredientes: '' })
+          setNutri({ nome: '', porcao: '100g', medidaCaseira: '', porcoesPorEmbalagem: '', valorEnergeticoKcal: '', valorEnergeticoKJ: '', carboidratos: '', acucaresTotais: '', acucaresAdicionados: '', proteinas: '', gordurasTotais: '', gordurasSaturadas: '', gordurasTrans: '', fibraAlimentar: '', sodio: '', ...CAMPOS_VD_VAZIOS, alergicoAlimentar: '', contemGluten: false, contemLactose: false, loteFabricacao: '', ingredientes: '' })
         }
       })
       .catch(() => {})
@@ -487,7 +490,7 @@ export function EtiquetasPage() {
     vdGordurasTrans: nutri.vdGordurasTrans,
     vdFibraAlimentar: nutri.vdFibraAlimentar,
     vdSodio: nutri.vdSodio,
-    contemAlergicos: nutri.contemAlergicos,
+    alergicoAlimentar: nutri.alergicoAlimentar,
     contemGluten: nutri.contemGluten,
     contemLactose: nutri.contemLactose,
     loteFabricacao: nutri.loteFabricacao,
@@ -614,7 +617,7 @@ export function EtiquetasPage() {
         vdFibraAlimentar: nutri.vdFibraAlimentar || null,
         vdSodio: nutri.vdSodio || null,
         nome: nutri.nome || null,
-        contemAlergicos: nutri.contemAlergicos,
+        alergicoAlimentar: nutri.alergicoAlimentar || null,
         contemGluten: nutri.contemGluten,
         contemLactose: nutri.contemLactose,
         loteFabricacao: nutri.loteFabricacao || null,
@@ -830,7 +833,7 @@ export function EtiquetasPage() {
                         vdGordurasTrans: m.vdGordurasTrans ?? '',
                         vdFibraAlimentar: m.vdFibraAlimentar ?? '',
                         vdSodio: m.vdSodio ?? '',
-                        contemAlergicos: m.contemAlergicos,
+                        alergicoAlimentar: m.alergicoAlimentar ?? '',
                         contemGluten: m.contemGluten,
                         contemLactose: m.contemLactose,
                         loteFabricacao: m.loteFabricacao ?? '',
@@ -984,50 +987,55 @@ export function EtiquetasPage() {
                 />
               </div>
 
-              {/* Alergênicos */}
+              {/* Alergênicos alimentares */}
               <div className="space-y-2">
                 <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: 'var(--ada-muted)' }}>
-                  Alergênicos
+                  Alergênicos alimentares
+                </p>
+                <input
+                  type="text"
+                  placeholder="Ex: amendoim, castanha, leite, soja..."
+                  value={nutri.alergicoAlimentar}
+                  onChange={e => setNutri(n => ({ ...n, alergicoAlimentar: e.target.value }))}
+                  className="w-full rounded-lg px-3 py-2 text-sm border outline-none"
+                  style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)', color: 'var(--ada-body)' }}
+                />
+              </div>
+
+              {/* Glúten */}
+              <div className="space-y-1.5">
+                <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: 'var(--ada-muted)' }}>
+                  Glúten
                 </p>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={nutri.contemAlergicos}
-                    onChange={e => setNutri(n => ({
-                      ...n,
-                      contemAlergicos: e.target.checked,
-                      ...(e.target.checked ? {} : { contemGluten: false, contemLactose: false }),
-                    }))}
+                    checked={nutri.contemGluten}
+                    onChange={e => setNutri(n => ({ ...n, contemGluten: e.target.checked }))}
                     className="rounded"
                   />
-                  <span className="text-sm" style={{ color: 'var(--ada-body)' }}>Contém alérgicos alimentares</span>
+                  <span className="text-sm" style={{ color: 'var(--ada-body)' }}>
+                    {nutri.contemGluten ? 'Contém glúten' : 'Não contém glúten'}
+                  </span>
                 </label>
-                {nutri.contemAlergicos && (
-                  <div className="pl-4 space-y-1.5">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={nutri.contemGluten}
-                        onChange={e => setNutri(n => ({ ...n, contemGluten: e.target.checked }))}
-                        className="rounded"
-                      />
-                      <span className="text-sm" style={{ color: 'var(--ada-body)' }}>
-                        {nutri.contemGluten ? 'Contém glúten' : 'Não contém glúten'}
-                      </span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={nutri.contemLactose}
-                        onChange={e => setNutri(n => ({ ...n, contemLactose: e.target.checked }))}
-                        className="rounded"
-                      />
-                      <span className="text-sm" style={{ color: 'var(--ada-body)' }}>
-                        {nutri.contemLactose ? 'Contém lactose' : 'Não contém lactose'}
-                      </span>
-                    </label>
-                  </div>
-                )}
+              </div>
+
+              {/* Lactose */}
+              <div className="space-y-1.5">
+                <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: 'var(--ada-muted)' }}>
+                  Lactose
+                </p>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={nutri.contemLactose}
+                    onChange={e => setNutri(n => ({ ...n, contemLactose: e.target.checked }))}
+                    className="rounded"
+                  />
+                  <span className="text-sm" style={{ color: 'var(--ada-body)' }}>
+                    {nutri.contemLactose ? 'Contém lactose (será impresso)' : 'Não contém lactose (não será impresso)'}
+                  </span>
+                </label>
               </div>
 
               {/* Lote de fabricação */}

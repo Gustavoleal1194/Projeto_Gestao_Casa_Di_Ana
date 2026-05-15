@@ -20,12 +20,12 @@ export const relatoriosService = {
   movimentacoes: async (
     de: string,
     ate: string,
-    tipo?: string,
-    ingredienteId?: string
+    tipos?: string[],
+    ingredienteIds?: string[]
   ): Promise<MovimentacaoRelatorio[]> => {
     const params = new URLSearchParams({ de, ate })
-    if (tipo) params.set('tipo', tipo)
-    if (ingredienteId) params.set('ingredienteId', ingredienteId)
+    tipos?.forEach(t => params.append('tipos', t))
+    ingredienteIds?.forEach(id => params.append('ingredienteIds', id))
     const resp = await api.get<ApiResponse<MovimentacaoRelatorio[]>>(
       `/relatorios/movimentacoes?${params.toString()}`
     )

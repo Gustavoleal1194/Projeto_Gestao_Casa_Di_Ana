@@ -32,23 +32,23 @@ export function MovimentacoesPage() {
   const [erro, setErro] = useState<string | null>(null)
   const [de, setDe] = useState(ha30Dias)
   const [ate, setAte] = useState(hoje)
-  const [tipo, setTipo] = useState('')
-  const [ingredienteId, setIngredienteId] = useState('')
+  const [tipos, setTipos] = useState<string[]>([])
+  const [ingredienteIds, setIngredienteIds] = useState<string[]>([])
   const [busca, setBusca] = useState('')
 
   const carregar = async (
     filtroDe = de,
     filtroAte = ate,
-    filtroTipo = tipo,
-    filtroIngredienteId = ingredienteId
+    filtroTipos = tipos,
+    filtroIngredienteIds = ingredienteIds
   ) => {
     setLoading(true)
     setErro(null)
     try {
       const data = await relatoriosService.movimentacoes(
         filtroDe, filtroAte,
-        filtroTipo || undefined,
-        filtroIngredienteId || undefined
+        filtroTipos.length > 0 ? filtroTipos : undefined,
+        filtroIngredienteIds.length > 0 ? filtroIngredienteIds : undefined
       )
       setMovimentacoes(data)
     } catch {
@@ -63,10 +63,10 @@ export function MovimentacoesPage() {
     carregar()
   }, [])
 
-  const handleDeChange = (v: string) => { setDe(v); carregar(v, ate, tipo, ingredienteId) }
-  const handleAteChange = (v: string) => { setAte(v); carregar(de, v, tipo, ingredienteId) }
-  const handleTipoChange = (v: string) => { setTipo(v); carregar(de, ate, v, ingredienteId) }
-  const handleIngredienteChange = (v: string) => { setIngredienteId(v); carregar(de, ate, tipo, v) }
+  const handleDeChange = (v: string) => { setDe(v); carregar(v, ate, tipos, ingredienteIds) }
+  const handleAteChange = (v: string) => { setAte(v); carregar(de, v, tipos, ingredienteIds) }
+  const handleTipoChange = (vs: string[]) => { setTipos(vs); carregar(de, ate, vs, ingredienteIds) }
+  const handleIngredienteChange = (vs: string[]) => { setIngredienteIds(vs); carregar(de, ate, tipos, vs) }
 
   const movimentacoesFiltradas = useMemo(() => {
     if (!busca) return movimentacoes
@@ -98,9 +98,9 @@ export function MovimentacoesPage() {
         onDeChange={handleDeChange}
         ate={ate}
         onAteChange={handleAteChange}
-        tipo={tipo}
+        tipos={tipos}
         onTipoChange={handleTipoChange}
-        ingredienteId={ingredienteId}
+        ingredienteIds={ingredienteIds}
         onIngredienteChange={handleIngredienteChange}
         ingredientes={ingredientes}
       />

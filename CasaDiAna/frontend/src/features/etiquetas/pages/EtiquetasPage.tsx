@@ -217,8 +217,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
   ]
 
   const tableTop = 66
-  const tableHeight = 132
-  const noteTop = 199.5
+  const tableHeight = 143
 
   // Papel 100×150mm = 300×450px. Conteúdo nutricional (70×130mm) ocupa a área superior-esquerda.
   return (
@@ -297,12 +296,16 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
               )
             })}
           </tbody>
+          <tfoot>
+            <tr style={{ height: 10 }}>
+              <td colSpan={4} style={{ fontSize: 8, fontWeight: 400, textAlign: 'center', verticalAlign: 'middle', padding: '0 2px', borderTop: '0.5px solid #000' }}>
+                *percentual de valores diários fornecidos pela porção.
+              </td>
+            </tr>
+          </tfoot>
         </table>
 
-        <div style={{ position: 'absolute', top: noteTop, left: 3, width: 190 }}>
-          <div style={{ fontSize: 10, lineHeight: 1, height: 11, overflow: 'hidden', whiteSpace: 'nowrap', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            *percentual de valores diários fornecidos pela porção.
-          </div>
+        <div style={{ position: 'absolute', top: tableTop + tableHeight, left: 3, width: 190 }}>
           {nutri.ingredientes && (
             <div style={{ fontSize: 7.5, fontWeight: 700, lineHeight: 1.3, borderTop: '0.5px solid #000', paddingTop: 1, marginTop: 1, textTransform: 'uppercase', wordBreak: 'break-word', whiteSpace: 'normal' }}>
               INGREDIENTES: {nutri.ingredientes}

@@ -371,7 +371,7 @@ export function zplEtiquetaNutricional(
   const headerHeight = 32
   const rowHeight = 34
   const tableHeight = headerHeight + rows.length * rowHeight
-  const noteTop = tableTop + tableHeight + 2
+  const noteRowHeight = 34
   const col1 = left
   const col2 = 458
   const col3 = 575
@@ -414,21 +414,22 @@ ${drawLine(left, 132, right - left, 2)}
 ${zplText(left + 10, 142, `Porcoes por embalagem: ${nutri.porcoesPorEmbalagem || '-'}`, right - left - 20, 20, 20, 'L')}
 ${zplText(left + 10, 166, `Porcao: ${porcaoLabel}`, right - left - 20, 20, 20, 'L')}
 ${drawLine(left, tableTop, right - left, 2)}
-${drawLine(left, tableTop + tableHeight, right - left, 2)}
-${drawLine(col2, tableTop, 2, tableHeight)}
-${drawLine(col3, tableTop, 2, tableHeight)}
-${drawLine(col4, tableTop, 2, tableHeight)}
+${drawLine(left, tableTop + tableHeight + noteRowHeight, right - left, 2)}
+${drawLine(left, tableTop + tableHeight, right - left, 1)}
+${drawLine(col2, tableTop, 2, tableHeight + noteRowHeight)}
+${drawLine(col3, tableTop, 2, tableHeight + noteRowHeight)}
+${drawLine(col4, tableTop, 2, tableHeight + noteRowHeight)}
 ${drawLine(left, tableTop + headerHeight, right - left, 2)}
 ${zplText(col2 + 6, tableTop + 6, '100g', col3 - col2 - 12, 21, 21, 'R')}
 ${zplText(col3 + 4, tableTop + 6, '50g', col4 - col3 - 8, 21, 21, 'R')}
 ${zplText(col4 + 6, tableTop + 6, '%VD(*)', right - col4 - 12, 21, 21, 'C')}
 ${horizontalLines}
 ${zplRows}
-${zplText(left + 8, noteTop, '*percentual de valores diarios fornecidos pela porcao.', right - left - 16, 17, 17, 'L', 1)}
+${zplText(left + 8, tableTop + tableHeight + 8, '*percentual de valores diarios fornecidos pela porcao.', right - left - 16, 17, 17, 'C', 1)}
 ${(() => {
   const ingLines = nutri.ingredientes ? Math.max(1, Math.ceil(nutri.ingredientes.length / 78)) : 0
   const alerLines = nutri.alergicoAlimentar ? Math.max(1, Math.ceil(nutri.alergicoAlimentar.length / 78)) : 0
-  let y = noteTop + 26
+  let y = tableTop + tableHeight + noteRowHeight + 4
   const parts: string[] = []
   if (nutri.ingredientes)
     parts.push(zplText(left + 8, y, `INGREDIENTES: ${nutri.ingredientes}`, right - left - 16, 17, 17, 'L', 5))
@@ -562,10 +563,14 @@ export function htmlEtiquetaNutricional(
           ${row(true, 0, 'Fibra alimentar (g)', fmt100(fibra, porcaoG), fmtPeso(fibra, porcaoG, 50), vdManual(nutri.vdFibraAlimentar))}
           ${row(true, 0, 'Sódio (mg)', fmt100(sodio, porcaoG), fmtPeso(sodio, porcaoG, 50), vdManual(nutri.vdSodio))}
         </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4">*percentual de valores diários fornecidos pela porção.</td>
+          </tr>
+        </tfoot>
       </table>
 
       <div class="bottom-section">
-        <div class="note">*percentual de valores diários fornecidos pela porção.</div>
         ${nutri.ingredientes ? `
         <div class="ingredientes">INGREDIENTES: ${nutri.ingredientes}</div>` : ''}
         ${nutri.alergicoAlimentar ? `
@@ -695,7 +700,7 @@ export function htmlEtiquetaNutricional(
       top: 23mm;
       left: 0;
       width: 65.33mm;
-      height: 44mm;
+      height: 48mm;
       border-collapse: separate;
       border-spacing: 0;
       table-layout: fixed;
@@ -755,6 +760,17 @@ export function htmlEtiquetaNutricional(
     tbody tr:last-child td {
       border-bottom: 0;
     }
+    tfoot tr {
+      height: 3.3mm;
+    }
+    tfoot td {
+      font-size: 10px;
+      font-weight: 400;
+      text-align: center;
+      vertical-align: middle;
+      padding: 0 0.75mm;
+      border-top: 0.125mm solid #000;
+    }
     .bold {
       font-weight: bold;
     }
@@ -774,21 +790,10 @@ export function htmlEtiquetaNutricional(
     }
     .bottom-section {
       position: absolute;
-      top: 67.2mm;
+      top: 71.5mm;
       left: 1mm;
       width: 62mm;
       z-index: 2;
-    }
-    .note {
-      font-size: 10px;
-      line-height: 1;
-      height: 3.3mm;
-      color: #000;
-      overflow: hidden;
-      white-space: nowrap;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
     .ingredientes {
       font-size: 9px;

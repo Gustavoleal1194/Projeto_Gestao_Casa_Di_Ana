@@ -435,7 +435,7 @@ ${(() => {
     parts.push(zplText(left + 8, y, `INGREDIENTES: ${nutri.ingredientes}`, right - left - 16, 17, 17, 'L', 5))
   y += ingLines * 26
   if (nutri.alergicoAlimentar)
-    parts.push(zplText(left + 8, y, `ALIMENTARES: ${nutri.alergicoAlimentar}`, right - left - 16, 17, 17, 'L', 3))
+    parts.push(zplText(left + 8, y, `ALERGICOS ALIMENTARES: ${nutri.alergicoAlimentar}`, right - left - 16, 17, 17, 'L', 3))
   y += alerLines * 26
   const glutenLactose = `${nutri.contemGluten ? 'Contem gluten' : 'Nao contem gluten'}${nutri.contemLactose ? '. Contem lactose' : ''}.`
   parts.push(zplText(left + 8, y, glutenLactose, right - left - 16, 17, 17, 'L', 1))
@@ -576,7 +576,7 @@ export function htmlEtiquetaNutricional(
         ${nutri.ingredientes ? `
         <div class="ingredientes">INGREDIENTES: ${nutri.ingredientes}</div>` : ''}
         ${nutri.alergicoAlimentar ? `
-        <div class="alergenos">ALIMENTARES: ${nutri.alergicoAlimentar}</div>` : ''}
+        <div class="alergenos">ALERGÊNICOS ALIMENTARES: ${nutri.alergicoAlimentar}</div>` : ''}
         <div class="gluten-lactose">${nutri.contemGluten ? 'Contém glúten' : 'Não contém glúten'}${nutri.contemLactose ? '. Contém lactose' : ''}.</div>
         ${(nutri.loteFabricacao || validade) ? `
         <div class="lote-validade">${[nutri.loteFabricacao ? `Lote: ${nutri.loteFabricacao}` : '', validade ? `Val.: ${validade}` : ''].filter(Boolean).join('  |  ')}</div>` : ''}

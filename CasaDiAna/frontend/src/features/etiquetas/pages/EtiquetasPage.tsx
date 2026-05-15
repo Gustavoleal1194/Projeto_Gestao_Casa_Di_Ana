@@ -317,7 +317,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
         )}
         {nutri.alergicoAlimentar && (
           <div style={{ fontSize: 8, fontWeight: 700, lineHeight: 1.2, paddingTop: 1, marginTop: 1, textTransform: 'uppercase', wordBreak: 'break-word', whiteSpace: 'normal' }}>
-            ALIMENTARES: {nutri.alergicoAlimentar}
+            ALERGÊNICOS ALIMENTARES: {nutri.alergicoAlimentar}
           </div>
         )}
         <div style={{ fontSize: 7.5, fontWeight: 700, lineHeight: 1.2, marginTop: 1, textTransform: 'uppercase' }}>

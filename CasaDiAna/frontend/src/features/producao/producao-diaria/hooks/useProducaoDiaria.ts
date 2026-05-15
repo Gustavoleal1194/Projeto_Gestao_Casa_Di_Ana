@@ -18,11 +18,11 @@ export function useProducaoDiaria() {
   const [de, setDe] = useState(primeiroDoMes())
   const [ate, setAte] = useState(hoje())
 
-  const carregar = useCallback(async (filtroDe?: string, filtroAte?: string, produtoId?: string) => {
+  const carregar = useCallback(async (filtroDe?: string, filtroAte?: string, produtoIds?: string[]) => {
     setLoading(true)
     setErro(null)
     try {
-      const data = await producaoDiariaService.listar(filtroDe ?? de, filtroAte ?? ate, produtoId)
+      const data = await producaoDiariaService.listar(filtroDe ?? de, filtroAte ?? ate, produtoIds)
       setProducoes(data)
     } catch {
       setErro('Erro ao carregar produções.')

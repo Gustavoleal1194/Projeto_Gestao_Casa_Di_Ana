@@ -570,6 +570,8 @@ export function htmlEtiquetaNutricional(
         </tfoot>
       </table>
 
+      </div>
+
       <div class="bottom-section">
         ${nutri.ingredientes ? `
         <div class="ingredientes">INGREDIENTES: ${nutri.ingredientes}</div>` : ''}
@@ -578,8 +580,6 @@ export function htmlEtiquetaNutricional(
         <div class="gluten-lactose">${nutri.contemGluten ? 'Contém glúten' : 'Não contém glúten'}${nutri.contemLactose ? '. Contém lactose' : ''}.</div>
         ${(nutri.loteFabricacao || validade) ? `
         <div class="lote-validade">${[nutri.loteFabricacao ? `Lote: ${nutri.loteFabricacao}` : '', validade ? `Val.: ${validade}` : ''].filter(Boolean).join('  |  ')}</div>` : ''}
-      </div>
-
       </div>
     </div>`
 
@@ -620,8 +620,8 @@ export function htmlEtiquetaNutricional(
       top: 2mm;
       left: 3mm;
       width: 65.33mm;
-      height: 100mm;
-      max-height: 100mm;
+      height: 71mm;
+      max-height: 71mm;
       font-family: 'Arial Narrow', Arial, sans-serif;
       font-weight: 700;
       overflow: hidden;
@@ -790,8 +790,8 @@ export function htmlEtiquetaNutricional(
     }
     .bottom-section {
       position: absolute;
-      top: 71.5mm;
-      left: 1mm;
+      top: 73.5mm;
+      left: 4mm;
       width: 62mm;
       z-index: 2;
     }

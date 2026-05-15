@@ -241,7 +241,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           top: 6,
           left: 9,
           width: 196,
-          height: 300,
+          height: tableTop + tableHeight,
           background: '#fff',
           overflow: 'hidden',
           fontWeight: 700,
@@ -305,28 +305,29 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           </tfoot>
         </table>
 
-        <div style={{ position: 'absolute', top: tableTop + tableHeight, left: 3, width: 190 }}>
-          {nutri.ingredientes && (
-            <div style={{ fontSize: 7.5, fontWeight: 700, lineHeight: 1.3, borderTop: '0.5px solid #000', paddingTop: 1, marginTop: 1, textTransform: 'uppercase', wordBreak: 'break-word', whiteSpace: 'normal' }}>
-              INGREDIENTES: {nutri.ingredientes}
-            </div>
-          )}
-          {nutri.alergicoAlimentar && (
-            <div style={{ fontSize: 8, fontWeight: 700, lineHeight: 1.2, borderTop: '0.5px solid #000', paddingTop: 1, marginTop: 1, textTransform: 'uppercase', wordBreak: 'break-word', whiteSpace: 'normal' }}>
-              ALIMENTARES: {nutri.alergicoAlimentar}
-            </div>
-          )}
-          <div style={{ fontSize: 7.5, fontWeight: 700, lineHeight: 1.2, marginTop: 1, textTransform: 'uppercase' }}>
-            {nutri.contemGluten ? 'Contém glúten' : 'Não contém glúten'}{nutri.contemLactose ? '. Contém lactose' : ''}.
-          </div>
-          {(nutri.loteFabricacao || validade !== '—') && (
-            <div style={{ fontSize: 8, fontWeight: 600, lineHeight: 1.2, marginTop: 1 }}>
-              {[nutri.loteFabricacao ? `Lote: ${nutri.loteFabricacao}` : '', validade !== '—' ? `Val.: ${validade}` : ''].filter(Boolean).join('  |  ')}
-            </div>
-          )}
-        </div>
         {/* Contorno renderizado por cima de todo o conteúdo — mesmo comportamento do ::after no CSS de impressão */}
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, border: '1.14px solid #000', pointerEvents: 'none', zIndex: 10, boxSizing: 'border-box' }} />
+      </div>
+
+      <div style={{ position: 'absolute', top: 6 + tableTop + tableHeight, left: 12, width: 187 }}>
+        {nutri.ingredientes && (
+          <div style={{ fontSize: 7.5, fontWeight: 700, lineHeight: 1.3, paddingTop: 1, marginTop: 1, textTransform: 'uppercase', wordBreak: 'break-word', whiteSpace: 'normal' }}>
+            INGREDIENTES: {nutri.ingredientes}
+          </div>
+        )}
+        {nutri.alergicoAlimentar && (
+          <div style={{ fontSize: 8, fontWeight: 700, lineHeight: 1.2, paddingTop: 1, marginTop: 1, textTransform: 'uppercase', wordBreak: 'break-word', whiteSpace: 'normal' }}>
+            ALIMENTARES: {nutri.alergicoAlimentar}
+          </div>
+        )}
+        <div style={{ fontSize: 7.5, fontWeight: 700, lineHeight: 1.2, marginTop: 1, textTransform: 'uppercase' }}>
+          {nutri.contemGluten ? 'Contém glúten' : 'Não contém glúten'}{nutri.contemLactose ? '. Contém lactose' : ''}.
+        </div>
+        {(nutri.loteFabricacao || validade !== '—') && (
+          <div style={{ fontSize: 8, fontWeight: 600, lineHeight: 1.2, marginTop: 1 }}>
+            {[nutri.loteFabricacao ? `Lote: ${nutri.loteFabricacao}` : '', validade !== '—' ? `Val.: ${validade}` : ''].filter(Boolean).join('  |  ')}
+          </div>
+        )}
       </div>
     </div>
   )

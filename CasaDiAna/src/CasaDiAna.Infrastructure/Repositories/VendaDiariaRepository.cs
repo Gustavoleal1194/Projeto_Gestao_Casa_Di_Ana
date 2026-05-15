@@ -27,9 +27,9 @@ public class VendaDiariaRepository : IVendaDiariaRepository
             .AsQueryable();
 
         if (de.HasValue)
-            query = query.Where(v => v.Data >= de.Value);
+            query = query.Where(v => v.Data >= de.Value.Date);
         if (ate.HasValue)
-            query = query.Where(v => v.Data <= ate.Value);
+            query = query.Where(v => v.Data < ate.Value.Date.AddDays(1));
 
         var ids = produtoIds?.ToList();
         if (ids?.Count > 0)

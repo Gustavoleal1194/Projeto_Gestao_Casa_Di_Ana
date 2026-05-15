@@ -37,11 +37,14 @@ public class RelatoriosController : ControllerBase
     public async Task<IActionResult> Movimentacoes(
         [FromQuery] DateTime de,
         [FromQuery] DateTime ate,
-        [FromQuery] TipoMovimentacao? tipo = null,
-        [FromQuery] Guid? ingredienteId = null,
+        [FromQuery] TipoMovimentacao[]? tipos = null,
+        [FromQuery] Guid[]? ingredienteIds = null,
         CancellationToken ct = default)
     {
-        var resultado = await _mediator.Send(new MovimentacoesQuery(de, ate, tipo, ingredienteId), ct);
+        var ingIds = ingredienteIds != null && ingredienteIds.Length > 0
+            ? (IReadOnlyList<Guid>)ingredienteIds : null;
+        var resultado = await _mediator.Send(
+            new MovimentacoesQuery(de, ate, tipos, ingIds), ct);
         return Ok(ApiResponse<IReadOnlyList<MovimentacaoRelatorioDto>>.Ok(resultado));
     }
 

@@ -20,13 +20,14 @@ public class MovimentacoesQueryHandler : IRequestHandler<MovimentacoesQuery, IRe
     public async Task<IReadOnlyList<MovimentacaoRelatorioDto>> Handle(
         MovimentacoesQuery request, CancellationToken cancellationToken)
     {
-        IReadOnlyList<Domain.Entities.Movimentacao> lista;
+        var lista = (await _movimentacoes.ListarAsync(
+            request.De, request.Ate, null, cancellationToken)).ToList();
 
-        if (request.IngredienteId.HasValue)
-            lista = await _movimentacoes.ListarPorIngredienteAsync(
-                request.IngredienteId.Value, request.De, request.Ate, cancellationToken);
-        else
-            lista = await _movimentacoes.ListarAsync(request.De, request.Ate, request.Tipo, cancellationToken);
+        if (request.Tipos?.Length > 0)
+            lista = lista.Where(m => request.Tipos.Contains(m.Tipo)).ToList();
+
+        if (request.IngredienteIds?.Count > 0)
+            lista = lista.Where(m => request.IngredienteIds.Contains(m.IngredienteId)).ToList();
 
         // Carrega nomes dos ingredientes
         var ingredienteIds = lista.Select(m => m.IngredienteId).Distinct().ToList();

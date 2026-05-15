@@ -7,5 +7,5 @@ namespace CasaDiAna.Application.Relatorios.Queries.Movimentacoes;
 public record MovimentacoesQuery(
     DateTime De,
     DateTime Ate,
-    TipoMovimentacao? Tipo = null,
-    Guid? IngredienteId = null) : IRequest<IReadOnlyList<MovimentacaoRelatorioDto>>;
+    TipoMovimentacao[]? Tipos = null,
+    IReadOnlyList<Guid>? IngredienteIds = null) : IRequest<IReadOnlyList<MovimentacaoRelatorioDto>>;

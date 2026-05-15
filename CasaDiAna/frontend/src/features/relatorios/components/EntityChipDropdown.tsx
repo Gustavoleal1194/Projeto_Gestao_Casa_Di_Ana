@@ -35,13 +35,17 @@ export function EntityChipDropdown({ label, valorAtivo, opcoes, onChange, icon }
       if (!btnRef.current?.contains(e.target as Node) && !(e.target as Element).closest?.('[data-entity-dropdown]')) fechar()
     }
     const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') fechar() }
+    const handleScroll = (e: Event) => {
+      if ((e.target as Element)?.closest?.('[data-entity-dropdown]')) return
+      fechar()
+    }
     document.addEventListener('mousedown', handle)
     document.addEventListener('keydown', handleKey)
-    document.addEventListener('scroll', fechar, true)
+    document.addEventListener('scroll', handleScroll, true)
     return () => {
       document.removeEventListener('mousedown', handle)
       document.removeEventListener('keydown', handleKey)
-      document.removeEventListener('scroll', fechar, true)
+      document.removeEventListener('scroll', handleScroll, true)
     }
   }, [aberto, fechar])
 

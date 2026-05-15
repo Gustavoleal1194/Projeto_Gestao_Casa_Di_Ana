@@ -27,8 +27,12 @@ public class RelatorioProducaoVendasQueryHandler
         var producoes = await _producoes.ListarAsync(
             request.De, request.Ate, request.ProdutoId, cancellationToken);
 
+        IReadOnlyList<Guid>? produtoIdsFiltro = request.ProdutoId.HasValue
+            ? new[] { request.ProdutoId.Value }
+            : null;
+
         var vendas = await _vendas.ListarAsync(
-            request.De, request.Ate, request.ProdutoId, cancellationToken);
+            request.De, request.Ate, produtoIdsFiltro, cancellationToken);
 
         // Agrupa todos os IDs de produtos envolvidos no período
         var todosProdutoIds = producoes.Select(p => p.ProdutoId)

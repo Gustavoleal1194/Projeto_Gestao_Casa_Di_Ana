@@ -6,4 +6,4 @@ namespace CasaDiAna.Application.VendasDiarias.Queries.ListarVendas;
 public record ListarVendasQuery(
     DateTime? De = null,
     DateTime? Ate = null,
-    Guid? ProdutoId = null) : IRequest<IReadOnlyList<VendaDiariaDto>>;
+    IReadOnlyList<Guid>? ProdutoIds = null) : IRequest<IReadOnlyList<VendaDiariaDto>>;

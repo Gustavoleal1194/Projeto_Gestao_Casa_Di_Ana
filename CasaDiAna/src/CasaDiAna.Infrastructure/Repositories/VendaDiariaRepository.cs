@@ -19,7 +19,7 @@ public class VendaDiariaRepository : IVendaDiariaRepository
     public async Task<IReadOnlyList<VendaDiaria>> ListarAsync(
         DateTime? de = null,
         DateTime? ate = null,
-        Guid? produtoId = null,
+        IReadOnlyList<Guid>? produtoIds = null,
         CancellationToken ct = default)
     {
         var query = _db.VendasDiarias
@@ -30,8 +30,10 @@ public class VendaDiariaRepository : IVendaDiariaRepository
             query = query.Where(v => v.Data >= de.Value);
         if (ate.HasValue)
             query = query.Where(v => v.Data <= ate.Value);
-        if (produtoId.HasValue)
-            query = query.Where(v => v.ProdutoId == produtoId.Value);
+
+        var ids = produtoIds?.ToList();
+        if (ids?.Count > 0)
+            query = query.Where(v => ids.Contains(v.ProdutoId));
 
         return await query.OrderByDescending(v => v.Data).ThenBy(v => v.Produto!.Nome).ToListAsync(ct);
     }

@@ -22,10 +22,13 @@ public class VendasDiariasController : ControllerBase
     public async Task<IActionResult> Listar(
         [FromQuery] DateTime? de = null,
         [FromQuery] DateTime? ate = null,
-        [FromQuery] Guid? produtoId = null,
+        [FromQuery] Guid[]? produtoIds = null,
         CancellationToken ct = default)
     {
-        var resultado = await _mediator.Send(new ListarVendasQuery(de, ate, produtoId), ct);
+        var ids = produtoIds != null && produtoIds.Length > 0
+            ? (IReadOnlyList<Guid>)produtoIds
+            : null;
+        var resultado = await _mediator.Send(new ListarVendasQuery(de, ate, ids), ct);
         return Ok(ApiResponse<IReadOnlyList<VendaDiariaDto>>.Ok(resultado));
     }
 

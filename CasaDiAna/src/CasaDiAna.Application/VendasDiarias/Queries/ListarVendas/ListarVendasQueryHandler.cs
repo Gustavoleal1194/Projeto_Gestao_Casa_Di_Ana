@@ -16,7 +16,7 @@ public class ListarVendasQueryHandler
         ListarVendasQuery request, CancellationToken cancellationToken)
     {
         var lista = await _vendas.ListarAsync(
-            request.De, request.Ate, request.ProdutoId, cancellationToken);
+            request.De, request.Ate, request.ProdutoIds, cancellationToken);
 
         return lista
             .Select(v => RegistrarVendaCommandHandler.ToDto(v, v.Produto?.Nome ?? string.Empty))

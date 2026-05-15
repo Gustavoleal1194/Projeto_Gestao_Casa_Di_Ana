@@ -924,7 +924,7 @@ export function EtiquetasPage() {
                       type="text"
                       inputMode="decimal"
                       placeholder="0"
-                      value={nutri[key as keyof typeof nutri]}
+                      value={nutri[key as keyof typeof nutri] as string}
                       onChange={e => setNutri(n => ({ ...n, [key]: e.target.value }))}
                       className="w-full rounded-lg px-3 py-2 text-sm border outline-none"
                       style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)', color: 'var(--ada-body)' }}
@@ -957,7 +957,7 @@ export function EtiquetasPage() {
                         type="text"
                         inputMode="decimal"
                         placeholder="0"
-                        value={nutri[key as keyof typeof nutri]}
+                        value={nutri[key as keyof typeof nutri] as string}
                         onChange={e => setNutri(n => ({ ...n, [key]: sanitizeVdInput(e.target.value) }))}
                         className="w-full rounded-lg px-3 py-2 text-sm border outline-none"
                         style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)', color: 'var(--ada-body)' }}
@@ -976,7 +976,11 @@ export function EtiquetasPage() {
                   <input
                     type="checkbox"
                     checked={nutri.contemAlergicos}
-                    onChange={e => setNutri(n => ({ ...n, contemAlergicos: e.target.checked }))}
+                    onChange={e => setNutri(n => ({
+                      ...n,
+                      contemAlergicos: e.target.checked,
+                      ...(e.target.checked ? {} : { contemGluten: false, contemLactose: false }),
+                    }))}
                     className="rounded"
                   />
                   <span className="text-sm" style={{ color: 'var(--ada-body)' }}>Contém alérgicos alimentares</span>

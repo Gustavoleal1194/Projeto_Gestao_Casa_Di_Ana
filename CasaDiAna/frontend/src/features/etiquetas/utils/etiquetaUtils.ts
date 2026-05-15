@@ -481,6 +481,8 @@ export function htmlEtiquetaNutricional(
     ? `${nutri.porcao} (${nutri.medidaCaseira})`
     : nutri.porcao
 
+  const loteTop = nutri.contemAlergicos ? '78mm' : '71mm'
+
   const row = (
     bold: boolean,
     indent: 0 | 1 | 2,
@@ -795,7 +797,7 @@ export function htmlEtiquetaNutricional(
     }
     .lote-validade {
       position: absolute;
-      top: 78mm;
+      top: ${loteTop};
       left: 1mm;
       width: 62mm;
       font-size: 10px;

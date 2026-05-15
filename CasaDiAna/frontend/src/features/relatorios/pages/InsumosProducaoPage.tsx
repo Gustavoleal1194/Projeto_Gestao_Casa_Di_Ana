@@ -28,20 +28,22 @@ export function InsumosProducaoPage() {
   const [erro, setErro] = useState<string | null>(null)
   const [de, setDe] = useState(primeiroDoMes())
   const [ate, setAte] = useState(hoje())
-  const [ingredienteFiltro, setIngredienteFiltro] = useState('')
-  const [produtoFiltro, setProdutoFiltro] = useState('')
+  const [ingredienteFiltros, setIngredienteFiltros] = useState<string[]>([])
+  const [produtoFiltros, setProdutoFiltros] = useState<string[]>([])
 
   const carregar = useCallback(async (
     filtroDe: string,
     filtroAte: string,
-    ingredienteId?: string,
-    produtoId?: string,
+    ingredienteIds?: string[],
+    produtoIds?: string[],
   ) => {
     setLoading(true)
     setErro(null)
     try {
       const data = await relatoriosService.insumosProducao(
-        filtroDe, filtroAte, ingredienteId || undefined, produtoId || undefined
+        filtroDe, filtroAte,
+        ingredienteIds && ingredienteIds.length > 0 ? ingredienteIds : undefined,
+        produtoIds && produtoIds.length > 0 ? produtoIds : undefined
       )
       setItens(data)
     } catch {
@@ -59,7 +61,11 @@ export function InsumosProducaoPage() {
 
   const handleFiltrar = (e?: React.FormEvent) => {
     e?.preventDefault()
-    carregar(de, ate, ingredienteFiltro || undefined, produtoFiltro || undefined)
+    carregar(
+      de, ate,
+      ingredienteFiltros.length > 0 ? ingredienteFiltros : undefined,
+      produtoFiltros.length > 0 ? produtoFiltros : undefined
+    )
   }
 
   // Agrupar por data para exibição
@@ -91,15 +97,23 @@ export function InsumosProducaoPage() {
         pills={[
           ...(de ? [{ tag: 'De', valor: de.split('-').reverse().join('/'), onRemove: () => setDe('') }] : []),
           ...(ate ? [{ tag: 'Até', valor: ate.split('-').reverse().join('/'), onRemove: () => setAte('') }] : []),
-          ...(ingredienteFiltro ? [{ tag: 'Ingrediente', valor: ingredientes.find(i => i.id === ingredienteFiltro)?.nome ?? ingredienteFiltro, onRemove: () => setIngredienteFiltro('') }] : []),
-          ...(produtoFiltro ? [{ tag: 'Produto', valor: produtos.find(p => p.id === produtoFiltro)?.nome ?? produtoFiltro, onRemove: () => setProdutoFiltro('') }] : []),
+          ...(ingredienteFiltros.map(id => ({
+            tag: 'Ingrediente',
+            valor: ingredientes.find(i => i.id === id)?.nome ?? id,
+            onRemove: () => setIngredienteFiltros(prev => prev.filter(x => x !== id)),
+          }))),
+          ...(produtoFiltros.map(id => ({
+            tag: 'Produto',
+            valor: produtos.find(p => p.id === id)?.nome ?? id,
+            onRemove: () => setProdutoFiltros(prev => prev.filter(x => x !== id)),
+          }))),
         ]}
       >
         <EntityChipDropdown
           label="Ingrediente"
-          valorAtivo={ingredienteFiltro}
+          valores={ingredienteFiltros}
           opcoes={[{ valor: '', rotulo: 'Todos' }, ...ingredientes.map(i => ({ valor: i.id, rotulo: i.nome }))]}
-          onChange={setIngredienteFiltro}
+          onChange={setIngredienteFiltros}
           icon={
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M3 2l1.5 1.5L6 2l1.5 1.5L9 2l1.5 1.5L12 2v10l-1.5-.75L9 12l-1.5-.75L6 12l-1.5-.75L3 12V2z" />
@@ -109,9 +123,9 @@ export function InsumosProducaoPage() {
         />
         <EntityChipDropdown
           label="Produto"
-          valorAtivo={produtoFiltro}
+          valores={produtoFiltros}
           opcoes={[{ valor: '', rotulo: 'Todos' }, ...produtos.map(p => ({ valor: p.id, rotulo: p.nome }))]}
-          onChange={setProdutoFiltro}
+          onChange={setProdutoFiltros}
           icon={
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" />

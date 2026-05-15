@@ -52,12 +52,12 @@ export const relatoriosService = {
   insumosProducao: async (
     de: string,
     ate: string,
-    ingredienteId?: string,
-    produtoId?: string
+    ingredienteIds?: string[],
+    produtoIds?: string[]
   ): Promise<InsumoProducaoDia[]> => {
     const params = new URLSearchParams({ de, ate })
-    if (ingredienteId) params.set('ingredienteId', ingredienteId)
-    if (produtoId) params.set('produtoId', produtoId)
+    ingredienteIds?.forEach(id => params.append('ingredienteIds', id))
+    produtoIds?.forEach(id => params.append('produtoIds', id))
     const resp = await api.get<ApiResponse<InsumoProducaoDia[]>>(
       `/relatorios/insumos-producao?${params.toString()}`
     )

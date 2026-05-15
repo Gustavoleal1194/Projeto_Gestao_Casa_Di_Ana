@@ -40,9 +40,9 @@ export const relatoriosService = {
     return resp.data.dados
   },
 
-  producaoVendas: async (de: string, ate: string, produtoId?: string): Promise<RelatorioProducaoVendas> => {
+  producaoVendas: async (de: string, ate: string, produtoIds?: string[]): Promise<RelatorioProducaoVendas> => {
     const params = new URLSearchParams({ de, ate })
-    if (produtoId) params.set('produtoId', produtoId)
+    produtoIds?.forEach(id => params.append('produtoIds', id))
     const resp = await api.get<ApiResponse<RelatorioProducaoVendas>>(
       `/relatorios/producao-vendas?${params.toString()}`
     )

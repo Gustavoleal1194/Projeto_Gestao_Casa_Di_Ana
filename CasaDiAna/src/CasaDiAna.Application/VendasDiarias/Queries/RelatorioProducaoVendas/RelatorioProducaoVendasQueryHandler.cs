@@ -24,12 +24,12 @@ public class RelatorioProducaoVendasQueryHandler
     public async Task<RelatorioProducaoVendasDto> Handle(
         RelatorioProducaoVendasQuery request, CancellationToken cancellationToken)
     {
-        var producoes = await _producoes.ListarAsync(
-            request.De, request.Ate, request.ProdutoId, cancellationToken);
-
         IReadOnlyList<Guid>? produtoIdsFiltro = request.ProdutoId.HasValue
             ? new[] { request.ProdutoId.Value }
             : null;
+
+        var producoes = await _producoes.ListarAsync(
+            request.De, request.Ate, produtoIdsFiltro, cancellationToken);
 
         var vendas = await _vendas.ListarAsync(
             request.De, request.Ate, produtoIdsFiltro, cancellationToken);

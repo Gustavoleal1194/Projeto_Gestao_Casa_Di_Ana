@@ -9,7 +9,7 @@ public interface IProducaoDiariaRepository
     Task<IReadOnlyList<ProducaoDiaria>> ListarAsync(
         DateTime? de = null,
         DateTime? ate = null,
-        Guid? produtoId = null,
+        IReadOnlyList<Guid>? produtoIds = null,
         CancellationToken ct = default);
     Task AdicionarAsync(ProducaoDiaria producao, CancellationToken ct = default);
     Task<int> SalvarAsync(CancellationToken ct = default);

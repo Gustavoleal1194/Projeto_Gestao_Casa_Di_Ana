@@ -17,7 +17,7 @@ public class ListarProducaoQueryHandler
         ListarProducaoQuery request, CancellationToken cancellationToken)
     {
         var lista = await _producoes.ListarAsync(
-            request.De, request.Ate, request.ProdutoId, cancellationToken);
+            request.De, request.Ate, request.ProdutoIds, cancellationToken);
 
         return lista
             .Select(p => RegistrarProducaoCommandHandler.ToDto(p, p.Produto?.Nome ?? string.Empty))

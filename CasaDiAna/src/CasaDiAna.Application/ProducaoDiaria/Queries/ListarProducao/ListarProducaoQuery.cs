@@ -6,4 +6,4 @@ namespace CasaDiAna.Application.ProducaoDiaria.Queries.ListarProducao;
 public record ListarProducaoQuery(
     DateTime? De = null,
     DateTime? Ate = null,
-    Guid? ProdutoId = null) : IRequest<IReadOnlyList<ProducaoDiariaDto>>;
+    IReadOnlyList<Guid>? ProdutoIds = null) : IRequest<IReadOnlyList<ProducaoDiariaDto>>;

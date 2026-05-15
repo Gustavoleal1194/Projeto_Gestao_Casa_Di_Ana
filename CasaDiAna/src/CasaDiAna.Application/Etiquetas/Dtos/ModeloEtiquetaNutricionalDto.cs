@@ -30,4 +30,5 @@ public record ModeloEtiquetaNutricionalDto(
     bool ContemAlergicos,
     bool ContemGluten,
     bool ContemLactose,
-    string? LoteFabricacao);
+    string? LoteFabricacao,
+    string? Ingredientes);

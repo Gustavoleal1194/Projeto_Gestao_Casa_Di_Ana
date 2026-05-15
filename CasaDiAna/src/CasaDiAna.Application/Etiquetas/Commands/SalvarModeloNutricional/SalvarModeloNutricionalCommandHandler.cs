@@ -60,7 +60,8 @@ public class SalvarModeloNutricionalCommandHandler
                 request.ContemAlergicos,
                 request.ContemGluten,
                 request.ContemLactose,
-                request.LoteFabricacao);
+                request.LoteFabricacao,
+                request.Ingredientes);
 
             await _modelos.AdicionarAsync(novo, cancellationToken);
             await _modelos.SalvarAsync(cancellationToken);
@@ -95,7 +96,8 @@ public class SalvarModeloNutricionalCommandHandler
             request.ContemAlergicos,
             request.ContemGluten,
             request.ContemLactose,
-            request.LoteFabricacao);
+            request.LoteFabricacao,
+            request.Ingredientes);
 
         await _modelos.SalvarAsync(cancellationToken);
         return ToDto(existente);
@@ -131,5 +133,6 @@ public class SalvarModeloNutricionalCommandHandler
         m.ContemAlergicos,
         m.ContemGluten,
         m.ContemLactose,
-        m.LoteFabricacao);
+        m.LoteFabricacao,
+        m.Ingredientes);
 }

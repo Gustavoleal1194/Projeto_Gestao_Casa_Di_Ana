@@ -87,6 +87,7 @@ export interface NutriValues {
   contemGluten: boolean
   contemLactose: boolean
   loteFabricacao: string
+  ingredientes: string
 }
 
 function zplEscape(value: string): string {
@@ -424,15 +425,29 @@ ${zplText(col4 + 6, tableTop + 6, '%VD(*)', right - col4 - 12, 21, 21, 'C')}
 ${horizontalLines}
 ${zplRows}
 ${zplText(left + 8, noteTop, '*percentual de valores diarios fornecidos pela porcao.', right - left - 16, 17, 17, 'L', 1)}
-${nutri.contemAlergicos
+${nutri.ingredientes
   ? zplText(left + 8, noteTop + 26,
-      `ALERGICOS: ${nutri.contemGluten ? 'Contem gluten' : 'Nao contem gluten'}. ${nutri.contemLactose ? 'Contem lactose' : 'Nao contem lactose'}.`,
-      right - left - 16, 17, 17, 'L', 2)
+      `INGREDIENTES: ${nutri.ingredientes}`,
+      right - left - 16, 17, 17, 'L', 5)
+  : ''}
+${nutri.contemAlergicos
+  ? (() => {
+      const ingLines = nutri.ingredientes ? Math.max(1, Math.ceil(nutri.ingredientes.length / 78)) : 0
+      const alerY = noteTop + 26 + ingLines * 26
+      return zplText(left + 8, alerY,
+        `ALERGICOS: ${nutri.contemGluten ? 'Contem gluten' : 'Nao contem gluten'}. ${nutri.contemLactose ? 'Contem lactose' : 'Nao contem lactose'}.`,
+        right - left - 16, 17, 17, 'L', 2)
+    })()
   : ''}
 ${(nutri.loteFabricacao || validade)
-  ? zplText(left + 8, noteTop + (nutri.contemAlergicos ? 76 : 26),
-      [nutri.loteFabricacao ? `Lote: ${nutri.loteFabricacao}` : '', validade ? `Val.: ${validade}` : ''].filter(Boolean).join('  |  '),
-      right - left - 16, 17, 17, 'L', 1)
+  ? (() => {
+      const ingLines = nutri.ingredientes ? Math.max(1, Math.ceil(nutri.ingredientes.length / 78)) : 0
+      const alerLines = nutri.contemAlergicos ? 2 : 0
+      const loteY = noteTop + 26 + ingLines * 26 + alerLines * 26
+      return zplText(left + 8, loteY,
+        [nutri.loteFabricacao ? `Lote: ${nutri.loteFabricacao}` : '', validade ? `Val.: ${validade}` : ''].filter(Boolean).join('  |  '),
+        right - left - 16, 17, 17, 'L', 1)
+    })()
   : ''}
 ^XZ`
   }
@@ -480,8 +495,6 @@ export function htmlEtiquetaNutricional(
   const porcaoLabel = nutri.medidaCaseira
     ? `${nutri.porcao} (${nutri.medidaCaseira})`
     : nutri.porcao
-
-  const loteTop = nutri.contemAlergicos ? '78mm' : '71mm'
 
   const row = (
     bold: boolean,
@@ -555,17 +568,15 @@ export function htmlEtiquetaNutricional(
         </tbody>
       </table>
 
-      <div class="note">
-        *percentual de valores diários fornecidos pela porção.
+      <div class="bottom-section">
+        <div class="note">*percentual de valores diários fornecidos pela porção.</div>
+        ${nutri.ingredientes ? `
+        <div class="ingredientes">INGREDIENTES: ${nutri.ingredientes}</div>` : ''}
+        ${nutri.contemAlergicos ? `
+        <div class="alergenos">ALÉRGICOS: ${nutri.contemGluten ? 'Contém glúten' : 'Não contém glúten'}. ${nutri.contemLactose ? 'Contém lactose' : 'Não contém lactose'}.</div>` : ''}
+        ${(nutri.loteFabricacao || validade) ? `
+        <div class="lote-validade">${[nutri.loteFabricacao ? `Lote: ${nutri.loteFabricacao}` : '', validade ? `Val.: ${validade}` : ''].filter(Boolean).join('  |  ')}</div>` : ''}
       </div>
-      ${nutri.contemAlergicos ? `
-      <div class="alergenos">
-        ALÉRGICOS: ${nutri.contemGluten ? 'Contém glúten' : 'Não contém glúten'}. ${nutri.contemLactose ? 'Contém lactose' : 'Não contém lactose'}.
-      </div>` : ''}
-      ${(nutri.loteFabricacao || validade) ? `
-      <div class="lote-validade">
-        ${[nutri.loteFabricacao ? `Lote: ${nutri.loteFabricacao}` : '', validade ? `Val.: ${validade}` : ''].filter(Boolean).join('  |  ')}
-      </div>` : ''}
 
       </div>
     </div>`
@@ -607,8 +618,8 @@ export function htmlEtiquetaNutricional(
       top: 2mm;
       left: 3mm;
       width: 65.33mm;
-      height: 85mm;
-      max-height: 85mm;
+      height: 100mm;
+      max-height: 100mm;
       font-family: 'Arial Narrow', Arial, sans-serif;
       font-weight: 700;
       overflow: hidden;
@@ -764,47 +775,51 @@ export function htmlEtiquetaNutricional(
       text-align: center;
       white-space: normal;
     }
-    .note {
+    .bottom-section {
       position: absolute;
       top: 67.2mm;
       left: 1mm;
       width: 62mm;
-      height: 3.3mm;
+    }
+    .note {
       font-size: 10px;
       line-height: 1;
+      height: 3.3mm;
       color: #000;
       overflow: hidden;
-      background: #fff;
-      z-index: 2;
       white-space: nowrap;
       display: flex;
       align-items: center;
       justify-content: center;
     }
+    .ingredientes {
+      font-size: 9px;
+      font-weight: 700;
+      line-height: 1.3;
+      color: #000;
+      border-top: 0.38mm solid #000;
+      padding-top: 0.5mm;
+      margin-top: 0.5mm;
+      text-transform: uppercase;
+      word-break: break-word;
+      white-space: normal;
+    }
     .alergenos {
-      position: absolute;
-      top: 71mm;
-      left: 1mm;
-      width: 62mm;
       font-size: 10px;
       font-weight: 700;
       line-height: 1.3;
       color: #000;
       border-top: 0.38mm solid #000;
       padding-top: 0.5mm;
+      margin-top: 0.5mm;
       text-transform: uppercase;
-      overflow: hidden;
     }
     .lote-validade {
-      position: absolute;
-      top: ${loteTop};
-      left: 1mm;
-      width: 62mm;
       font-size: 10px;
       font-weight: 600;
       line-height: 1.3;
       color: #000;
-      overflow: hidden;
+      margin-top: 0.5mm;
     }
   </style>
 </head>

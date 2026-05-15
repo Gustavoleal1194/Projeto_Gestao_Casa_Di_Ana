@@ -35,6 +35,7 @@ public class ModeloEtiquetaNutricional
     public bool ContemGluten { get; private set; }
     public bool ContemLactose { get; private set; }
     public string? LoteFabricacao { get; private set; }
+    public string? Ingredientes { get; private set; }
 
     public DateTime CriadoEm { get; private set; }
     public DateTime AtualizadoEm { get; private set; }
@@ -70,7 +71,8 @@ public class ModeloEtiquetaNutricional
         bool contemAlergicos = false,
         bool contemGluten = false,
         bool contemLactose = false,
-        string? loteFabricacao = null)
+        string? loteFabricacao = null,
+        string? ingredientes = null)
     {
         return new ModeloEtiquetaNutricional
         {
@@ -104,6 +106,7 @@ public class ModeloEtiquetaNutricional
             ContemGluten = contemGluten,
             ContemLactose = contemLactose,
             LoteFabricacao = NullIfEmpty(loteFabricacao),
+            Ingredientes = NullIfEmpty(ingredientes),
             CriadoEm = DateTime.UtcNow,
             AtualizadoEm = DateTime.UtcNow,
         };
@@ -137,7 +140,8 @@ public class ModeloEtiquetaNutricional
         bool contemAlergicos = false,
         bool contemGluten = false,
         bool contemLactose = false,
-        string? loteFabricacao = null)
+        string? loteFabricacao = null,
+        string? ingredientes = null)
     {
         Porcao = porcao;
         ValorEnergeticoKcal = valorEnergeticoKcal;
@@ -167,6 +171,7 @@ public class ModeloEtiquetaNutricional
         ContemGluten = contemGluten;
         ContemLactose = contemLactose;
         LoteFabricacao = NullIfEmpty(loteFabricacao);
+        Ingredientes = NullIfEmpty(ingredientes);
         AtualizadoEm = DateTime.UtcNow;
     }
 

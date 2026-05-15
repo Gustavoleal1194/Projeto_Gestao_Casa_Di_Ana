@@ -102,7 +102,7 @@ interface PreviewProps {
     vdProteinas: string; vdGordurasTotais: string; vdGordurasSaturadas: string;
     vdGordurasTrans: string; vdFibraAlimentar: string; vdSodio: string;
     contemAlergicos: boolean; contemGluten: boolean; contemLactose: boolean;
-    loteFabricacao: string;
+    loteFabricacao: string; ingredientes: string;
   }
 }
 
@@ -242,7 +242,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           top: 6,
           left: 9,
           width: 196,
-          height: 255,
+          height: 300,
           background: '#fff',
           overflow: 'hidden',
           fontWeight: 700,
@@ -299,29 +299,26 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           </tbody>
         </table>
 
-        <div style={{ position: 'absolute', top: noteTop, left: 3, width: 190, height: 11, fontSize: 10, lineHeight: 1, overflow: 'hidden', background: '#fff', zIndex: 2, whiteSpace: 'nowrap', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          *percentual de valores diários fornecidos pela porção.
+        <div style={{ position: 'absolute', top: noteTop, left: 3, width: 190 }}>
+          <div style={{ fontSize: 10, lineHeight: 1, height: 11, overflow: 'hidden', whiteSpace: 'nowrap', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            *percentual de valores diários fornecidos pela porção.
+          </div>
+          {nutri.ingredientes && (
+            <div style={{ fontSize: 7.5, fontWeight: 700, lineHeight: 1.3, borderTop: '0.5px solid #000', paddingTop: 1, marginTop: 1, textTransform: 'uppercase', wordBreak: 'break-word', whiteSpace: 'normal' }}>
+              INGREDIENTES: {nutri.ingredientes}
+            </div>
+          )}
+          {nutri.contemAlergicos && (
+            <div style={{ fontSize: 8, fontWeight: 700, lineHeight: 1.2, borderTop: '0.5px solid #000', paddingTop: 1, marginTop: 1, textTransform: 'uppercase' }}>
+              ALÉRGICOS: {nutri.contemGluten ? 'Contém glúten' : 'Não contém glúten'}. {nutri.contemLactose ? 'Contém lactose' : 'Não contém lactose'}.
+            </div>
+          )}
+          {(nutri.loteFabricacao || validade !== '—') && (
+            <div style={{ fontSize: 8, fontWeight: 600, lineHeight: 1.2, marginTop: 1 }}>
+              {[nutri.loteFabricacao ? `Lote: ${nutri.loteFabricacao}` : '', validade !== '—' ? `Val.: ${validade}` : ''].filter(Boolean).join('  |  ')}
+            </div>
+          )}
         </div>
-        {nutri.contemAlergicos && (
-          <div style={{
-            position: 'absolute', top: noteTop + 12, left: 3, width: 190,
-            fontSize: 8, fontWeight: 700, lineHeight: 1.2,
-            borderTop: '0.5px solid #000', paddingTop: 1,
-            textTransform: 'uppercase',
-          }}>
-            ALÉRGICOS: {nutri.contemGluten ? 'Contém glúten' : 'Não contém glúten'}. {nutri.contemLactose ? 'Contém lactose' : 'Não contém lactose'}.
-          </div>
-        )}
-        {(nutri.loteFabricacao || validade !== '—') && (
-          <div style={{
-            position: 'absolute',
-            top: noteTop + (nutri.contemAlergicos ? 26 : 12),
-            left: 3, width: 190,
-            fontSize: 8, fontWeight: 600, lineHeight: 1.2,
-          }}>
-            {[nutri.loteFabricacao ? `Lote: ${nutri.loteFabricacao}` : '', validade !== '—' ? `Val.: ${validade}` : ''].filter(Boolean).join('  |  ')}
-          </div>
-        )}
         {/* Contorno renderizado por cima de todo o conteúdo — mesmo comportamento do ::after no CSS de impressão */}
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, border: '1.14px solid #000', pointerEvents: 'none', zIndex: 10, boxSizing: 'border-box' }} />
       </div>
@@ -373,6 +370,7 @@ export function EtiquetasPage() {
     contemGluten: false,
     contemLactose: false,
     loteFabricacao: '',
+    ingredientes: '',
   })
 
   const produto = produtoDetalhe
@@ -456,9 +454,10 @@ export function EtiquetasPage() {
             contemGluten: modelo.contemGluten,
             contemLactose: modelo.contemLactose,
             loteFabricacao: modelo.loteFabricacao ?? '',
+            ingredientes: modelo.ingredientes ?? '',
           })
         } else {
-          setNutri({ nome: '', porcao: '100g', medidaCaseira: '', porcoesPorEmbalagem: '', valorEnergeticoKcal: '', valorEnergeticoKJ: '', carboidratos: '', acucaresTotais: '', acucaresAdicionados: '', proteinas: '', gordurasTotais: '', gordurasSaturadas: '', gordurasTrans: '', fibraAlimentar: '', sodio: '', ...CAMPOS_VD_VAZIOS, contemAlergicos: false, contemGluten: false, contemLactose: false, loteFabricacao: '' })
+          setNutri({ nome: '', porcao: '100g', medidaCaseira: '', porcoesPorEmbalagem: '', valorEnergeticoKcal: '', valorEnergeticoKJ: '', carboidratos: '', acucaresTotais: '', acucaresAdicionados: '', proteinas: '', gordurasTotais: '', gordurasSaturadas: '', gordurasTrans: '', fibraAlimentar: '', sodio: '', ...CAMPOS_VD_VAZIOS, contemAlergicos: false, contemGluten: false, contemLactose: false, loteFabricacao: '', ingredientes: '' })
         }
       })
       .catch(() => {})
@@ -492,6 +491,7 @@ export function EtiquetasPage() {
     contemGluten: nutri.contemGluten,
     contemLactose: nutri.contemLactose,
     loteFabricacao: nutri.loteFabricacao,
+    ingredientes: nutri.ingredientes,
   })
 
   const registrarImpressaoProduto = async () => {
@@ -618,6 +618,7 @@ export function EtiquetasPage() {
         contemGluten: nutri.contemGluten,
         contemLactose: nutri.contemLactose,
         loteFabricacao: nutri.loteFabricacao || null,
+        ingredientes: nutri.ingredientes || null,
       })
       setModeloNutricional(modeloAtualizado)
       setModeloSalvo(true)
@@ -833,6 +834,7 @@ export function EtiquetasPage() {
                         contemGluten: m.contemGluten,
                         contemLactose: m.contemLactose,
                         loteFabricacao: m.loteFabricacao ?? '',
+                        ingredientes: m.ingredientes ?? '',
                       })
                     }}
                     className="w-full rounded-lg px-3 py-2 text-sm border outline-none"
@@ -965,6 +967,21 @@ export function EtiquetasPage() {
                     </div>
                   ))}
                 </div>
+              </div>
+
+              {/* Ingredientes */}
+              <div className="space-y-2">
+                <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: 'var(--ada-muted)' }}>
+                  Ingredientes
+                </p>
+                <textarea
+                  rows={3}
+                  placeholder="Ex: Farinha de trigo, açúcar, ovos, manteiga, fermento..."
+                  value={nutri.ingredientes}
+                  onChange={e => setNutri(n => ({ ...n, ingredientes: e.target.value }))}
+                  className="w-full rounded-lg px-3 py-2 text-sm border outline-none resize-none"
+                  style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)', color: 'var(--ada-body)' }}
+                />
               </div>
 
               {/* Alergênicos */}

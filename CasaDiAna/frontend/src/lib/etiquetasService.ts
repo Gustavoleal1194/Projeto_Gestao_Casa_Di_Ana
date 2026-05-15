@@ -53,6 +53,7 @@ export interface ModeloNutricional extends VdCampos {
   contemGluten: boolean
   contemLactose: boolean
   loteFabricacao: string | null
+  ingredientes: string | null
 }
 
 export interface ModeloNutricionalResumo extends VdCampos {
@@ -77,6 +78,7 @@ export interface ModeloNutricionalResumo extends VdCampos {
   contemGluten: boolean
   contemLactose: boolean
   loteFabricacao: string | null
+  ingredientes: string | null
 }
 
 export interface SalvarModeloNutricionalInput extends VdCampos {
@@ -98,6 +100,7 @@ export interface SalvarModeloNutricionalInput extends VdCampos {
   contemGluten: boolean
   contemLactose: boolean
   loteFabricacao: string | null
+  ingredientes: string | null
 }
 
 interface ApiResponse<T> {

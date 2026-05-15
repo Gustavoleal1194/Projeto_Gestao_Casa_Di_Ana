@@ -20,7 +20,8 @@ public class SalvarModeloNutricionalCommandHandlerTests
 
     private static SalvarModeloNutricionalCommand CriarCommand(Guid produtoId,
         bool contemAlergicos = false, bool contemGluten = false,
-        bool contemLactose = false, string? loteFabricacao = null) => new(
+        bool contemLactose = false, string? loteFabricacao = null,
+        string? ingredientes = null) => new(
         ProdutoId: produtoId,
         Porcao: "50g",
         ValorEnergeticoKcal: 200m,
@@ -49,7 +50,8 @@ public class SalvarModeloNutricionalCommandHandlerTests
         ContemAlergicos: contemAlergicos,
         ContemGluten: contemGluten,
         ContemLactose: contemLactose,
-        LoteFabricacao: loteFabricacao);
+        LoteFabricacao: loteFabricacao,
+        Ingredientes: ingredientes);
 
     private static ModeloEtiquetaNutricional CriarModeloExistente(Guid produtoId) =>
         ModeloEtiquetaNutricional.Criar(
@@ -89,6 +91,7 @@ public class SalvarModeloNutricionalCommandHandlerTests
         resultado.ContemGluten.Should().BeFalse();
         resultado.ContemLactose.Should().BeFalse();
         resultado.LoteFabricacao.Should().BeNull();
+        resultado.Ingredientes.Should().BeNull();
         _modelos.Verify(r => r.AdicionarAsync(It.IsAny<ModeloEtiquetaNutricional>(), default), Times.Once);
         _modelos.Verify(r => r.SalvarAsync(default), Times.Once);
     }
@@ -117,6 +120,7 @@ public class SalvarModeloNutricionalCommandHandlerTests
         resultado.ContemGluten.Should().BeFalse();
         resultado.ContemLactose.Should().BeFalse();
         resultado.LoteFabricacao.Should().BeNull();
+        resultado.Ingredientes.Should().BeNull();
         _modelos.Verify(r => r.AdicionarAsync(It.IsAny<ModeloEtiquetaNutricional>(), default), Times.Never);
         _modelos.Verify(r => r.SalvarAsync(default), Times.Once);
     }
@@ -142,5 +146,24 @@ public class SalvarModeloNutricionalCommandHandlerTests
         resultado.ContemGluten.Should().BeTrue();
         resultado.ContemLactose.Should().BeFalse();
         resultado.LoteFabricacao.Should().Be("2026-001");
+        resultado.Ingredientes.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task DevePersistirIngredientes_QuandoInformados()
+    {
+        var produtoId = Guid.NewGuid();
+        _produtos.Setup(r => r.ExisteAsync(produtoId, default)).ReturnsAsync(true);
+        _modelos.Setup(r => r.ObterPorProdutoIdAsync(produtoId, default))
+                .ReturnsAsync((ModeloEtiquetaNutricional?)null);
+        _modelos.Setup(r => r.AdicionarAsync(It.IsAny<ModeloEtiquetaNutricional>(), default))
+                .Returns(Task.CompletedTask);
+        _modelos.Setup(r => r.SalvarAsync(default)).ReturnsAsync(1);
+
+        var command = CriarCommand(produtoId, ingredientes: "Farinha de trigo, açúcar, ovos, manteiga.");
+
+        var resultado = await _handler.Handle(command, CancellationToken.None);
+
+        resultado.Ingredientes.Should().Be("Farinha de trigo, açúcar, ovos, manteiga.");
     }
 }

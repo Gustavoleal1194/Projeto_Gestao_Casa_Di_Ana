@@ -49,6 +49,10 @@ export interface ModeloNutricional extends VdCampos {
   sodio: number
   porcoesPorEmbalagem: number | null
   medidaCaseira: string | null
+  contemAlergicos: boolean
+  contemGluten: boolean
+  contemLactose: boolean
+  loteFabricacao: string | null
 }
 
 export interface ModeloNutricionalResumo extends VdCampos {
@@ -69,6 +73,10 @@ export interface ModeloNutricionalResumo extends VdCampos {
   sodio: number
   porcoesPorEmbalagem: number | null
   medidaCaseira: string | null
+  contemAlergicos: boolean
+  contemGluten: boolean
+  contemLactose: boolean
+  loteFabricacao: string | null
 }
 
 export interface SalvarModeloNutricionalInput extends VdCampos {
@@ -86,6 +94,10 @@ export interface SalvarModeloNutricionalInput extends VdCampos {
   sodio: number
   porcoesPorEmbalagem: number | null
   medidaCaseira: string | null
+  contemAlergicos: boolean
+  contemGluten: boolean
+  contemLactose: boolean
+  loteFabricacao: string | null
 }
 
 interface ApiResponse<T> {

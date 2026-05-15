@@ -83,6 +83,10 @@ export interface NutriValues {
   vdGordurasTrans: string
   vdFibraAlimentar: string
   vdSodio: string
+  contemAlergicos: boolean
+  contemGluten: boolean
+  contemLactose: boolean
+  loteFabricacao: string
 }
 
 function zplEscape(value: string): string {

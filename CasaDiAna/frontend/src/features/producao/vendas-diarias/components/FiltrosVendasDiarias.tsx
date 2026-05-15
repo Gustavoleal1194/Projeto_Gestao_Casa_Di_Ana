@@ -9,8 +9,8 @@ interface Props {
   onDeChange: (v: string) => void
   ate: string
   onAteChange: (v: string) => void
-  produtoId: string
-  onProdutoChange: (v: string) => void
+  produtoIds: string[]
+  onProdutoChange: (ids: string[]) => void
   produtos: ProdutoResumo[]
 }
 
@@ -54,15 +54,20 @@ function dateInputStyle(ativo: boolean): React.CSSProperties {
 }
 
 export function FiltrosVendasDiarias({
-  busca, onBuscaChange, de, onDeChange, ate, onAteChange, produtoId, onProdutoChange, produtos,
+  busca, onBuscaChange, de, onDeChange, ate, onAteChange, produtoIds, onProdutoChange, produtos,
 }: Props) {
   const [focado, setFocado] = useState(false)
   const [dropdownAberto, setDropdownAberto] = useState(false)
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 })
   const btnRef = useRef<HTMLButtonElement>(null)
 
-  const temFiltroAtivo = !!busca || !!de || !!ate || !!produtoId
-  const produtoSelecionado = produtos.find(p => p.id === produtoId)
+  const temFiltroAtivo = !!busca || !!de || !!ate || produtoIds.length > 0
+  const ativo = produtoIds.length > 0
+  const chipLabel = produtoIds.length === 0
+    ? 'Produto'
+    : produtoIds.length === 1
+      ? (produtos.find(p => p.id === produtoIds[0])?.nome ?? 'Produto')
+      : `${produtoIds.length} Produtos`
 
   const fechar = useCallback(() => setDropdownAberto(false), [])
 
@@ -95,7 +100,7 @@ export function FiltrosVendasDiarias({
     }
   }, [dropdownAberto, fechar])
 
-  const limparTudo = () => { onBuscaChange(''); onDeChange(''); onAteChange(''); onProdutoChange('') }
+  const limparTudo = () => { onBuscaChange(''); onDeChange(''); onAteChange(''); onProdutoChange([]) }
 
   return (
     <div style={{
@@ -148,17 +153,17 @@ export function FiltrosVendasDiarias({
         <div style={{ position: 'relative' }}>
           <button ref={btnRef} type="button" onClick={abrirDropdown} aria-expanded={dropdownAberto} aria-haspopup="listbox" style={{
             display: 'inline-flex', alignItems: 'center', gap: 7, padding: '7px 12px',
-            background: produtoId ? 'linear-gradient(180deg, rgba(240,176,48,.10), rgba(212,150,12,.06))' : 'var(--ada-surface-2)',
-            border: `1px solid ${produtoId ? 'rgba(240,176,48,.35)' : 'var(--ada-border)'}`, borderRadius: 9,
-            fontSize: 12.5, fontWeight: 500, color: produtoId ? 'var(--ada-heading)' : 'var(--ada-body)',
+            background: ativo ? 'linear-gradient(180deg, rgba(240,176,48,.10), rgba(212,150,12,.06))' : 'var(--ada-surface-2)',
+            border: `1px solid ${ativo ? 'rgba(240,176,48,.35)' : 'var(--ada-border)'}`, borderRadius: 9,
+            fontSize: 12.5, fontWeight: 500, color: ativo ? 'var(--ada-heading)' : 'var(--ada-body)',
             cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap', flexShrink: 0, transition: 'all 150ms ease',
-            boxShadow: produtoId ? '0 0 0 1px rgba(240,176,48,.10) inset, 0 4px 12px -4px rgba(240,176,48,.35)' : 'none',
+            boxShadow: ativo ? '0 0 0 1px rgba(240,176,48,.10) inset, 0 4px 12px -4px rgba(240,176,48,.35)' : 'none',
           }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" style={{ flexShrink: 0, color: produtoId ? '#F0B030' : 'var(--ada-muted)', transition: 'color 150ms' }} aria-hidden="true">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" style={{ flexShrink: 0, color: ativo ? '#F0B030' : 'var(--ada-muted)', transition: 'color 150ms' }} aria-hidden="true">
               <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" />
               <rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
             </svg>
-            {produtoSelecionado ? produtoSelecionado.nome : 'Produto'}
+            {chipLabel}
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" style={{ opacity: 0.5 }} aria-hidden="true">
               <path d="m6 9 6 6 6-6" />
             </svg>
@@ -171,20 +176,31 @@ export function FiltrosVendasDiarias({
               boxShadow: '0 24px 56px rgba(0,0,0,.55), 0 8px 16px rgba(0,0,0,.3), 0 1px 0 rgba(255,255,255,.04) inset',
               minWidth: 220, maxHeight: 320, overflowY: 'auto', padding: 6, animation: 'pillIn 180ms cubic-bezier(.34,1.56,.64,1)',
             }}>
-              <button type="button" onClick={() => { onProdutoChange(''); setDropdownAberto(false) }} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '7px 10px', borderRadius: 7, fontSize: 13, color: !produtoId ? 'var(--ada-heading)' : 'var(--ada-body)', cursor: 'pointer', border: 'none', background: !produtoId ? 'var(--ada-surface-2)' : 'none', transition: 'background 100ms', fontFamily: 'inherit', textAlign: 'left' }}>
-                <span style={{ width: 16, height: 16, borderRadius: 4, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', border: !produtoId ? 'none' : '1.5px solid var(--ada-border)', background: !produtoId ? '#D4960C' : 'none' }}>
-                  {!produtoId && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0A0E16" strokeWidth="3" strokeLinecap="round"><path d="m4 12 5 5L20 6" /></svg>}
+              <button type="button" onClick={() => { onProdutoChange([]); setDropdownAberto(false) }} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '7px 10px', borderRadius: 7, fontSize: 13, color: !ativo ? 'var(--ada-heading)' : 'var(--ada-body)', cursor: 'pointer', border: 'none', background: !ativo ? 'var(--ada-surface-2)' : 'none', transition: 'background 100ms', fontFamily: 'inherit', textAlign: 'left' }}>
+                <span style={{ width: 16, height: 16, borderRadius: 4, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', border: !ativo ? 'none' : '1.5px solid var(--ada-border)', background: !ativo ? '#D4960C' : 'none' }}>
+                  {!ativo && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0A0E16" strokeWidth="3" strokeLinecap="round"><path d="m4 12 5 5L20 6" /></svg>}
                 </span>
                 Todos os produtos
               </button>
-              {produtos.filter(p => p.ativo).map(p => (
-                <button type="button" key={p.id} onClick={() => { onProdutoChange(p.id); setDropdownAberto(false) }} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '7px 10px', borderRadius: 7, fontSize: 13, color: produtoId === p.id ? 'var(--ada-heading)' : 'var(--ada-body)', cursor: 'pointer', border: 'none', background: produtoId === p.id ? 'var(--ada-surface-2)' : 'none', transition: 'background 100ms', fontFamily: 'inherit', textAlign: 'left' }}>
-                  <span style={{ width: 16, height: 16, borderRadius: 4, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', border: produtoId === p.id ? 'none' : '1.5px solid var(--ada-border)', background: produtoId === p.id ? '#D4960C' : 'none' }}>
-                    {produtoId === p.id && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0A0E16" strokeWidth="3" strokeLinecap="round"><path d="m4 12 5 5L20 6" /></svg>}
-                  </span>
-                  {p.nome}
-                </button>
-              ))}
+              {produtos.filter(p => p.ativo).map(p => {
+                const selecionado = produtoIds.includes(p.id)
+                return (
+                  <button type="button" key={p.id}
+                    onClick={() => {
+                      onProdutoChange(
+                        selecionado
+                          ? produtoIds.filter(x => x !== p.id)
+                          : [...produtoIds, p.id]
+                      )
+                    }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '7px 10px', borderRadius: 7, fontSize: 13, color: selecionado ? 'var(--ada-heading)' : 'var(--ada-body)', cursor: 'pointer', border: 'none', background: selecionado ? 'var(--ada-surface-2)' : 'none', transition: 'background 100ms', fontFamily: 'inherit', textAlign: 'left' }}>
+                    <span style={{ width: 16, height: 16, borderRadius: 4, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', border: selecionado ? 'none' : '1.5px solid var(--ada-border)', background: selecionado ? '#D4960C' : 'none' }}>
+                      {selecionado && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0A0E16" strokeWidth="3" strokeLinecap="round"><path d="m4 12 5 5L20 6" /></svg>}
+                    </span>
+                    {p.nome}
+                  </button>
+                )
+              })}
             </div>,
             document.body
           )}
@@ -219,13 +235,19 @@ export function FiltrosVendasDiarias({
               <button type="button" onClick={() => onAteChange('')} aria-label="Remover data final" style={pillClose}><XIcon /></button>
             </span>
           )}
-          {produtoSelecionado && (
-            <span style={pillBase}>
-              <span style={pillTag}>Produto</span>
-              <span style={{ padding: '5px 9px' }}>{produtoSelecionado.nome}</span>
-              <button type="button" onClick={() => onProdutoChange('')} aria-label="Remover filtro de produto" style={pillClose}><XIcon /></button>
-            </span>
-          )}
+          {produtoIds.map(id => {
+            const nome = produtos.find(p => p.id === id)?.nome ?? id
+            return (
+              <span key={id} style={pillBase}>
+                <span style={pillTag}>Produto</span>
+                <span style={{ padding: '5px 9px' }}>{nome}</span>
+                <button type="button"
+                  onClick={() => onProdutoChange(produtoIds.filter(x => x !== id))}
+                  aria-label={`Remover ${nome}`}
+                  style={pillClose}><XIcon /></button>
+              </span>
+            )
+          })}
           <button type="button" onClick={limparTudo} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'ui-monospace, monospace', fontSize: 11, fontWeight: 500, color: 'var(--ada-muted)', letterSpacing: '.06em', padding: '5px 10px', borderRadius: 6, transition: 'color 150ms, background 150ms' }}>
             Limpar tudo
           </button>

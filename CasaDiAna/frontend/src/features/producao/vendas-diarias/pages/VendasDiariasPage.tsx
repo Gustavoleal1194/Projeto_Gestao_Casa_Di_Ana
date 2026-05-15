@@ -19,7 +19,7 @@ export function VendasDiariasPage() {
   const { vendas, loading, erro, de, ate, setDe, setAte, carregar } = useVendasDiarias()
   const podeEditar = temPapel(...PAPEIS_EDICAO)
   const [produtos, setProdutos] = useState<ProdutoResumo[]>([])
-  const [produtoFiltro, setProdutoFiltro] = useState('')
+  const [produtoFiltros, setProdutoFiltros] = useState<string[]>([])
   const [busca, setBusca] = useState('')
 
   useEffect(() => {
@@ -28,9 +28,9 @@ export function VendasDiariasPage() {
 
   useEffect(() => { carregar() }, [])
 
-  const handleDeChange = (v: string) => { setDe(v); carregar(v, ate, produtoFiltro || undefined) }
-  const handleAteChange = (v: string) => { setAte(v); carregar(de, v, produtoFiltro || undefined) }
-  const handleProdutoChange = (v: string) => { setProdutoFiltro(v); carregar(de, ate, v || undefined) }
+  const handleDeChange = (v: string) => { setDe(v); carregar(v, ate, produtoFiltros.length > 0 ? produtoFiltros : undefined) }
+  const handleAteChange = (v: string) => { setAte(v); carregar(de, v, produtoFiltros.length > 0 ? produtoFiltros : undefined) }
+  const handleProdutoChange = (ids: string[]) => { setProdutoFiltros(ids); carregar(de, ate, ids.length > 0 ? ids : undefined) }
 
   const vendasFiltradas = useMemo(() => {
     if (!busca) return vendas
@@ -60,7 +60,7 @@ export function VendasDiariasPage() {
         onDeChange={handleDeChange}
         ate={ate}
         onAteChange={handleAteChange}
-        produtoId={produtoFiltro}
+        produtoIds={produtoFiltros}
         onProdutoChange={handleProdutoChange}
         produtos={produtos}
       />

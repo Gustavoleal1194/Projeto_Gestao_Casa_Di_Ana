@@ -182,11 +182,11 @@ export function FiltrosMovimentacoes({
         {/* Date range */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
           <label htmlFor="mov-de" style={{ fontFamily: 'ui-monospace, monospace', fontSize: 10.5, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--ada-placeholder)', flexShrink: 0 }}>De</label>
-          <input id="mov-de" type="date" value={de} max={ate || undefined} onChange={e => { onDeChange(e.target.value); if (ate && e.target.value > ate) onAteChange('') }} style={dateInputStyle(!!de)} />
+          <input id="mov-de" type="date" value={de} max={ate || undefined} onChange={e => { const v = e.target.value; onDeChange(v); if (ate && v.length === 10 && v > ate) onAteChange('') }} style={dateInputStyle(!!de)} />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
           <label htmlFor="mov-ate" style={{ fontFamily: 'ui-monospace, monospace', fontSize: 10.5, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--ada-placeholder)', flexShrink: 0 }}>Até</label>
-          <input id="mov-ate" type="date" value={ate} min={de || undefined} onChange={e => { onAteChange(e.target.value); if (de && e.target.value < de) onDeChange('') }} style={dateInputStyle(!!ate)} />
+          <input id="mov-ate" type="date" value={ate} min={de || undefined} onChange={e => { const v = e.target.value; onAteChange(v); if (de && v.length === 10 && v < de) onDeChange('') }} style={dateInputStyle(!!ate)} />
         </div>
 
         <span style={{ width: 1, height: 18, background: 'var(--ada-border)', flexShrink: 0, marginLeft: 4, marginRight: 4 }} aria-hidden="true" />

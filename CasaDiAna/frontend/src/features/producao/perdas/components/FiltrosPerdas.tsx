@@ -92,12 +92,12 @@ export function FiltrosPerdas({ busca, onBuscaChange, de, onDeChange, ate, onAte
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
           <label htmlFor="perdas-de" style={{ fontFamily: 'ui-monospace, monospace', fontSize: 10.5, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--ada-placeholder)', flexShrink: 0 }}>De</label>
-          <input id="perdas-de" type="date" value={de} max={ate || undefined} onChange={e => { onDeChange(e.target.value); if (ate && e.target.value > ate) onAteChange('') }} style={dateInputStyle(!!de)} />
+          <input id="perdas-de" type="date" value={de} max={ate || undefined} onChange={e => { const v = e.target.value; onDeChange(v); if (ate && v.length === 10 && v > ate) onAteChange('') }} style={dateInputStyle(!!de)} />
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
           <label htmlFor="perdas-ate" style={{ fontFamily: 'ui-monospace, monospace', fontSize: 10.5, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--ada-placeholder)', flexShrink: 0 }}>Até</label>
-          <input id="perdas-ate" type="date" value={ate} min={de || undefined} onChange={e => { onAteChange(e.target.value); if (de && e.target.value < de) onDeChange('') }} style={dateInputStyle(!!ate)} />
+          <input id="perdas-ate" type="date" value={ate} min={de || undefined} onChange={e => { const v = e.target.value; onAteChange(v); if (de && v.length === 10 && v < de) onDeChange('') }} style={dateInputStyle(!!ate)} />
         </div>
       </div>
 

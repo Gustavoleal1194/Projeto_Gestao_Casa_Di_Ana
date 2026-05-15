@@ -81,11 +81,11 @@ export function FiltrosRelatorio({
           {/* Date range */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
             <label htmlFor="rel-de" style={{ fontFamily: 'ui-monospace, monospace', fontSize: 10.5, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--ada-placeholder)', flexShrink: 0 }}>De</label>
-            <input id="rel-de" type="date" value={de} onChange={e => onDeChange(e.target.value)} style={dateInputStyle(!!de)} />
+            <input id="rel-de" type="date" value={de} max={ate || undefined} onChange={e => { onDeChange(e.target.value); if (ate && e.target.value > ate) onAteChange('') }} style={dateInputStyle(!!de)} />
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
             <label htmlFor="rel-ate" style={{ fontFamily: 'ui-monospace, monospace', fontSize: 10.5, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--ada-placeholder)', flexShrink: 0 }}>Até</label>
-            <input id="rel-ate" type="date" value={ate} onChange={e => onAteChange(e.target.value)} style={dateInputStyle(!!ate)} />
+            <input id="rel-ate" type="date" value={ate} min={de || undefined} onChange={e => { onAteChange(e.target.value); if (de && e.target.value < de) onDeChange('') }} style={dateInputStyle(!!ate)} />
           </div>
 
           {/* Entity chips slot */}

@@ -135,11 +135,11 @@ export function FiltrosProducaoDiaria({
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
           <label htmlFor="producao-de" style={{ fontFamily: 'ui-monospace, monospace', fontSize: 10.5, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--ada-placeholder)', flexShrink: 0 }}>De</label>
-          <input id="producao-de" type="date" value={de} onChange={e => onDeChange(e.target.value)} style={dateInputStyle(!!de)} />
+          <input id="producao-de" type="date" value={de} max={ate || undefined} onChange={e => { onDeChange(e.target.value); if (ate && e.target.value > ate) onAteChange('') }} style={dateInputStyle(!!de)} />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
           <label htmlFor="producao-ate" style={{ fontFamily: 'ui-monospace, monospace', fontSize: 10.5, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--ada-placeholder)', flexShrink: 0 }}>Até</label>
-          <input id="producao-ate" type="date" value={ate} onChange={e => onAteChange(e.target.value)} style={dateInputStyle(!!ate)} />
+          <input id="producao-ate" type="date" value={ate} min={de || undefined} onChange={e => { onAteChange(e.target.value); if (de && e.target.value < de) onDeChange('') }} style={dateInputStyle(!!ate)} />
         </div>
 
         <span style={{ width: 1, height: 18, background: 'var(--ada-border)', flexShrink: 0, marginLeft: 4, marginRight: 4 }} aria-hidden="true" />

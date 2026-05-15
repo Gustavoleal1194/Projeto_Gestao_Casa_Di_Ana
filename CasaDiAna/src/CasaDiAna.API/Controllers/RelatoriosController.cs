@@ -77,12 +77,16 @@ public class RelatoriosController : ControllerBase
     public async Task<IActionResult> InsumosProducao(
         [FromQuery] DateTime de,
         [FromQuery] DateTime ate,
-        [FromQuery] Guid? ingredienteId = null,
-        [FromQuery] Guid? produtoId = null,
+        [FromQuery] Guid[]? ingredienteIds = null,
+        [FromQuery] Guid[]? produtoIds = null,
         CancellationToken ct = default)
     {
+        var ingIds = ingredienteIds != null && ingredienteIds.Length > 0
+            ? (IReadOnlyList<Guid>)ingredienteIds : null;
+        var prodIds = produtoIds != null && produtoIds.Length > 0
+            ? (IReadOnlyList<Guid>)produtoIds : null;
         var resultado = await _mediator.Send(
-            new InsumosProducaoQuery(de, ate, ingredienteId, produtoId), ct);
+            new InsumosProducaoQuery(de, ate, ingIds, prodIds), ct);
         return Ok(ApiResponse<IReadOnlyList<InsumoProducaoDiaDto>>.Ok(resultado));
     }
 

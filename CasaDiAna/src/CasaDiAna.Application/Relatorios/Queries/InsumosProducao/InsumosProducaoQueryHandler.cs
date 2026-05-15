@@ -25,12 +25,11 @@ public class InsumosProducaoQueryHandler
     public async Task<IReadOnlyList<InsumoProducaoDiaDto>> Handle(
         InsumosProducaoQuery request, CancellationToken cancellationToken)
     {
-        var movs = await _movimentacoes.ListarAsync(
-            request.De, request.Ate, TipoMovimentacao.SaidaProducao, cancellationToken);
+        var movs = (await _movimentacoes.ListarAsync(
+            request.De, request.Ate, TipoMovimentacao.SaidaProducao, cancellationToken)).ToList();
 
-        // Opcional: filtrar por ingrediente
-        if (request.IngredienteId.HasValue)
-            movs = movs.Where(m => m.IngredienteId == request.IngredienteId.Value).ToList();
+        if (request.IngredienteIds?.Count > 0)
+            movs = movs.Where(m => request.IngredienteIds.Contains(m.IngredienteId)).ToList();
 
         // Carregar ProducoesDiarias referenciadas
         var producaoDiariaIds = movs
@@ -42,14 +41,13 @@ public class InsumosProducaoQueryHandler
         var producoes = await _producoesDiarias.ListarPorIdsAsync(producaoDiariaIds, cancellationToken);
         var producoesMap = producoes.ToDictionary(p => p.Id);
 
-        // Opcional: filtrar por produto
-        if (request.ProdutoId.HasValue)
+        if (request.ProdutoIds?.Count > 0)
         {
-            var prodFiltro = request.ProdutoId.Value;
+            var prodIds = request.ProdutoIds;
             movs = movs
                 .Where(m => m.ReferenciaId.HasValue
                     && producoesMap.TryGetValue(m.ReferenciaId.Value, out var pd)
-                    && pd.ProdutoId == prodFiltro)
+                    && prodIds.Contains(pd.ProdutoId))
                 .ToList();
         }
 

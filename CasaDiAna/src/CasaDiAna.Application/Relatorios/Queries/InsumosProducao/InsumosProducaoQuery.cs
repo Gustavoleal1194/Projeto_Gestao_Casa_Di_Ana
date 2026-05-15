@@ -6,5 +6,5 @@ namespace CasaDiAna.Application.Relatorios.Queries.InsumosProducao;
 public record InsumosProducaoQuery(
     DateTime De,
     DateTime Ate,
-    Guid? IngredienteId = null,
-    Guid? ProdutoId = null) : IRequest<IReadOnlyList<InsumoProducaoDiaDto>>;
+    IReadOnlyList<Guid>? IngredienteIds = null,
+    IReadOnlyList<Guid>? ProdutoIds = null) : IRequest<IReadOnlyList<InsumoProducaoDiaDto>>;

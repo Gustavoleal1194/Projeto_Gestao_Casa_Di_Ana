@@ -61,11 +61,14 @@ public class RelatoriosController : ControllerBase
     public async Task<IActionResult> ProducaoVendas(
         [FromQuery] DateTime de,
         [FromQuery] DateTime ate,
-        [FromQuery] Guid? produtoId = null,
+        [FromQuery] Guid[]? produtoIds = null,
         CancellationToken ct = default)
     {
+        var ids = produtoIds != null && produtoIds.Length > 0
+            ? (IReadOnlyList<Guid>)produtoIds
+            : null;
         var resultado = await _mediator.Send(
-            new RelatorioProducaoVendasQuery(de, ate, produtoId), ct);
+            new RelatorioProducaoVendasQuery(de, ate, ids), ct);
         return Ok(ApiResponse<RelatorioProducaoVendasDto>.Ok(resultado));
     }
 

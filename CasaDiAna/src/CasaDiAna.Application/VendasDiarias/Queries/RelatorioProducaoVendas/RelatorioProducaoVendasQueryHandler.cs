@@ -24,15 +24,11 @@ public class RelatorioProducaoVendasQueryHandler
     public async Task<RelatorioProducaoVendasDto> Handle(
         RelatorioProducaoVendasQuery request, CancellationToken cancellationToken)
     {
-        IReadOnlyList<Guid>? produtoIdsFiltro = request.ProdutoId.HasValue
-            ? new[] { request.ProdutoId.Value }
-            : null;
-
         var producoes = await _producoes.ListarAsync(
-            request.De, request.Ate, produtoIdsFiltro, cancellationToken);
+            request.De, request.Ate, request.ProdutoIds, cancellationToken);
 
         var vendas = await _vendas.ListarAsync(
-            request.De, request.Ate, produtoIdsFiltro, cancellationToken);
+            request.De, request.Ate, request.ProdutoIds, cancellationToken);
 
         // Agrupa todos os IDs de produtos envolvidos no período
         var todosProdutoIds = producoes.Select(p => p.ProdutoId)

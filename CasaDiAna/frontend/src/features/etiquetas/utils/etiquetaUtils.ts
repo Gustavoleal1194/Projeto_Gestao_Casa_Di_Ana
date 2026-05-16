@@ -628,7 +628,7 @@ export function htmlEtiquetaNutricional(
       font-weight: 700;
       line-height: 1.3;
       color: #000;
-      margin-top: 0.5mm;
+      margin-top: 3mm;
       text-transform: uppercase;
     }
     .gluten-lactose {

@@ -619,7 +619,6 @@ export function htmlEtiquetaNutricional(
       line-height: 1.3;
       color: #000;
       margin-top: 0.5mm;
-      text-transform: uppercase;
       word-break: break-word;
       white-space: normal;
     }

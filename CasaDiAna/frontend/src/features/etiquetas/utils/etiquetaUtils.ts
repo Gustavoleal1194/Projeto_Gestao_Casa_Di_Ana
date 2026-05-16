@@ -577,7 +577,7 @@ export function htmlEtiquetaNutricional(
         <div class="ingredientes">INGREDIENTES: ${nutri.ingredientes}</div>` : ''}
         ${nutri.alergicoAlimentar ? `
         <div class="alergenos">ALERGÊNICOS ALIMENTARES: ${nutri.alergicoAlimentar}</div>` : ''}
-        <div class="gluten-lactose">${nutri.contemGluten ? 'Contém glúten' : 'Não contém glúten'}${nutri.contemLactose ? '. Contém lactose' : ''}.</div>
+        <div class="gluten-lactose"><strong>${nutri.contemGluten ? 'Contém glúten' : 'Não contém glúten'}${nutri.contemLactose ? '. Contém lactose' : ''}.</strong></div>
         ${(nutri.loteFabricacao || validade) ? `
         <div class="lote-validade">${[nutri.loteFabricacao ? `Lote: ${nutri.loteFabricacao}` : '', validade ? `Val.: ${validade}` : ''].filter(Boolean).join('  |  ')}</div>` : ''}
       </div>

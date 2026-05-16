@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useCallback, useEffect } from 'react'
 import { ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/outline'
 import type { MovimentacaoRelatorio } from '@/types/estoque'
 
@@ -79,7 +79,10 @@ function StreamRow({ m }: { m: MovimentacaoRelatorio }) {
 }
 
 export function StreamAutoScroll({ movimentacoes }: { movimentacoes: MovimentacaoRelatorio[] }) {
-  const [tab, setTab] = useState<Tab>('todas')
+  const [tab, setTab]       = useState<Tab>('todas')
+  const [paused, setPaused] = useState(false)
+  const bodyRef  = useRef<HTMLDivElement>(null)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const filtered = useMemo(() => {
     const sorted = [...movimentacoes].sort((a, b) => b.criadoEm.localeCompare(a.criadoEm))
@@ -90,15 +93,38 @@ export function StreamAutoScroll({ movimentacoes }: { movimentacoes: Movimentaca
   }, [movimentacoes, tab])
 
   const shouldScroll = filtered.length > 5
-  const items = shouldScroll ? [...filtered, ...filtered] : filtered
+
+  const scheduleResume = useCallback(() => {
+    setPaused(true)
+    if (timerRef.current) clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => {
+      if (bodyRef.current) bodyRef.current.scrollTop = 0
+      setPaused(false)
+    }, 10_000)
+  }, [])
+
+  useEffect(() => () => {
+    if (timerRef.current) clearTimeout(timerRef.current)
+  }, [])
+
+  const items = shouldScroll && !paused ? [...filtered, ...filtered] : filtered
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, background: 'var(--ada-surface-2)', border: '1px solid var(--ada-border-sub)', borderRadius: 16, overflow: 'hidden', minHeight: 320 }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 18px', borderBottom: '1px solid var(--ada-border-sub)' }}>
         <span style={{ fontFamily: 'Sora, system-ui, sans-serif', fontSize: 11, fontWeight: 500, textTransform: 'uppercase' as const, letterSpacing: '0.14em', color: 'var(--ada-body)', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span aria-label="ao vivo" style={{ width: 7, height: 7, borderRadius: '50%', background: '#4ADE80', boxShadow: '0 0 8px #4ADE80', display: 'inline-block', animation: 'stream-pulse 1.6s ease infinite' }} />
-          Stream de operações
+          <span
+            aria-label={paused ? 'pausado' : 'ao vivo'}
+            style={{
+              width: 7, height: 7, borderRadius: '50%', display: 'inline-block',
+              background: paused ? '#D4960C' : '#4ADE80',
+              boxShadow: paused ? '0 0 8px #D4960C' : '0 0 8px #4ADE80',
+              animation: paused ? 'none' : 'stream-pulse 1.6s ease infinite',
+              transition: 'background 300ms, box-shadow 300ms',
+            }}
+          />
+          {paused ? 'Navegação manual' : 'Stream de operações'}
         </span>
         <div style={{ display: 'flex', gap: 4, padding: 2, background: 'var(--ada-surface)', border: '1px solid var(--ada-border)', borderRadius: 8 }}>
           {TABS.map(t => (
@@ -120,18 +146,29 @@ export function StreamAutoScroll({ movimentacoes }: { movimentacoes: Movimentaca
       </div>
 
       {/* Stream body */}
-      <div style={{
-        flex: 1, overflow: 'hidden', position: 'relative',
-        maskImage: 'linear-gradient(180deg, transparent 0, black 28px, black calc(100% - 28px), transparent 100%)',
-        WebkitMaskImage: 'linear-gradient(180deg, transparent 0, black 28px, black calc(100% - 28px), transparent 100%)',
-      }}>
+      <div
+        ref={bodyRef}
+        onMouseDown={shouldScroll ? scheduleResume : undefined}
+        onScroll={shouldScroll ? scheduleResume : undefined}
+        style={{
+          flex: 1,
+          overflowY: paused ? 'auto' : 'hidden',
+          position: 'relative',
+          maskImage: paused
+            ? undefined
+            : 'linear-gradient(180deg, transparent 0, black 28px, black calc(100% - 28px), transparent 100%)',
+          WebkitMaskImage: paused
+            ? undefined
+            : 'linear-gradient(180deg, transparent 0, black 28px, black calc(100% - 28px), transparent 100%)',
+        }}
+      >
         {filtered.length === 0 ? (
           <div style={{ padding: '32px 18px', textAlign: 'center' as const, color: 'var(--ada-muted)', fontSize: 13 }}>
             Nenhuma movimentação nesta categoria.
           </div>
         ) : (
           <ul
-            className={shouldScroll ? 'stream-auto-list-scroll' : undefined}
+            className={shouldScroll && !paused ? 'stream-auto-list-scroll' : undefined}
             style={{ listStyle: 'none', padding: '8px 0', display: 'flex', flexDirection: 'column' as const }}
           >
             {items.map((m, i) => <StreamRow key={`${m.id}-${i}`} m={m} />)}

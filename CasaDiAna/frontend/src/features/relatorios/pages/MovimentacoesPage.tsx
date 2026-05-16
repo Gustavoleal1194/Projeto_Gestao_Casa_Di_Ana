@@ -83,20 +83,73 @@ export function MovimentacoesPage() {
 
   return (
     <div className="ada-page">
-      <div
-        className="mov-hero-grid"
-        style={{ display: 'grid', gridTemplateColumns: '1.35fr 1fr', gap: 24, alignItems: 'start' }}
-      >
-        {/* ── LEFT: ops-shell ─────────────────────────── */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+        {/* ── Hero header ─────────────────────────────── */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 18 }}>
+          <div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 9, fontFamily: 'Sora, system-ui, sans-serif', fontSize: 11, fontWeight: 500, textTransform: 'uppercase' as const, letterSpacing: '0.18em', color: '#D4960C', marginBottom: 12 }}>
+              <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: '50%', background: '#D4960C', boxShadow: '0 0 10px rgba(240,176,48,.6)', animation: 'mov-pulse 1.6s ease infinite', display: 'inline-block' }} />
+              Operações em tempo real
+            </div>
+            <h1 style={{ fontFamily: 'Sora, system-ui, sans-serif', fontSize: 28, fontWeight: 700, letterSpacing: '-0.025em', lineHeight: 1.1, color: 'var(--ada-heading)' }}>
+              Movimentações de <em style={{ fontStyle: 'normal', color: '#D4960C' }}>Estoque</em>
+            </h1>
+            <p style={{ marginTop: 8, color: 'var(--ada-muted)', fontSize: 13.5, maxWidth: 480, lineHeight: 1.55 }}>
+              Cada entrada, saída e ajuste no período selecionado — rastreado ao vivo.
+            </p>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
+            <span style={{ fontFamily: 'Sora, system-ui, sans-serif', fontSize: 10, fontWeight: 500, textTransform: 'uppercase' as const, letterSpacing: '0.15em', color: 'var(--ada-placeholder)' }}>UTC-3 · ao vivo</span>
+            <span style={{ fontFamily: 'Sora, system-ui, sans-serif', fontSize: 22, fontWeight: 600, color: '#D4960C', letterSpacing: '-0.01em', fontVariantNumeric: 'tabular-nums' as const, textShadow: '0 0 16px rgba(212,150,12,.30)' }}>{hora}</span>
+            <span style={{ fontFamily: 'Sora, system-ui, sans-serif', fontSize: 10.5, color: 'var(--ada-muted)', letterSpacing: '0.06em' }}>{data}</span>
+          </div>
+        </div>
+
+        {/* ── Filtros ──────────────────────────────────── */}
+        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end' }}>
+          <div style={{ flex: 1 }}>
+            <FiltrosMovimentacoes
+              busca={busca}
+              onBuscaChange={setBusca}
+              de={de}
+              onDeChange={handleDeChange}
+              ate={ate}
+              onAteChange={handleAteChange}
+              tipos={tipos}
+              onTipoChange={handleTipoChange}
+              ingredienteIds={ingredienteIds}
+              onIngredienteChange={handleIngredienteChange}
+              ingredientes={ingredientes}
+            />
+          </div>
+          {movimentacoes.length > 0 && (
+            <button
+              onClick={() => gerarPdfMovimentacoes(movimentacoes, de, ate)}
+              className="btn-secondary"
+              style={{ display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' as const, flexShrink: 0 }}
+            >
+              <ArrowDownTrayIcon className="h-4 w-4" aria-hidden="true" />
+              Baixar PDF
+            </button>
+          )}
+        </div>
+
+        {/* ── KPIs ─────────────────────────────────────── */}
+        {!loading && !erro && movimentacoesFiltradas.length > 0 && (
+          <KpiMovimentacoes movimentacoes={movimentacoesFiltradas} />
+        )}
+
+        {/* ── Ops-shell: stream ────────────────────────── */}
         <div style={{
           background: 'var(--ada-surface)', border: '1px solid var(--ada-border)',
           borderRadius: 24, padding: 28, position: 'relative', overflow: 'hidden',
-          display: 'flex', flexDirection: 'column' as const, gap: 24,
-          boxShadow: 'var(--shadow-sm)', minHeight: 'calc(100vh - 140px)',
+          display: 'flex', flexDirection: 'column' as const, gap: 16,
+          boxShadow: 'var(--shadow-sm)',
         }}>
           <div aria-hidden="true" style={{
             position: 'absolute', inset: 0, pointerEvents: 'none',
-            background: 'radial-gradient(ellipse 70% 30% at 50% 0%, rgba(212,150,12,.08), transparent 100%)',
+            background: 'radial-gradient(ellipse 70% 40% at 50% 0%, rgba(212,150,12,.08), transparent 100%)',
           }} />
           <div aria-hidden="true" style={{
             position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
@@ -107,35 +160,6 @@ export function MovimentacoesPage() {
             opacity: 0.4,
           }} />
 
-          {/* Hero header */}
-          <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 18 }}>
-            <div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 9, fontFamily: 'Sora, system-ui, sans-serif', fontSize: 11, fontWeight: 500, textTransform: 'uppercase' as const, letterSpacing: '0.18em', color: '#D4960C', marginBottom: 12 }}>
-                <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: '50%', background: '#D4960C', boxShadow: '0 0 10px rgba(240,176,48,.6)', animation: 'mov-pulse 1.6s ease infinite', display: 'inline-block' }} />
-                Operações em tempo real
-              </div>
-              <h1 style={{ fontFamily: 'Sora, system-ui, sans-serif', fontSize: 28, fontWeight: 700, letterSpacing: '-0.025em', lineHeight: 1.1, color: 'var(--ada-heading)' }}>
-                Movimentações de <em style={{ fontStyle: 'normal', color: '#D4960C' }}>Estoque</em>
-              </h1>
-              <p style={{ marginTop: 8, color: 'var(--ada-muted)', fontSize: 13.5, maxWidth: 480, lineHeight: 1.55 }}>
-                Cada entrada, saída e ajuste no período selecionado — rastreado ao vivo.
-              </p>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
-              <span style={{ fontFamily: 'Sora, system-ui, sans-serif', fontSize: 10, fontWeight: 500, textTransform: 'uppercase' as const, letterSpacing: '0.15em', color: 'var(--ada-placeholder)' }}>UTC-3 · ao vivo</span>
-              <span style={{ fontFamily: 'Sora, system-ui, sans-serif', fontSize: 22, fontWeight: 600, color: '#D4960C', letterSpacing: '-0.01em', fontVariantNumeric: 'tabular-nums' as const, textShadow: '0 0 16px rgba(212,150,12,.30)' }}>{hora}</span>
-              <span style={{ fontFamily: 'Sora, system-ui, sans-serif', fontSize: 10.5, color: 'var(--ada-muted)', letterSpacing: '0.06em' }}>{data}</span>
-            </div>
-          </div>
-
-          {/* KPI grid */}
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            {!loading && !erro && movimentacoesFiltradas.length > 0 && (
-              <KpiMovimentacoes movimentacoes={movimentacoesFiltradas} />
-            )}
-          </div>
-
-          {/* Stream / states */}
           <div style={{ position: 'relative', zIndex: 1, flex: 1, display: 'flex', flexDirection: 'column' as const }}>
             {loading && <LoadingState mensagem="Carregando movimentações…" />}
             {!loading && erro && <div className="state-error" role="alert">{erro}</div>}
@@ -153,37 +177,11 @@ export function MovimentacoesPage() {
           </div>
         </div>
 
-        {/* ── RIGHT: filters + chart ───────────────────── */}
-        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 20, position: 'sticky', top: 16 }}>
-          <FiltrosMovimentacoes
-            busca={busca}
-            onBuscaChange={setBusca}
-            de={de}
-            onDeChange={handleDeChange}
-            ate={ate}
-            onAteChange={handleAteChange}
-            tipos={tipos}
-            onTipoChange={handleTipoChange}
-            ingredienteIds={ingredienteIds}
-            onIngredienteChange={handleIngredienteChange}
-            ingredientes={ingredientes}
-          />
+        {/* ── Chart: movimentações por hora ────────────── */}
+        {!loading && !erro && movimentacoesFiltradas.length > 0 && (
+          <ChartMovimentacoes movimentacoes={movimentacoesFiltradas} />
+        )}
 
-          {!loading && !erro && movimentacoesFiltradas.length > 0 && (
-            <ChartMovimentacoes movimentacoes={movimentacoesFiltradas} />
-          )}
-
-          {movimentacoes.length > 0 && (
-            <button
-              onClick={() => gerarPdfMovimentacoes(movimentacoes, de, ate)}
-              className="btn-secondary"
-              style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}
-            >
-              <ArrowDownTrayIcon className="h-4 w-4" aria-hidden="true" />
-              Baixar PDF
-            </button>
-          )}
-        </div>
       </div>
     </div>
   )

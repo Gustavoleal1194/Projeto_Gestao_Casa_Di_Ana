@@ -392,7 +392,7 @@ export function htmlEtiquetaNutricional(
 
       <div class="bottom-section">
         ${nutri.ingredientes ? `
-        <div class="ingredientes">ingredientes: ${nutri.ingredientes.toLowerCase()}</div>` : ''}
+        <div class="ingredientes">Ingredientes: ${nutri.ingredientes.charAt(0).toUpperCase() + nutri.ingredientes.slice(1).toLowerCase()}</div>` : ''}
         ${nutri.alergicoAlimentar ? `
         <div class="alergenos">ALÉRGICOS: ${nutri.alergicoAlimentar}</div>` : ''}
         <div class="gluten-lactose"><strong>${nutri.contemGluten ? 'Contém glúten' : 'Não contém glúten'}${nutri.contemLactose ? '. Contém lactose' : ''}.</strong></div>

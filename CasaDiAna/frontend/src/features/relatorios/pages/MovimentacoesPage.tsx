@@ -8,13 +8,7 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { EmptyState } from '@/components/ui/EmptyState'
 import type { MovimentacaoRelatorio, IngredienteResumo } from '@/types/estoque'
-
-const TIPO_LABEL: Record<string, string> = {
-  Entrada:        'Entrada',
-  AjustePositivo: 'Ajuste Positivo',
-  AjusteNegativo: 'Ajuste Negativo',
-  SaidaProducao:  'Saída — Produção',
-}
+import { StreamMovimentacoes } from '../components/StreamMovimentacoes'
 
 function hoje(): string { return new Date().toISOString().split('T')[0] }
 function ha30Dias(): string {
@@ -118,63 +112,7 @@ export function MovimentacoesPage() {
         </div>
       )}
       {!loading && !erro && movimentacoesFiltradas.length > 0 && (
-        <div className="ada-surface-card">
-          <div className="overflow-x-auto">
-            <table className="w-full" role="table">
-              <thead>
-                <tr className="table-head-row">
-                  <th className="table-th" scope="col">Data/Hora</th>
-                  <th className="table-th" scope="col">Ingrediente</th>
-                  <th className="table-th" scope="col">Tipo</th>
-                  <th className="table-th table-th-right" scope="col">Quantidade</th>
-                  <th className="table-th table-th-right" scope="col">Saldo Após</th>
-                  <th className="table-th" scope="col">Referência</th>
-                </tr>
-              </thead>
-              <tbody>
-                {movimentacoesFiltradas.map(m => (
-                  <tr key={m.id} className="table-row">
-                    <td className="table-td whitespace-nowrap">
-                      <span className="text-xs tabular-nums" style={{ color: 'var(--ada-muted)' }}>
-                        {formatarDataHora(m.criadoEm)}
-                      </span>
-                    </td>
-                    <td className="table-td">
-                      <div className="flex items-center gap-2.5">
-                        <span className="accent-bar shrink-0" aria-hidden="true" />
-                        <span className="text-sm" style={{ color: 'var(--ada-heading)' }}>{m.ingredienteNome}</span>
-                        <span className="text-xs" style={{ color: 'var(--ada-placeholder)' }}>({m.unidadeMedidaCodigo})</span>
-                      </div>
-                    </td>
-                    <td className="table-td">
-                      <span className="text-sm" style={{ color: 'var(--ada-body)' }}>{TIPO_LABEL[m.tipo] ?? m.tipo}</span>
-                    </td>
-                    <td className="table-td" style={{ textAlign: 'right' }}>
-                      <span
-                        className="text-sm font-semibold tabular-nums"
-                        style={{ color: m.tipo.includes('Saida') || m.tipo.includes('Negativo') ? 'var(--ada-error-text)' : 'var(--ada-success-text)' }}
-                      >
-                        {m.tipo.includes('Saida') || m.tipo.includes('Negativo') ? '-' : '+'}{m.quantidade}
-                      </span>
-                    </td>
-                    <td className="table-td tabular-nums" style={{ textAlign: 'right' }}>
-                      <span className="text-sm" style={{ color: 'var(--ada-body)' }}>{m.saldoApos}</span>
-                    </td>
-                    <td className="table-td" style={{ maxWidth: '140px' }}>
-                      <span
-                        className="text-xs cell-truncate block"
-                        style={{ color: 'var(--ada-muted)' }}
-                        title={m.referenciaTipo ?? ''}
-                      >
-                        {m.referenciaTipo ?? '—'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <StreamMovimentacoes movimentacoes={movimentacoesFiltradas} />
       )}
     </div>
   )

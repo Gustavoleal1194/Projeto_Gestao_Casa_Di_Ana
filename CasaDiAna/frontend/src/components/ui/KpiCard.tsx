@@ -59,7 +59,7 @@ export function KpiCard({ valor, raw, formatarValor, label, tendencia, variante 
 
     rafRef.current = requestAnimationFrame(tick)
     return () => { if (rafRef.current !== null) cancelAnimationFrame(rafRef.current) }
-  }, [raw, valor])
+  }, [raw, valor, formatarValor])
 
   return (
     <div
@@ -68,6 +68,7 @@ export function KpiCard({ valor, raw, formatarValor, label, tendencia, variante 
         background: 'var(--ada-surface)',
         border: '1px solid var(--ada-border)',
         boxShadow: 'var(--shadow-sm)',
+        fontFamily: 'Sora, system-ui, sans-serif',
       }}
     >
       <div
@@ -77,15 +78,14 @@ export function KpiCard({ valor, raw, formatarValor, label, tendencia, variante 
       />
       <p
         className="text-[11px] font-semibold uppercase tracking-[.08em] mb-3"
-        style={{ color: 'var(--ada-muted)', fontFamily: 'Sora, system-ui, sans-serif' }}
+        style={{ color: 'var(--ada-muted)' }}
       >
         {label}
       </p>
       <p
         className="text-[26px] font-bold tabular-nums leading-none tracking-tight"
-        style={{ color: v.color, textShadow: `0 0 20px ${v.glow}`, fontFamily: 'Sora, system-ui, sans-serif' }}
+        style={{ color: v.color, textShadow: `0 0 20px ${v.glow}` }}
         aria-live="polite"
-        aria-label={`${label}: ${valor}`}
       >
         {displayed}
       </p>

@@ -7,14 +7,16 @@ function useCountUp(target: number) {
     if (!ref.current) return
     const el = ref.current
     let start: number | null = null
+    let frameId: number
     function step(ts: number) {
       if (!start) start = ts
       const t = Math.min((ts - start) / 1100, 1)
       const eased = 1 - Math.pow(1 - t, 3)
       el.textContent = Math.round(eased * target).toLocaleString('pt-BR')
-      if (t < 1) requestAnimationFrame(step)
+      if (t < 1) frameId = requestAnimationFrame(step)
     }
-    requestAnimationFrame(step)
+    frameId = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(frameId)
   }, [target])
   return ref
 }

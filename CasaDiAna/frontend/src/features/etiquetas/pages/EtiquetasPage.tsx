@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import axios from 'axios'
-import { ArrowDownTrayIcon, PrinterIcon } from '@heroicons/react/24/outline'
+import { PrinterIcon } from '@heroicons/react/24/outline'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import { ingredientesService } from '@/features/estoque/ingredientes/services/ingredientesService'
 import { etiquetasService, type TipoEtiqueta, type HistoricoImpressao, type ModeloNutricional, type ModeloNutricionalResumo } from '@/lib/etiquetasService'
@@ -13,7 +13,6 @@ import {
   htmlEtiquetaCompleta,
   htmlEtiquetaSimples,
   htmlEtiquetaNutricional,
-  baixarEtiquetaNutricionalZpl,
   type NutriValues,
 } from '../utils/etiquetaUtils'
 
@@ -553,38 +552,6 @@ export function EtiquetasPage() {
       if (!isIngrediente) await registrarImpressaoProduto()
     } catch {
       setErro('Erro ao registrar impressão. A etiqueta pode ter sido impressa mesmo assim.')
-    } finally {
-      setImprimindo(false)
-    }
-  }
-
-  const handleGerarZplNutricional = async () => {
-    if (!produto) return
-
-    setImprimindo(true)
-    setErro(null)
-
-    if (!dataValidade) {
-      setErro('Informe a data de validade.')
-      setImprimindo(false)
-      return
-    }
-
-    try {
-      const validadePtBr = formatarDataLocal(dataValidade)
-      const dataPtBr = formatarDataLocal(dataProducao)
-
-      baixarEtiquetaNutricionalZpl(
-        produto.nome,
-        dataPtBr,
-        validadePtBr,
-        quantidade,
-        montarNutriValues(),
-      )
-
-      await registrarImpressaoProduto()
-    } catch {
-      setErro('Erro ao gerar ZPL. Tente novamente.')
     } finally {
       setImprimindo(false)
     }
@@ -1149,22 +1116,6 @@ export function EtiquetasPage() {
                 {imprimindo
                   ? 'Processando...'
                   : `Imprimir ${quantidade} ${quantidade === 1 ? 'etiqueta' : 'etiquetas'}`}
-              </button>
-              <button
-                type="button"
-                onClick={handleGerarZplNutricional}
-                disabled={!produto || imprimindo}
-                className="w-full flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-semibold transition-opacity disabled:opacity-40"
-                style={{
-                  background: 'var(--ada-bg)',
-                  borderColor: 'var(--ada-border)',
-                  color: 'var(--ada-body)',
-                }}
-              >
-                <ArrowDownTrayIcon className="h-4 w-4" />
-                {imprimindo
-                  ? 'Processando...'
-                  : `Gerar ZPL ${quantidade} ${quantidade === 1 ? 'etiqueta' : 'etiquetas'}`}
               </button>
             </div>
           ) : (

@@ -32,6 +32,11 @@ const FALLBACK_ROW: RowVis = {
   sinal: '+', valorColor: 'var(--ada-body)', badgeLabel: '—',
 }
 
+function formatData(iso: string): string {
+  const d = new Date(iso)
+  return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+
 function formatHora(iso: string): string {
   return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
 }
@@ -42,7 +47,7 @@ function StreamRow({ m }: { m: MovimentacaoRelatorio }) {
   return (
     <li
       style={{
-        display: 'grid', gridTemplateColumns: '48px 28px 1fr auto',
+        display: 'grid', gridTemplateColumns: '56px 28px 1fr auto',
         gap: 12, alignItems: 'center', padding: '9px 18px',
         borderLeft: '2px solid transparent',
         transition: 'background 120ms, border-color 120ms',
@@ -58,9 +63,16 @@ function StreamRow({ m }: { m: MovimentacaoRelatorio }) {
         el.style.borderLeftColor = 'transparent'
       }}
     >
-      <span style={{ fontSize: 10.5, color: 'var(--ada-muted)', fontFamily: 'Sora, system-ui, sans-serif', fontVariantNumeric: 'tabular-nums' as const, letterSpacing: '0.04em' }}>
-        {formatHora(m.criadoEm)}
-      </span>
+      {/* Data + hora em duas linhas */}
+      <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 1 }}>
+        <span style={{ fontSize: 9.5, color: 'var(--ada-placeholder)', fontFamily: 'Sora, system-ui, sans-serif', letterSpacing: '0.04em', fontVariantNumeric: 'tabular-nums' as const }}>
+          {formatData(m.criadoEm)}
+        </span>
+        <span style={{ fontSize: 10.5, color: 'var(--ada-muted)', fontFamily: 'Sora, system-ui, sans-serif', fontVariantNumeric: 'tabular-nums' as const, letterSpacing: '0.04em' }}>
+          {formatHora(m.criadoEm)}
+        </span>
+      </div>
+
       <div aria-hidden="true" style={{ width: 28, height: 28, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', background: vis.iconBg, flexShrink: 0 }}>
         <Icon style={{ width: 13, height: 13, color: vis.iconColor, strokeWidth: 2.5 }} />
       </div>
@@ -102,6 +114,13 @@ export function StreamAutoScroll({ movimentacoes }: { movimentacoes: Movimentaca
       setPaused(false)
     }, 10_000)
   }, [])
+
+  // Hover: vai pro topo e pausa
+  const handleMouseEnter = useCallback(() => {
+    if (!shouldScroll) return
+    if (bodyRef.current) bodyRef.current.scrollTop = 0
+    scheduleResume()
+  }, [shouldScroll, scheduleResume])
 
   useEffect(() => () => {
     if (timerRef.current) clearTimeout(timerRef.current)
@@ -148,7 +167,7 @@ export function StreamAutoScroll({ movimentacoes }: { movimentacoes: Movimentaca
       {/* Stream body */}
       <div
         ref={bodyRef}
-        onMouseDown={shouldScroll ? scheduleResume : undefined}
+        onMouseEnter={shouldScroll ? handleMouseEnter : undefined}
         onScroll={shouldScroll ? scheduleResume : undefined}
         style={{
           flex: 1,

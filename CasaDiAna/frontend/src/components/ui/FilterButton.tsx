@@ -1,5 +1,10 @@
 import type { ReactNode } from 'react'
 
+const AMBER_BG     = 'rgba(212,150,12,0.1)'
+const AMBER_BG2    = 'rgba(212,150,12,0.2)'
+const AMBER_BORDER = 'rgba(212,150,12,0.45)'
+const AMBER_TEXT   = '#92580A'
+
 interface FilterButtonProps {
   label: string
   icon?: ReactNode
@@ -39,10 +44,10 @@ export function FilterButton({
         outline: 'none',
         ...(applied
           ? {
-              background: 'rgba(212,150,12,0.1)',
-              border: '1px solid rgba(212,150,12,0.45)',
-              color: '#92580A',
-              boxShadow: '0 0 0 3px rgba(212,150,12,0.1), var(--shadow-xs)',
+              background: AMBER_BG,
+              border: `1px solid ${AMBER_BORDER}`,
+              color: AMBER_TEXT,
+              boxShadow: `0 0 0 3px ${AMBER_BG}, var(--shadow-xs)`,
             }
           : {
               background: 'var(--ada-surface)',
@@ -64,7 +69,7 @@ export function FilterButton({
         el.style.background = 'var(--ada-surface)'
         el.style.transform = 'translateY(0)'
       }}
-      onMouseDown={e => { if (!disabled) (e.currentTarget as HTMLElement).style.transform = 'translateY(0)' }}
+      onMouseDown={e => { if (!disabled) e.currentTarget.style.transform = 'translateY(0)' }}
     >
       {icon && <span aria-hidden="true" style={{ display: 'flex', alignItems: 'center' }}>{icon}</span>}
       {label}
@@ -79,8 +84,8 @@ export function FilterButton({
             borderRadius: 9,
             fontSize: 11,
             fontWeight: 700,
-            background: applied ? 'rgba(212,150,12,0.2)' : 'var(--ada-surface-2)',
-            color: applied ? '#92580A' : 'var(--ada-muted)',
+            background: applied ? AMBER_BG2 : 'var(--ada-surface-2)',
+            color: applied ? AMBER_TEXT : 'var(--ada-muted)',
             padding: '0 5px',
           }}
         >

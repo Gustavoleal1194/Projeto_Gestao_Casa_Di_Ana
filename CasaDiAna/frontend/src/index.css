@@ -944,3 +944,19 @@ input:-webkit-autofill:active {
   0%, 100% { opacity: 1; }
   50%       { opacity: .45; }
 }
+
+/* ─── StreamAutoScroll ───────────────────────────────────────────────────── */
+@keyframes stream-scroll-up {
+  from { transform: translateY(0) }
+  to   { transform: translateY(-50%) }
+}
+@keyframes stream-pulse {
+  0%, 100% { opacity: 1; transform: scale(1) }
+  50%      { opacity: .45; transform: scale(1.4) }
+}
+.stream-auto-list-scroll {
+  animation: stream-scroll-up 32s linear infinite;
+}
+.stream-auto-list-scroll:hover {
+  animation-play-state: paused;
+}

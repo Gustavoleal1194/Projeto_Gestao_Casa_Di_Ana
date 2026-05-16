@@ -94,23 +94,6 @@ export function StreamAutoScroll({ movimentacoes }: { movimentacoes: Movimentaca
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, background: 'var(--ada-surface-2)', border: '1px solid var(--ada-border-sub)', borderRadius: 16, overflow: 'hidden', minHeight: 320 }}>
-      <style>{`
-        @keyframes stream-scroll-up {
-          from { transform: translateY(0) }
-          to   { transform: translateY(-50%) }
-        }
-        .stream-auto-list-scroll {
-          animation: stream-scroll-up 32s linear infinite;
-        }
-        .stream-auto-list-scroll:hover {
-          animation-play-state: paused;
-        }
-        @keyframes stream-pulse {
-          0%,100% { opacity:1; transform:scale(1) }
-          50%     { opacity:.45; transform:scale(1.4) }
-        }
-      `}</style>
-
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 18px', borderBottom: '1px solid var(--ada-border-sub)' }}>
         <span style={{ fontFamily: 'Sora, system-ui, sans-serif', fontSize: 11, fontWeight: 500, textTransform: 'uppercase' as const, letterSpacing: '0.14em', color: 'var(--ada-body)', display: 'flex', alignItems: 'center', gap: 8 }}>

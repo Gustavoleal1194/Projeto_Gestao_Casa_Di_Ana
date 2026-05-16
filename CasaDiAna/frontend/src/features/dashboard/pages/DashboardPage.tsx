@@ -1025,7 +1025,7 @@ export function DashboardPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {data.estoqueAlerta.map((item, idx) => (
+                    {data.estoqueAlerta.map((item) => (
                       <tr
                         key={item.ingredienteId}
                         className="transition-colors duration-100"

@@ -83,11 +83,6 @@ export function MovimentacoesPage() {
 
   return (
     <div className="ada-page">
-      <style>{`
-        @keyframes mov-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.45;transform:scale(1.4)} }
-        @media (max-width:1080px) { .mov-hero-grid { grid-template-columns: 1fr !important } }
-      `}</style>
-
       <div
         className="mov-hero-grid"
         style={{ display: 'grid', gridTemplateColumns: '1.35fr 1fr', gap: 24, alignItems: 'start' }}

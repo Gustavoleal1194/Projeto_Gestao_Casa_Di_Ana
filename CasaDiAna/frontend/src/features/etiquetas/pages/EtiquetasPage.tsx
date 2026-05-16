@@ -311,12 +311,12 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
 
       <div style={{ position: 'absolute', top: 6 + tableTop + tableHeight, left: 12, width: 187 }}>
         {nutri.ingredientes && (
-          <div style={{ fontSize: 7.5, fontWeight: 700, lineHeight: 1.3, paddingTop: 1, marginTop: 1, textTransform: 'uppercase', wordBreak: 'break-word', whiteSpace: 'normal' }}>
+          <div style={{ fontSize: 7.5, fontWeight: 400, lineHeight: 1.3, marginTop: 1, textTransform: 'uppercase', wordBreak: 'break-word', whiteSpace: 'normal' }}>
             INGREDIENTES: {nutri.ingredientes}
           </div>
         )}
         {nutri.alergicoAlimentar && (
-          <div style={{ fontSize: 8, fontWeight: 700, lineHeight: 1.2, paddingTop: 1, marginTop: 1, textTransform: 'uppercase', wordBreak: 'break-word', whiteSpace: 'normal' }}>
+          <div style={{ fontSize: 8, fontWeight: 700, lineHeight: 1.2, marginTop: 1, textTransform: 'uppercase', wordBreak: 'break-word', whiteSpace: 'normal' }}>
             ALERGÊNICOS ALIMENTARES: {nutri.alergicoAlimentar}
           </div>
         )}
@@ -325,7 +325,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
         </div>
         {(nutri.loteFabricacao || validade !== '—') && (
           <div style={{ fontSize: 8, fontWeight: 600, lineHeight: 1.2, marginTop: 1 }}>
-            {[nutri.loteFabricacao ? `Lote: ${nutri.loteFabricacao}` : '', validade !== '—' ? `Val.: ${validade}` : ''].filter(Boolean).join('  |  ')}
+            {[nutri.loteFabricacao ? `Lote/Fab: ${nutri.loteFabricacao}` : '', validade !== '—' ? `Val.: ${validade}` : ''].filter(Boolean).join('  |  ')}
           </div>
         )}
       </div>

@@ -14,6 +14,7 @@ import type { RelatorioProducaoVendasItem } from '@/types/producao'
 import { useTheme } from '@/hooks/useTheme'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { FiltroPeriodo } from '@/components/ui/FiltroPeriodo'
+import { KpiCard } from '@/components/ui/KpiCard'
 
 // ─── Paleta de cores ────────────────────────────────────────────────────────
 const COR = {
@@ -52,36 +53,6 @@ function listarDiasNoIntervalo(de: string, ate: string, limite = 62) {
   }
   return dias
 }
-
-// SVG icons para os KPI cards
-const IcReceita = () => (
-  <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.798 7.45c.512-.67 1.135-.95 1.702-.95.567 0 1.19.28 1.702.95.27.352.568.504.865.451a.75.75 0 10-.254-1.478c-.41.071-.776-.056-1.09-.46C11.04 5.48 10.121 5 9.5 5c-.621 0-1.54.48-2.223 1.363-.683.882-.927 2.075-.51 3.225.42 1.156 1.474 1.912 2.733 1.912h.75v1.75a.75.75 0 001.5 0V11.5h.25a.75.75 0 000-1.5h-3a.75.75 0 00-.702 1.013c-.23-.636-.1-1.38.25-1.563z" clipRule="evenodd"/>
-  </svg>
-)
-const IcLucro = (up: boolean) => (
-  <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-    {up
-      ? <path fillRule="evenodd" d="M12.577 4.878a.75.75 0 01.919-.53l4.78 1.281a.75.75 0 01.53.919l-1.281 4.78a.75.75 0 01-1.449-.387l.81-3.022a19.407 19.407 0 00-5.594 5.203.75.75 0 01-1.139.093L7 10.06l-4.72 4.72a.75.75 0 01-1.06-1.061l5.25-5.25a.75.75 0 011.06 0l3.074 3.073a20.923 20.923 0 015.545-4.931l-3.042-.815a.75.75 0 01-.53-.918z" clipRule="evenodd"/>
-      : <path fillRule="evenodd" d="M1.22 5.222a.75.75 0 011.06 0L7 9.942l3.768-3.769a.75.75 0 011.113.058 20.908 20.908 0 013.813 7.254l1.574-2.727a.75.75 0 011.3.75l-2.475 4.286a.75.75 0 01-1.025.275l-4.287-2.475a.75.75 0 01.75-1.3l2.71 1.565a19.422 19.422 0 00-3.013-6.024L7.53 11.533a.75.75 0 01-1.06 0l-5.25-5.25a.75.75 0 010-1.06z" clipRule="evenodd"/>
-    }
-  </svg>
-)
-const IcPerda = () => (
-  <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-    <path fillRule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clipRule="evenodd"/>
-  </svg>
-)
-const IcAlerta = () => (
-  <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-    <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd"/>
-  </svg>
-)
-const IcEficiência = () => (
-  <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-    <path fillRule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zm3.78 5.47a.75.75 0 10-1.06-1.06L9.25 9.88 7.78 8.41a.75.75 0 00-1.06 1.06l2 2a.75.75 0 001.06 0l3.999-4z" clipRule="evenodd"/>
-  </svg>
-)
 
 // ─── AcoesRapidas ───────────────────────────────────────────────────────────
 interface AcaoRapidaProps {
@@ -130,85 +101,6 @@ function AcaoRapida({ icone, label, onClick }: AcaoRapidaProps) {
         {label}
       </span>
     </button>
-  )
-}
-
-// ─── DashboardCard ──────────────────────────────────────────────────────────
-interface DashboardCardProps {
-  titulo: string
-  valor: string
-  subtexto: string
-  variante?: 'default' | 'positivo' | 'negativo' | 'alerta'
-  icone?: React.ReactNode
-}
-
-function DashboardCard({ titulo, valor, subtexto, variante = 'default', icone }: DashboardCardProps) {
-  const vByVariant = {
-    default:  {
-      border: 'rgba(255,255,255,.07)',
-      iconBg: 'rgba(255,255,255,.05)',
-      iconColor: 'var(--ada-muted)',
-      valorColor: '#D4960C',
-      glow: 'rgba(212,150,12,.4)',
-    },
-    positivo: {
-      border: 'rgba(74,222,128,.2)',
-      iconBg: 'rgba(74,222,128,.1)',
-      iconColor: '#4ADE80',
-      valorColor: '#4ADE80',
-      glow: 'rgba(74,222,128,.4)',
-    },
-    negativo: {
-      border: 'rgba(248,113,113,.2)',
-      iconBg: 'rgba(248,113,113,.1)',
-      iconColor: '#F87171',
-      valorColor: '#F87171',
-      glow: 'rgba(248,113,113,.4)',
-    },
-    alerta: {
-      border: 'rgba(252,211,77,.2)',
-      iconBg: 'rgba(252,211,77,.1)',
-      iconColor: '#FCD34D',
-      valorColor: '#FCD34D',
-      glow: 'rgba(252,211,77,.4)',
-    },
-  } as const
-  const v = vByVariant[variante]
-
-  return (
-    <div
-      className="dashboard-card"
-      style={{ boxShadow: `0 0 0 1px ${v.border}, var(--shadow-sm)` }}
-    >
-      <div className="flex items-start justify-between mb-4">
-        <p
-          className="text-[10.5px] font-semibold uppercase tracking-[0.08em] leading-tight"
-          style={{ color: 'var(--ada-muted)', fontFamily: 'Sora, system-ui, sans-serif' }}
-        >
-          {titulo}
-        </p>
-        {icone && (
-          <div
-            className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
-            style={{ background: v.iconBg, border: `1px solid ${v.border}` }}
-            aria-hidden="true"
-          >
-            <span style={{ color: v.iconColor }}>{icone}</span>
-          </div>
-        )}
-      </div>
-      <p
-        className="text-[26px] font-bold leading-none mb-2 tracking-tight"
-        style={{
-          color: v.valorColor,
-          fontFamily: 'Sora, system-ui, sans-serif',
-          textShadow: `0 0 20px ${v.glow}`,
-        }}
-      >
-        {valor}
-      </p>
-      <p className="text-xs" style={{ color: 'var(--ada-muted)' }}>{subtexto}</p>
-    </div>
   )
 }
 
@@ -873,40 +765,45 @@ export function DashboardPage() {
         <>
           {/* ── KPI Cards ─────────────────────────────────────────────── */}
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
-            <DashboardCard
-              titulo="Receita Estimada"
+            <KpiCard
+              label="Receita Estimada"
               valor={brl(totais?.receita ?? 0)}
-              subtexto="total no período"
-              variante="positivo"
-              icone={<IcReceita />}
+              raw={totais?.receita ?? 0}
+              formatarValor={brl}
+              tendencia="total no período"
+              variante="green"
             />
-            <DashboardCard
-              titulo="Lucro Estimado"
+            <KpiCard
+              label="Lucro Estimado"
               valor={brl(lucroEstimado)}
-              subtexto={`Margem geral: ${pct(margemGeral)}`}
-              variante={lucroEstimado >= 0 ? 'positivo' : 'negativo'}
-              icone={IcLucro(lucroEstimado >= 0)}
+              raw={lucroEstimado}
+              formatarValor={brl}
+              tendencia={`Margem geral: ${pct(margemGeral)}`}
+              variante={lucroEstimado >= 0 ? 'green' : 'red'}
             />
-            <DashboardCard
-              titulo="Custo de Perdas"
+            <KpiCard
+              label="Custo de Perdas"
               valor={brl(totais?.custoPerda ?? 0)}
-              subtexto={`${totais?.perda.toFixed(0) ?? 0} unidades perdidas`}
-              variante={(totais?.custoPerda ?? 0) > 0 ? 'negativo' : 'default'}
-              icone={<IcPerda />}
+              raw={totais?.custoPerda ?? 0}
+              formatarValor={brl}
+              tendencia={`${totais?.perda.toFixed(0) ?? 0} unidades perdidas`}
+              variante={(totais?.custoPerda ?? 0) > 0 ? 'red' : 'amber'}
             />
-            <DashboardCard
-              titulo="Estoque Baixo"
+            <KpiCard
+              label="Estoque Baixo"
               valor={String(data.estoqueAlerta.length)}
-              subtexto={`ingrediente${data.estoqueAlerta.length !== 1 ? 's' : ''} abaixo do mínimo`}
-              variante={data.estoqueAlerta.length > 0 ? 'alerta' : 'default'}
-              icone={<IcAlerta />}
+              raw={data.estoqueAlerta.length}
+              formatarValor={n => String(Math.round(n))}
+              tendencia={`ingrediente${data.estoqueAlerta.length !== 1 ? 's' : ''} abaixo do mínimo`}
+              variante={data.estoqueAlerta.length > 0 ? 'yellow' : 'amber'}
             />
-            <DashboardCard
-              titulo="Taxa de Venda da Produção"
+            <KpiCard
+              label="Taxa de Venda da Produção"
               valor={pct(sellThrough)}
-              subtexto={`${totalVendidoGeral.toFixed(0)} vendidos de ${totalProduzidoGeral.toFixed(0)} produzidos`}
-              variante={sellThrough >= 80 ? 'positivo' : sellThrough >= 60 ? 'alerta' : 'negativo'}
-              icone={<IcEficiência />}
+              raw={sellThrough}
+              formatarValor={n => `${n.toFixed(1)}%`}
+              tendencia={`${totalVendidoGeral.toFixed(0)} vendidos de ${totalProduzidoGeral.toFixed(0)} produzidos`}
+              variante={sellThrough >= 80 ? 'green' : sellThrough >= 60 ? 'yellow' : 'red'}
             />
           </div>
 

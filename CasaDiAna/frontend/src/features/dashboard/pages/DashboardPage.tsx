@@ -1005,7 +1005,7 @@ export function DashboardPage() {
               <div className="overflow-x-auto">
                 <table className="w-full" role="table">
                   <thead>
-                    <tr style={{ background: 'var(--ada-warning-bg)', borderBottom: '1px solid var(--ada-warning-badge)' }}>
+                    <tr style={{ background: 'var(--ada-surface-2)', borderBottom: '1px solid var(--ada-border)' }}>
                       {[
                         { label: 'Ingrediente', right: false },
                         { label: 'Categoria',   right: false },
@@ -1017,7 +1017,7 @@ export function DashboardPage() {
                           key={label}
                           scope="col"
                           className={`text-[11px] font-semibold uppercase tracking-[0.06em] px-5 py-3 ${right ? 'text-right' : 'text-left'}`}
-                          style={{ color: '#92580A' }}
+                          style={{ color: 'var(--ada-muted)' }}
                         >
                           {label}
                         </th>
@@ -1029,7 +1029,7 @@ export function DashboardPage() {
                       <tr
                         key={item.ingredienteId}
                         className="transition-colors duration-100"
-                        style={{ borderBottom: idx < data.estoqueAlerta.length - 1 ? '1px solid var(--ada-warning-badge)' : 'none' }}
+                        style={{ borderBottom: '1px solid var(--ada-border-sub)' }}
                         onMouseEnter={e => (e.currentTarget.style.background = 'var(--ada-warning-bg)')}
                         onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                       >

@@ -10,4 +10,5 @@ public record MovimentacaoRelatorioDto(
     decimal SaldoApos,
     string? ReferenciaTipo,
     Guid? ReferenciaId,
-    DateTime CriadoEm);
+    DateTime CriadoEm,
+    string? OperadorNome);

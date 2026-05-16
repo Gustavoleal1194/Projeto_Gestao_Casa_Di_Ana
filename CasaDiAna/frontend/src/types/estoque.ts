@@ -266,6 +266,7 @@ export interface MovimentacaoRelatorio {
   referenciaTipo: string | null
   referenciaId: string | null
   criadoEm: string
+  operadorNome: string | null
 }
 
 export interface EntradaRelatorioItem {

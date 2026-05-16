@@ -8,13 +8,16 @@ public class MovimentacoesQueryHandler : IRequestHandler<MovimentacoesQuery, IRe
 {
     private readonly IMovimentacaoRepository _movimentacoes;
     private readonly IIngredienteRepository _ingredientes;
+    private readonly IUsuarioRepository _usuarios;
 
     public MovimentacoesQueryHandler(
         IMovimentacaoRepository movimentacoes,
-        IIngredienteRepository ingredientes)
+        IIngredienteRepository ingredientes,
+        IUsuarioRepository usuarios)
     {
         _movimentacoes = movimentacoes;
         _ingredientes = ingredientes;
+        _usuarios = usuarios;
     }
 
     public async Task<IReadOnlyList<MovimentacaoRelatorioDto>> Handle(
@@ -29,7 +32,6 @@ public class MovimentacoesQueryHandler : IRequestHandler<MovimentacoesQuery, IRe
         if (request.IngredienteIds?.Count > 0)
             lista = lista.Where(m => request.IngredienteIds.Contains(m.IngredienteId)).ToList();
 
-        // Carrega nomes dos ingredientes
         var ingredienteIds = lista.Select(m => m.IngredienteId).Distinct().ToList();
         var ingredientesMap = new Dictionary<Guid, (string Nome, string Unidade)>();
         foreach (var id in ingredienteIds)
@@ -39,11 +41,22 @@ public class MovimentacoesQueryHandler : IRequestHandler<MovimentacoesQuery, IRe
                 ingredientesMap[id] = (ing.Nome, ing.UnidadeMedida?.Codigo ?? string.Empty);
         }
 
+        var operadorIds = lista.Select(m => m.CriadoPor).Distinct().ToList();
+        var operadoresMap = new Dictionary<Guid, string>();
+        foreach (var id in operadorIds)
+        {
+            var u = await _usuarios.ObterPorIdAsync(id, cancellationToken);
+            if (u != null)
+                operadoresMap[id] = u.Nome;
+        }
+
         return lista.Select(m =>
         {
             var (nome, unidade) = ingredientesMap.TryGetValue(m.IngredienteId, out var info)
                 ? info
                 : (string.Empty, string.Empty);
+
+            operadoresMap.TryGetValue(m.CriadoPor, out var operadorNome);
 
             return new MovimentacaoRelatorioDto(
                 m.Id,
@@ -55,7 +68,8 @@ public class MovimentacoesQueryHandler : IRequestHandler<MovimentacoesQuery, IRe
                 m.SaldoApos,
                 m.ReferenciaTipo,
                 m.ReferenciaId,
-                m.CriadoEm);
+                m.CriadoEm,
+                operadorNome);
         }).ToList().AsReadOnly();
     }
 }

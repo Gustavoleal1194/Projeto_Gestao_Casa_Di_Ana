@@ -82,6 +82,11 @@ function StreamRow({ m }: { m: MovimentacaoRelatorio }) {
           {m.ingredienteNome}
           <span style={{ fontSize: 11, color: 'var(--ada-placeholder)', marginLeft: 4 }}>({m.unidadeMedidaCodigo})</span>
         </span>
+        {m.operadorNome && (
+          <span style={{ fontSize: 10.5, color: 'var(--ada-placeholder)', fontFamily: 'DM Sans, system-ui, sans-serif', display: 'block', marginTop: 1 }}>
+            por {m.operadorNome}
+          </span>
+        )}
       </div>
       <span style={{ fontSize: 12, fontWeight: 700, color: vis.valorColor, fontFamily: 'Sora, system-ui, sans-serif', fontVariantNumeric: 'tabular-nums' as const, flexShrink: 0 }}>
         {vis.sinal}{m.quantidade}

@@ -15,9 +15,6 @@ function ha30Dias(): string {
   const d = new Date(); d.setDate(d.getDate() - 30); return d.toISOString().split('T')[0]
 }
 
-function formatarDataHora(iso: string): string {
-  return new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
-}
 
 export function MovimentacoesPage() {
   const [movimentacoes, setMovimentacoes] = useState<MovimentacaoRelatorio[]>([])

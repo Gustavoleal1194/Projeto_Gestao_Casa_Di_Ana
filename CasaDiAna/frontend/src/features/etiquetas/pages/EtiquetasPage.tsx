@@ -323,7 +323,7 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
           {nutri.contemGluten ? 'Contém glúten' : 'Não contém glúten'}{nutri.contemLactose ? '. Contém lactose' : ''}.
         </div>
         {(nutri.loteFabricacao || validade !== '—') && (
-          <div style={{ fontSize: 8, fontWeight: 600, lineHeight: 1.2, marginTop: 1 }}>
+          <div style={{ fontSize: 8, fontWeight: 600, lineHeight: 1.2, marginTop: 8 }}>
             {[nutri.loteFabricacao ? `Lote/Fab: ${nutri.loteFabricacao}` : '', validade !== '—' ? `Val.: ${validade}` : ''].filter(Boolean).join('  |  ')}
           </div>
         )}

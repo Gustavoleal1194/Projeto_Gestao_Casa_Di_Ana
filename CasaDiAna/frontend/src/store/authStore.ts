@@ -25,7 +25,18 @@ export const useAuthStore = create<AuthStore>()(
 
       logout: () => set({ token: null, usuario: null }),
 
-      estaAutenticado: () => get().token !== null,
+      estaAutenticado: () => {
+        const token = get().token
+        if (!token) return false
+        try {
+          // JWT usa base64url — converter para base64 padrão antes do atob
+          const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+          const { exp } = JSON.parse(atob(b64))
+          return exp * 1000 > Date.now()
+        } catch {
+          return false
+        }
+      },
 
       temPapel: (...papeis) => {
         const papel = get().usuario?.papel

@@ -9,6 +9,7 @@ export function usePrefersReducedMotion(): boolean {
   )
 
   useEffect(() => {
+    if (typeof window === 'undefined') return
     const mq = window.matchMedia(QUERY)
     const onChange = () => setReduced(mq.matches)
     mq.addEventListener('change', onChange)

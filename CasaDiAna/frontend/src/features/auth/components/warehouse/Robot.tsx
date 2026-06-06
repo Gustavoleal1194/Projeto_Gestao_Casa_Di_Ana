@@ -1,5 +1,8 @@
 import type { BoxColor } from './types'
 
+/** Deslocamento vertical da caixa quando o robô é forklift (alinha com as garras). */
+const FORKLIFT_HOLDING_TOP = 44
+
 interface RobotProps {
   variant: 'walker' | 'forklift'
   path: 'r1' | 'r2'
@@ -36,7 +39,7 @@ export function Robot({ variant, path, holding, bounceMs = 380, screen = 'green'
         )}
         <div
           className={`lr-holding b-${holding}`}
-          style={variant === 'forklift' ? { top: 44 } : undefined}
+          style={variant === 'forklift' ? { top: FORKLIFT_HOLDING_TOP } : undefined}
         />
         <div className="lr-base" />
         <div className="lr-trail" />

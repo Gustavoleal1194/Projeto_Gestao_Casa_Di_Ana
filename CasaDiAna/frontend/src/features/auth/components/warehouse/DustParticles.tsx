@@ -6,6 +6,7 @@ interface DustParticlesProps {
 }
 
 export function DustParticles({ animate }: DustParticlesProps) {
+  // Valores aleatórios fixados para a vida do componente — motes não saltam em re-renders.
   const motes = useMemo(
     () =>
       Array.from({ length: 24 }, () => ({

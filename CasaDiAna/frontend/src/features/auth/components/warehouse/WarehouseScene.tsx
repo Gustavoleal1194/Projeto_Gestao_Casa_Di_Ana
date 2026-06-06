@@ -7,6 +7,7 @@ import { DataPacket } from './DataPacket'
 import { ScanRay } from './ScanRay'
 import { DustParticles } from './DustParticles'
 
+// Marca local da cena (variante contextual do logo — não é o mesmo SVG de outras telas).
 function BrandMark() {
   return (
     <div className="lr-bm">
@@ -30,15 +31,30 @@ export function WarehouseScene() {
   useEffect(() => {
     if (reduced) return
     let cycle = 0
+    const pending = new Set<ReturnType<typeof setTimeout>>()
+
     const tick = setInterval(() => {
       const id = GONE_IDS[cycle % GONE_IDS.length]
       cycle++
       setGoneIds(prev => { const next = new Set(prev); next.delete(id); return next })
       setLandingIds(prev => new Set(prev).add(id))
-      setTimeout(() => setLandingIds(prev => { const n = new Set(prev); n.delete(id); return n }), 400)
-      setTimeout(() => setGoneIds(prev => new Set(prev).add(id)), 5000)
+
+      const t1 = setTimeout(() => {
+        setLandingIds(prev => { const n = new Set(prev); n.delete(id); return n })
+        pending.delete(t1)
+      }, 400)
+      const t2 = setTimeout(() => {
+        setGoneIds(prev => new Set(prev).add(id))
+        pending.delete(t2)
+      }, 5000)
+      pending.add(t1)
+      pending.add(t2)
     }, 2200)
-    return () => clearInterval(tick)
+
+    return () => {
+      clearInterval(tick)
+      pending.forEach(clearTimeout)
+    }
   }, [reduced])
 
   // Contador de operações ativas.

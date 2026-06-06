@@ -7,17 +7,9 @@ import { PasswordField } from './PasswordField'
 import { RememberRow } from './RememberRow'
 import { SsoButtons } from './SsoButtons'
 import { TwoFactorPanel } from './TwoFactorPanel'
+import { Spinner } from '@/components/form/Spinner'
 
 type Etapa = 'credenciais' | 'otp'
-
-function Spinner() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
-      <circle className="animate-spin" cx="12" cy="12" r="9" strokeOpacity=".2" />
-      <path className="animate-spin" d="M21 12a9 9 0 00-9-9" strokeLinecap="round" />
-    </svg>
-  )
-}
 
 function ArrowIcon() {
   return (

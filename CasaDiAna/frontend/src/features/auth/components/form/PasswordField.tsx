@@ -10,12 +10,12 @@ interface PasswordFieldProps {
   disabled?: boolean
 }
 
-function EyeIcon({ off }: { off: boolean }) {
+function EyeIcon({ slash }: { slash: boolean }) {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" />
       <circle cx="12" cy="12" r="3" />
-      {off && <path d="M3 3l18 18" />}
+      {slash && <path d="M3 3l18 18" />}
     </svg>
   )
 }
@@ -40,7 +40,7 @@ export function PasswordField({ id, label, value, onChange, autoComplete, disabl
           onClick={() => setShown(s => !s)}
           aria-label={shown ? 'Ocultar senha' : 'Mostrar senha'}
         >
-          <EyeIcon off={shown} />
+          <EyeIcon slash={shown} />
         </button>
       }
     />

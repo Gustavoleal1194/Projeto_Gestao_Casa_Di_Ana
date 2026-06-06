@@ -17,9 +17,9 @@ export function RememberRow({ manter, onManterChange, onEsqueciSenha, disabled }
         />
         Manter conectado
       </label>
-      <a onClick={onEsqueciSenha} role="button" tabIndex={0}>
+      <button type="button" className="lr-linkbtn" onClick={onEsqueciSenha}>
         Esqueci minha senha
-      </a>
+      </button>
     </div>
   )
 }

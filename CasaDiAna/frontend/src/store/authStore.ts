@@ -55,7 +55,7 @@ export const useAuthStore = create<AuthStore>()(
 
       login: (token, usuario, manter = true) => set({ token, usuario, manter }),
 
-      logout: () => set({ token: null, usuario: null }),
+      logout: () => set({ token: null, usuario: null, manter: true }),
 
       estaAutenticado: () => {
         const token = get().token

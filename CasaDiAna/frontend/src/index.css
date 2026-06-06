@@ -1139,8 +1139,8 @@ input:-webkit-autofill:active {
 .lr-check input{ appearance:none; width:15px; height:15px; border:1.5px solid var(--lr-line2); background:var(--lr-surface2); border-radius:4px; cursor:pointer; position:relative; }
 .lr-check input:checked{ background:var(--lr-amber); border-color:var(--lr-amber); }
 .lr-check input:checked::after{ content:''; position:absolute; top:1px; left:4px; width:4px; height:8px; border:solid #0A0E18; border-width:0 2px 2px 0; transform:rotate(45deg); }
-.lr-row a{ color:var(--lr-amber2); text-decoration:none; font-weight:500; background:none; border:none; cursor:pointer; font-size:12.5px; }
-.lr-row a:hover{ text-decoration:underline; }
+.lr-row a, .lr-row .lr-linkbtn{ color:var(--lr-amber2); text-decoration:none; font-weight:500; background:none; border:none; cursor:pointer; font-size:12.5px; padding:0; }
+.lr-row a:hover, .lr-row .lr-linkbtn:hover{ text-decoration:underline; }
 .lr-hint{ font-size:12px; color:var(--lr-text3); margin:-10px 0 18px; }
 .lr-btn-primary{ width:100%; height:48px; background:linear-gradient(135deg, var(--lr-amber), #B87D0A); color:#0A0E18; border:0; border-radius:11px;
   font-family:var(--lr-fd); font-size:14px; font-weight:700; cursor:pointer; letter-spacing:-.005em;

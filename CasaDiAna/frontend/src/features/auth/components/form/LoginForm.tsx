@@ -1,23 +1,31 @@
-// frontend/src/features/auth/components/form/LoginForm.tsx
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authService } from '../../services/authService'
 import { useAuthStore } from '@/store/authStore'
-import { AnimatedInput } from './AnimatedInput'
-import { AnimatedButton } from './AnimatedButton'
+import { IconField, MailIcon } from './IconField'
+import { PasswordField } from './PasswordField'
+import { RememberRow } from './RememberRow'
+import { SsoButtons } from './SsoButtons'
 import { TwoFactorPanel } from './TwoFactorPanel'
 
-function CoffeeIcon() {
+type Etapa = 'credenciais' | 'otp'
+
+function Spinner() {
   return (
-    <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M7.5 4c0 0 .4-1.5 1.5-1.5s1.5 1.5 1.5 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-      <path d="M4 8.5h12v8.5a2.5 2.5 0 01-2.5 2.5h-7A2.5 2.5 0 014 17V8.5z" stroke="currentColor" strokeWidth="1.5"/>
-      <path d="M16 11h2a1.5 1.5 0 010 3h-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+      <circle className="animate-spin" cx="12" cy="12" r="9" strokeOpacity=".2" />
+      <path className="animate-spin" d="M21 12a9 9 0 00-9-9" strokeLinecap="round" />
     </svg>
   )
 }
 
-type Etapa = 'credenciais' | 'otp'
+function ArrowIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M5 12h14M13 5l7 7-7 7" />
+    </svg>
+  )
+}
 
 export function LoginForm() {
   const navigate = useNavigate()
@@ -25,15 +33,17 @@ export function LoginForm() {
 
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
+  const [manter, setManter] = useState(true)
 
   const [etapa, setEtapa] = useState<Etapa>('credenciais')
   const [tokenTemporario, setTokenTemporario] = useState<string | null>(null)
-
   const [erro, setErro] = useState<string | null>(null)
+  const [aviso, setAviso] = useState<string | null>(null)
   const [carregando, setCarregando] = useState(false)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    setAviso(null)
     if (!email || !senha) {
       setErro('Preencha e-mail e senha.')
       return
@@ -46,7 +56,7 @@ export function LoginForm() {
         setTokenTemporario(dados.tokenTemporario)
         setEtapa('otp')
       } else {
-        login(dados.token!, { nome: dados.nome!, papel: dados.papel! })
+        login(dados.token!, { nome: dados.nome!, papel: dados.papel! }, manter)
         navigate('/', { replace: true })
       }
     } catch (e: unknown) {
@@ -62,91 +72,68 @@ export function LoginForm() {
     setErro(null)
   }
 
+  if (etapa === 'otp' && tokenTemporario) {
+    return (
+      <TwoFactorPanel
+        tokenTemporario={tokenTemporario}
+        verificarOtp={authService.verificarOtp}
+        onSuccess={(token, nome, papel) => {
+          login(token, { nome, papel }, manter)
+          navigate('/', { replace: true })
+        }}
+        onVoltar={voltarParaCredenciais}
+      />
+    )
+  }
+
   return (
-    <div className="w-full max-w-[380px]">
-      {/* Logo mobile */}
-      <div className="lg:hidden flex items-center gap-3 mb-8">
-        <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center"
-          style={{ background: '#D4960C' }}
-        >
-          <CoffeeIcon />
+    <div className="lr-form-card">
+      <div className="lr-fc-eyebrow"><span className="d" />Acesso interno · ERP</div>
+      <h1 className="lr-fc-h">Bem-vindo de volta</h1>
+      <p className="lr-fc-sub">Entre com suas credenciais para administrar a produção, estoque e vendas.</p>
+
+      <form onSubmit={handleLogin} noValidate>
+        <IconField
+          id="email"
+          label="E-mail corporativo"
+          type="email"
+          value={email}
+          onChange={setEmail}
+          icon={<MailIcon />}
+          placeholder="ana.ribeiro@casadiana.com.br"
+          autoComplete="email"
+          disabled={carregando}
+        />
+
+        <PasswordField
+          id="senha"
+          label="Senha"
+          value={senha}
+          onChange={setSenha}
+          autoComplete="current-password"
+          disabled={carregando}
+        />
+
+        <RememberRow
+          manter={manter}
+          onManterChange={setManter}
+          disabled={carregando}
+          onEsqueciSenha={() => setAviso('Solicite a redefinição de senha ao administrador.')}
+        />
+
+        {aviso && <p className="lr-hint">{aviso}</p>}
+        {erro && <div className="lr-error" role="alert" aria-live="polite">{erro}</div>}
+
+        <button className="lr-btn-primary" type="submit" disabled={carregando}>
+          {carregando ? <><Spinner /> Verificando…</> : <>Entrar no sistema <ArrowIcon /></>}
+        </button>
+
+        <SsoButtons />
+
+        <div className="lr-foot-meta">
+          Não tem acesso? <span>Solicite ao administrador</span>
         </div>
-        <h1
-          className="text-xl font-bold text-[var(--ada-heading)]"
-          style={{ fontFamily: 'Sora, system-ui, sans-serif' }}
-        >
-          Casa di Ana
-        </h1>
-      </div>
-
-      {etapa === 'credenciais' ? (
-        <>
-          <div className="mb-8">
-            <h2
-              className="text-2xl font-bold text-[var(--ada-heading)] tracking-tight"
-              style={{ fontFamily: 'Sora, system-ui, sans-serif' }}
-            >
-              Bem-vindo de volta
-            </h2>
-            <p className="mt-1.5 text-sm" style={{ color: 'var(--ada-muted)' }}>
-              Acesse com suas credenciais para continuar.
-            </p>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-5" noValidate>
-            <AnimatedInput
-              id="email"
-              label="E-mail"
-              type="email"
-              value={email}
-              onChange={setEmail}
-              autoComplete="email"
-              disabled={carregando}
-            />
-            <AnimatedInput
-              id="senha"
-              label="Senha"
-              type="password"
-              value={senha}
-              onChange={setSenha}
-              autoComplete="current-password"
-              disabled={carregando}
-            />
-
-            {erro && (
-              <div
-                className="rounded-xl px-4 py-3 text-sm"
-                style={{
-                  background: 'var(--ada-error-bg)',
-                  border: '1px solid var(--ada-error-border)',
-                  color: '#DC2626',
-                }}
-                role="alert"
-                aria-live="polite"
-              >
-                {erro}
-              </div>
-            )}
-
-            <AnimatedButton type="submit" carregando={carregando}>
-              {carregando ? 'Verificando…' : 'Entrar no Sistema'}
-            </AnimatedButton>
-          </form>
-        </>
-      ) : (
-        tokenTemporario && (
-          <TwoFactorPanel
-            tokenTemporario={tokenTemporario}
-            verificarOtp={authService.verificarOtp}
-            onSuccess={(token, nome, papel) => {
-              login(token, { nome, papel })
-              navigate('/', { replace: true })
-            }}
-            onVoltar={voltarParaCredenciais}
-          />
-        )
-      )}
+      </form>
     </div>
   )
 }

@@ -1,3 +1,4 @@
+using CasaDiAna.Domain.Enums;
 using CasaDiAna.Domain.Exceptions;
 
 namespace CasaDiAna.Domain.Entities;
@@ -9,6 +10,8 @@ public class Produto
     public Guid? CategoriaProdutoId { get; private set; }
     public string? Descricao { get; private set; }
     public decimal PrecoVenda { get; private set; }
+    public TipoProduto Tipo { get; private set; }
+    public decimal? CustoUnitario { get; private set; }
     public bool Ativo { get; private set; }
     public DateTime CriadoEm { get; private set; }
     public DateTime AtualizadoEm { get; private set; }
@@ -26,7 +29,8 @@ public class Produto
         decimal precoVenda,
         Guid criadoPor,
         Guid? categoriaProdutoId = null,
-        string? descricao = null)
+        string? descricao = null,
+        TipoProduto tipo = TipoProduto.Produzido)
     {
         if (precoVenda <= 0)
             throw new DomainException("Preço de venda deve ser maior que zero.");
@@ -38,6 +42,8 @@ public class Produto
             CategoriaProdutoId = categoriaProdutoId,
             Descricao = descricao,
             PrecoVenda = precoVenda,
+            Tipo = tipo,
+            CustoUnitario = null,
             Ativo = true,
             CriadoEm = DateTime.UtcNow,
             AtualizadoEm = DateTime.UtcNow,
@@ -51,7 +57,8 @@ public class Produto
         decimal precoVenda,
         Guid atualizadoPor,
         Guid? categoriaProdutoId = null,
-        string? descricao = null)
+        string? descricao = null,
+        TipoProduto tipo = TipoProduto.Produzido)
     {
         if (precoVenda <= 0)
             throw new DomainException("Preço de venda deve ser maior que zero.");
@@ -60,6 +67,10 @@ public class Produto
         CategoriaProdutoId = categoriaProdutoId;
         Descricao = descricao;
         PrecoVenda = precoVenda;
+        Tipo = tipo;
+        // Custo unitário só faz sentido para revenda; ao virar produzido, zera.
+        if (tipo == TipoProduto.Produzido)
+            CustoUnitario = null;
         AtualizadoEm = DateTime.UtcNow;
         AtualizadoPor = atualizadoPor;
     }
@@ -71,8 +82,22 @@ public class Produto
         AtualizadoPor = atualizadoPor;
     }
 
+    public void DefinirCustoUnitario(decimal custoUnitario)
+    {
+        if (Tipo != TipoProduto.Revenda)
+            throw new DomainException("Custo unitário só se aplica a bebida pronta (revenda).");
+        if (custoUnitario <= 0)
+            throw new DomainException("Custo unitário deve ser maior que zero.");
+
+        CustoUnitario = custoUnitario;
+        AtualizadoEm = DateTime.UtcNow;
+    }
+
     public void DefinirFichaTecnica(IEnumerable<(Guid ingredienteId, decimal quantidade)> itens)
     {
+        if (Tipo == TipoProduto.Revenda)
+            throw new DomainException("Bebida pronta (revenda) não tem ficha de ingredientes.");
+
         var listaItens = itens.ToList();
 
         var duplicados = listaItens
@@ -93,6 +118,9 @@ public class Produto
 
     public decimal CalcularCustoFicha()
     {
+        if (Tipo == TipoProduto.Revenda)
+            return CustoUnitario ?? 0;
+
         return _itensFicha.Sum(i =>
             i.QuantidadePorUnidade * (i.Ingrediente?.CustoUnitario ?? 0));
     }

@@ -57,3 +57,6 @@ docs/brain/.obsidian/plugins/
 
 # ─── Screenshots ─────────────────────────────────────────────────────────────
 screenshots/
+
+# Bundle de design extraido (handoff) — nao versionar
+_design_robots/

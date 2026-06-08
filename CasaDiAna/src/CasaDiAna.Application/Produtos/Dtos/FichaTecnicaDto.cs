@@ -1,3 +1,5 @@
+using CasaDiAna.Domain.Enums;
+
 namespace CasaDiAna.Application.Produtos.Dtos;
 
 public record FichaTecnicaDto(
@@ -6,4 +8,6 @@ public record FichaTecnicaDto(
     decimal PrecoVenda,
     IReadOnlyList<ItemFichaTecnicaDto> Itens,
     decimal CustoTotal,
-    decimal? MargemLucro);
+    decimal? MargemLucro,
+    TipoProduto Tipo,
+    decimal? CustoUnitario);

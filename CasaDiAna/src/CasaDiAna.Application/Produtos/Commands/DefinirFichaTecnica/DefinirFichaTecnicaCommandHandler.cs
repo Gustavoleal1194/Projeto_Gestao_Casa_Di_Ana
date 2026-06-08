@@ -1,4 +1,5 @@
 using CasaDiAna.Application.Produtos.Dtos;
+using CasaDiAna.Domain.Enums;
 using CasaDiAna.Domain.Exceptions;
 using CasaDiAna.Domain.Interfaces;
 using MediatR;
@@ -50,6 +51,18 @@ public class DefinirFichaTecnicaCommandHandler
 
     internal static FichaTecnicaDto ToFichaTecnicaDto(Domain.Entities.Produto p)
     {
+        if (p.Tipo == TipoProduto.Revenda)
+        {
+            var custoUnit = p.CustoUnitario ?? 0;
+            var margemRev = p.PrecoVenda > 0
+                ? ((p.PrecoVenda - custoUnit) / p.PrecoVenda) * 100
+                : (decimal?)null;
+            return new FichaTecnicaDto(
+                p.Id, p.Nome, p.PrecoVenda,
+                Array.Empty<ItemFichaTecnicaDto>(), custoUnit, margemRev,
+                p.Tipo, p.CustoUnitario);
+        }
+
         var itens = p.ItensFicha.Select(i => new ItemFichaTecnicaDto(
             i.IngredienteId,
             i.Ingrediente?.Nome ?? string.Empty,
@@ -64,6 +77,7 @@ public class DefinirFichaTecnicaCommandHandler
             ? ((p.PrecoVenda - custoTotal) / p.PrecoVenda) * 100
             : (decimal?)null;
 
-        return new FichaTecnicaDto(p.Id, p.Nome, p.PrecoVenda, itens, custoTotal, margem);
+        return new FichaTecnicaDto(p.Id, p.Nome, p.PrecoVenda, itens, custoTotal, margem,
+            p.Tipo, p.CustoUnitario);
     }
 }

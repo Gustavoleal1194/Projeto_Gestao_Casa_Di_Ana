@@ -109,6 +109,15 @@ export function ProdutoFormPage() {
               erro={errors.categoriaProdutoId?.message}
               {...register('categoriaProdutoId')}
             />
+            <SelectCampo
+              label="Tipo do Produto"
+              opcoes={[
+                { valor: 'produzido', rotulo: 'Produzido (ficha de ingredientes)' },
+                { valor: 'revenda', rotulo: 'Bebida pronta (revenda)' },
+              ]}
+              erro={errors.tipo?.message}
+              {...register('tipo')}
+            />
           </div>
 
           <FormSection titulo="Descrição" />

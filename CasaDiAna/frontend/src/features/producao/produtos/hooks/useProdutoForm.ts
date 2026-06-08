@@ -1,4 +1,4 @@
-﻿import { useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { Produto, ProdutoFormValues, CriarProdutoInput } from '@/types/producao'
@@ -7,11 +7,11 @@ export const produtoSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório.').max(150, 'Máximo de 150 caracteres.'),
   precoVenda: z.preprocess(
     (v) => (v === '' || v == null ? undefined : Number(v)),
-    z.number()
-      .positive('Deve ser maior que zero')
+    z.number().positive('Deve ser maior que zero'),
   ),
   categoriaProdutoId: z.string(),
   descricao: z.string(),
+  tipo: z.enum(['produzido', 'revenda']),
 })
 
 export function produtoParaForm(p: Produto): ProdutoFormValues {
@@ -20,6 +20,7 @@ export function produtoParaForm(p: Produto): ProdutoFormValues {
     precoVenda: p.precoVenda,
     categoriaProdutoId: p.categoriaProdutoId ?? '',
     descricao: p.descricao ?? '',
+    tipo: p.tipo,
   }
 }
 
@@ -29,6 +30,7 @@ export function formParaInput(values: ProdutoFormValues): CriarProdutoInput {
     precoVenda: values.precoVenda as number,
     categoriaProdutoId: values.categoriaProdutoId || null,
     descricao: values.descricao || null,
+    tipo: values.tipo,
   }
 }
 
@@ -41,6 +43,7 @@ export function useProdutoForm() {
       precoVenda: undefined,
       categoriaProdutoId: '',
       descricao: '',
+      tipo: 'produzido',
     },
   })
 }

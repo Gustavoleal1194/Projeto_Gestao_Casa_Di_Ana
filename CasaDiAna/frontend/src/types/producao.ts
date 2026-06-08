@@ -16,6 +16,8 @@ export interface AtualizarCategoriaProdutoInput {
 }
 
 // ─── Produto ──────────────────────────────────────────────────────────────────
+export type TipoProduto = 'produzido' | 'revenda'
+
 export interface ProdutoResumo {
   id: string
   nome: string
@@ -33,6 +35,8 @@ export interface Produto {
   precoVenda: number
   ativo: boolean
   atualizadoEm: string
+  tipo: TipoProduto
+  custoUnitario: number | null
 }
 
 export interface CriarProdutoInput {
@@ -40,6 +44,7 @@ export interface CriarProdutoInput {
   precoVenda: number
   categoriaProdutoId?: string | null
   descricao?: string | null
+  tipo: TipoProduto
 }
 
 export interface AtualizarProdutoInput extends CriarProdutoInput {
@@ -51,6 +56,7 @@ export interface ProdutoFormValues {
   precoVenda: number | undefined
   categoriaProdutoId: string
   descricao: string
+  tipo: TipoProduto
 }
 
 // ─── Ficha Técnica ────────────────────────────────────────────────────────────
@@ -70,6 +76,8 @@ export interface FichaTecnica {
   itens: ItemFichaTecnica[]
   custoTotal: number
   margemLucro: number | null
+  tipo: TipoProduto
+  custoUnitario: number | null
 }
 
 export interface ItemFichaTecnicaInput {
@@ -79,6 +87,10 @@ export interface ItemFichaTecnicaInput {
 
 export interface DefinirFichaTecnicaInput {
   itens: ItemFichaTecnicaInput[]
+}
+
+export interface DefinirCustoUnitarioInput {
+  custoUnitario: number
 }
 
 // ─── Produção Diária ──────────────────────────────────────────────────────────

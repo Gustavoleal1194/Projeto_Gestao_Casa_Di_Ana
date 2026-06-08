@@ -253,6 +253,7 @@ export function ImportacaoVendasPage() {
           nome: item.nomeRelatorio,
           precoVenda: precoUnitario(item),
           categoriaProdutoId: null,
+          tipo: 'produzido',
         })
         return { item, produto }
       })

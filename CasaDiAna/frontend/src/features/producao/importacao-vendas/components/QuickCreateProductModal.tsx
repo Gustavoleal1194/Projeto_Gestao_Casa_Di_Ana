@@ -65,6 +65,7 @@ export function QuickCreateProductModal({ nomeInicial, precoInicial, onSalvo, on
         nome: values.nome,
         precoVenda: values.precoVenda as number,
         categoriaProdutoId: values.categoriaProdutoId || null,
+        tipo: 'produzido',
       })
       setProdutoCriado(produto)
       setConfirma({ produtoNome: produto.nome })

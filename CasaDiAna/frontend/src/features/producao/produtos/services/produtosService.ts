@@ -7,6 +7,7 @@ import type {
   AtualizarProdutoInput,
   FichaTecnica,
   DefinirFichaTecnicaInput,
+  DefinirCustoUnitarioInput,
 } from '@/types/producao'
 
 export const produtosService = {
@@ -44,6 +45,14 @@ export const produtosService = {
 
   definirFichaTecnica: async (id: string, input: DefinirFichaTecnicaInput): Promise<FichaTecnica> => {
     const resp = await api.put<ApiResponse<FichaTecnica>>(`/produtos/${id}/ficha-tecnica`, input)
+    return resp.data.dados
+  },
+
+  definirCustoUnitario: async (id: string, custoUnitario: number): Promise<FichaTecnica> => {
+    const resp = await api.put<ApiResponse<FichaTecnica>>(
+      `/produtos/${id}/custo-unitario`,
+      { custoUnitario } as DefinirCustoUnitarioInput,
+    )
     return resp.data.dados
   },
 }

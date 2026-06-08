@@ -1,6 +1,7 @@
 using CasaDiAna.Application.Common;
 using CasaDiAna.Application.Produtos.Commands.CriarProduto;
 using CasaDiAna.Application.Produtos.Dtos;
+using CasaDiAna.Domain.Enums;
 using CasaDiAna.Domain.Exceptions;
 using CasaDiAna.Domain.Interfaces;
 using MediatR;
@@ -44,6 +45,8 @@ public class AtualizarProdutoCommandHandler : IRequestHandler<AtualizarProdutoCo
             request.Tipo);
 
         _produtos.Atualizar(produto);
+        if (produto.Tipo == TipoProduto.Revenda)
+            await _produtos.SubstituirItensFichaAsync(produto, cancellationToken);
         await _produtos.SalvarAsync(cancellationToken);
 
         var atualizado = await _produtos.ObterPorIdAsync(produto.Id, cancellationToken);

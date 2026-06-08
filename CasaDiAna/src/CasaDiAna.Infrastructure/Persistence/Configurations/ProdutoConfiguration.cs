@@ -16,6 +16,9 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
         builder.Property(p => p.CategoriaProdutoId).HasColumnName("categoria_produto_id");
         builder.Property(p => p.Descricao).HasColumnName("descricao");
         builder.Property(p => p.PrecoVenda).HasColumnName("preco_venda").HasPrecision(15, 2).IsRequired();
+        // TipoProduto.Produzido = 1 (não 0). Como o sentinel do EF para int é 0, ele nunca
+        // colide com um valor real, então o INSERT sempre envia o valor explícito. O default
+        // do banco (1) serve apenas para o backfill da migration em linhas existentes.
         builder.Property(p => p.Tipo)
             .HasColumnName("tipo")
             .HasConversion<int>()

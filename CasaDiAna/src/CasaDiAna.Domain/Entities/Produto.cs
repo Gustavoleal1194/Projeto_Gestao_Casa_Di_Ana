@@ -68,9 +68,10 @@ public class Produto
         Descricao = descricao;
         PrecoVenda = precoVenda;
         Tipo = tipo;
-        // Custo unitário só faz sentido para revenda; ao virar produzido, zera.
         if (tipo == TipoProduto.Produzido)
             CustoUnitario = null;
+        else if (tipo == TipoProduto.Revenda)
+            _itensFicha.Clear();
         AtualizadoEm = DateTime.UtcNow;
         AtualizadoPor = atualizadoPor;
     }

@@ -70,4 +70,16 @@ public class ProdutoTests
         p.Tipo.Should().Be(TipoProduto.Produzido);
         p.CustoUnitario.Should().BeNull();
     }
+
+    [Fact]
+    public void Atualizar_ParaRevenda_DeveLimparItensFicha()
+    {
+        var p = Produto.Criar("Bolo", 20m, Guid.NewGuid());
+        p.DefinirFichaTecnica(new[] { (Guid.NewGuid(), 2m) });
+        p.ItensFicha.Should().HaveCount(1);
+
+        p.Atualizar("Bolo", 20m, Guid.NewGuid(), tipo: TipoProduto.Revenda);
+
+        p.ItensFicha.Should().BeEmpty();
+    }
 }

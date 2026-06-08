@@ -31,6 +31,7 @@ public class DefinirCustoUnitarioCommandHandlerTests
         dto.Tipo.Should().Be(TipoProduto.Revenda);
         dto.Itens.Should().BeEmpty();
         _produtos.Verify(r => r.SalvarAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _produtos.Verify(r => r.Atualizar(produto), Times.Once);
     }
 
     [Fact]

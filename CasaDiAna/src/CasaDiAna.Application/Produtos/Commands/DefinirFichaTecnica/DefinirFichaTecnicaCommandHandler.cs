@@ -54,12 +54,9 @@ public class DefinirFichaTecnicaCommandHandler
         if (p.Tipo == TipoProduto.Revenda)
         {
             var custoUnit = p.CustoUnitario ?? 0;
-            var margemRev = p.PrecoVenda > 0
-                ? ((p.PrecoVenda - custoUnit) / p.PrecoVenda) * 100
-                : (decimal?)null;
             return new FichaTecnicaDto(
                 p.Id, p.Nome, p.PrecoVenda,
-                Array.Empty<ItemFichaTecnicaDto>(), custoUnit, margemRev,
+                Array.Empty<ItemFichaTecnicaDto>(), custoUnit, p.CalcularMargemLucro(),
                 p.Tipo, p.CustoUnitario);
         }
 
@@ -73,11 +70,8 @@ public class DefinirFichaTecnicaCommandHandler
         )).ToList().AsReadOnly();
 
         var custoTotal = itens.Sum(i => i.CustoItem);
-        var margem = p.PrecoVenda > 0
-            ? ((p.PrecoVenda - custoTotal) / p.PrecoVenda) * 100
-            : (decimal?)null;
 
-        return new FichaTecnicaDto(p.Id, p.Nome, p.PrecoVenda, itens, custoTotal, margem,
+        return new FichaTecnicaDto(p.Id, p.Nome, p.PrecoVenda, itens, custoTotal, p.CalcularMargemLucro(),
             p.Tipo, p.CustoUnitario);
     }
 }

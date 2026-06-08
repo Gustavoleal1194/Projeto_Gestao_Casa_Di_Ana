@@ -45,7 +45,7 @@ public class RegistrarProducaoCommandHandler
         if (!produto.Ativo)
             throw new DomainException("Produto está inativo.");
 
-        if (produto.Tipo == Domain.Enums.TipoProduto.Revenda)
+        if (produto.Tipo == TipoProduto.Revenda)
             throw new DomainException(
                 $"O produto '{produto.Nome}' é uma bebida pronta (revenda) e não é produzido.");
 

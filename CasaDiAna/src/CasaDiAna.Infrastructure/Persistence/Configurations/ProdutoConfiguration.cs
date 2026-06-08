@@ -16,6 +16,14 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
         builder.Property(p => p.CategoriaProdutoId).HasColumnName("categoria_produto_id");
         builder.Property(p => p.Descricao).HasColumnName("descricao");
         builder.Property(p => p.PrecoVenda).HasColumnName("preco_venda").HasPrecision(15, 2).IsRequired();
+        builder.Property(p => p.Tipo)
+            .HasColumnName("tipo")
+            .HasConversion<int>()
+            .HasDefaultValue(CasaDiAna.Domain.Enums.TipoProduto.Produzido)
+            .IsRequired();
+        builder.Property(p => p.CustoUnitario)
+            .HasColumnName("custo_unitario")
+            .HasPrecision(15, 2);
         builder.Property(p => p.Ativo).HasColumnName("ativo").IsRequired();
         builder.Property(p => p.CriadoEm).HasColumnName("criado_em").IsRequired();
         builder.Property(p => p.AtualizadoEm).HasColumnName("atualizado_em").IsRequired();

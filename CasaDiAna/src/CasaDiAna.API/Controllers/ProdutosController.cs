@@ -3,6 +3,7 @@ using CasaDiAna.Application.Produtos.Commands.AtualizarProduto;
 using CasaDiAna.Application.Produtos.Commands.CriarProduto;
 using CasaDiAna.Application.Produtos.Commands.DesativarProduto;
 using CasaDiAna.Application.Produtos.Commands.DefinirFichaTecnica;
+using CasaDiAna.Application.Produtos.Commands.DefinirCustoUnitario;
 using CasaDiAna.Application.Produtos.Dtos;
 using CasaDiAna.Application.Produtos.Queries.ListarProdutos;
 using CasaDiAna.Application.Produtos.Queries.ObterFichaTecnica;
@@ -88,6 +89,17 @@ public class ProdutosController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> DefinirFichaTecnica(
         Guid id, [FromBody] DefinirFichaTecnicaCommand command, CancellationToken ct)
+    {
+        var resultado = await _mediator.Send(command with { ProdutoId = id }, ct);
+        return Ok(ApiResponse<FichaTecnicaDto>.Ok(resultado));
+    }
+
+    [HttpPut("{id:guid}/custo-unitario")]
+    [ProducesResponseType(typeof(ApiResponse<FichaTecnicaDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> DefinirCustoUnitario(
+        Guid id, [FromBody] DefinirCustoUnitarioCommand command, CancellationToken ct)
     {
         var resultado = await _mediator.Send(command with { ProdutoId = id }, ct);
         return Ok(ApiResponse<FichaTecnicaDto>.Ok(resultado));

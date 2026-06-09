@@ -32,7 +32,7 @@ public class ObterFechamentoMensalQueryHandler
     {
         var competencia = DespesaFixa.NormalizarCompetencia(request.Competencia);
         var inicio = competencia;
-        var fim = competencia.AddMonths(1);
+        var fim = competencia.AddMonths(1).AddDays(-1);
 
         var vendas = await _vendas.ListarAsync(inicio, fim, null, cancellationToken);
         var produtos = (await _produtos.ListarComFichaAsync(false, cancellationToken))

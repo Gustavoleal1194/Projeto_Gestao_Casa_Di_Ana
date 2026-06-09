@@ -43,6 +43,12 @@ public class ObterFechamentoMensalQueryHandlerTests
 
         var dto = await Criar().Handle(new ObterFechamentoMensalQuery(_comp), CancellationToken.None);
 
+        _vendas.Verify(r => r.ListarAsync(
+            new DateTime(2026, 6, 1),
+            new DateTime(2026, 6, 30),
+            null,
+            default), Times.Once);
+
         dto.FaturamentoCalculado.Should().Be(1000m);   // 100 × 10
         dto.FaturamentoUsado.Should().Be(1000m);
         dto.CustoDiretoTotal.Should().Be(0m);           // sem ficha

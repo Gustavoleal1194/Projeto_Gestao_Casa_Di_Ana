@@ -29,5 +29,6 @@ public class ListarDespesasFixasQueryHandlerTests
         dto.Total.Should().Be(4000m);
         dto.Itens.Should().HaveCount(3);
         dto.TotalPorCategoria.Should().ContainSingle(c => c.Categoria == CategoriaDespesaFixa.Energia && c.Total == 1000m);
+        dto.Competencia.Should().Be(new DateTime(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc));
     }
 }

@@ -38,6 +38,8 @@ public class AtualizarECancelarDespesaFixaTests
 
         dto.Categoria.Should().Be(CategoriaDespesaFixa.Agua);
         dto.Valor.Should().Be(950m);
+        _repo.Verify(r => r.Atualizar(despesa), Times.Once);
+        _repo.Verify(r => r.SalvarAsync(default), Times.Once);
     }
 
     [Fact]
@@ -63,6 +65,7 @@ public class AtualizarECancelarDespesaFixaTests
         await handler.Handle(new CancelarDespesaFixaCommand(despesa.Id), CancellationToken.None);
 
         despesa.Ativo.Should().BeFalse();
+        _repo.Verify(r => r.Atualizar(despesa), Times.Once);
         _repo.Verify(r => r.SalvarAsync(default), Times.Once);
     }
 }

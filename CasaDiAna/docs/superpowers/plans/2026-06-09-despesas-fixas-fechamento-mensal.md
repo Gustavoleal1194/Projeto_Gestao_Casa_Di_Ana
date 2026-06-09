@@ -1542,7 +1542,10 @@ public class ObterFechamentoMensalQueryHandler
     {
         var competencia = DespesaFixa.NormalizarCompetencia(request.Competencia);
         var inicio = competencia;
-        var fim = competencia.AddMonths(1);
+        // VendaDiariaRepository.ListarAsync trata `ate` como INCLUSIVO (filtra
+        // v.Data < ate.AddDays(1)). Por isso passamos o ÚLTIMO dia do mês, não o
+        // 1º do mês seguinte — senão vendas do dia 1 do mês seguinte vazam.
+        var fim = competencia.AddMonths(1).AddDays(-1);
 
         var vendas = await _vendas.ListarAsync(inicio, fim, null, cancellationToken);
         var produtos = (await _produtos.ListarComFichaAsync(false, cancellationToken))

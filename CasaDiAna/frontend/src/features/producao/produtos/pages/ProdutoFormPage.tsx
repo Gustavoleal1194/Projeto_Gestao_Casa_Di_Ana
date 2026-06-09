@@ -12,8 +12,13 @@ import { FormActions } from '@/components/form/FormActions'
 import { FormCard } from '@/components/form/FormCard'
 import { Toast } from '@/components/ui/Toast'
 import { LoadingState } from '@/components/ui/LoadingState'
-import type { CategoriaProduto, ProdutoFormValues } from '@/types/producao'
+import type { CategoriaProduto, ProdutoFormValues, TipoProduto } from '@/types/producao'
 import { ConfirmacaoProdutoModal, type DadosConfirmacaoProduto } from '../components/ConfirmacaoProdutoModal'
+
+const TIPO_OPCOES: { valor: TipoProduto; rotulo: string }[] = [
+  { valor: 'produzido', rotulo: 'Produzido (ficha de ingredientes)' },
+  { valor: 'revenda', rotulo: 'Bebida pronta (revenda)' },
+]
 
 export function ProdutoFormPage() {
   const navigate = useNavigate()
@@ -111,10 +116,7 @@ export function ProdutoFormPage() {
             />
             <SelectCampo
               label="Tipo do Produto"
-              opcoes={[
-                { valor: 'produzido', rotulo: 'Produzido (ficha de ingredientes)' },
-                { valor: 'revenda', rotulo: 'Bebida pronta (revenda)' },
-              ]}
+              opcoes={TIPO_OPCOES}
               erro={errors.tipo?.message}
               {...register('tipo')}
             />

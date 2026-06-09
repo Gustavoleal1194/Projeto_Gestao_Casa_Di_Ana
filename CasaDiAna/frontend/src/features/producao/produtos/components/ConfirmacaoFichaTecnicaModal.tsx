@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react'
 
 export interface DadosConfirmacaoFichaTecnica {
   produtoNome: string
-  totalIngredientes: number
+  totalIngredientes?: number
   custoTotal: number
 }
 
@@ -93,7 +93,9 @@ export function ConfirmacaoFichaTecnicaModal({ aberto, onFechar, dados }: Props)
 
   const chips = [
     { label: 'Custo total', value: `R$ ${fmt(countCusto)}` },
-    { label: 'Ingredientes', value: `${dados.totalIngredientes}` },
+    ...(dados.totalIngredientes != null
+      ? [{ label: 'Ingredientes', value: `${dados.totalIngredientes}` }]
+      : []),
   ]
 
   return (
@@ -162,7 +164,7 @@ export function ConfirmacaoFichaTecnicaModal({ aberto, onFechar, dados }: Props)
           </div>
 
           <div style={{
-            display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10,
+            display: 'grid', gridTemplateColumns: `repeat(${chips.length}, 1fr)`, gap: 10,
             marginBottom: 20,
             animation: 'fadeUp 300ms 550ms ease both',
           }}>

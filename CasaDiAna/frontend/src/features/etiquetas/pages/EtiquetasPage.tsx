@@ -31,11 +31,6 @@ const TIPO_LABELS: Record<TipoEtiqueta, string> = {
 }
 
 
-function parsePorcaoGramas(porcao: string): number {
-  const match = porcao.match(/(\d+(?:[.,]\d+)?)\s*(?:g|ml)\b/i)
-  return match ? parseFloat(match[1].replace(',', '.')) : 0
-}
-
 function parseValorNutricional(value: string): number {
   const match = value.trim().replace(',', '.').match(/-?\d+(?:\.\d+)?/)
   const parsed = match ? Number(match[0]) : 0
@@ -71,47 +66,33 @@ function obterMensagemErroApi(error: unknown, fallback: string): string {
   return data?.mensagem ?? data?.message ?? fallback
 }
 
-function fmt100(value: number, porcaoG: number): string {
-  if (!porcaoG) return '—'
-  const v = (value / porcaoG) * 100
-  return v % 1 === 0 ? String(Math.round(v)) : v.toFixed(1)
+// ─── Prévia das etiquetas ────────────────────────────────────────────────────
+
+// CSS renderiza 1mm = 96/25.4px. Usamos isso para dar à prévia o tamanho real
+// da etiqueta em pixels e então escalar para caber no container.
+const MM_TO_PX = 96 / 25.4
+
+const LABEL_DIMS_MM: Record<TipoEtiqueta, { largura: number; altura: number }> = {
+  1: { largura: 100, altura: 50 },
+  2: { largura: 70, altura: 40 },
+  3: { largura: 70, altura: 130 },
 }
 
-function fmtPeso(value: number, porcaoG: number, pesoG: number): string {
-  if (!porcaoG) return '—'
-  const v = (value / porcaoG) * pesoG
-  return v % 1 === 0 ? String(Math.round(v)) : v.toFixed(1)
+interface LabelPreviewProps {
+  html: string | null
+  width: number
+  height: number
+  scale: number
 }
 
-// ─── Preview das etiquetas ───────────────────────────────────────────────────
-
-interface PreviewProps {
-  produto: Produto | null
-  nomeOverride?: string
-  tipo: TipoEtiqueta
-  dataProducao: string
-  dataValidade: string
-  nutri: {
-    porcao: string; valorEnergeticoKcal: string; valorEnergeticoKJ: string;
-    carboidratos: string; acucaresTotais: string; acucaresAdicionados: string;
-    proteinas: string; gordurasTotais: string; gordurasSaturadas: string;
-    gordurasTrans: string; fibraAlimentar: string; sodio: string;
-    porcoesPorEmbalagem: string; medidaCaseira: string;
-    vdValorEnergetico: string; vdCarboidratos: string; vdAcucaresAdicionados: string;
-    vdProteinas: string; vdGordurasTotais: string; vdGordurasSaturadas: string;
-    vdGordurasTrans: string; vdFibraAlimentar: string; vdSodio: string;
-    alergicoAlimentar: string; contemGluten: boolean; contemLactose: boolean;
-    loteFabricacao: string; ingredientes: string;
-  }
-}
-
-function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade, nutri }: PreviewProps) {
-  const nomeExibido = nomeOverride ?? produto?.nome ?? null
-  if (!nomeExibido) {
+// Renderiza exatamente o mesmo HTML usado na impressão, escalado para caber no
+// container. Assim a prévia nunca diverge do que é efetivamente impresso.
+function LabelPreview({ html, width, height, scale }: LabelPreviewProps) {
+  if (!html) {
     return (
       <div
-        className="flex-1 flex items-center justify-center rounded-xl border-2 border-dashed"
-        style={{ borderColor: 'var(--ada-border)', minHeight: 200 }}
+        className="flex items-center justify-center rounded-xl border-2 border-dashed"
+        style={{ borderColor: 'var(--ada-border)', minHeight: 200, minWidth: 200 }}
       >
         <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>
           Selecione um item para ver a prévia
@@ -120,215 +101,22 @@ function LabelPreview({ produto, nomeOverride, tipo, dataProducao, dataValidade,
     )
   }
 
-  const validade = dataValidade ? formatarDataLocal(dataValidade) : '—'
-  const dataPtBr = formatarDataLocal(dataProducao)
-
-  if (tipo === 1) {
-    // Papel 100×150mm = 300×450px. Conteúdo da etiqueta (100×50mm) ocupa os 150px do topo.
-    return (
-      <div style={{
-        width: 300, height: 450,
-        background: '#fff', border: '1.5px solid #aaa', borderRadius: 2,
-        position: 'relative', overflow: 'hidden',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
-      }}>
-        <div style={{
-          position: 'absolute', top: 0, left: 0, width: 300, height: 150,
-          display: 'flex', flexDirection: 'column',
-          padding: '6px 9px', boxSizing: 'border-box',
-          fontFamily: 'Georgia, serif',
-          borderBottom: '0.5px dashed #ccc',
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 0 }}>
-            <img src="/images/image.png" alt="Logo" style={{ height: 48, width: 'auto', objectFit: 'contain' }} />
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, margin: '3px 0' }}>
-            <div style={{ flex: 1, height: 0.5, background: '#333', opacity: 0.6 }} />
-            <span style={{ color: '#333', fontSize: 7 }}>◆</span>
-            <div style={{ flex: 1, height: 0.5, background: '#333', opacity: 0.6 }} />
-          </div>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#000', textAlign: 'center', lineHeight: 1.2, wordBreak: 'break-word' }}>
-            {nomeExibido}
-          </div>
-          <div style={{ flexShrink: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 9, color: '#333', borderTop: '0.5px solid #333', paddingTop: 3 }}>
-            <span>Fab: {dataPtBr}</span>
-            <span style={{ fontWeight: 700, color: '#000' }}>Val: {validade}</span>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (tipo === 2) {
-    // Papel 100×150mm = 300×450px. Conteúdo da etiqueta (70×40mm) = 210×120px no topo-esquerdo.
-    return (
-      <div style={{
-        width: 300, height: 450,
-        background: '#fff', border: '1.5px solid #aaa', borderRadius: 2,
-        position: 'relative', overflow: 'hidden',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
-      }}>
-        <div style={{
-          position: 'absolute', top: 0, left: 0, width: 210, height: 120,
-          border: '1.5px solid #333',
-          display: 'flex', flexDirection: 'column',
-          justifyContent: 'center', alignItems: 'center', textAlign: 'center',
-          padding: '12px 14px', boxSizing: 'border-box',
-          fontFamily: 'Arial, sans-serif', color: '#000',
-        }}>
-          <div style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.15 }}>{nomeExibido}</div>
-          <div style={{ fontSize: 12, marginTop: 8, color: '#333' }}>Val.: {validade}</div>
-        </div>
-      </div>
-    )
-  }
-
-  // Nutricional
-  const kcalNum = parseValorNutricional(nutri.valorEnergeticoKcal)
-  const carboNum = parseValorNutricional(nutri.carboidratos)
-  const acucaresNum = parseValorNutricional(nutri.acucaresTotais)
-  const acucaresAdicNum = parseValorNutricional(nutri.acucaresAdicionados)
-  const protNum = parseValorNutricional(nutri.proteinas)
-  const gordNum = parseValorNutricional(nutri.gordurasTotais)
-  const gordSatNum = parseValorNutricional(nutri.gordurasSaturadas)
-  const gordTransNum = parseValorNutricional(nutri.gordurasTrans)
-  const fibraNum = parseValorNutricional(nutri.fibraAlimentar)
-  const sodioNum = parseValorNutricional(nutri.sodio)
-  const porcaoG = parsePorcaoGramas(nutri.porcao || '100g')
-
-  const vdManual = (value: string) => value.trim()
-  const porcaoLabel = nutri.medidaCaseira
-    ? `${nutri.porcao || '100g'} (${nutri.medidaCaseira})`
-    : (nutri.porcao || '100g')
-
-  type Row = { bold: boolean; indent: 0 | 1 | 2; nome: string; cem: string; cinquenta: string; vdVal: string }
-  const rows: Row[] = [
-    { bold: true, indent: 0, nome: 'Valor energético (kcal)', cem: kcalNum > 0 ? fmt100(kcalNum, porcaoG) : '—', cinquenta: kcalNum > 0 ? fmtPeso(kcalNum, porcaoG, 50) : '—', vdVal: vdManual(nutri.vdValorEnergetico) },
-    { bold: true, indent: 0, nome: 'Carboidratos (g)', cem: fmt100(carboNum, porcaoG), cinquenta: fmtPeso(carboNum, porcaoG, 50), vdVal: vdManual(nutri.vdCarboidratos) },
-    { bold: false, indent: 1, nome: 'Açúcares totais (g)', cem: fmt100(acucaresNum, porcaoG), cinquenta: fmtPeso(acucaresNum, porcaoG, 50), vdVal: '' },
-    { bold: false, indent: 2, nome: 'Açúcares adicionados (g)', cem: fmt100(acucaresAdicNum, porcaoG), cinquenta: fmtPeso(acucaresAdicNum, porcaoG, 50), vdVal: vdManual(nutri.vdAcucaresAdicionados) },
-    { bold: true, indent: 0, nome: 'Proteínas (g)', cem: fmt100(protNum, porcaoG), cinquenta: fmtPeso(protNum, porcaoG, 50), vdVal: vdManual(nutri.vdProteinas) },
-    { bold: true, indent: 0, nome: 'Gorduras totais (g)', cem: fmt100(gordNum, porcaoG), cinquenta: fmtPeso(gordNum, porcaoG, 50), vdVal: vdManual(nutri.vdGordurasTotais) },
-    { bold: false, indent: 1, nome: 'Gorduras saturadas (g)', cem: fmt100(gordSatNum, porcaoG), cinquenta: fmtPeso(gordSatNum, porcaoG, 50), vdVal: vdManual(nutri.vdGordurasSaturadas) },
-    { bold: false, indent: 1, nome: 'Gorduras trans (g)', cem: fmt100(gordTransNum, porcaoG), cinquenta: fmtPeso(gordTransNum, porcaoG, 50), vdVal: vdManual(nutri.vdGordurasTrans) },
-    { bold: true, indent: 0, nome: 'Fibra alimentar (g)', cem: fmt100(fibraNum, porcaoG), cinquenta: fmtPeso(fibraNum, porcaoG, 50), vdVal: vdManual(nutri.vdFibraAlimentar) },
-    { bold: true, indent: 0, nome: 'Sódio (mg)', cem: fmt100(sodioNum, porcaoG), cinquenta: fmtPeso(sodioNum, porcaoG, 50), vdVal: vdManual(nutri.vdSodio) },
-  ]
-
-  const tableTop = 66
-  const tableHeight = 143
-
-  // Papel 100×150mm = 300×450px. Conteúdo nutricional (70×130mm) ocupa a área superior-esquerda.
   return (
-    <div
+    <iframe
+      srcDoc={html}
+      title="Prévia da etiqueta"
+      scrolling="no"
       style={{
-        width: 300,
-        height: 450,
-        position: 'relative',
-        overflow: 'hidden',
-        fontFamily: "'Arial Narrow', Arial, sans-serif",
-        background: '#fff',
-        color: '#000',
+        width,
+        height,
+        transform: `scale(${scale})`,
+        transformOrigin: 'center center',
         border: '1.5px solid #aaa',
         borderRadius: 2,
+        background: '#fff',
         boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
       }}
-    >
-      <div
-        style={{
-          position: 'absolute',
-          top: 6,
-          left: 9,
-          width: 196,
-          height: tableTop + tableHeight,
-          background: '#fff',
-          overflow: 'hidden',
-          fontWeight: 700,
-        }}
-      >
-        <div style={{ position: 'absolute', top: 3, left: 3, width: 186, height: 15, fontSize: 18, fontWeight: 700, lineHeight: '15px', textAlign: 'center', overflow: 'hidden' }}>
-          INFORMAÇÃO NUTRICIONAL
-        </div>
-        <div style={{ position: 'absolute', top: 17.55, left: 0, width: 196, height: 1, background: '#000' }} />
-        <div style={{ position: 'absolute', top: 22.8, left: 3.75, width: 184.5, height: 17.7, fontSize: 15, fontWeight: 700, lineHeight: '8.7px', textAlign: 'center', overflow: 'hidden', overflowWrap: 'anywhere' }}>
-          {nomeExibido}
-        </div>
-        <div style={{ position: 'absolute', top: 42.9, left: 0, width: 196, height: 1, background: '#000' }} />
-        <div style={{ position: 'absolute', top: 47.1, left: 3.75, width: 184.5, height: 18, fontSize: 10.5, lineHeight: '9px', overflow: 'hidden', overflowWrap: 'anywhere' }}>
-          <div><strong>Porções por embalagem:</strong> {nutri.porcoesPorEmbalagem || '—'}</div>
-          <div><strong>Porção:</strong> {porcaoLabel}</div>
-        </div>
-
-        <table style={{ position: 'absolute', top: tableTop, left: 0, width: 196, height: tableHeight, borderTop: '1.14px solid #000', borderBottom: '1.14px solid #000', borderCollapse: 'separate', borderSpacing: 0, tableLayout: 'fixed', fontSize: 12, background: '#fff', overflow: 'hidden', zIndex: 1 }}>
-          <colgroup>
-            <col style={{ width: '56%' }} />
-            <col style={{ width: '15%' }} />
-            <col style={{ width: '11%' }} />
-            <col style={{ width: '18%' }} />
-          </colgroup>
-          <thead>
-            <tr style={{ height: 12 }}>
-              <th style={{ fontWeight: 700, padding: '0 2px', textAlign: 'left', verticalAlign: 'middle', borderBottom: '0.5px solid #000' }}>&nbsp;</th>
-              <th style={{ fontWeight: 700, padding: '0 2px', textAlign: 'right', verticalAlign: 'middle', borderLeft: '0.5px solid #000', borderBottom: '0.5px solid #000' }}>100g</th>
-              <th style={{ fontWeight: 700, padding: '0 2px', textAlign: 'right', verticalAlign: 'middle', borderLeft: '0.5px solid #000', borderBottom: '0.5px solid #000' }}>50g</th>
-              <th style={{ fontWeight: 700, padding: '0 2px', textAlign: 'center', verticalAlign: 'middle', borderLeft: '0.5px solid #000', borderBottom: '0.5px solid #000' }}>%VD(*)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r, index) => {
-              const bottomBorder = index === rows.length - 1 ? '0' : '0.5px solid #000'
-              return (
-              <tr key={r.nome} style={{ height: 12 }}>
-                <td style={{ fontWeight: 700, padding: `0 2px 0 ${r.indent === 2 ? '6px' : r.indent === 1 ? '5px' : '2px'}`, fontSize: 9.8, lineHeight: 1.18, verticalAlign: 'middle', overflow: 'hidden', overflowWrap: 'normal', whiteSpace: 'nowrap', borderBottom: bottomBorder }}>
-                  {r.nome}
-                </td>
-                <td style={{ fontWeight: 700, textAlign: 'right', padding: '0 2px', borderLeft: '0.5px solid #000', borderBottom: bottomBorder, lineHeight: 1.05, verticalAlign: 'middle', overflow: 'hidden', overflowWrap: 'anywhere' }}>
-                  {r.cem}
-                </td>
-                <td style={{ fontWeight: 700, textAlign: 'right', padding: '0 2px', borderLeft: '0.5px solid #000', borderBottom: bottomBorder, color: '#000', lineHeight: 1.05, verticalAlign: 'middle', overflow: 'hidden', overflowWrap: 'anywhere' }}>
-                  {r.cinquenta}
-                </td>
-                <td style={{ fontWeight: 700, textAlign: 'center', padding: '0 2px', borderLeft: '0.5px solid #000', borderBottom: bottomBorder, lineHeight: 1.05, verticalAlign: 'middle', overflow: 'hidden' }}>
-                  {r.vdVal}
-                </td>
-              </tr>
-              )
-            })}
-          </tbody>
-          <tfoot>
-            <tr style={{ height: 10 }}>
-              <td colSpan={4} style={{ fontSize: 8, fontWeight: 400, textAlign: 'center', verticalAlign: 'middle', padding: '0 2px', borderTop: '0.5px solid #000' }}>
-                *percentual de valores diários fornecidos pela porção.
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-
-        {/* Contorno renderizado por cima de todo o conteúdo — mesmo comportamento do ::after no CSS de impressão */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, border: '1.14px solid #000', pointerEvents: 'none', zIndex: 10, boxSizing: 'border-box' }} />
-      </div>
-
-      <div style={{ position: 'absolute', top: 6 + tableTop + tableHeight, left: 12, width: 187 }}>
-        {nutri.ingredientes && (
-          <div style={{ fontSize: 7.5, fontWeight: 400, lineHeight: 1.3, marginTop: 1, textTransform: 'uppercase', wordBreak: 'break-word', whiteSpace: 'normal' }}>
-            INGREDIENTES: {nutri.ingredientes}
-          </div>
-        )}
-        {nutri.alergicoAlimentar && (
-          <div style={{ fontSize: 8, fontWeight: 700, lineHeight: 1.2, marginTop: 8, textTransform: 'uppercase', wordBreak: 'break-word', whiteSpace: 'normal' }}>
-            ALÉRGICOS: {nutri.alergicoAlimentar}
-          </div>
-        )}
-        <div style={{ fontSize: 7.5, fontWeight: 700, lineHeight: 1.2, marginTop: 1, textTransform: 'uppercase' }}>
-          {nutri.contemGluten ? 'Contém glúten' : 'Não contém glúten'}{nutri.contemLactose ? '. Contém lactose' : ''}.
-        </div>
-        {(nutri.loteFabricacao || validade !== '—') && (
-          <div style={{ fontSize: 8, fontWeight: 600, lineHeight: 1.2, marginTop: 8 }}>
-            {[nutri.loteFabricacao ? `Lote/Fab: ${nutri.loteFabricacao}` : '', validade !== '—' ? `Val.: ${validade}` : ''].filter(Boolean).join('  |  ')}
-          </div>
-        )}
-      </div>
-    </div>
+    />
   )
 }
 
@@ -382,15 +170,13 @@ export function EtiquetasPage() {
   const produto = produtoDetalhe
 
   const previewContainerRef = useRef<HTMLDivElement>(null)
-  const [previewScale, setPreviewScale] = useState(1.0)
+  const [previewBox, setPreviewBox] = useState({ width: 0, height: 0 })
 
   useEffect(() => {
     const el = previewContainerRef.current
     if (!el) return
     const observer = new ResizeObserver(([entry]) => {
-      const available = entry.contentRect.width - 48 // 24px padding de cada lado
-      const scale = Math.min(1.0, available / 300)
-      setPreviewScale(Math.max(0.5, scale))
+      setPreviewBox({ width: entry.contentRect.width, height: entry.contentRect.height })
     })
     observer.observe(el)
     return () => observer.disconnect()
@@ -620,6 +406,35 @@ export function EtiquetasPage() {
     { valor: 2, label: 'Simples', desc: 'Nome + Validade', dim: '70×40mm' },
     { valor: 3, label: 'Nutricional', desc: 'Tabela Nutricional', dim: '70×130mm' },
   ]
+
+  // ── Prévia: gera o mesmo HTML da impressão (1 cópia) e o escala para caber ──
+  const previewTipo: TipoEtiqueta = tipoItem === 'ingrediente' ? 2 : tipo
+  const nomePreview =
+    tipoItem === 'ingrediente'
+      ? ingredientes.find(i => i.id === ingredienteId)?.nome ?? null
+      : produto?.nome ?? null
+
+  const previewHtml = ((): string | null => {
+    if (!nomePreview) return null
+    const validade = dataValidade ? formatarDataLocal(dataValidade) : '—'
+    const dataPtBr = formatarDataLocal(dataProducao)
+    if (previewTipo === 1) return htmlEtiquetaCompleta(nomePreview, dataPtBr, validade, 1, logoBase64)
+    if (previewTipo === 2) return htmlEtiquetaSimples(nomePreview, validade, 1)
+    return htmlEtiquetaNutricional(nomePreview, dataPtBr, validade, 1, montarNutriValues())
+  })()
+
+  const previewDims = LABEL_DIMS_MM[previewTipo]
+  const previewWidth = previewDims.largura * MM_TO_PX
+  const previewHeight = previewDims.altura * MM_TO_PX
+  const previewScale = ((): number => {
+    const padding = 32 // respiro dentro do container
+    const fit = Math.min(
+      1,
+      (previewBox.width - padding) / previewWidth,
+      (previewBox.height - padding) / previewHeight,
+    )
+    return Number.isFinite(fit) && fit > 0 ? fit : 1
+  })()
 
   return (
     <div className="ada-page space-y-6">
@@ -1145,16 +960,12 @@ export function EtiquetasPage() {
             Prévia da Etiqueta
           </p>
           <div ref={previewContainerRef} className="flex-1 flex items-center justify-center overflow-hidden py-4">
-            <div style={{ transform: `scale(${previewScale})`, transformOrigin: 'center center' }}>
-              <LabelPreview
-                produto={produto}
-                nomeOverride={tipoItem === 'ingrediente' ? (ingredientes.find(i => i.id === ingredienteId)?.nome) : undefined}
-                tipo={tipoItem === 'ingrediente' ? 2 : tipo}
-                dataProducao={dataProducao}
-                dataValidade={dataValidade}
-                nutri={nutri}
-              />
-            </div>
+            <LabelPreview
+              html={previewHtml}
+              width={previewWidth}
+              height={previewHeight}
+              scale={previewScale}
+            />
           </div>
           <p className="text-xs text-center mt-4" style={{ color: 'var(--ada-muted)' }}>
             {TIPO_LABELS[tipo]} · {tiposOpcoes.find(o => o.valor === tipo)?.dim}

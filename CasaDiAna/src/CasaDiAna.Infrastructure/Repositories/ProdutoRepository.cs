@@ -36,6 +36,19 @@ public class ProdutoRepository : IProdutoRepository
         return await query.OrderBy(p => p.Nome).ToListAsync(ct);
     }
 
+    public async Task<IReadOnlyList<Produto>> ListarComFichaAsync(
+        bool apenasAtivos = false, CancellationToken ct = default)
+    {
+        var query = _db.Produtos
+            .Include(p => p.Categoria)
+            .Include(p => p.ItensFicha)
+                .ThenInclude(i => i.Ingrediente)
+            .AsQueryable();
+        if (apenasAtivos)
+            query = query.Where(p => p.Ativo);
+        return await query.OrderBy(p => p.Nome).ToListAsync(ct);
+    }
+
     public Task<bool> NomeExisteAsync(string nome, Guid? ignorarId = null, CancellationToken ct = default) =>
         _db.Produtos.AnyAsync(p =>
             p.Ativo && p.Nome == nome && (ignorarId == null || p.Id != ignorarId), ct);

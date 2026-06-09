@@ -28,6 +28,8 @@ public class AppDbContext : DbContext
     public DbSet<NotificacaoEstoque> NotificacoesEstoque => Set<NotificacaoEstoque>();
     public DbSet<HistoricoImpressaoEtiqueta> HistoricoImpressaoEtiquetas => Set<HistoricoImpressaoEtiqueta>();
     public DbSet<ModeloEtiquetaNutricional> ModelosEtiquetaNutricional => Set<ModeloEtiquetaNutricional>();
+    public DbSet<DespesaFixa> DespesasFixas => Set<DespesaFixa>();
+    public DbSet<FaturamentoMensal> FaturamentosMensais => Set<FaturamentoMensal>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

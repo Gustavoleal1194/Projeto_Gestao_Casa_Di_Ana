@@ -18,6 +18,8 @@ import {
   Squares2X2Icon,
   ArrowUpTrayIcon,
   ScaleIcon,
+  CurrencyDollarIcon,
+  CalculatorIcon,
 } from '@heroicons/react/24/outline'
 import { useAuthStore } from '@/store/authStore'
 
@@ -92,6 +94,7 @@ export function Sidebar({ aberta, onFechar }: { aberta: boolean; onFechar: () =>
   const { temPapel } = useAuthStore()
   const navigate = useNavigate()
   const isAdmin = temPapel('Admin')
+  const isGestao = isAdmin || temPapel('Coordenador')
 
   return (
     <aside
@@ -239,6 +242,44 @@ export function Sidebar({ aberta, onFechar }: { aberta: boolean; onFechar: () =>
             </ul>
           </div>
         ))}
+
+        {isGestao && (
+          <div>
+            <p className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-[0.12em]"
+              style={{ color: 'var(--sb-group)', fontFamily: 'Sora, system-ui, sans-serif' }}>
+              Financeiro
+            </p>
+            <ul className="space-y-0.5" role="list">
+              {[
+                { label: 'Despesas Fixas', href: '/financeiro/despesas', icon: CurrencyDollarIcon },
+                { label: 'Fechamento Mensal', href: '/financeiro/fechamento', icon: CalculatorIcon },
+              ].map(item => {
+                const Icon = item.icon
+                return (
+                  <li key={item.href}>
+                    <NavLink to={item.href} onClick={onFechar}
+                      className={({ isActive }) => [
+                        'flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium',
+                        'transition-colors duration-150',
+                        isActive ? 'text-white' : 'hover:text-white',
+                      ].join(' ')}
+                      style={({ isActive }) => isActive
+                        ? { color: 'var(--sb-text-active)', background: 'var(--sb-active-bg)', borderLeft: '2px solid var(--sb-active-bd)', paddingLeft: '10px' }
+                        : { color: 'var(--sb-text)', borderLeft: '2px solid transparent' }}>
+                      {({ isActive }) => (
+                        <>
+                          <Icon className="h-4 w-4 shrink-0" aria-hidden="true"
+                            style={{ color: isActive ? 'var(--sb-accent)' : '#34D399', opacity: isActive ? 1 : 0.75 }} />
+                          <span className="flex-1 leading-none">{item.label}</span>
+                        </>
+                      )}
+                    </NavLink>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        )}
       </nav>
 
       {/* ── Configurações — Admin only ─────────────────────────────── */}

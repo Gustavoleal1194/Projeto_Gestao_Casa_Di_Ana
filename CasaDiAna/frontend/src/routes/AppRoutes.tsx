@@ -34,6 +34,8 @@ import { NotificacoesPage } from '@/features/notificacoes/pages/NotificacoesPage
 import { EtiquetasPage } from '@/features/etiquetas/pages/EtiquetasPage'
 import { ImportacaoVendasPage } from '@/features/producao/importacao-vendas/pages/ImportacaoVendasPage'
 import { MinhaContaPage } from '@/features/minha-conta/pages/MinhaContaPage'
+import { DespesasFixasPage } from '@/features/financeiro/despesas-fixas/pages/DespesasFixasPage'
+import { FechamentoMensalPage } from '@/features/financeiro/fechamento-mensal/pages/FechamentoMensalPage'
 
 export function AppRoutes() {
   return (
@@ -97,6 +99,10 @@ export function AppRoutes() {
 
           {/* Etiquetas */}
           <Route path="/etiquetas" element={<EtiquetasPage />} />
+
+          {/* Financeiro */}
+          <Route path="/financeiro/despesas" element={<DespesasFixasPage />} />
+          <Route path="/financeiro/fechamento" element={<FechamentoMensalPage />} />
 
           {/* Minha Conta */}
           <Route path="/minha-conta" element={<MinhaContaPage />} />

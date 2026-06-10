@@ -17,6 +17,7 @@ export function FechamentoMensalPage() {
   const [erro, setErro] = useState<string | null>(null)
   const [faturamentoManual, setFaturamentoManual] = useState('')
   const [salvando, setSalvando] = useState(false)
+  const [erroSalvar, setErroSalvar] = useState<string | null>(null)
 
   const carregar = useCallback(async () => {
     setLoading(true)
@@ -35,6 +36,7 @@ export function FechamentoMensalPage() {
   useEffect(() => { carregar() }, [carregar])
 
   const salvarFaturamento = async () => {
+    setErroSalvar(null)
     setSalvando(true)
     try {
       const txt = faturamentoManual.trim().replace(',', '.')
@@ -42,6 +44,8 @@ export function FechamentoMensalPage() {
       if (valor !== null && (!Number.isFinite(valor) || valor <= 0)) return
       await fechamentoService.definirFaturamentoManual(mesParaCompetencia(mes), valor)
       await carregar()
+    } catch {
+      setErroSalvar('Erro ao salvar o faturamento.')
     } finally {
       setSalvando(false)
     }
@@ -114,6 +118,12 @@ export function FechamentoMensalPage() {
                 {salvando ? 'Salvando...' : 'Salvar'}
               </button>
             </div>
+            {erroSalvar && (
+              <p className="text-sm rounded-lg px-3 py-2 mt-2"
+                style={{ background: 'var(--ada-error-bg)', color: 'var(--ada-error-text)' }}>
+                {erroSalvar}
+              </p>
+            )}
           </div>
 
           {dados.despesasPorCategoria.length > 0 && (

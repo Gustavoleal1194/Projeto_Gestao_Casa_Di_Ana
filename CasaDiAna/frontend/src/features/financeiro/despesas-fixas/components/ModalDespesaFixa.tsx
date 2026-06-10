@@ -14,7 +14,7 @@ interface Props {
 }
 
 export function ModalDespesaFixa({ mes, despesa, onFechar, onSalvar }: Props) {
-  const [categoria, setCategoria] = useState<CategoriaDespesaFixa>(despesa?.categoria ?? 1)
+  const [categoria, setCategoria] = useState<CategoriaDespesaFixa>(despesa?.categoria ?? 'aluguel')
   const [descricao, setDescricao] = useState(despesa?.descricao ?? '')
   const [valor, setValor] = useState(despesa ? String(despesa.valor) : '')
   const [observacao, setObservacao] = useState(despesa?.observacao ?? '')
@@ -67,7 +67,7 @@ export function ModalDespesaFixa({ mes, despesa, onFechar, onSalvar }: Props) {
 
         <div>
           <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-body)' }}>Categoria</label>
-          <select value={categoria} onChange={e => setCategoria(Number(e.target.value) as CategoriaDespesaFixa)}
+          <select value={categoria} onChange={e => setCategoria(e.target.value as CategoriaDespesaFixa)}
             className="w-full rounded-lg px-3 py-2.5 text-sm border outline-none" style={inputStyle}>
             {CATEGORIA_DESPESA_OPCOES.map(op => (
               <option key={op.valor} value={op.valor}>{op.label}</option>

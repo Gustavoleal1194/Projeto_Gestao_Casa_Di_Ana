@@ -1747,30 +1747,39 @@ git commit -m "feat(financeiro): controllers de despesas fixas e fechamento mens
 - [ ] **Step 1: Helpers e labels**
 
 ```typescript
-// Categorias (espelha o enum CategoriaDespesaFixa do backend; enums trafegam como int)
+// IMPORTANTE: o backend serializa enums como STRING camelCase
+// (JsonStringEnumConverter com CamelCase em Program.cs), NÃO como int.
+// Por isso a categoria é uma union de strings que espelha os nomes do enum C#.
 export type CategoriaDespesaFixa =
-  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11
+  | 'aluguel'
+  | 'folhaPagamento'
+  | 'agua'
+  | 'energia'
+  | 'gas'
+  | 'internet'
+  | 'contabilidade'
+  | 'manutencao'
+  | 'sistema'
+  | 'marketing'
+  | 'outros'
 
 export const CATEGORIA_DESPESA_LABELS: Record<CategoriaDespesaFixa, string> = {
-  1: 'Aluguel',
-  2: 'Folha de pagamento',
-  3: 'Água',
-  4: 'Energia',
-  5: 'Gás',
-  6: 'Internet',
-  7: 'Contabilidade',
-  8: 'Manutenção',
-  9: 'Sistema',
-  10: 'Marketing',
-  11: 'Outros',
+  aluguel: 'Aluguel',
+  folhaPagamento: 'Folha de pagamento',
+  agua: 'Água',
+  energia: 'Energia',
+  gas: 'Gás',
+  internet: 'Internet',
+  contabilidade: 'Contabilidade',
+  manutencao: 'Manutenção',
+  sistema: 'Sistema',
+  marketing: 'Marketing',
+  outros: 'Outros',
 }
 
 export const CATEGORIA_DESPESA_OPCOES = (
-  Object.keys(CATEGORIA_DESPESA_LABELS) as unknown as CategoriaDespesaFixa[]
-).map(Number).map(valor => ({
-  valor: valor as CategoriaDespesaFixa,
-  label: CATEGORIA_DESPESA_LABELS[valor as CategoriaDespesaFixa],
-}))
+  Object.keys(CATEGORIA_DESPESA_LABELS) as CategoriaDespesaFixa[]
+).map(valor => ({ valor, label: CATEGORIA_DESPESA_LABELS[valor] }))
 
 // <input type="month"> usa "YYYY-MM". API usa o 1º dia do mês "YYYY-MM-01".
 export function competenciaInicial(): string {
@@ -2047,7 +2056,7 @@ interface Props {
 }
 
 export function ModalDespesaFixa({ mes, despesa, onFechar, onSalvar }: Props) {
-  const [categoria, setCategoria] = useState<CategoriaDespesaFixa>(despesa?.categoria ?? 1)
+  const [categoria, setCategoria] = useState<CategoriaDespesaFixa>(despesa?.categoria ?? 'aluguel')
   const [descricao, setDescricao] = useState(despesa?.descricao ?? '')
   const [valor, setValor] = useState(despesa ? String(despesa.valor) : '')
   const [observacao, setObservacao] = useState(despesa?.observacao ?? '')
@@ -2100,7 +2109,7 @@ export function ModalDespesaFixa({ mes, despesa, onFechar, onSalvar }: Props) {
 
         <div>
           <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-body)' }}>Categoria</label>
-          <select value={categoria} onChange={e => setCategoria(Number(e.target.value) as CategoriaDespesaFixa)}
+          <select value={categoria} onChange={e => setCategoria(e.target.value as CategoriaDespesaFixa)}
             className="w-full rounded-lg px-3 py-2.5 text-sm border outline-none" style={inputStyle}>
             {CATEGORIA_DESPESA_OPCOES.map(op => (
               <option key={op.valor} value={op.valor}>{op.label}</option>

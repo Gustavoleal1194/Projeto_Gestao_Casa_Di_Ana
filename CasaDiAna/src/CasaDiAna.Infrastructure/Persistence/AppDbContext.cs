@@ -30,6 +30,7 @@ public class AppDbContext : DbContext
     public DbSet<ModeloEtiquetaNutricional> ModelosEtiquetaNutricional => Set<ModeloEtiquetaNutricional>();
     public DbSet<DespesaFixa> DespesasFixas => Set<DespesaFixa>();
     public DbSet<FaturamentoMensal> FaturamentosMensais => Set<FaturamentoMensal>();
+    public DbSet<ConfiguracaoPrecificacao> ConfiguracoesPrecificacao => Set<ConfiguracaoPrecificacao>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

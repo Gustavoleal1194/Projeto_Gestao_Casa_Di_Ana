@@ -53,6 +53,7 @@ public static class DependencyInjection
         services.AddScoped<IModeloEtiquetaNutricionalRepository, ModeloEtiquetaNutricionalRepository>();
         services.AddScoped<IDespesaFixaRepository, DespesaFixaRepository>();
         services.AddScoped<IFaturamentoMensalRepository, FaturamentoMensalRepository>();
+        services.AddScoped<IConfiguracaoPrecificacaoRepository, ConfiguracaoPrecificacaoRepository>();
         services.AddHttpContextAccessor();
 
         return services;

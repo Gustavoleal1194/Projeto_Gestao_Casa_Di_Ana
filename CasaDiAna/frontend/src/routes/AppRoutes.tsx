@@ -36,6 +36,7 @@ import { ImportacaoVendasPage } from '@/features/producao/importacao-vendas/page
 import { MinhaContaPage } from '@/features/minha-conta/pages/MinhaContaPage'
 import { DespesasFixasPage } from '@/features/financeiro/despesas-fixas/pages/DespesasFixasPage'
 import { FechamentoMensalPage } from '@/features/financeiro/fechamento-mensal/pages/FechamentoMensalPage'
+import { PrecificacaoPage } from '@/features/financeiro/precificacao/pages/PrecificacaoPage'
 
 export function AppRoutes() {
   return (
@@ -103,6 +104,7 @@ export function AppRoutes() {
           {/* Financeiro */}
           <Route path="/financeiro/despesas" element={<DespesasFixasPage />} />
           <Route path="/financeiro/fechamento" element={<FechamentoMensalPage />} />
+          <Route path="/financeiro/precificacao" element={<PrecificacaoPage />} />
 
           {/* Minha Conta */}
           <Route path="/minha-conta" element={<MinhaContaPage />} />

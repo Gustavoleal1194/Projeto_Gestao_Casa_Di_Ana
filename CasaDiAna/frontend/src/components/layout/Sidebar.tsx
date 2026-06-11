@@ -20,6 +20,7 @@ import {
   ScaleIcon,
   CurrencyDollarIcon,
   CalculatorIcon,
+  PresentationChartLineIcon,
 } from '@heroicons/react/24/outline'
 import { useAuthStore } from '@/store/authStore'
 
@@ -251,8 +252,9 @@ export function Sidebar({ aberta, onFechar }: { aberta: boolean; onFechar: () =>
             </p>
             <ul className="space-y-0.5" role="list">
               {[
-                { label: 'Despesas Fixas', href: '/financeiro/despesas', icon: CurrencyDollarIcon },
-                { label: 'Fechamento Mensal', href: '/financeiro/fechamento', icon: CalculatorIcon },
+                { label: 'Despesas Fixas',    href: '/financeiro/despesas',       icon: CurrencyDollarIcon },
+                { label: 'Fechamento Mensal', href: '/financeiro/fechamento',     icon: CalculatorIcon },
+                { label: 'Precificação',      href: '/financeiro/precificacao',   icon: PresentationChartLineIcon },
               ].map(item => {
                 const Icon = item.icon
                 return (

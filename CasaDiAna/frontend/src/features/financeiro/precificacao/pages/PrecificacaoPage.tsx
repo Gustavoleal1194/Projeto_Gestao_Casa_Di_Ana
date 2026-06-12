@@ -2,12 +2,13 @@ import { useState } from 'react'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { SkeletonTable } from '@/components/ui/SkeletonTable'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { CurrencyDollarIcon } from '@heroicons/react/24/outline'
+import { CurrencyDollarIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
 import { Link } from 'react-router-dom'
 import { usePrecificacao } from '../hooks/usePrecificacao'
 import { ConfigPrecificacaoEditor } from '../components/ConfigPrecificacaoEditor'
 import { TabelaPrecificacao } from '../components/TabelaPrecificacao'
 import { ModalSimulador } from '../components/ModalSimulador'
+import { ModalAjudaPrecificacao } from '../components/ModalAjudaPrecificacao'
 import type { ProdutoPrecificacao } from '../services/precificacaoService'
 import { competenciaInicial } from '../../shared/competencia'
 
@@ -15,11 +16,19 @@ export function PrecificacaoPage() {
   const [mes, setMes] = useState(competenciaInicial())
   const { analise, loading, erro, setAnalise } = usePrecificacao(mes)
   const [simular, setSimular] = useState<ProdutoPrecificacao | null>(null)
+  const [ajuda, setAjuda] = useState(false)
 
   return (
     <div className="ada-page space-y-6">
       <PageHeader titulo="Precificação"
-        subtitulo="Custo da ficha + despesas fixas do mês → preço sugerido, margem líquida e status por produto" />
+        subtitulo="Custo da ficha + despesas fixas do mês → preço sugerido, margem líquida e status por produto"
+        actions={
+          <button type="button" onClick={() => setAjuda(true)}
+            className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium border"
+            style={{ background: 'var(--ada-bg)', borderColor: 'var(--ada-border)', color: 'var(--ada-body)' }}>
+            <QuestionMarkCircleIcon className="h-4 w-4" /> Ajuda
+          </button>
+        } />
 
       <div>
         <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-body)' }}>Mês de referência</label>
@@ -55,6 +64,8 @@ export function PrecificacaoPage() {
         <ModalSimulador produto={simular} config={analise.config}
           despesaFixaPct={analise.despesaFixaPercentual} onFechar={() => setSimular(null)} />
       )}
+
+      {ajuda && <ModalAjudaPrecificacao onFechar={() => setAjuda(false)} />}
     </div>
   )
 }

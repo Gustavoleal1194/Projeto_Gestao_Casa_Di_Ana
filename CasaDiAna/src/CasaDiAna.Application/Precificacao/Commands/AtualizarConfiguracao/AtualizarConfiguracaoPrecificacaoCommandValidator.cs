@@ -7,11 +7,14 @@ public class AtualizarConfiguracaoPrecificacaoCommandValidator
 {
     public AtualizarConfiguracaoPrecificacaoCommandValidator()
     {
-        RuleFor(x => x.CmvAlvo).GreaterThan(0).LessThan(1)
-            .WithMessage("CMV alvo deve estar entre 0 e 100%.");
-        RuleFor(x => x.MargemDesejada).GreaterThanOrEqualTo(0).LessThan(1)
-            .WithMessage("Margem desejada deve estar entre 0 e 100%.");
-        RuleFor(x => x.Taxas).GreaterThanOrEqualTo(0).LessThan(1)
-            .WithMessage("Taxas devem estar entre 0 e 100%.");
+        RuleFor(x => x.CmvAlvo)
+            .GreaterThan(0).WithMessage("CMV alvo deve ser maior que 0%.")
+            .LessThan(1).WithMessage("CMV alvo deve ser menor que 100%.");
+        RuleFor(x => x.MargemDesejada)
+            .GreaterThanOrEqualTo(0).WithMessage("Margem desejada não pode ser negativa.")
+            .LessThan(1).WithMessage("Margem desejada deve ser menor que 100%.");
+        RuleFor(x => x.Taxas)
+            .GreaterThanOrEqualTo(0).WithMessage("Taxas não podem ser negativas.")
+            .LessThan(1).WithMessage("Taxas devem ser menores que 100%.");
     }
 }

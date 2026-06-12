@@ -83,9 +83,12 @@ export function FechamentoMensalPage() {
             <KpiCard label="Faturamento usado" valor={formatarBRL(dados.faturamentoUsado)} variante="green" />
             <KpiCard label="Custo direto total" valor={formatarBRL(dados.custoDiretoTotal)} variante="amber" />
             <KpiCard label="Total despesas fixas" valor={formatarBRL(dados.totalDespesasFixas)} variante="red" />
+            <KpiCard label="Despesas variáveis" valor={formatarBRL(dados.totalDespesasVariaveis)} variante="yellow" />
+            <KpiCard label="Compras (notas)" valor={formatarBRL(dados.totalCompras)} variante="blue" />
+            <KpiCard label="Total de saídas (mês)" valor={formatarBRL(dados.totalSaidas)} variante="red" />
             <KpiCard label="Despesa fixa %" valor={formatarPercentual(dados.despesaFixaPercentual)} variante="yellow" />
             <KpiCard label="Margem bruta" valor={formatarBRL(dados.margemBruta)} variante="blue" />
-            <KpiCard label="Margem operacional" valor={formatarBRL(dados.margemOperacional)} variante="green" />
+            <KpiCard label="Margem operacional (s/ vendas)" valor={formatarBRL(dados.margemOperacional)} variante="green" />
             <KpiCard label="Prime cost" valor={formatarBRL(dados.primeCost)} variante="amber" />
             <KpiCard label="Folha de pagamento" valor={formatarBRL(dados.folhaPagamento)} variante="red" />
           </div>

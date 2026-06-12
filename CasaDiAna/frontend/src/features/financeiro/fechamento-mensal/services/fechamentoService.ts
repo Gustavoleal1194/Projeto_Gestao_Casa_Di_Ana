@@ -1,6 +1,6 @@
 import api from '@/lib/api'
 import type { ApiResponse } from '@/types/estoque'
-import type { TotalCategoria } from '../../despesas-fixas/services/despesasFixasService'
+import type { TotalCategoria } from '../../despesas/services/despesasService'
 
 export interface FechamentoMensal {
   competencia: string
@@ -9,6 +9,9 @@ export interface FechamentoMensal {
   faturamentoUsado: number
   custoDiretoTotal: number
   totalDespesasFixas: number
+  totalDespesasVariaveis: number
+  totalCompras: number
+  totalSaidas: number
   folhaPagamento: number
   despesaFixaPercentual: number | null
   margemBruta: number

@@ -22,7 +22,7 @@ public class DefinirFaturamentoManualCommandHandler
     public async Task<FaturamentoMensalDto> Handle(
         DefinirFaturamentoManualCommand request, CancellationToken cancellationToken)
     {
-        var competencia = DespesaFixa.NormalizarCompetencia(request.Competencia);
+        var competencia = Despesa.NormalizarCompetencia(request.Competencia);
         var existente = await _repo.ObterPorCompetenciaAsync(competencia, cancellationToken);
 
         if (existente is null)

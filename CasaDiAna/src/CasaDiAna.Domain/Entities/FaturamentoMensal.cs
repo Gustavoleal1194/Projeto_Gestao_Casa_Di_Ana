@@ -22,7 +22,7 @@ public class FaturamentoMensal
         return new FaturamentoMensal
         {
             Id = Guid.NewGuid(),
-            Competencia = DespesaFixa.NormalizarCompetencia(competencia),
+            Competencia = Despesa.NormalizarCompetencia(competencia),
             ValorManual = valorManual,
             CriadoEm = DateTime.UtcNow,
             AtualizadoEm = DateTime.UtcNow,

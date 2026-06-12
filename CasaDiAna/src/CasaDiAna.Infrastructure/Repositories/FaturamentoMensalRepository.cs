@@ -13,7 +13,7 @@ public class FaturamentoMensalRepository : IFaturamentoMensalRepository
 
     public Task<FaturamentoMensal?> ObterPorCompetenciaAsync(DateTime competencia, CancellationToken ct = default)
     {
-        var comp = DespesaFixa.NormalizarCompetencia(competencia);
+        var comp = Despesa.NormalizarCompetencia(competencia);
         return _db.FaturamentosMensais.FirstOrDefaultAsync(f => f.Competencia == comp, ct);
     }
 

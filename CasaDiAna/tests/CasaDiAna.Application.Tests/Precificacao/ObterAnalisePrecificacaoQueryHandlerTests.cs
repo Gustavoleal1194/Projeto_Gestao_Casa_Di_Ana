@@ -1,4 +1,4 @@
-using CasaDiAna.Application.DespesasFixas.Dtos;
+using CasaDiAna.Application.Despesas.Dtos;
 using CasaDiAna.Application.FechamentoMensal.Dtos;
 using CasaDiAna.Application.FechamentoMensal.Queries.ObterFechamentoMensal;
 using CasaDiAna.Application.Precificacao.Dtos;
@@ -31,7 +31,7 @@ public class ObterAnalisePrecificacaoQueryHandlerTests
         var mediator = new Mock<IMediator>();
         mediator.Setup(m => m.Send(It.IsAny<ObterFechamentoMensalQuery>(), default))
                 .ReturnsAsync(new FechamentoMensalDto(
-                    comp, 0m, null, 0m, 0m, 0m, 0m, 0.5m, 0m, 0m, 0m,
+                    comp, 0m, null, 0m, 0m, 0m, 0m, 0m, 0m, 0m, 0.5m, 0m, 0m, 0m,
                     new List<TotalCategoriaDto>()));
         mediator.Setup(m => m.Send(It.IsAny<ObterConfiguracaoPrecificacaoQuery>(), default))
                 .ReturnsAsync(new ConfiguracaoPrecificacaoDto(0.30m, 0.20m, 0m));

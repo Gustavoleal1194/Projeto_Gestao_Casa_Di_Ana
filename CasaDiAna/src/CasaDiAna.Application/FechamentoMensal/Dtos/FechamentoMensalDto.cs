@@ -1,4 +1,4 @@
-using CasaDiAna.Application.DespesasFixas.Dtos;
+using CasaDiAna.Application.Despesas.Dtos;
 
 namespace CasaDiAna.Application.FechamentoMensal.Dtos;
 
@@ -9,6 +9,9 @@ public record FechamentoMensalDto(
     decimal FaturamentoUsado,
     decimal CustoDiretoTotal,
     decimal TotalDespesasFixas,
+    decimal TotalDespesasVariaveis,
+    decimal TotalCompras,
+    decimal TotalSaidas,
     decimal FolhaPagamento,
     decimal? DespesaFixaPercentual,
     decimal MargemBruta,

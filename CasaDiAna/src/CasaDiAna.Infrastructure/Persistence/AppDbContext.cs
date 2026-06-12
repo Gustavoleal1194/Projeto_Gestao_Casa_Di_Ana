@@ -28,7 +28,7 @@ public class AppDbContext : DbContext
     public DbSet<NotificacaoEstoque> NotificacoesEstoque => Set<NotificacaoEstoque>();
     public DbSet<HistoricoImpressaoEtiqueta> HistoricoImpressaoEtiquetas => Set<HistoricoImpressaoEtiqueta>();
     public DbSet<ModeloEtiquetaNutricional> ModelosEtiquetaNutricional => Set<ModeloEtiquetaNutricional>();
-    public DbSet<DespesaFixa> DespesasFixas => Set<DespesaFixa>();
+    public DbSet<Despesa> Despesas => Set<Despesa>();
     public DbSet<FaturamentoMensal> FaturamentosMensais => Set<FaturamentoMensal>();
     public DbSet<ConfiguracaoPrecificacao> ConfiguracoesPrecificacao => Set<ConfiguracaoPrecificacao>();
 

@@ -23,7 +23,7 @@ public class ObterAnalisePrecificacaoQueryHandler
     public async Task<AnalisePrecificacaoDto> Handle(
         ObterAnalisePrecificacaoQuery request, CancellationToken cancellationToken)
     {
-        var competencia = DespesaFixa.NormalizarCompetencia(request.Competencia);
+        var competencia = Despesa.NormalizarCompetencia(request.Competencia);
 
         var config = await _mediator.Send(new ObterConfiguracaoPrecificacaoQuery(), cancellationToken);
         var fechamento = await _mediator.Send(new ObterFechamentoMensalQuery(competencia), cancellationToken);

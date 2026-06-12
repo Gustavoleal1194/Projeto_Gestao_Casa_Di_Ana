@@ -6,6 +6,7 @@ using CasaDiAna.Domain.Enums;
 using CasaDiAna.Domain.Interfaces;
 using FluentAssertions;
 using Moq;
+using CategoriaDespesaEnum = CasaDiAna.Domain.Enums.CategoriaDespesa;
 
 namespace CasaDiAna.Application.Tests.FechamentoMensal;
 
@@ -32,9 +33,9 @@ public class ObterFechamentoMensalQueryHandlerTests
 
         _despesas.Setup(r => r.ListarPorCompetenciaAsync(_comp, default)).ReturnsAsync(new List<Despesa>
         {
-            Despesa.Criar(_comp, TipoDespesa.Fixa, CategoriaDespesa.Aluguel, null, 200m, null, _comp, Guid.NewGuid()),
-            Despesa.Criar(_comp, TipoDespesa.Fixa, CategoriaDespesa.FolhaPagamento, null, 300m, null, _comp, Guid.NewGuid()),
-            Despesa.Criar(_comp, TipoDespesa.Variavel, CategoriaDespesa.TaxaCartao, null, 100m, null, _comp, Guid.NewGuid()),
+            Despesa.Criar(_comp, TipoDespesa.Fixa, CategoriaDespesaEnum.Aluguel, null, 200m, null, _comp, Guid.NewGuid()),
+            Despesa.Criar(_comp, TipoDespesa.Fixa, CategoriaDespesaEnum.FolhaPagamento, null, 300m, null, _comp, Guid.NewGuid()),
+            Despesa.Criar(_comp, TipoDespesa.Variavel, CategoriaDespesaEnum.TaxaCartao, null, 100m, null, _comp, Guid.NewGuid()),
         });
         _faturamento.Setup(r => r.ObterPorCompetenciaAsync(_comp, default)).ReturnsAsync((FaturamentoMensal?)null);
 
@@ -83,7 +84,7 @@ public class ObterFechamentoMensalQueryHandlerTests
         _despesas.Setup(r => r.ListarPorCompetenciaAsync(_comp, default))
                  .ReturnsAsync(new List<Despesa>
                  {
-                     Despesa.Criar(_comp, TipoDespesa.Fixa, CategoriaDespesa.Energia, null, 800m, null, _comp, Guid.NewGuid()),
+                     Despesa.Criar(_comp, TipoDespesa.Fixa, CategoriaDespesaEnum.Energia, null, 800m, null, _comp, Guid.NewGuid()),
                  });
         _faturamento.Setup(r => r.ObterPorCompetenciaAsync(_comp, default)).ReturnsAsync((FaturamentoMensal?)null);
         _entradas.Setup(r => r.ListarAsync(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), default))

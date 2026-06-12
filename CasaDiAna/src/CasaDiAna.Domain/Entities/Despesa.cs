@@ -1,6 +1,9 @@
 using CasaDiAna.Domain.Enums;
 using CasaDiAna.Domain.Exceptions;
 
+// CategoriaDespesaEnum is an alias to disambiguate from the entity CategoriaDespesa
+using CategoriaDespesaEnum = CasaDiAna.Domain.Enums.CategoriaDespesa;
+
 namespace CasaDiAna.Domain.Entities;
 
 public class Despesa
@@ -8,7 +11,7 @@ public class Despesa
     public Guid Id { get; private set; }
     public DateTime Competencia { get; private set; }
     public TipoDespesa Tipo { get; private set; }
-    public CategoriaDespesa Categoria { get; private set; }
+    public CategoriaDespesaEnum Categoria { get; private set; }
     public string? Descricao { get; private set; }
     public decimal Valor { get; private set; }
     public string? Observacao { get; private set; }
@@ -25,7 +28,7 @@ public class Despesa
         new(data.Year, data.Month, 1, 0, 0, 0, DateTimeKind.Utc);
 
     public static Despesa Criar(
-        DateTime competencia, TipoDespesa tipo, CategoriaDespesa categoria,
+        DateTime competencia, TipoDespesa tipo, CategoriaDespesaEnum categoria,
         string? descricao, decimal valor, string? observacao, DateTime dataLancamento, Guid criadoPor)
     {
         if (valor <= 0)
@@ -50,7 +53,7 @@ public class Despesa
     }
 
     public void Atualizar(
-        DateTime competencia, TipoDespesa tipo, CategoriaDespesa categoria,
+        DateTime competencia, TipoDespesa tipo, CategoriaDespesaEnum categoria,
         string? descricao, decimal valor, string? observacao, DateTime dataLancamento, Guid atualizadoPor)
     {
         if (valor <= 0)

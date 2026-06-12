@@ -1,12 +1,13 @@
 import api from '@/lib/api'
 import type { ApiResponse } from '@/types/estoque'
-import type { CategoriaDespesa, TipoDespesa } from '../../shared/competencia'
+import type { TipoDespesa } from '../../shared/competencia'
 
 export interface Despesa {
   id: string
   competencia: string
+  categoriaDespesaId: string
+  categoriaNome: string
   tipo: TipoDespesa
-  categoria: CategoriaDespesa
   descricao: string | null
   valor: number
   observacao: string | null
@@ -14,7 +15,7 @@ export interface Despesa {
   ativo: boolean
 }
 
-export interface TotalCategoria { categoria: CategoriaDespesa; total: number }
+export interface TotalCategoria { categoriaId: string; categoriaNome: string; total: number }
 
 export interface DespesasMes {
   competencia: string
@@ -26,8 +27,7 @@ export interface DespesasMes {
 
 export interface DespesaInput {
   competencia: string
-  tipo: TipoDespesa
-  categoria: CategoriaDespesa
+  categoriaDespesaId: string
   descricao: string | null
   valor: number
   observacao: string | null

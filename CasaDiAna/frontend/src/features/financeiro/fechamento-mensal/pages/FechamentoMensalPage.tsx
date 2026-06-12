@@ -7,7 +7,6 @@ import {
   mesParaCompetencia,
   formatarBRL,
   formatarPercentual,
-  CATEGORIA_DESPESA_LABELS,
 } from '../../shared/competencia'
 
 export function FechamentoMensalPage() {
@@ -139,9 +138,9 @@ export function FechamentoMensalPage() {
                 <table className="w-full text-sm">
                   <tbody>
                     {dados.despesasPorCategoria.map(c => (
-                      <tr key={c.categoria} style={{ borderTop: '1px solid var(--ada-border)' }}>
+                      <tr key={c.categoriaId} style={{ borderTop: '1px solid var(--ada-border)' }}>
                         <td className="py-2.5 pr-4" style={{ color: 'var(--ada-body)' }}>
-                          {CATEGORIA_DESPESA_LABELS[c.categoria]}
+                          {c.categoriaNome}
                         </td>
                         <td className="py-2.5 text-right tabular-nums" style={{ color: 'var(--ada-body)' }}>
                           {formatarBRL(c.total)}

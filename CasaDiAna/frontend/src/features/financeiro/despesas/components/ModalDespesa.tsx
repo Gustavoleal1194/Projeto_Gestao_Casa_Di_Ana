@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Despesa, DespesaInput } from '../services/despesasService'
-import { CATEGORIA_DESPESA_OPCOES, mesParaCompetencia, type CategoriaDespesa, type TipoDespesa } from '../../shared/competencia'
+import { categoriasDespesaService, type CategoriaDespesa } from '../services/categoriasDespesaService'
+import { mesParaCompetencia, type TipoDespesa } from '../../shared/competencia'
 
 interface Props {
   mes: string
@@ -11,7 +12,8 @@ interface Props {
 }
 
 export function ModalDespesa({ mes, tipo, despesa, onFechar, onSalvar }: Props) {
-  const [categoria, setCategoria] = useState<CategoriaDespesa>(despesa?.categoria ?? 'aluguel')
+  const [categorias, setCategorias] = useState<CategoriaDespesa[]>([])
+  const [categoriaId, setCategoriaId] = useState(despesa?.categoriaDespesaId ?? '')
   const [descricao, setDescricao] = useState(despesa?.descricao ?? '')
   const [valor, setValor] = useState(despesa ? String(despesa.valor) : '')
   const [observacao, setObservacao] = useState(despesa?.observacao ?? '')
@@ -20,15 +22,23 @@ export function ModalDespesa({ mes, tipo, despesa, onFechar, onSalvar }: Props) 
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
 
+  useEffect(() => {
+    categoriasDespesaService.listar(tipo).then(cs => {
+      setCategorias(cs)
+      if (!categoriaId && cs.length > 0) setCategoriaId(cs[0].id)
+    }).catch(() => {})
+  }, [tipo])
+
   const submeter = async () => {
     const valorNum = Number(valor.replace(',', '.'))
+    if (!categoriaId) { setErro('Selecione uma categoria.'); return }
     if (!Number.isFinite(valorNum) || valorNum <= 0) { setErro('Informe um valor maior que zero.'); return }
     setSalvando(true); setErro(null)
     try {
       await onSalvar({
         competencia: despesa?.competencia ?? mesParaCompetencia(mes),
-        tipo: despesa?.tipo ?? tipo,
-        categoria, descricao: descricao.trim() || null, valor: valorNum,
+        categoriaDespesaId: categoriaId,
+        descricao: descricao.trim() || null, valor: valorNum,
         observacao: observacao.trim() || null, dataLancamento,
       })
       onFechar()
@@ -45,9 +55,13 @@ export function ModalDespesa({ mes, tipo, despesa, onFechar, onSalvar }: Props) 
         </h2>
         <div>
           <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-body)' }}>Categoria</label>
-          <select value={categoria} onChange={e => setCategoria(e.target.value as CategoriaDespesa)} className="w-full rounded-lg px-3 py-2.5 text-sm border outline-none" style={inputStyle}>
-            {CATEGORIA_DESPESA_OPCOES.map(op => <option key={op.valor} value={op.valor}>{op.label}</option>)}
-          </select>
+          {categorias.length === 0 ? (
+            <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Nenhuma categoria — crie uma em "Gerenciar categorias".</p>
+          ) : (
+            <select value={categoriaId} onChange={e => setCategoriaId(e.target.value)} className="w-full rounded-lg px-3 py-2.5 text-sm border outline-none" style={inputStyle}>
+              {categorias.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
+            </select>
+          )}
         </div>
         <div>
           <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-body)' }}>Descrição</label>

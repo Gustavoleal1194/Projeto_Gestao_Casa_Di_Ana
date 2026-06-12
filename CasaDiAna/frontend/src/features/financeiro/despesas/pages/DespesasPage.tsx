@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { PlusIcon, BanknotesIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, BanknotesIcon, Cog6ToothIcon } from '@heroicons/react/24/outline'
 import { Link } from 'react-router-dom'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { KpiCard } from '@/components/ui/KpiCard'
@@ -9,8 +9,9 @@ import { ModalDesativar } from '@/components/ui/ModalDesativar'
 import { useDespesas } from '../hooks/useDespesas'
 import { TabelaDespesas } from '../components/TabelaDespesas'
 import { ModalDespesa } from '../components/ModalDespesa'
+import { ModalGerenciarCategorias } from '../components/ModalGerenciarCategorias'
 import { despesasService, type Despesa, type DespesaInput } from '../services/despesasService'
-import { competenciaInicial, formatarBRL, CATEGORIA_DESPESA_LABELS, TIPO_DESPESA_LABELS, type TipoDespesa } from '../../shared/competencia'
+import { competenciaInicial, formatarBRL, TIPO_DESPESA_LABELS, type TipoDespesa } from '../../shared/competencia'
 
 export function DespesasPage() {
   const [mes, setMes] = useState(competenciaInicial())
@@ -20,6 +21,7 @@ export function DespesasPage() {
   const [editando, setEditando] = useState<Despesa | null>(null)
   const [removendo, setRemovendo] = useState<Despesa | null>(null)
   const [removendoLoading, setRemovendoLoading] = useState(false)
+  const [gerenciar, setGerenciar] = useState(false)
 
   const salvar = async (input: DespesaInput) => {
     if (editando) await despesasService.atualizar(editando.id, input)
@@ -52,9 +54,14 @@ export function DespesasPage() {
             ))}
           </div>
         </div>
-        <button type="button" onClick={() => { setEditando(null); setModalAberto(true) }} className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white" style={{ background: 'var(--sb-accent)' }}>
-          <PlusIcon className="h-4 w-4" /> Nova despesa {TIPO_DESPESA_LABELS[tipo].toLowerCase()}
-        </button>
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={() => setGerenciar(true)} className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium border" style={{ background: 'var(--ada-bg)', borderColor: 'var(--ada-border)', color: 'var(--ada-body)' }}>
+            <Cog6ToothIcon className="h-4 w-4" /> Gerenciar categorias
+          </button>
+          <button type="button" onClick={() => { setEditando(null); setModalAberto(true) }} className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white" style={{ background: 'var(--sb-accent)' }}>
+            <PlusIcon className="h-4 w-4" /> Nova despesa {TIPO_DESPESA_LABELS[tipo].toLowerCase()}
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -97,7 +104,8 @@ export function DespesasPage() {
       </div>
 
       {modalAberto && <ModalDespesa mes={mes} tipo={tipo} despesa={editando} onFechar={() => setModalAberto(false)} onSalvar={salvar} />}
-      {removendo && <ModalDesativar nome={removendo.descricao ?? CATEGORIA_DESPESA_LABELS[removendo.categoria]} entidade="despesa" loading={removendoLoading} onConfirmar={confirmarRemocao} onCancelar={() => setRemovendo(null)} />}
+      {removendo && <ModalDesativar nome={removendo.descricao ?? removendo.categoriaNome} entidade="despesa" loading={removendoLoading} onConfirmar={confirmarRemocao} onCancelar={() => setRemovendo(null)} />}
+      {gerenciar && <ModalGerenciarCategorias tipo={tipo} onFechar={() => setGerenciar(false)} onMudou={recarregar} />}
     </div>
   )
 }

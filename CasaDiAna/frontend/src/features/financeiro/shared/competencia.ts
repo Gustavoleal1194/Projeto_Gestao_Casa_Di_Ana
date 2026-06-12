@@ -1,22 +1,3 @@
-// Categorias: o backend serializa enums como string camelCase
-// (JsonStringEnumConverter com CamelCase em Program.cs), não como int.
-export type CategoriaDespesa =
-  | 'aluguel' | 'folhaPagamento' | 'agua' | 'energia' | 'gas' | 'internet'
-  | 'contabilidade' | 'manutencao' | 'sistema' | 'marketing' | 'outros'
-  | 'taxaCartao' | 'comissaoDelivery' | 'embalagens' | 'frete'
-
-export const CATEGORIA_DESPESA_LABELS: Record<CategoriaDespesa, string> = {
-  aluguel: 'Aluguel', folhaPagamento: 'Folha de pagamento', agua: 'Água',
-  energia: 'Energia', gas: 'Gás', internet: 'Internet', contabilidade: 'Contabilidade',
-  manutencao: 'Manutenção', sistema: 'Sistema', marketing: 'Marketing', outros: 'Outros',
-  taxaCartao: 'Taxa de cartão', comissaoDelivery: 'Comissão delivery',
-  embalagens: 'Embalagens', frete: 'Frete',
-}
-
-export const CATEGORIA_DESPESA_OPCOES = (
-  Object.keys(CATEGORIA_DESPESA_LABELS) as CategoriaDespesa[]
-).map(valor => ({ valor, label: CATEGORIA_DESPESA_LABELS[valor] }))
-
 export type TipoDespesa = 'fixa' | 'variavel'
 export const TIPO_DESPESA_LABELS: Record<TipoDespesa, string> = { fixa: 'Fixa', variavel: 'Variável' }
 

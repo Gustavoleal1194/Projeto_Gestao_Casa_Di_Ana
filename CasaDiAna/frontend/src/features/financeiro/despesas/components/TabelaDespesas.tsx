@@ -1,6 +1,6 @@
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'
 import type { Despesa } from '../services/despesasService'
-import { CATEGORIA_DESPESA_LABELS, formatarBRL } from '../../shared/competencia'
+import { formatarBRL } from '../../shared/competencia'
 
 interface Props { itens: Despesa[]; onEditar: (d: Despesa) => void; onRemover: (d: Despesa) => void }
 
@@ -20,7 +20,7 @@ export function TabelaDespesas({ itens, onEditar, onRemover }: Props) {
         <tbody>
           {itens.map(d => (
             <tr key={d.id} style={{ borderTop: '1px solid var(--ada-border)' }}>
-              <td className="py-2.5 pr-4" style={{ color: 'var(--ada-body)' }}>{CATEGORIA_DESPESA_LABELS[d.categoria]}</td>
+              <td className="py-2.5 pr-4" style={{ color: 'var(--ada-body)' }}>{d.categoriaNome}</td>
               <td className="py-2.5 pr-4" style={{ color: 'var(--ada-muted)' }}>{d.descricao ?? '—'}</td>
               <td className="py-2.5 pr-4" style={{ color: 'var(--ada-muted)' }}>{new Date(d.dataLancamento).toLocaleDateString('pt-BR')}</td>
               <td className="py-2.5 pr-4 text-right tabular-nums" style={{ color: 'var(--ada-body)' }}>{formatarBRL(d.valor)}</td>

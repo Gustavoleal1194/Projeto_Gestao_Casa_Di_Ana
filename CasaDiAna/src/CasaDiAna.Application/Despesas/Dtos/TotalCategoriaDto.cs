@@ -1,5 +1,3 @@
-using CasaDiAna.Domain.Enums;
-
 namespace CasaDiAna.Application.Despesas.Dtos;
 
-public record TotalCategoriaDto(CategoriaDespesa Categoria, decimal Total);
+public record TotalCategoriaDto(Guid CategoriaId, string CategoriaNome, decimal Total);

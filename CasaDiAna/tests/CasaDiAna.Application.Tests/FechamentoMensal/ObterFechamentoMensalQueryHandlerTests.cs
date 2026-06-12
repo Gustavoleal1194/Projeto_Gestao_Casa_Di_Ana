@@ -1,12 +1,11 @@
-using CasaDiAna.Application.Despesas.Queries.ObterComprasMes;
 using CasaDiAna.Application.Despesas.Dtos;
 using CasaDiAna.Application.FechamentoMensal.Queries.ObterFechamentoMensal;
+using CasaDiAna.Application.Tests.Despesas;
 using CasaDiAna.Domain.Entities;
 using CasaDiAna.Domain.Enums;
 using CasaDiAna.Domain.Interfaces;
 using FluentAssertions;
 using Moq;
-using CategoriaDespesaEnum = CasaDiAna.Domain.Enums.CategoriaDespesa;
 
 namespace CasaDiAna.Application.Tests.FechamentoMensal;
 
@@ -31,11 +30,15 @@ public class ObterFechamentoMensalQueryHandlerTests
                .ReturnsAsync(new List<VendaDiaria> { venda });
         _produtos.Setup(r => r.ListarComFichaAsync(false, default)).ReturnsAsync(new List<Produto> { produto });
 
+        var catFixa = CategoriaDespesa.Criar("Aluguel", TipoDespesa.Fixa, false, Guid.NewGuid());
+        var catFixaFolha = CategoriaDespesa.Criar("Folha de pagamento", TipoDespesa.Fixa, true, Guid.NewGuid());
+        var catVar = CategoriaDespesa.Criar("Taxa de cartão", TipoDespesa.Variavel, false, Guid.NewGuid());
+
         _despesas.Setup(r => r.ListarPorCompetenciaAsync(_comp, default)).ReturnsAsync(new List<Despesa>
         {
-            Despesa.Criar(_comp, TipoDespesa.Fixa, CategoriaDespesaEnum.Aluguel, null, 200m, null, _comp, Guid.NewGuid()),
-            Despesa.Criar(_comp, TipoDespesa.Fixa, CategoriaDespesaEnum.FolhaPagamento, null, 300m, null, _comp, Guid.NewGuid()),
-            Despesa.Criar(_comp, TipoDespesa.Variavel, CategoriaDespesaEnum.TaxaCartao, null, 100m, null, _comp, Guid.NewGuid()),
+            DespesaTestFactory.ComCategoria(_comp, catFixa, 200m),
+            DespesaTestFactory.ComCategoria(_comp, catFixaFolha, 300m),
+            DespesaTestFactory.ComCategoria(_comp, catVar, 100m),
         });
         _faturamento.Setup(r => r.ObterPorCompetenciaAsync(_comp, default)).ReturnsAsync((FaturamentoMensal?)null);
 
@@ -81,10 +84,12 @@ public class ObterFechamentoMensalQueryHandlerTests
         _vendas.Setup(r => r.ListarAsync(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), null, default))
                .ReturnsAsync(new List<VendaDiaria>());
         _produtos.Setup(r => r.ListarComFichaAsync(false, default)).ReturnsAsync(new List<Produto>());
+
+        var catFixa = CategoriaDespesa.Criar("Energia", TipoDespesa.Fixa, false, Guid.NewGuid());
         _despesas.Setup(r => r.ListarPorCompetenciaAsync(_comp, default))
                  .ReturnsAsync(new List<Despesa>
                  {
-                     Despesa.Criar(_comp, TipoDespesa.Fixa, CategoriaDespesaEnum.Energia, null, 800m, null, _comp, Guid.NewGuid()),
+                     DespesaTestFactory.ComCategoria(_comp, catFixa, 800m),
                  });
         _faturamento.Setup(r => r.ObterPorCompetenciaAsync(_comp, default)).ReturnsAsync((FaturamentoMensal?)null);
         _entradas.Setup(r => r.ListarAsync(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), default))

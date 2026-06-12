@@ -10,11 +10,14 @@ namespace CasaDiAna.Application.Despesas.Commands.AtualizarDespesa;
 public class AtualizarDespesaCommandHandler : IRequestHandler<AtualizarDespesaCommand, DespesaDto>
 {
     private readonly IDespesaRepository _repo;
+    private readonly ICategoriaDespesaRepository _categorias;
     private readonly ICurrentUserService _currentUser;
 
-    public AtualizarDespesaCommandHandler(IDespesaRepository repo, ICurrentUserService currentUser)
+    public AtualizarDespesaCommandHandler(
+        IDespesaRepository repo, ICategoriaDespesaRepository categorias, ICurrentUserService currentUser)
     {
         _repo = repo;
+        _categorias = categorias;
         _currentUser = currentUser;
     }
 
@@ -22,13 +25,15 @@ public class AtualizarDespesaCommandHandler : IRequestHandler<AtualizarDespesaCo
     {
         var despesa = await _repo.ObterPorIdAsync(request.Id, cancellationToken)
             ?? throw new DomainException("Despesa não encontrada.");
+        var categoria = await _categorias.ObterPorIdAsync(request.CategoriaDespesaId, cancellationToken)
+            ?? throw new DomainException("Categoria não encontrada.");
+        if (!categoria.Ativo)
+            throw new DomainException("Categoria está inativa.");
 
-        despesa.Atualizar(
-            request.Competencia, request.Tipo, request.Categoria, request.Descricao,
+        despesa.Atualizar(request.Competencia, request.CategoriaDespesaId, request.Descricao,
             request.Valor, request.Observacao, request.DataLancamento, _currentUser.UsuarioId);
-
         _repo.Atualizar(despesa);
         await _repo.SalvarAsync(cancellationToken);
-        return CriarDespesaCommandHandler.ToDto(despesa);
+        return CriarDespesaCommandHandler.ToDto(despesa, categoria);
     }
 }

@@ -12,15 +12,16 @@ public class DespesaRepository : IDespesaRepository
     public DespesaRepository(AppDbContext db) => _db = db;
 
     public Task<Despesa?> ObterPorIdAsync(Guid id, CancellationToken ct = default) =>
-        _db.Despesas.FirstOrDefaultAsync(d => d.Id == id, ct);
+        _db.Despesas.Include(d => d.Categoria).FirstOrDefaultAsync(d => d.Id == id, ct);
 
     public async Task<IReadOnlyList<Despesa>> ListarPorCompetenciaAsync(
         DateTime competencia, CancellationToken ct = default)
     {
         var comp = Despesa.NormalizarCompetencia(competencia);
         return await _db.Despesas
+            .Include(d => d.Categoria)
             .Where(d => d.Ativo && d.Competencia == comp)
-            .OrderBy(d => d.Tipo).ThenBy(d => d.Categoria).ThenByDescending(d => d.DataLancamento)
+            .OrderBy(d => d.DataLancamento)
             .ToListAsync(ct);
     }
 

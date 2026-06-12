@@ -9,26 +9,26 @@ using CasaDiAna.Domain.Exceptions;
 using CasaDiAna.Domain.Interfaces;
 using FluentAssertions;
 using Moq;
-using CategoriaDespesaEnum = CasaDiAna.Domain.Enums.CategoriaDespesa;
 
 namespace CasaDiAna.Application.Tests.Despesas;
 
 public class DespesaTests
 {
     [Fact]
-    public void Criar_DeveNormalizarCompetencia_ESalvarTipo()
+    public void Criar_DeveNormalizarCompetencia_ESalvarId()
     {
-        var d = Despesa.Criar(new DateTime(2026, 6, 17), TipoDespesa.Variavel, CategoriaDespesaEnum.TaxaCartao,
+        var catId = Guid.NewGuid();
+        var d = Despesa.Criar(new DateTime(2026, 6, 17), catId,
             "Maquininha", 150m, null, new DateTime(2026, 6, 17), Guid.NewGuid());
         d.Competencia.Should().Be(new DateTime(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc));
-        d.Tipo.Should().Be(TipoDespesa.Variavel);
+        d.CategoriaDespesaId.Should().Be(catId);
         d.Ativo.Should().BeTrue();
     }
 
     [Fact]
     public void Criar_DeveLancar_QuandoValorZero()
     {
-        var acao = () => Despesa.Criar(new DateTime(2026, 6, 1), TipoDespesa.Fixa, CategoriaDespesaEnum.Energia,
+        var acao = () => Despesa.Criar(new DateTime(2026, 6, 1), Guid.NewGuid(),
             null, 0m, null, DateTime.Today, Guid.NewGuid());
         acao.Should().Throw<DomainException>().WithMessage("Valor da despesa deve ser maior que zero.");
     }
@@ -37,6 +37,7 @@ public class DespesaTests
 public class DespesaHandlersTests
 {
     private readonly Mock<IDespesaRepository> _repo = new();
+    private readonly Mock<ICategoriaDespesaRepository> _categorias = new();
     private readonly Mock<ICurrentUserService> _user = new();
 
     public DespesaHandlersTests()
@@ -46,14 +47,17 @@ public class DespesaHandlersTests
     }
 
     [Fact]
-    public async Task Criar_DevePersistirComTipo()
+    public async Task Criar_DevePersistirComCategoria()
     {
+        var catFixa = CategoriaDespesa.Criar("Aluguel", TipoDespesa.Fixa, false, Guid.NewGuid());
+        _categorias.Setup(r => r.ObterPorIdAsync(catFixa.Id, default)).ReturnsAsync(catFixa);
         _repo.Setup(r => r.AdicionarAsync(It.IsAny<Despesa>(), default)).Returns(Task.CompletedTask);
-        var handler = new CriarDespesaCommandHandler(_repo.Object, _user.Object);
+        var handler = new CriarDespesaCommandHandler(_repo.Object, _categorias.Object, _user.Object);
         var dto = await handler.Handle(new CriarDespesaCommand(
-            new DateTime(2026, 6, 1), TipoDespesa.Fixa, CategoriaDespesaEnum.Aluguel, "Loja", 3000m, null, new DateTime(2026, 6, 1)),
+            new DateTime(2026, 6, 1), catFixa.Id, "Loja", 3000m, null, new DateTime(2026, 6, 1)),
             CancellationToken.None);
         dto.Tipo.Should().Be(TipoDespesa.Fixa);
+        dto.CategoriaNome.Should().Be("Aluguel");
         dto.Valor.Should().Be(3000m);
         _repo.Verify(r => r.AdicionarAsync(It.IsAny<Despesa>(), default), Times.Once);
     }
@@ -62,9 +66,9 @@ public class DespesaHandlersTests
     public async Task Atualizar_DeveLancar_QuandoNaoEncontrada()
     {
         _repo.Setup(r => r.ObterPorIdAsync(It.IsAny<Guid>(), default)).ReturnsAsync((Despesa?)null);
-        var handler = new AtualizarDespesaCommandHandler(_repo.Object, _user.Object);
+        var handler = new AtualizarDespesaCommandHandler(_repo.Object, _categorias.Object, _user.Object);
         var acao = () => handler.Handle(new AtualizarDespesaCommand(
-            Guid.NewGuid(), new DateTime(2026, 6, 1), TipoDespesa.Fixa, CategoriaDespesaEnum.Agua, null, 1m, null, DateTime.Today),
+            Guid.NewGuid(), new DateTime(2026, 6, 1), Guid.NewGuid(), null, 1m, null, DateTime.Today),
             CancellationToken.None);
         await acao.Should().ThrowAsync<DomainException>().WithMessage("Despesa não encontrada.");
     }
@@ -72,7 +76,7 @@ public class DespesaHandlersTests
     [Fact]
     public async Task Cancelar_DeveMarcarInativo()
     {
-        var d = Despesa.Criar(new DateTime(2026, 6, 1), TipoDespesa.Fixa, CategoriaDespesaEnum.Gas, null, 200m, null,
+        var d = Despesa.Criar(new DateTime(2026, 6, 1), Guid.NewGuid(), null, 200m, null,
             DateTime.Today, Guid.NewGuid());
         _repo.Setup(r => r.ObterPorIdAsync(d.Id, default)).ReturnsAsync(d);
         var handler = new CancelarDespesaCommandHandler(_repo.Object, _user.Object);
@@ -84,12 +88,15 @@ public class DespesaHandlersTests
     [Fact]
     public async Task Listar_DeveSepararTotaisFixasEVariaveis()
     {
-        var comp = new DateTime(2026, 6, 1); var u = Guid.NewGuid();
+        var comp = new DateTime(2026, 6, 1);
+        var catFixa = CategoriaDespesa.Criar("Aluguel", TipoDespesa.Fixa, false, Guid.NewGuid());
+        var catVar1 = CategoriaDespesa.Criar("Taxa de cartão", TipoDespesa.Variavel, false, Guid.NewGuid());
+        var catVar2 = CategoriaDespesa.Criar("Frete", TipoDespesa.Variavel, false, Guid.NewGuid());
         var lista = new List<Despesa>
         {
-            Despesa.Criar(comp, TipoDespesa.Fixa, CategoriaDespesaEnum.Aluguel, null, 3000m, null, comp, u),
-            Despesa.Criar(comp, TipoDespesa.Variavel, CategoriaDespesaEnum.TaxaCartao, null, 200m, null, comp, u),
-            Despesa.Criar(comp, TipoDespesa.Variavel, CategoriaDespesaEnum.Frete, null, 100m, null, comp, u),
+            DespesaTestFactory.ComCategoria(comp, catFixa, 3000m),
+            DespesaTestFactory.ComCategoria(comp, catVar1, 200m),
+            DespesaTestFactory.ComCategoria(comp, catVar2, 100m),
         };
         _repo.Setup(r => r.ListarPorCompetenciaAsync(comp, default)).ReturnsAsync(lista);
         var handler = new ListarDespesasQueryHandler(_repo.Object);

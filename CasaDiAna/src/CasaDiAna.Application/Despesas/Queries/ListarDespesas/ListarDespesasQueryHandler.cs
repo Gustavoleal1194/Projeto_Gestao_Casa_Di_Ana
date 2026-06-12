@@ -18,16 +18,18 @@ public class ListarDespesasQueryHandler : IRequestHandler<ListarDespesasQuery, D
         var competencia = Despesa.NormalizarCompetencia(request.Competencia);
         var todas = await _repo.ListarPorCompetenciaAsync(competencia, cancellationToken);
 
-        var totalFixas = todas.Where(d => d.Tipo == TipoDespesa.Fixa).Sum(d => d.Valor);
-        var totalVariaveis = todas.Where(d => d.Tipo == TipoDespesa.Variavel).Sum(d => d.Valor);
+        var totalFixas = todas.Where(d => d.Categoria!.Tipo == TipoDespesa.Fixa).Sum(d => d.Valor);
+        var totalVariaveis = todas.Where(d => d.Categoria!.Tipo == TipoDespesa.Variavel).Sum(d => d.Valor);
 
-        var doTipo = request.Tipo.HasValue ? todas.Where(d => d.Tipo == request.Tipo.Value).ToList() : todas.ToList();
+        var doTipo = request.Tipo.HasValue
+            ? todas.Where(d => d.Categoria!.Tipo == request.Tipo.Value).ToList()
+            : todas.ToList();
 
-        var itens = doTipo.Select(CriarDespesaCommandHandler.ToDto).ToList();
+        var itens = doTipo.Select(d => CriarDespesaCommandHandler.ToDto(d, d.Categoria!)).ToList();
         var porCategoria = doTipo
-            .GroupBy(d => d.Categoria)
-            .Select(g => new TotalCategoriaDto(g.Key, g.Sum(d => d.Valor)))
-            .OrderBy(c => c.Categoria)
+            .GroupBy(d => new { d.CategoriaDespesaId, d.Categoria!.Nome })
+            .Select(g => new TotalCategoriaDto(g.Key.CategoriaDespesaId, g.Key.Nome, g.Sum(d => d.Valor)))
+            .OrderBy(c => c.CategoriaNome)
             .ToList();
 
         return new DespesasMesDto(competencia, totalFixas, totalVariaveis, itens, porCategoria);

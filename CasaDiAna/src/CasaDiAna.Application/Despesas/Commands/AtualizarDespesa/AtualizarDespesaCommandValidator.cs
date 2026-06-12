@@ -8,8 +8,7 @@ public class AtualizarDespesaCommandValidator : AbstractValidator<AtualizarDespe
     {
         RuleFor(x => x.Id).NotEmpty().WithMessage("Id é obrigatório.");
         RuleFor(x => x.Competencia).NotEmpty().WithMessage("Competência é obrigatória.");
-        RuleFor(x => x.Tipo).IsInEnum().WithMessage("Tipo de despesa inválido.");
-        RuleFor(x => x.Categoria).IsInEnum().WithMessage("Categoria inválida.");
+        RuleFor(x => x.CategoriaDespesaId).NotEmpty().WithMessage("Categoria é obrigatória.");
         RuleFor(x => x.Valor).GreaterThan(0).WithMessage("Valor deve ser maior que zero.");
         RuleFor(x => x.DataLancamento).NotEmpty().WithMessage("Data de lançamento é obrigatória.");
         RuleFor(x => x.Descricao).MaximumLength(200).WithMessage("Descrição deve ter no máximo 200 caracteres.");

@@ -4,7 +4,6 @@ using CasaDiAna.Domain.Entities;
 using CasaDiAna.Domain.Enums;
 using CasaDiAna.Domain.Interfaces;
 using MediatR;
-using CategoriaDespesaEnum = CasaDiAna.Domain.Enums.CategoriaDespesa;
 
 namespace CasaDiAna.Application.FechamentoMensal.Queries.ObterFechamentoMensal;
 
@@ -51,13 +50,13 @@ public class ObterFechamentoMensalQueryHandler
         var faturamentoUsado = faturamentoManual ?? faturamentoCalculado;
 
         var despesas = await _despesas.ListarPorCompetenciaAsync(competencia, cancellationToken);
-        var totalFixas = despesas.Where(d => d.Tipo == TipoDespesa.Fixa).Sum(d => d.Valor);
-        var totalVariaveis = despesas.Where(d => d.Tipo == TipoDespesa.Variavel).Sum(d => d.Valor);
-        var folha = despesas.Where(d => d.Categoria == CategoriaDespesaEnum.FolhaPagamento).Sum(d => d.Valor);
+        var totalFixas = despesas.Where(d => d.Categoria!.Tipo == TipoDespesa.Fixa).Sum(d => d.Valor);
+        var totalVariaveis = despesas.Where(d => d.Categoria!.Tipo == TipoDespesa.Variavel).Sum(d => d.Valor);
+        var folha = despesas.Where(d => d.Categoria!.EhFolhaPagamento).Sum(d => d.Valor);
         var porCategoria = despesas
-            .GroupBy(d => d.Categoria)
-            .Select(g => new TotalCategoriaDto(g.Key, g.Sum(d => d.Valor)))
-            .OrderBy(c => c.Categoria)
+            .GroupBy(d => new { d.CategoriaDespesaId, d.Categoria!.Nome })
+            .Select(g => new TotalCategoriaDto(g.Key.CategoriaDespesaId, g.Key.Nome, g.Sum(d => d.Valor)))
+            .OrderBy(c => c.CategoriaNome)
             .ToList();
 
         var entradas = await _entradas.ListarAsync(inicio, fim, cancellationToken);

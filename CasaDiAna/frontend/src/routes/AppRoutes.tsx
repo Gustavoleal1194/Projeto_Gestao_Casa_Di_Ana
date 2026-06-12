@@ -34,7 +34,7 @@ import { NotificacoesPage } from '@/features/notificacoes/pages/NotificacoesPage
 import { EtiquetasPage } from '@/features/etiquetas/pages/EtiquetasPage'
 import { ImportacaoVendasPage } from '@/features/producao/importacao-vendas/pages/ImportacaoVendasPage'
 import { MinhaContaPage } from '@/features/minha-conta/pages/MinhaContaPage'
-import { DespesasFixasPage } from '@/features/financeiro/despesas-fixas/pages/DespesasFixasPage'
+import { DespesasPage } from '@/features/financeiro/despesas/pages/DespesasPage'
 import { FechamentoMensalPage } from '@/features/financeiro/fechamento-mensal/pages/FechamentoMensalPage'
 import { PrecificacaoPage } from '@/features/financeiro/precificacao/pages/PrecificacaoPage'
 
@@ -102,7 +102,7 @@ export function AppRoutes() {
           <Route path="/etiquetas" element={<EtiquetasPage />} />
 
           {/* Financeiro */}
-          <Route path="/financeiro/despesas" element={<DespesasFixasPage />} />
+          <Route path="/financeiro/despesas" element={<DespesasPage />} />
           <Route path="/financeiro/fechamento" element={<FechamentoMensalPage />} />
           <Route path="/financeiro/precificacao" element={<PrecificacaoPage />} />
 

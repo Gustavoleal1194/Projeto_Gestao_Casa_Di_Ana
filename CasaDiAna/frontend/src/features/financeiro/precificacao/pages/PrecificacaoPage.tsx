@@ -50,7 +50,8 @@ export function PrecificacaoPage() {
             </p>
           )}
           <ConfigPrecificacaoEditor config={analise.config}
-            onSalvo={c => setAnalise({ ...analise, config: c })} />
+            onAlterar={c => setAnalise(a => (a ? { ...a, config: c } : a))}
+            onSalvo={c => setAnalise(a => (a ? { ...a, config: c } : a))} />
           {analise.produtos.length === 0 ? (
             <EmptyState icon={<CurrencyDollarIcon />} titulo="Nenhum produto ativo para analisar"
               descricao="Cadastre produtos com preço e ficha técnica." />

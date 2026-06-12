@@ -86,6 +86,7 @@ export function TabelaPrecificacao({ analise, onSimular }: Props) {
               <th className="py-2 px-3 font-medium">Categoria</th>
               <th className="py-2 px-3 font-medium text-right">Preço atual</th>
               <th className="py-2 px-3 font-medium text-right">Custo ficha</th>
+              <th className="py-2 px-3 font-medium text-right">Rateio desp.</th>
               <th className="py-2 px-3 font-medium text-right">CMV%</th>
               <th className="py-2 px-3 font-medium text-right">Margem líq.</th>
               <th className="py-2 px-3 font-medium text-right">Preço sugerido</th>
@@ -101,6 +102,7 @@ export function TabelaPrecificacao({ analise, onSimular }: Props) {
                 <td className="py-2.5 px-3" style={{ color: 'var(--ada-muted)' }}>{produto.categoriaNome ?? '—'}</td>
                 <td className="py-2.5 px-3 text-right tabular-nums" style={{ color: 'var(--ada-body)' }}>{formatarBRL(produto.precoVenda)}</td>
                 <td className="py-2.5 px-3 text-right tabular-nums" style={{ color: 'var(--ada-body)' }}>{r.semCusto ? '—' : formatarBRL(produto.custoDireto)}</td>
+                <td className="py-2.5 px-3 text-right tabular-nums" style={{ color: 'var(--ada-muted)' }}>{formatarBRL(r.rateioFixo)}</td>
                 <td className="py-2.5 px-3 text-right tabular-nums" style={{ color: 'var(--ada-body)' }}>{formatarPercentual(r.cmvAtual)}</td>
                 <td className="py-2.5 px-3 text-right tabular-nums" style={{ color: 'var(--ada-body)' }}>{formatarPercentual(r.margemLiquidaEst)}</td>
                 <td className="py-2.5 px-3 text-right tabular-nums" style={{ color: 'var(--ada-body)' }}>{r.semCusto || r.precoSugerido === null ? '—' : formatarBRL(r.precoSugerido)}</td>

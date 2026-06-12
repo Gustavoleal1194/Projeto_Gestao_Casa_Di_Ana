@@ -29,7 +29,7 @@ export function PrecificacaoPage() {
       </div>
 
       {loading ? (
-        <SkeletonTable colunas={9} />
+        <SkeletonTable colunas={10} />
       ) : erro ? (
         <p className="text-sm" style={{ color: 'var(--ada-error-text)' }}>{erro}</p>
       ) : analise && (

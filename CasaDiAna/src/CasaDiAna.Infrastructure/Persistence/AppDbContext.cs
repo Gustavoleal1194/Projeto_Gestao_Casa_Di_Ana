@@ -32,6 +32,10 @@ public class AppDbContext : DbContext
     public DbSet<CategoriaDespesa> CategoriasDespesa => Set<CategoriaDespesa>();
     public DbSet<FaturamentoMensal> FaturamentosMensais => Set<FaturamentoMensal>();
     public DbSet<ConfiguracaoPrecificacao> ConfiguracoesPrecificacao => Set<ConfiguracaoPrecificacao>();
+    public DbSet<CategoriaUtensilio> CategoriasUtensilio => Set<CategoriaUtensilio>();
+    public DbSet<Utensilio> Utensilios => Set<Utensilio>();
+    public DbSet<MovimentacaoUtensilio> MovimentacoesUtensilio => Set<MovimentacaoUtensilio>();
+    public DbSet<ItemEntradaUtensilio> ItensEntradaUtensilio => Set<ItemEntradaUtensilio>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

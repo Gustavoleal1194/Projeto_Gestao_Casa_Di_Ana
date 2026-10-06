@@ -46,6 +46,14 @@ public class EntradaMercadoriaConfiguration : IEntityTypeConfiguration<EntradaMe
         builder.Navigation(e => e.Itens)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
+        builder.HasMany(e => e.ItensUtensilio)
+            .WithOne()
+            .HasForeignKey(i => i.EntradaId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(e => e.ItensUtensilio)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.HasIndex(e => e.FornecedorId);
         builder.HasIndex(e => e.DataEntrada);
         builder.HasIndex(e => e.NumeroNotaFiscal)

@@ -17,6 +17,9 @@ public class EntradaMercadoriaRepository : IEntradaMercadoriaRepository
             .Include(e => e.Fornecedor)
             .Include(e => e.Itens)
                 .ThenInclude(i => i.Ingrediente)
+            .Include(e => e.ItensUtensilio)
+                .ThenInclude(i => i.Utensilio)
+                    .ThenInclude(u => u!.UnidadeMedida)
             .FirstOrDefaultAsync(e => e.Id == id, ct);
 
     public async Task<IReadOnlyList<EntradaMercadoria>> ListarAsync(
@@ -25,6 +28,7 @@ public class EntradaMercadoriaRepository : IEntradaMercadoriaRepository
         var query = _db.EntradasMercadoria
             .Include(e => e.Fornecedor)
             .Include(e => e.Itens)
+            .Include(e => e.ItensUtensilio)
             .AsQueryable();
 
         if (de.HasValue)

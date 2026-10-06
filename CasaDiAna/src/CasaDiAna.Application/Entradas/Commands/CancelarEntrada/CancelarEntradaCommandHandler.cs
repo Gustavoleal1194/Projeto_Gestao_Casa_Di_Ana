@@ -13,18 +13,24 @@ public class CancelarEntradaCommandHandler : IRequestHandler<CancelarEntradaComm
 {
     private readonly IEntradaMercadoriaRepository _entradas;
     private readonly IIngredienteRepository _ingredientes;
+    private readonly IUtensilioRepository _utensilios;
     private readonly IMovimentacaoRepository _movimentacoes;
+    private readonly IMovimentacaoUtensilioRepository _movimentacoesUtensilio;
     private readonly ICurrentUserService _currentUser;
 
     public CancelarEntradaCommandHandler(
         IEntradaMercadoriaRepository entradas,
         IIngredienteRepository ingredientes,
+        IUtensilioRepository utensilios,
         IMovimentacaoRepository movimentacoes,
+        IMovimentacaoUtensilioRepository movimentacoesUtensilio,
         ICurrentUserService currentUser)
     {
         _entradas = entradas;
         _ingredientes = ingredientes;
+        _utensilios = utensilios;
         _movimentacoes = movimentacoes;
+        _movimentacoesUtensilio = movimentacoesUtensilio;
         _currentUser = currentUser;
     }
 
@@ -58,6 +64,27 @@ public class CancelarEntradaCommandHandler : IRequestHandler<CancelarEntradaComm
                 referenciaId: entrada.Id);
 
             await _movimentacoes.AdicionarAsync(movimentacao, cancellationToken);
+        }
+
+        foreach (var item in entrada.ItensUtensilio)
+        {
+            var utensilio = await _utensilios.ObterPorIdAsync(item.UtensilioId, cancellationToken)
+                ?? throw new DomainException($"Utensílio '{item.UtensilioId}' não encontrado.");
+
+            var novoSaldo = utensilio.EstoqueAtual - item.Quantidade;
+            utensilio.AtualizarEstoque(novoSaldo, _currentUser.UsuarioId);
+            _utensilios.Atualizar(utensilio);
+
+            var movimentacaoUtensilio = MovimentacaoUtensilio.Criar(
+                item.UtensilioId,
+                TipoMovimentacao.AjusteNegativo,
+                item.Quantidade,
+                utensilio.EstoqueAtual,
+                _currentUser.UsuarioId,
+                referenciaTipo: "CancelamentoEntrada",
+                referenciaId: entrada.Id);
+
+            await _movimentacoesUtensilio.AdicionarAsync(movimentacaoUtensilio, cancellationToken);
         }
 
         _entradas.Atualizar(entrada);

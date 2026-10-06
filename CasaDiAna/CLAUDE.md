@@ -128,6 +128,7 @@ O BrainOS em `docs/brain/` é a memória operacional do projeto. **Siga o protoc
 | Frontend sem formulário | `CONTEXT_PACK_FRONTEND.md` |
 | Backend (handlers, validators, controllers) | `CONTEXT_PACK_BACKEND.md` |
 | Ingredientes, Entradas, Inventário, Estoque | `CONTEXT_PACK_ESTOQUE.md` |
+| Utensílios, produtos de limpeza, embalagens | `CONTEXT_PACK_ESTOQUE.md` |
 | Produtos, Produção, Vendas, Perdas | `CONTEXT_PACK_PRODUCAO.md` |
 | Deploy, Docker, Render, build | `CONTEXT_PACK_DEPLOY_RENDER.md` |
 | Auth, 2FA, Login, Usuários | `CONTEXT_PACK_AUTH_2FA.md` |

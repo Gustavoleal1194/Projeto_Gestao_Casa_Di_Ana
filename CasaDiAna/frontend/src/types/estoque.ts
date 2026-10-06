@@ -92,6 +92,77 @@ export interface IngredienteFormValues {
   _ehPacote?: boolean
 }
 
+// ─── Categoria de Utensílio ────────────────────────────────────────────────────
+export interface CategoriaUtensilio {
+  id: string
+  nome: string
+  ativo: boolean
+  criadoEm: string
+  atualizadoEm: string
+}
+
+export interface CriarCategoriaUtensilioInput {
+  nome: string
+}
+
+export interface AtualizarCategoriaUtensilioInput {
+  id: string
+  nome: string
+}
+
+// ─── Utensílio (listagem) ──────────────────────────────────────────────────────
+export interface UtensilioResumo {
+  id: string
+  nome: string
+  codigoInterno: string | null
+  categoriaNome: string | null
+  unidadeMedidaCodigo: string
+  estoqueAtual: number
+  estoqueMinimo: number
+  estaBaixoDoMinimo: boolean
+  ativo: boolean
+}
+
+// ─── Utensílio (detalhe / edição) ──────────────────────────────────────────
+export interface Utensilio {
+  id: string
+  nome: string
+  codigoInterno: string | null
+  categoriaUtensilioId: string | null
+  categoriaNome: string | null
+  unidadeMedidaId: number
+  unidadeMedidaCodigo: string
+  estoqueAtual: number
+  estoqueMinimo: number
+  estoqueMaximo: number | null
+  estaBaixoDoMinimo: boolean
+  custoUnitario: number | null
+  ativo: boolean
+  atualizadoEm: string
+}
+
+export interface CriarUtensilioInput {
+  nome: string
+  unidadeMedidaId: number
+  estoqueMinimo: number
+  codigoInterno?: string | null
+  categoriaUtensilioId?: string | null
+  estoqueMaximo?: number | null
+}
+
+export interface AtualizarUtensilioInput extends CriarUtensilioInput {
+  id: string
+}
+
+export interface UtensilioFormValues {
+  nome: string
+  codigoInterno: string
+  categoriaUtensilioId: string
+  unidadeMedidaId: string
+  estoqueMinimo: number | undefined
+  estoqueMaximo: number | undefined
+}
+
 // ─── Fornecedor ───────────────────────────────────────────────────────────────
 export interface Fornecedor {
   id: string
@@ -155,6 +226,16 @@ export interface ItemEntrada {
   custoTotal: number
 }
 
+export interface ItemEntradaUtensilio {
+  id: string
+  utensilioId: string
+  utensilioNome: string
+  unidadeMedidaCodigo: string
+  quantidade: number
+  custoUnitario: number
+  custoTotal: number
+}
+
 export interface EntradaMercadoria {
   id: string
   fornecedorId: string
@@ -169,6 +250,7 @@ export interface EntradaMercadoria {
   temBoleto: boolean
   dataVencimentoBoleto: string | null
   itens: ItemEntrada[]
+  itensUtensilio: ItemEntradaUtensilio[]
 }
 
 export interface ItemEntradaInput {
@@ -177,10 +259,17 @@ export interface ItemEntradaInput {
   custoUnitario: number
 }
 
+export interface ItemEntradaUtensilioInput {
+  utensilioId: string
+  quantidade: number
+  custoUnitario: number
+}
+
 export interface RegistrarEntradaInput {
   fornecedorId: string
   dataEntrada: string
   itens: ItemEntradaInput[]
+  itensUtensilio?: ItemEntradaUtensilioInput[]
   recebidoPor: string
   numeroNotaFiscal?: string | null
   observacoes?: string | null
@@ -194,7 +283,12 @@ export interface EntradaFormValues {
   numeroNotaFiscal: string
   recebidoPor: string
   observacoes: string
-  itens: { ingredienteId: string; quantidade: number | undefined; custoUnitario: number | undefined }[]
+  itens: {
+    tipo: 'ingrediente' | 'utensilio'
+    itemId: string
+    quantidade: number | undefined
+    custoUnitario: number | undefined
+  }[]
   temBoleto: boolean
   dataVencimentoBoleto: string
 }

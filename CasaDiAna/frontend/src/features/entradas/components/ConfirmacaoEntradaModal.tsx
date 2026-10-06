@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import type { CSSProperties } from 'react'
 
 export interface ItemConfirmacaoEntrada {
-  ingredienteNome: string
+  nome: string
   unidadeMedidaCodigo: string
   quantidade: number
   custoTotal: number
@@ -184,7 +184,7 @@ export function ConfirmacaoEntradaModal({ aberto, onFechar, onVerEntradas, dados
               color: 'var(--ada-muted)', textTransform: 'uppercase', letterSpacing: '0.08em',
               borderBottom: '1px solid var(--ada-border-sub)',
             }}>
-              <span style={{ flex: 1 }}>Ingrediente</span>
+              <span style={{ flex: 1 }}>Item</span>
               <span style={{ width: 72, textAlign: 'right' }}>Qtd</span>
               <span style={{ width: 80, textAlign: 'right' }}>Total</span>
             </div>
@@ -195,7 +195,7 @@ export function ConfirmacaoEntradaModal({ aberto, onFechar, onVerEntradas, dados
                 borderBottom: i < dados.itens.length - 1 ? '1px solid var(--ada-border-sub)' : undefined,
               }}>
                 <span style={{ flex: 1, fontSize: 13, fontWeight: 500, color: 'var(--ada-heading)' }}>
-                  {item.ingredienteNome}
+                  {item.nome}
                 </span>
                 <span style={{ width: 72, textAlign: 'right', fontSize: 13, color: 'var(--ada-muted)', fontVariantNumeric: 'tabular-nums' }}>
                   {item.quantidade} {item.unidadeMedidaCodigo}

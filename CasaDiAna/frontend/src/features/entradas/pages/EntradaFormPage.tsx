@@ -1,4 +1,4 @@
-﻿// frontend/src/features/entradas/pages/EntradaFormPage.tsx
+// frontend/src/features/entradas/pages/EntradaFormPage.tsx
 import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useForm, useFieldArray } from 'react-hook-form'
@@ -8,6 +8,7 @@ import { ChevronLeftIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outlin
 import { entradasService } from '../services/entradasService'
 import { fornecedoresService } from '@/features/fornecedores/services/fornecedoresService'
 import { ingredientesService } from '@/features/estoque/ingredientes/services/ingredientesService'
+import { utensiliosService } from '@/features/estoque/utensilios/services/utensiliosService'
 import { CampoTexto } from '@/components/form/CampoTexto'
 import { SelectCampo } from '@/components/form/SelectCampo'
 import { FormSection } from '@/components/form/FormSection'
@@ -15,7 +16,7 @@ import { FormActions } from '@/components/form/FormActions'
 import { FormCard } from '@/components/form/FormCard'
 import { Toast } from '@/components/ui/Toast'
 import { ConfirmacaoEntradaModal, type DadosConfirmacaoEntrada } from '../components/ConfirmacaoEntradaModal'
-import type { Fornecedor, IngredienteResumo, EntradaFormValues, EntradaMercadoria } from '@/types/estoque'
+import type { Fornecedor, IngredienteResumo, UtensilioResumo, EntradaFormValues, EntradaMercadoria } from '@/types/estoque'
 
 const entradaSchema = z.object({
   fornecedorId: z.string().min(1, 'Selecione um fornecedor.'),
@@ -28,7 +29,8 @@ const entradaSchema = z.object({
   itens: z
     .array(
       z.object({
-        ingredienteId: z.string().min(1, 'Selecione um ingrediente.'),
+        tipo: z.enum(['ingrediente', 'utensilio']),
+        itemId: z.string().min(1, 'Selecione um item.'),
         quantidade: z.preprocess(
           (v) => (v === '' || v == null ? undefined : Number(v)),
           z.number().positive('Quantidade deve ser maior que 0.')
@@ -49,10 +51,11 @@ export function EntradaFormPage() {
   const navigate = useNavigate()
   const [fornecedores, setFornecedores] = useState<Fornecedor[]>([])
   const [ingredientes, setIngredientes] = useState<IngredienteResumo[]>([])
+  const [utensilios, setUtensilios] = useState<UtensilioResumo[]>([])
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
   const [confirma, setConfirma] = useState<DadosConfirmacaoEntrada | null>(null)
 
-  const { register, control, handleSubmit, reset, watch, formState: { errors, isSubmitting } } =
+  const { register, control, handleSubmit, reset, watch, setValue, formState: { errors, isSubmitting } } =
     useForm<EntradaFormValues>({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       resolver: zodResolver(entradaSchema) as any,
@@ -64,21 +67,26 @@ export function EntradaFormPage() {
         observacoes: '',
         temBoleto: false,
         dataVencimentoBoleto: '',
-        itens: [{ ingredienteId: '', quantidade: undefined, custoUnitario: undefined }],
+        itens: [{ tipo: 'ingrediente', itemId: '', quantidade: undefined, custoUnitario: undefined }],
       },
     })
 
   const temBoleto = watch('temBoleto')
+  const itensAtuais = watch('itens')
 
   const { fields, append, remove } = useFieldArray({ control, name: 'itens' })
 
   useEffect(() => {
     fornecedoresService.listar().then(setFornecedores).catch(() => {})
     ingredientesService.listar().then(setIngredientes).catch(() => {})
+    utensiliosService.listar().then(setUtensilios).catch(() => {})
   }, [])
 
   const onSubmit = async (values: EntradaFormValues) => {
     try {
+      const itensIngrediente = values.itens.filter(i => i.tipo === 'ingrediente')
+      const itensUtensilio = values.itens.filter(i => i.tipo === 'utensilio')
+
       const resultado: EntradaMercadoria = await entradasService.registrar({
         fornecedorId: values.fornecedorId,
         dataEntrada: values.dataEntrada,
@@ -89,8 +97,13 @@ export function EntradaFormPage() {
         dataVencimentoBoleto: values.temBoleto && values.dataVencimentoBoleto
           ? values.dataVencimentoBoleto
           : null,
-        itens: values.itens.map(item => ({
-          ingredienteId: item.ingredienteId,
+        itens: itensIngrediente.map(item => ({
+          ingredienteId: item.itemId,
+          quantidade: item.quantidade!,
+          custoUnitario: item.custoUnitario!,
+        })),
+        itensUtensilio: itensUtensilio.map(item => ({
+          utensilioId: item.itemId,
           quantidade: item.quantidade!,
           custoUnitario: item.custoUnitario!,
         })),
@@ -100,12 +113,20 @@ export function EntradaFormPage() {
         numeroNotaFiscal: resultado.numeroNotaFiscal,
         custoTotal: resultado.custoTotal,
         horario: new Date(resultado.criadoEm).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-        itens: resultado.itens.map(item => ({
-          ingredienteNome: item.ingredienteNome,
-          unidadeMedidaCodigo: item.unidadeMedidaCodigo,
-          quantidade: item.quantidade,
-          custoTotal: item.custoTotal,
-        })),
+        itens: [
+          ...resultado.itens.map(item => ({
+            nome: item.ingredienteNome,
+            unidadeMedidaCodigo: item.unidadeMedidaCodigo,
+            quantidade: item.quantidade,
+            custoTotal: item.custoTotal,
+          })),
+          ...resultado.itensUtensilio.map(item => ({
+            nome: item.utensilioNome,
+            unidadeMedidaCodigo: item.unidadeMedidaCodigo,
+            quantidade: item.quantidade,
+            custoTotal: item.custoTotal,
+          })),
+        ],
       })
     } catch {
       setToast({ tipo: 'erro', mensagem: 'Erro ao registrar entrada.' })
@@ -164,7 +185,6 @@ export function EntradaFormPage() {
               {...register('observacoes')}
             />
 
-            {/* Boleto */}
             <div className="col-span-2">
               <label
                 className="flex items-center gap-3 cursor-pointer select-none"
@@ -205,65 +225,81 @@ export function EntradaFormPage() {
             </p>
           )}
 
-          {/* Cabeçalho da tabela de itens */}
           <div
-            className="grid grid-cols-[1fr_110px_130px_36px] gap-2 px-1 mb-1.5"
+            className="grid grid-cols-[110px_1fr_110px_130px_36px] gap-2 px-1 mb-1.5"
           >
-            <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--ada-muted)' }}>Ingrediente</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--ada-muted)' }}>Tipo</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--ada-muted)' }}>Item</span>
             <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--ada-muted)' }}>Quantidade</span>
             <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--ada-muted)' }}>Custo Unit. (R$)</span>
             <span />
           </div>
 
           <div className="space-y-2">
-            {fields.map((field, index) => (
-              <div key={field.id} className="grid grid-cols-[1fr_110px_130px_36px] gap-2 items-start">
-                <SelectCampo
-                  label=" "
-                  opcoes={ingredientes.map(ing => ({
-                    valor: ing.id,
-                    rotulo: `${ing.nome} (${ing.unidadeMedidaCodigo})`,
-                  }))}
-                  {...register(`itens.${index}.ingredienteId`)}
-                  erro={errors.itens?.[index]?.ingredienteId?.message}
-                />
-                <CampoTexto
-                  label=" "
-                  type="number"
-                  step="0.001"
-                  min="0.001"
-                  placeholder="0.000"
-                  {...register(`itens.${index}.quantidade`)}
-                  erro={errors.itens?.[index]?.quantidade?.message}
-                />
-                <CampoTexto
-                  label=" "
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  placeholder="0.00"
-                  {...register(`itens.${index}.custoUnitario`)}
-                  erro={errors.itens?.[index]?.custoUnitario?.message}
-                />
-                <button
-                  type="button"
-                  onClick={() => fields.length > 1 && remove(index)}
-                  disabled={fields.length === 1}
-                  className="mt-0.5 p-2 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                  style={{ color: 'var(--ada-muted)' }}
-                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#DC2626'}
-                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--ada-muted)'}
-                  title="Remover item"
-                >
-                  <TrashIcon className="h-4 w-4" />
-                </button>
-              </div>
-            ))}
+            {fields.map((field, index) => {
+              const tipoLinha = itensAtuais?.[index]?.tipo ?? 'ingrediente'
+              const opcoesItem = tipoLinha === 'ingrediente'
+                ? ingredientes.map(ing => ({ valor: ing.id, rotulo: `${ing.nome} (${ing.unidadeMedidaCodigo})` }))
+                : utensilios.map(ute => ({ valor: ute.id, rotulo: `${ute.nome} (${ute.unidadeMedidaCodigo})` }))
+
+              return (
+                <div key={field.id} className="grid grid-cols-[110px_1fr_110px_130px_36px] gap-2 items-start">
+                  <SelectCampo
+                    label=" "
+                    opcoes={[
+                      { valor: 'ingrediente', rotulo: 'Ingrediente' },
+                      { valor: 'utensilio', rotulo: 'Utensílio' },
+                    ]}
+                    value={tipoLinha}
+                    onChange={(e) => {
+                      setValue(`itens.${index}.tipo`, e.target.value as 'ingrediente' | 'utensilio')
+                      setValue(`itens.${index}.itemId`, '')
+                    }}
+                  />
+                  <SelectCampo
+                    label=" "
+                    opcoes={opcoesItem}
+                    {...register(`itens.${index}.itemId`)}
+                    erro={errors.itens?.[index]?.itemId?.message}
+                  />
+                  <CampoTexto
+                    label=" "
+                    type="number"
+                    step="0.001"
+                    min="0.001"
+                    placeholder="0.000"
+                    {...register(`itens.${index}.quantidade`)}
+                    erro={errors.itens?.[index]?.quantidade?.message}
+                  />
+                  <CampoTexto
+                    label=" "
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    {...register(`itens.${index}.custoUnitario`)}
+                    erro={errors.itens?.[index]?.custoUnitario?.message}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fields.length > 1 && remove(index)}
+                    disabled={fields.length === 1}
+                    className="mt-0.5 p-2 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                    style={{ color: 'var(--ada-muted)' }}
+                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#DC2626'}
+                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--ada-muted)'}
+                    title="Remover item"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </button>
+                </div>
+              )
+            })}
           </div>
 
           <button
             type="button"
-            onClick={() => append({ ingredienteId: '', quantidade: undefined, custoUnitario: undefined })}
+            onClick={() => append({ tipo: 'ingrediente', itemId: '', quantidade: undefined, custoUnitario: undefined })}
             className="mt-3 flex items-center gap-1.5 text-xs font-semibold transition-colors"
             style={{ color: '#C4870A' }}
             onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#B87D0A'}

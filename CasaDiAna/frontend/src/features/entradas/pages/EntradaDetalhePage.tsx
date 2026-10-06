@@ -71,6 +71,13 @@ export function EntradaDetalhePage() {
     )
   }
 
+  const itensCombinados = entrada
+    ? [
+        ...entrada.itens.map(i => ({ id: i.id, nome: i.ingredienteNome, unidadeMedidaCodigo: i.unidadeMedidaCodigo, quantidade: i.quantidade, custoUnitario: i.custoUnitario, custoTotal: i.custoTotal })),
+        ...entrada.itensUtensilio.map(i => ({ id: i.id, nome: i.utensilioNome, unidadeMedidaCodigo: i.unidadeMedidaCodigo, quantidade: i.quantidade, custoUnitario: i.custoUnitario, custoTotal: i.custoTotal })),
+      ]
+    : []
+
   return (
     <div className="ada-page max-w-3xl">
       <button onClick={() => navigate('/entradas')} className="back-link">
@@ -151,19 +158,19 @@ export function EntradaDetalhePage() {
           <table className="w-full" role="table">
             <thead>
               <tr className="table-head-row">
-                <th className="table-th" scope="col">Ingrediente</th>
+                <th className="table-th" scope="col">Item</th>
                 <th className="table-th table-th-right" scope="col">Qtd.</th>
                 <th className="table-th table-th-right" scope="col">Custo Unit.</th>
                 <th className="table-th table-th-right" scope="col">Total</th>
               </tr>
             </thead>
             <tbody>
-              {entrada.itens.map(item => (
+              {itensCombinados.map(item => (
                 <tr key={item.id} className="table-row">
                   <td className="table-td">
                     <div className="flex items-center gap-2.5">
                       <span className="accent-bar shrink-0" aria-hidden="true" />
-                      <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>{item.ingredienteNome}</span>
+                      <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>{item.nome}</span>
                       <span className="text-xs" style={{ color: 'var(--ada-placeholder)' }}>({item.unidadeMedidaCodigo})</span>
                     </div>
                   </td>
@@ -213,7 +220,7 @@ export function EntradaDetalhePage() {
                 Cancelar esta entrada?
               </h2>
               <p className="text-sm mt-1" style={{ color: 'var(--ada-muted)' }}>
-                O estoque dos ingredientes será revertido. Esta ação não pode ser desfeita.
+                O estoque dos itens será revertido. Esta ação não pode ser desfeita.
               </p>
             </div>
             <div className="modal-footer">

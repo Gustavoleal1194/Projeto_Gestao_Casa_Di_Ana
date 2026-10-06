@@ -21,6 +21,7 @@ import {
   CurrencyDollarIcon,
   CalculatorIcon,
   PresentationChartLineIcon,
+  WrenchScrewdriverIcon,
 } from '@heroicons/react/24/outline'
 import { useAuthStore } from '@/store/authStore'
 
@@ -54,6 +55,8 @@ const grupos: NavGroup[] = [
     itens: [
       { label: 'Ingredientes',  href: '/estoque/ingredientes', icon: BeakerIcon,  iconColor: '#60A5FA' },
       { label: 'Categorias',    href: '/estoque/categorias',   icon: TagIcon,     iconColor: '#60A5FA' },
+      { label: 'Utensílios',          href: '/estoque/utensilios',          icon: WrenchScrewdriverIcon, iconColor: '#60A5FA' },
+      { label: 'Categorias de Utensílio', href: '/estoque/categorias-utensilio', icon: TagIcon,          iconColor: '#60A5FA' },
       { label: 'Fornecedores',  href: '/fornecedores',         icon: TruckIcon,   iconColor: '#60A5FA' },
     ],
   },

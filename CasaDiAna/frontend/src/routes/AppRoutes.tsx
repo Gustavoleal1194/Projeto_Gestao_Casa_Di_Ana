@@ -5,6 +5,7 @@ import { DashboardPage } from '@/features/dashboard/pages/DashboardPage'
 import { IngredientesPage } from '@/features/estoque/ingredientes/pages/IngredientesPage'
 import { IngredienteFormPage } from '@/features/estoque/ingredientes/pages/IngredienteFormPage'
 import { CategoriasPage } from '@/features/estoque/categorias/pages/CategoriasPage'
+import { CategoriasUtensilioPage } from '@/features/estoque/categorias-utensilio/pages/CategoriasUtensilioPage'
 import { FornecedoresPage } from '@/features/fornecedores/pages/FornecedoresPage'
 import { FornecedorFormPage } from '@/features/fornecedores/pages/FornecedorFormPage'
 import { EntradasPage } from '@/features/entradas/pages/EntradasPage'
@@ -52,6 +53,7 @@ export function AppRoutes() {
           <Route path="/estoque/ingredientes/novo" element={<IngredienteFormPage />} />
           <Route path="/estoque/ingredientes/:id/editar" element={<IngredienteFormPage />} />
           <Route path="/estoque/categorias" element={<CategoriasPage />} />
+          <Route path="/estoque/categorias-utensilio" element={<CategoriasUtensilioPage />} />
 
           {/* Fornecedores */}
           <Route path="/fornecedores" element={<FornecedoresPage />} />

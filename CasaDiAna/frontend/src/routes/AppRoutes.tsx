@@ -4,6 +4,8 @@ import { MainLayout } from '@/components/layout/MainLayout'
 import { DashboardPage } from '@/features/dashboard/pages/DashboardPage'
 import { IngredientesPage } from '@/features/estoque/ingredientes/pages/IngredientesPage'
 import { IngredienteFormPage } from '@/features/estoque/ingredientes/pages/IngredienteFormPage'
+import { UtensiliosPage } from '@/features/estoque/utensilios/pages/UtensiliosPage'
+import { UtensilioFormPage } from '@/features/estoque/utensilios/pages/UtensilioFormPage'
 import { CategoriasPage } from '@/features/estoque/categorias/pages/CategoriasPage'
 import { CategoriasUtensilioPage } from '@/features/estoque/categorias-utensilio/pages/CategoriasUtensilioPage'
 import { FornecedoresPage } from '@/features/fornecedores/pages/FornecedoresPage'
@@ -54,6 +56,9 @@ export function AppRoutes() {
           <Route path="/estoque/ingredientes/:id/editar" element={<IngredienteFormPage />} />
           <Route path="/estoque/categorias" element={<CategoriasPage />} />
           <Route path="/estoque/categorias-utensilio" element={<CategoriasUtensilioPage />} />
+          <Route path="/estoque/utensilios" element={<UtensiliosPage />} />
+          <Route path="/estoque/utensilios/novo" element={<UtensilioFormPage />} />
+          <Route path="/estoque/utensilios/:id/editar" element={<UtensilioFormPage />} />
 
           {/* Fornecedores */}
           <Route path="/fornecedores" element={<FornecedoresPage />} />

@@ -22,6 +22,8 @@ public class EntradaMercadoria
     public Fornecedor? Fornecedor { get; private set; }
     public IReadOnlyCollection<ItemEntradaMercadoria> Itens => _itens.AsReadOnly();
     private readonly List<ItemEntradaMercadoria> _itens = new();
+    public IReadOnlyCollection<ItemEntradaUtensilio> ItensUtensilio => _itensUtensilio.AsReadOnly();
+    private readonly List<ItemEntradaUtensilio> _itensUtensilio = new();
 
     private EntradaMercadoria() { }
 
@@ -65,6 +67,20 @@ public class EntradaMercadoria
             throw new DomainException("Ingrediente já adicionado nesta entrada.");
 
         _itens.Add(ItemEntradaMercadoria.Criar(Id, ingredienteId, quantidade, custoUnitario));
+    }
+
+    public void AdicionarItemUtensilio(Guid utensilioId, decimal quantidade, decimal custoUnitario)
+    {
+        if (Status != StatusEntrada.Confirmada)
+            throw new DomainException("Não é possível adicionar itens a uma entrada cancelada.");
+        if (quantidade <= 0)
+            throw new DomainException("Quantidade deve ser maior que zero.");
+        if (custoUnitario < 0)
+            throw new DomainException("Custo unitário não pode ser negativo.");
+        if (_itensUtensilio.Any(i => i.UtensilioId == utensilioId))
+            throw new DomainException("Utensílio já adicionado nesta entrada.");
+
+        _itensUtensilio.Add(ItemEntradaUtensilio.Criar(Id, utensilioId, quantidade, custoUnitario));
     }
 
     public void Cancelar(Guid atualizadoPor)

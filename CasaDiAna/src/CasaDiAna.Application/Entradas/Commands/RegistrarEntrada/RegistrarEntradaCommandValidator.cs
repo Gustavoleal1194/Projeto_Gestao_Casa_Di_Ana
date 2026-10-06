@@ -12,14 +12,24 @@ public class RegistrarEntradaCommandValidator : AbstractValidator<RegistrarEntra
         RuleFor(x => x.DataEntrada)
             .NotEmpty().WithMessage("Data de entrada é obrigatória.");
 
-        RuleFor(x => x.Itens)
-            .NotEmpty().WithMessage("A entrada deve ter pelo menos um item.")
-            .Must(itens => itens.Count > 0).WithMessage("A entrada deve ter pelo menos um item.");
+        RuleFor(x => x)
+            .Must(x => x.Itens.Count > 0 || (x.ItensUtensilio?.Count ?? 0) > 0)
+            .WithMessage("A entrada deve ter pelo menos um item.");
 
         RuleForEach(x => x.Itens).ChildRules(item =>
         {
             item.RuleFor(i => i.IngredienteId)
                 .NotEmpty().WithMessage("Ingrediente é obrigatório.");
+            item.RuleFor(i => i.Quantidade)
+                .GreaterThan(0).WithMessage("Quantidade deve ser maior que zero.");
+            item.RuleFor(i => i.CustoUnitario)
+                .GreaterThanOrEqualTo(0).WithMessage("Custo unitário não pode ser negativo.");
+        });
+
+        RuleForEach(x => x.ItensUtensilio).ChildRules(item =>
+        {
+            item.RuleFor(i => i.UtensilioId)
+                .NotEmpty().WithMessage("Utensílio é obrigatório.");
             item.RuleFor(i => i.Quantidade)
                 .GreaterThan(0).WithMessage("Quantidade deve ser maior que zero.");
             item.RuleFor(i => i.CustoUnitario)

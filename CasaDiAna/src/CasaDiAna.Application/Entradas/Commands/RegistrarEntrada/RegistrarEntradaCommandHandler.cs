@@ -13,7 +13,9 @@ public class RegistrarEntradaCommandHandler : IRequestHandler<RegistrarEntradaCo
 {
     private readonly IEntradaMercadoriaRepository _entradas;
     private readonly IIngredienteRepository _ingredientes;
+    private readonly IUtensilioRepository _utensilios;
     private readonly IMovimentacaoRepository _movimentacoes;
+    private readonly IMovimentacaoUtensilioRepository _movimentacoesUtensilio;
     private readonly IFornecedorRepository _fornecedores;
     private readonly ICurrentUserService _currentUser;
     private readonly INotificacaoEstoqueService _notificacaoService;
@@ -21,14 +23,18 @@ public class RegistrarEntradaCommandHandler : IRequestHandler<RegistrarEntradaCo
     public RegistrarEntradaCommandHandler(
         IEntradaMercadoriaRepository entradas,
         IIngredienteRepository ingredientes,
+        IUtensilioRepository utensilios,
         IMovimentacaoRepository movimentacoes,
+        IMovimentacaoUtensilioRepository movimentacoesUtensilio,
         IFornecedorRepository fornecedores,
         ICurrentUserService currentUser,
         INotificacaoEstoqueService notificacaoService)
     {
         _entradas = entradas;
         _ingredientes = ingredientes;
+        _utensilios = utensilios;
         _movimentacoes = movimentacoes;
+        _movimentacoesUtensilio = movimentacoesUtensilio;
         _fornecedores = fornecedores;
         _currentUser = currentUser;
         _notificacaoService = notificacaoService;
@@ -65,7 +71,7 @@ public class RegistrarEntradaCommandHandler : IRequestHandler<RegistrarEntradaCo
             ingredientesMap[id] = ing;
         }
 
-        // Adiciona itens na entrada e atualiza estoque
+        // Adiciona itens de ingrediente na entrada e atualiza estoque
         foreach (var item in request.Itens)
         {
             entrada.AdicionarItem(item.IngredienteId, item.Quantidade, item.CustoUnitario);
@@ -86,6 +92,42 @@ public class RegistrarEntradaCommandHandler : IRequestHandler<RegistrarEntradaCo
                 referenciaId: entrada.Id);
 
             await _movimentacoes.AdicionarAsync(movimentacao, cancellationToken);
+        }
+
+        // Carrega todos os utensílios de uma vez
+        var itensUtensilio = request.ItensUtensilio ?? Array.Empty<ItemEntradaUtensilioInputDto>();
+        var utensilioIds = itensUtensilio.Select(i => i.UtensilioId).Distinct().ToList();
+        var utensiliosMap = new Dictionary<Guid, Utensilio>();
+        foreach (var id in utensilioIds)
+        {
+            var ute = await _utensilios.ObterPorIdAsync(id, cancellationToken)
+                ?? throw new DomainException($"Utensílio '{id}' não encontrado.");
+            if (!ute.Ativo)
+                throw new DomainException($"Utensílio '{ute.Nome}' está inativo.");
+            utensiliosMap[id] = ute;
+        }
+
+        // Adiciona itens de utensílio na entrada e atualiza estoque
+        foreach (var item in itensUtensilio)
+        {
+            entrada.AdicionarItemUtensilio(item.UtensilioId, item.Quantidade, item.CustoUnitario);
+
+            var utensilio = utensiliosMap[item.UtensilioId];
+            var novoSaldo = utensilio.EstoqueAtual + item.Quantidade;
+            utensilio.AtualizarEstoque(novoSaldo, _currentUser.UsuarioId);
+            utensilio.AtualizarCusto(item.CustoUnitario, _currentUser.UsuarioId);
+            _utensilios.Atualizar(utensilio);
+
+            var movimentacaoUtensilio = MovimentacaoUtensilio.Criar(
+                item.UtensilioId,
+                TipoMovimentacao.Entrada,
+                item.Quantidade,
+                novoSaldo,
+                _currentUser.UsuarioId,
+                referenciaTipo: "EntradaMercadoria",
+                referenciaId: entrada.Id);
+
+            await _movimentacoesUtensilio.AdicionarAsync(movimentacaoUtensilio, cancellationToken);
         }
 
         await _entradas.AdicionarAsync(entrada, cancellationToken);
@@ -109,6 +151,15 @@ public class RegistrarEntradaCommandHandler : IRequestHandler<RegistrarEntradaCo
             i.CustoUnitario,
             i.CustoTotal)).ToList().AsReadOnly();
 
+        var itensUtensilio = e.ItensUtensilio.Select(i => new ItemEntradaUtensilioDto(
+            i.Id,
+            i.UtensilioId,
+            i.Utensilio?.Nome ?? string.Empty,
+            i.Utensilio?.UnidadeMedida?.Codigo ?? string.Empty,
+            i.Quantidade,
+            i.CustoUnitario,
+            i.CustoTotal)).ToList().AsReadOnly();
+
         return new EntradaMercadoriaDto(
             e.Id,
             e.FornecedorId,
@@ -119,9 +170,10 @@ public class RegistrarEntradaCommandHandler : IRequestHandler<RegistrarEntradaCo
             e.RecebidoPor,
             e.Observacoes,
             itens,
-            itens.Sum(i => i.CustoTotal),
+            itens.Sum(i => i.CustoTotal) + itensUtensilio.Sum(i => i.CustoTotal),
             e.CriadoEm,
             e.TemBoleto,
-            e.DataVencimentoBoleto);
+            e.DataVencimentoBoleto,
+            itensUtensilio);
     }
 }

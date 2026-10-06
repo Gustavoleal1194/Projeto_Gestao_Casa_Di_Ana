@@ -13,4 +13,5 @@ public record EntradaMercadoriaDto(
     decimal CustoTotal,
     DateTime CriadoEm,
     bool TemBoleto,
-    DateTime? DataVencimentoBoleto);
+    DateTime? DataVencimentoBoleto,
+    IReadOnlyList<ItemEntradaUtensilioDto> ItensUtensilio);

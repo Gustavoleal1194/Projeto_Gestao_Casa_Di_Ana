@@ -11,4 +11,5 @@ public record RegistrarEntradaCommand(
     string? NumeroNotaFiscal = null,
     string? Observacoes = null,
     bool TemBoleto = false,
-    DateTime? DataVencimentoBoleto = null) : IRequest<EntradaMercadoriaDto>;
+    DateTime? DataVencimentoBoleto = null,
+    IReadOnlyList<ItemEntradaUtensilioInputDto>? ItensUtensilio = null) : IRequest<EntradaMercadoriaDto>;

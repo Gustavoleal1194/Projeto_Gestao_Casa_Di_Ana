@@ -6,6 +6,9 @@
 .vs/
 *.DotSettings.user
 
+# ─── Git worktrees locais (isolamento de execução de plano) ──────────────────
+.worktrees/
+
 # Secrets e configs locais com credenciais
 **/appsettings.Development.json
 **/appsettings.Local.json

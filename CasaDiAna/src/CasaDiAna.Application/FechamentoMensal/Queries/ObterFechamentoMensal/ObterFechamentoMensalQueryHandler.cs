@@ -62,7 +62,7 @@ public class ObterFechamentoMensalQueryHandler
         var entradas = await _entradas.ListarAsync(inicio, fim, cancellationToken);
         var totalCompras = entradas
             .Where(e => e.Status == StatusEntrada.Confirmada)
-            .Sum(e => e.Itens.Sum(i => i.CustoTotal));
+            .Sum(e => e.CustoTotal);
 
         var totalSaidas = totalFixas + totalVariaveis + totalCompras;
         decimal? despesaFixaPercentual = faturamentoUsado > 0 ? totalFixas / faturamentoUsado : null;

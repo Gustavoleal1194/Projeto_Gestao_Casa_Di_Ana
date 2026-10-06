@@ -33,4 +33,28 @@ public class ObterComprasMesQueryHandlerTests
         dto.Itens.Should().ContainSingle();
         dto.Itens[0].NumeroNotaFiscal.Should().Be("NF-1");
     }
+
+    [Fact]
+    public async Task DeveSomarItensDeUtensilioTambem()
+    {
+        var comp = new DateTime(2026, 6, 1);
+        var user = Guid.NewGuid();
+        var forn = Guid.NewGuid();
+        var ingrediente = Guid.NewGuid();
+        var utensilio = Guid.NewGuid();
+
+        var mista = EntradaMercadoria.Criar(forn, new DateTime(2026, 6, 10), user, numeroNotaFiscal: "NF-MISTA");
+        mista.AdicionarItem(ingrediente, 10m, 5m);           // 50
+        mista.AdicionarItemUtensilio(utensilio, 2m, 8m);     // 16
+
+        var repo = new Mock<IEntradaMercadoriaRepository>();
+        repo.Setup(r => r.ListarAsync(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), default))
+            .ReturnsAsync(new List<EntradaMercadoria> { mista });
+
+        var handler = new ObterComprasMesQueryHandler(repo.Object);
+        var dto = await handler.Handle(new ObterComprasMesQuery(comp), CancellationToken.None);
+
+        dto.TotalCompras.Should().Be(66m);
+        dto.Itens[0].Total.Should().Be(66m);
+    }
 }

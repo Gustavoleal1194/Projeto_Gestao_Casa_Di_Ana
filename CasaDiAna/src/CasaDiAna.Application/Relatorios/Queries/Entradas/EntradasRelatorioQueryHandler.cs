@@ -25,8 +25,8 @@ public class EntradasRelatorioQueryHandler : IRequestHandler<EntradasRelatorioQu
             e.NumeroNotaFiscal,
             e.DataEntrada,
             e.Status.ToString(),
-            e.Itens.Count,
-            e.Itens.Sum(i => i.CustoTotal))).ToList().AsReadOnly();
+            e.TotalItens,
+            e.CustoTotal)).ToList().AsReadOnly();
 
         var confirmadas = entradas.Where(e => e.Status == StatusEntrada.Confirmada.ToString()).ToList();
 

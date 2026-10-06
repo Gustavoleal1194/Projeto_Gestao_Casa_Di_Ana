@@ -59,8 +59,10 @@ public class RegistrarEntradaCommandHandler : IRequestHandler<RegistrarEntradaCo
             request.TemBoleto,
             request.DataVencimentoBoleto);
 
+        var itensIngrediente = request.Itens ?? Array.Empty<ItemEntradaInputDto>();
+
         // Carrega todos os ingredientes de uma vez
-        var ingredienteIds = request.Itens.Select(i => i.IngredienteId).Distinct().ToList();
+        var ingredienteIds = itensIngrediente.Select(i => i.IngredienteId).Distinct().ToList();
         var ingredientesMap = new Dictionary<Guid, Ingrediente>();
         foreach (var id in ingredienteIds)
         {
@@ -72,7 +74,7 @@ public class RegistrarEntradaCommandHandler : IRequestHandler<RegistrarEntradaCo
         }
 
         // Adiciona itens de ingrediente na entrada e atualiza estoque
-        foreach (var item in request.Itens)
+        foreach (var item in itensIngrediente)
         {
             entrada.AdicionarItem(item.IngredienteId, item.Quantidade, item.CustoUnitario);
 

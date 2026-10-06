@@ -25,6 +25,9 @@ public class EntradaMercadoria
     public IReadOnlyCollection<ItemEntradaUtensilio> ItensUtensilio => _itensUtensilio.AsReadOnly();
     private readonly List<ItemEntradaUtensilio> _itensUtensilio = new();
 
+    public decimal CustoTotal => _itens.Sum(i => i.CustoTotal) + _itensUtensilio.Sum(i => i.CustoTotal);
+    public int TotalItens => _itens.Count + _itensUtensilio.Count;
+
     private EntradaMercadoria() { }
 
     public static EntradaMercadoria Criar(

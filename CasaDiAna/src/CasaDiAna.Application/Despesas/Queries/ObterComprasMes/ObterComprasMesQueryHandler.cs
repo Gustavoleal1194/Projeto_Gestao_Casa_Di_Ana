@@ -26,7 +26,7 @@ public class ObterComprasMesQueryHandler : IRequestHandler<ObterComprasMesQuery,
                 e.Fornecedor?.RazaoSocial ?? string.Empty,
                 e.NumeroNotaFiscal,
                 e.DataEntrada,
-                e.Itens.Sum(i => i.CustoTotal)))
+                e.CustoTotal))
             .OrderByDescending(c => c.Data)
             .ToList();
 

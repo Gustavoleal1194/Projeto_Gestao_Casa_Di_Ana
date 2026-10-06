@@ -13,7 +13,7 @@ public class RegistrarEntradaCommandValidator : AbstractValidator<RegistrarEntra
             .NotEmpty().WithMessage("Data de entrada é obrigatória.");
 
         RuleFor(x => x)
-            .Must(x => x.Itens.Count > 0 || (x.ItensUtensilio?.Count ?? 0) > 0)
+            .Must(x => (x.Itens?.Count ?? 0) > 0 || (x.ItensUtensilio?.Count ?? 0) > 0)
             .WithMessage("A entrada deve ter pelo menos um item.");
 
         RuleForEach(x => x.Itens).ChildRules(item =>

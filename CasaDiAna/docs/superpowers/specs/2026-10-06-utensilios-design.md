@@ -162,8 +162,9 @@ mas **não pode ter os dois vazios** (validada no `RegistrarEntradaCommandValida
   3. Grava `MovimentacaoUtensilio.Criar(..., TipoMovimentacao.Entrada, ..., referenciaTipo: "EntradaMercadoria", referenciaId: entrada.Id)` via `IMovimentacaoUtensilioRepository`.
   4. **Não** chama `INotificacaoEstoqueService` para utensílio (serviço é Ingrediente-only por escopo — §13).
 - `EntradaMercadoriaDto` ganha `ItensUtensilio: IReadOnlyList<ItemEntradaUtensilioDto>` e `CustoTotal` passa a somar os dois (`Itens.Sum + ItensUtensilio.Sum`).
+- `ListarEntradasQueryHandler`/`EntradaMercadoriaResumoDto`: **gap encontrado no planejamento** — `TotalItens` e `CustoTotal` da listagem hoje somam só `e.Itens`. Para não subcontar uma nota mista na tela de Entradas, `EntradaMercadoriaRepository.ListarAsync` passa a dar `Include(e => e.ItensUtensilio)` e o handler soma `e.Itens.Count + e.ItensUtensilio.Count` / `e.Itens.Sum(...) + e.ItensUtensilio.Sum(...)`.
 - `ItemEntradaUtensilioDto(Id, UtensilioId, UtensilioNome, UnidadeMedidaCodigo, Quantidade, CustoUnitario, CustoTotal)` — espelha `ItemEntradaDto`.
-- `CancelarEntradaCommandHandler`: **sem alteração de regra** — cancelar a entrada não reverte estoque hoje (mesmo comportamento já existente para ingrediente); confirmado como consistente, não é regressão desta feature.
+- `CancelarEntradaCommandHandler`: **correção em relação à primeira leitura deste spec** — o handler atual **já reverte** o estoque do ingrediente ao cancelar (`AjusteNegativo` por item, via `Movimentacao`). Para não deixar o estoque de utensílio inconsistente numa nota mista cancelada, o handler ganha o mesmo loop simétrico para `ItensUtensilio` (subtrai de `Utensilio.EstoqueAtual`, grava `MovimentacaoUtensilio` com `TipoMovimentacao.AjusteNegativo` e `referenciaTipo: "CancelamentoEntrada"`).
 
 ### 4.4 `ToDto` reutilizado
 Handler de `Criar*` expõe `internal static ToDto(...)` reaproveitado pelos demais handlers do módulo, padrão do projeto.
@@ -205,10 +206,12 @@ categorias), Unidade de Medida (select), Estoque Mínimo, Estoque Máximo (opcio
 Código Interno (opcional). Zod com `z.preprocess` nos campos numéricos (padrão
 obrigatório do projeto), `resolver as any` e `handleSubmit(fn as any)`.
 
-Tela "Gerenciar categorias de utensílio": mesmo padrão de modal já usado em
-Categorias de Produto/Despesa (`ModalGerenciarCategorias` — avaliar reaproveitar o
-componente genérico se a forma já for parametrizável; senão, componente análogo
-próprio em `utensilios/components/`).
+Tela de categorias: **página própria** `/estoque/categorias-utensilio`, mirror exato
+de `features/estoque/categorias/` (categoria de ingrediente) — que já é uma página
+dedicada com tabela + modal de criar/editar + `ModalDesativar`, não um modal dentro de
+outra tela. `features/estoque/categorias-utensilio/{components (ModalCategoriaUtensilio,
+TabelaCategoriasUtensilio, FiltrosCategoriasUtensilio), hooks (useCategoriasUtensilio),
+pages (CategoriasUtensilioPage), services (categoriasUtensilioService)}`.
 
 ### 6.2 Sidebar
 Novo item **"Utensílios"** no grupo Estoque, logo abaixo de "Ingredientes"
@@ -229,7 +232,14 @@ chamar `entradasService.registrar`. Isso é só mapeamento no form — a UX cont
 "uma lista de itens", como já é hoje.
 
 `ConfirmacaoEntradaModal`: a lista de itens confirmados passa a concatenar
-`itens` (ingrediente) + `itensUtensilio`, cada um com um rótulo/ícone indicando o tipo.
+`itens` (ingrediente) + `itensUtensilio` num único array exibido (coluna "Item" em
+vez de "Ingrediente").
+
+`EntradaDetalhePage`: **gap encontrado no planejamento** — a tabela de itens do
+detalhe hoje só itera `entrada.itens`; passa a iterar a concatenação de `itens` +
+`itensUtensilio`, senão itens de utensílio ficariam invisíveis ao abrir o detalhe de
+uma nota mista. Texto do modal de cancelamento ("O estoque dos ingredientes será
+revertido") generaliza para "dos itens".
 
 ### 6.4 Reaproveitamento
 `PageHeader`, `SkeletonTable`, `EmptyState`, `CampoTexto`, `SelectCampo`,
@@ -268,7 +278,7 @@ tokens `--ada-*`.
 | Estoque mínimo/máximo inválidos | Mesmas guardas de `Ingrediente` (`EstoqueMaximo < EstoqueMinimo` → `DomainException`) |
 | Código interno duplicado | Bloqueado no validator (`CodigoInternoExisteAsync`, filtra `Ativo`) |
 | Desativar categoria em uso | Soft delete — não bloqueia; utensílios existentes continuam resolvendo a categoria por id, igual padrão de Despesa |
-| Cancelar entrada com itens de utensílio | Mesmo comportamento atual (sem reversão de estoque) — consistente, não é regressão |
+| Cancelar entrada com itens de utensílio | Reverte `EstoqueAtual` do utensílio (mesma regra já aplicada ao ingrediente) e grava `MovimentacaoUtensilio` de ajuste negativo |
 
 ---
 
@@ -298,6 +308,7 @@ tokens `--ada-*`.
     utensílio inativo bloqueado; utensílio duplicado na mesma entrada bloqueado.
   - Reexecutar a suíte existente de Entradas sem alteração esperada (garante que o
     campo aditivo não quebrou nada).
+  - `CancelarEntradaCommandHandlerTests`: caso novo — cancelar entrada mista (ingrediente + utensílio) reverte o estoque dos dois e grava `MovimentacaoUtensilio` de ajuste negativo.
 - **Frontend**: `tsc --noEmit`; teste manual do formulário de entrada misturando tipos
   na mesma nota.
 - **Manual / E2E (staging Render)**: criar categoria de utensílio; cadastrar 2
@@ -324,6 +335,4 @@ tokens `--ada-*`.
   os repositórios/entidades já ficam no formato certo para isso (mesma forma de
   Ingrediente), sem retrabalho de modelagem quando for pedido.
 - Relatório de movimentações / comparação de preço de utensílio.
-- Reversão de estoque ao cancelar entrada (não existe para ingrediente hoje; fora de
-  escopo mexer nisso agora para os dois tipos).
 - Ficha técnica / custo de produção envolvendo utensílio (não se aplica ao conceito).

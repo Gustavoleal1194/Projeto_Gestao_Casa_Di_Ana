@@ -11,8 +11,6 @@ public class EntradaMercadoria
     public DateTime DataEntrada { get; private set; }
     public string? RecebidoPor { get; private set; }
     public string? Observacoes { get; private set; }
-    public bool TemBoleto { get; private set; }
-    public DateTime? DataVencimentoBoleto { get; private set; }
     public StatusEntrada Status { get; private set; }
     public DateTime CriadoEm { get; private set; }
     public DateTime AtualizadoEm { get; private set; }
@@ -24,9 +22,13 @@ public class EntradaMercadoria
     private readonly List<ItemEntradaMercadoria> _itens = new();
     public IReadOnlyCollection<ItemEntradaUtensilio> ItensUtensilio => _itensUtensilio.AsReadOnly();
     private readonly List<ItemEntradaUtensilio> _itensUtensilio = new();
+    public IReadOnlyCollection<BoletoEntrada> Boletos => _boletos.AsReadOnly();
+    private readonly List<BoletoEntrada> _boletos = new();
 
     public decimal CustoTotal => _itens.Sum(i => i.CustoTotal) + _itensUtensilio.Sum(i => i.CustoTotal);
     public int TotalItens => _itens.Count + _itensUtensilio.Count;
+    public bool TemBoleto => _boletos.Count > 0;
+    public DateTime? ProximoVencimentoBoleto => _boletos.Count > 0 ? _boletos.Min(b => b.DataVencimento) : null;
 
     private EntradaMercadoria() { }
 
@@ -36,9 +38,7 @@ public class EntradaMercadoria
         Guid criadoPor,
         string? numeroNotaFiscal = null,
         string? recebidoPor = null,
-        string? observacoes = null,
-        bool temBoleto = false,
-        DateTime? dataVencimentoBoleto = null)
+        string? observacoes = null)
     {
         return new EntradaMercadoria
         {
@@ -48,8 +48,6 @@ public class EntradaMercadoria
             DataEntrada = dataEntrada,
             RecebidoPor = recebidoPor,
             Observacoes = observacoes,
-            TemBoleto = temBoleto,
-            DataVencimentoBoleto = dataVencimentoBoleto,
             Status = StatusEntrada.Confirmada,
             CriadoEm = DateTime.UtcNow,
             AtualizadoEm = DateTime.UtcNow,
@@ -84,6 +82,14 @@ public class EntradaMercadoria
             throw new DomainException("Utensílio já adicionado nesta entrada.");
 
         _itensUtensilio.Add(ItemEntradaUtensilio.Criar(Id, utensilioId, quantidade, custoUnitario));
+    }
+
+    public void AdicionarBoleto(DateTime dataVencimento)
+    {
+        if (Status != StatusEntrada.Confirmada)
+            throw new DomainException("Não é possível adicionar boleto a uma entrada cancelada.");
+
+        _boletos.Add(BoletoEntrada.Criar(Id, dataVencimento));
     }
 
     public void Cancelar(Guid atualizadoPor)

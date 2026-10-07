@@ -17,12 +17,6 @@ public class EntradaMercadoriaConfiguration : IEntityTypeConfiguration<EntradaMe
         builder.Property(e => e.DataEntrada).HasColumnName("data_entrada").IsRequired();
         builder.Property(e => e.RecebidoPor).HasColumnName("recebido_por").HasMaxLength(100);
         builder.Property(e => e.Observacoes).HasColumnName("observacoes");
-        builder.Property(e => e.TemBoleto)
-            .HasColumnName("tem_boleto")
-            .HasDefaultValue(false)
-            .IsRequired();
-        builder.Property(e => e.DataVencimentoBoleto)
-            .HasColumnName("data_vencimento_boleto");
         builder.Property(e => e.Status)
             .HasColumnName("status")
             .HasConversion(s => s.ToString(), s => Enum.Parse<StatusEntrada>(s))
@@ -54,11 +48,17 @@ public class EntradaMercadoriaConfiguration : IEntityTypeConfiguration<EntradaMe
         builder.Navigation(e => e.ItensUtensilio)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
+        builder.HasMany(e => e.Boletos)
+            .WithOne()
+            .HasForeignKey(b => b.EntradaId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(e => e.Boletos)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.HasIndex(e => e.FornecedorId);
         builder.HasIndex(e => e.DataEntrada);
         builder.HasIndex(e => e.NumeroNotaFiscal)
             .HasFilter("numero_nota_fiscal IS NOT NULL");
-        builder.HasIndex(e => e.DataVencimentoBoleto)
-            .HasFilter("data_vencimento_boleto IS NOT NULL");
     }
 }

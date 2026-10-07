@@ -15,6 +15,7 @@ public class AppDbContext : DbContext
     public DbSet<Fornecedor> Fornecedores => Set<Fornecedor>();
     public DbSet<EntradaMercadoria> EntradasMercadoria => Set<EntradaMercadoria>();
     public DbSet<ItemEntradaMercadoria> ItensEntradaMercadoria => Set<ItemEntradaMercadoria>();
+    public DbSet<BoletoEntrada> BoletosEntrada => Set<BoletoEntrada>();
     public DbSet<Inventario> Inventarios => Set<Inventario>();
     public DbSet<ItemInventario> ItensInventario => Set<ItemInventario>();
     public DbSet<Movimentacao> Movimentacoes => Set<Movimentacao>();

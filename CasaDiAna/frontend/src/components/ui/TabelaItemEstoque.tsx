@@ -1,23 +1,37 @@
 import { ExclamationTriangleIcon } from '@heroicons/react/20/solid'
 import { TabelaAcoesLinha } from '@/components/ui/TabelaAcoesLinha'
-import type { UtensilioResumo } from '@/types/estoque'
 
-interface Props {
-  utensilios: UtensilioResumo[]
+interface ItemEstoqueResumo {
+  id: string
+  nome: string
+  codigoInterno: string | null
+  categoriaNome: string | null
+  unidadeMedidaCodigo: string
+  estoqueAtual: number
+  estoqueMinimo: number
+  estaBaixoDoMinimo: boolean
+}
+
+interface Props<T extends ItemEstoqueResumo> {
+  itens: T[]
   podeEditar: boolean
   podeDesativar: boolean
   onEditar: (id: string) => void
-  onDesativar: (utensilio: UtensilioResumo) => void
+  onDesativar: (item: T) => void
+  tituloVazio: string
+  descricaoVazio: string
 }
 
-export function TabelaUtensilios({
-  utensilios,
+export function TabelaItemEstoque<T extends ItemEstoqueResumo>({
+  itens,
   podeEditar,
   podeDesativar,
   onEditar,
   onDesativar,
-}: Props) {
-  if (utensilios.length === 0) {
+  tituloVazio,
+  descricaoVazio,
+}: Props<T>) {
+  if (itens.length === 0) {
     return (
       <div
         className="rounded-xl py-16 text-center"
@@ -37,10 +51,10 @@ export function TabelaUtensilios({
           </svg>
         </div>
         <p className="text-sm font-semibold" style={{ color: 'var(--ada-body)', fontFamily: 'Sora, system-ui, sans-serif' }}>
-          Nenhum utensílio encontrado
+          {tituloVazio}
         </p>
         <p className="text-xs mt-1.5" style={{ color: 'var(--ada-muted)' }}>
-          Ajuste os filtros ou cadastre um novo utensílio.
+          {descricaoVazio}
         </p>
       </div>
     )
@@ -73,29 +87,29 @@ export function TabelaUtensilios({
             </tr>
           </thead>
           <tbody>
-            {utensilios.map((ute, idx) => (
+            {itens.map((item, idx) => (
               <tr
-                key={ute.id}
+                key={item.id}
                 className="group transition-colors duration-100"
                 style={{
-                  borderBottom: idx < utensilios.length - 1 ? '1px solid var(--ada-hover)' : 'none',
-                  background: ute.estaBaixoDoMinimo ? 'var(--ada-row-alert)' : 'var(--ada-surface)',
+                  borderBottom: idx < itens.length - 1 ? '1px solid var(--ada-hover)' : 'none',
+                  background: item.estaBaixoDoMinimo ? 'var(--ada-row-alert)' : 'var(--ada-surface)',
                 }}
-                onMouseEnter={e => (e.currentTarget.style.background = ute.estaBaixoDoMinimo ? 'var(--ada-row-alert-hover)' : 'var(--ada-surface-2)')}
-                onMouseLeave={e => (e.currentTarget.style.background = ute.estaBaixoDoMinimo ? 'var(--ada-row-alert)' : 'var(--ada-surface)')}
+                onMouseEnter={e => (e.currentTarget.style.background = item.estaBaixoDoMinimo ? 'var(--ada-row-alert-hover)' : 'var(--ada-surface-2)')}
+                onMouseLeave={e => (e.currentTarget.style.background = item.estaBaixoDoMinimo ? 'var(--ada-row-alert)' : 'var(--ada-surface)')}
               >
                 {/* Nome */}
                 <td className={tdCls}>
                   <div className="flex items-center gap-2.5">
                     <span
-                      className={`accent-bar shrink-0${ute.estaBaixoDoMinimo ? ' accent-bar-alert' : ''}`}
+                      className={`accent-bar shrink-0${item.estaBaixoDoMinimo ? ' accent-bar-alert' : ''}`}
                       aria-hidden="true"
                     />
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)', fontFamily: 'DM Sans, system-ui, sans-serif' }}>
-                        {ute.nome}
+                        {item.nome}
                       </span>
-                      {ute.estaBaixoDoMinimo && (
+                      {item.estaBaixoDoMinimo && (
                         <span
                           className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10.5px] font-semibold shrink-0"
                           style={{ background: 'var(--ada-warning-badge)', color: 'var(--ada-warning-text)', border: '1px solid var(--ada-warning-border)' }}
@@ -112,16 +126,16 @@ export function TabelaUtensilios({
                 <td className={tdCls}>
                   <span
                     className="text-[12.5px] font-mono tracking-wide"
-                    style={{ color: ute.codigoInterno ? 'var(--ada-muted-dim)' : 'var(--ada-placeholder)' }}
+                    style={{ color: item.codigoInterno ? 'var(--ada-muted-dim)' : 'var(--ada-placeholder)' }}
                   >
-                    {ute.codigoInterno ?? '—'}
+                    {item.codigoInterno ?? '—'}
                   </span>
                 </td>
 
                 {/* Categoria */}
                 <td className={tdCls}>
-                  <span className="text-sm" style={{ color: ute.categoriaNome ? 'var(--ada-muted-dim)' : 'var(--ada-placeholder)' }}>
-                    {ute.categoriaNome ?? '—'}
+                  <span className="text-sm" style={{ color: item.categoriaNome ? 'var(--ada-muted-dim)' : 'var(--ada-placeholder)' }}>
+                    {item.categoriaNome ?? '—'}
                   </span>
                 </td>
 
@@ -131,7 +145,7 @@ export function TabelaUtensilios({
                     className="inline-block text-[12px] font-semibold rounded-md px-2 py-0.5"
                     style={{ background: 'var(--ada-bg)', color: 'var(--ada-muted)', border: '1px solid var(--ada-border)' }}
                   >
-                    {ute.unidadeMedidaCodigo}
+                    {item.unidadeMedidaCodigo}
                   </span>
                 </td>
 
@@ -140,13 +154,13 @@ export function TabelaUtensilios({
                   <div className="flex items-center gap-1.5">
                     <span
                       className="text-sm font-bold tabular-nums"
-                      style={{ color: ute.estaBaixoDoMinimo ? '#C4870A' : 'var(--ada-heading)' }}
+                      style={{ color: item.estaBaixoDoMinimo ? '#C4870A' : 'var(--ada-heading)' }}
                     >
-                      {ute.estoqueAtual.toLocaleString('pt-BR', { maximumFractionDigits: 3 })}
+                      {item.estoqueAtual.toLocaleString('pt-BR', { maximumFractionDigits: 3 })}
                     </span>
                     <span className="text-[var(--ada-placeholder)] text-xs">/</span>
                     <span className="text-xs tabular-nums" style={{ color: 'var(--ada-muted)' }}>
-                      {ute.estoqueMinimo.toLocaleString('pt-BR', { maximumFractionDigits: 3 })}
+                      {item.estoqueMinimo.toLocaleString('pt-BR', { maximumFractionDigits: 3 })}
                     </span>
                   </div>
                 </td>
@@ -154,10 +168,10 @@ export function TabelaUtensilios({
                 {/* Ações */}
                 <td className={`${tdCls} text-right group`}>
                   <TabelaAcoesLinha
-                    onEditar={podeEditar ? () => onEditar(ute.id) : undefined}
-                    onDesativar={podeDesativar ? () => onDesativar(ute) : undefined}
-                    labelEditar={`Editar ${ute.nome}`}
-                    labelDesativar={`Desativar ${ute.nome}`}
+                    onEditar={podeEditar ? () => onEditar(item.id) : undefined}
+                    onDesativar={podeDesativar ? () => onDesativar(item) : undefined}
+                    labelEditar={`Editar ${item.nome}`}
+                    labelDesativar={`Desativar ${item.nome}`}
                   />
                 </td>
               </tr>

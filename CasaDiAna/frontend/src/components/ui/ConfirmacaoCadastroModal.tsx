@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react'
 
-export interface DadosConfirmacaoUtensilio {
-  utensilioNome: string
+export interface DadosConfirmacaoCadastro {
+  nome: string
   unidade: string
   modo: 'criado' | 'atualizado'
 }
@@ -9,8 +9,10 @@ export interface DadosConfirmacaoUtensilio {
 interface Props {
   aberto: boolean
   onFechar: () => void
-  onVerUtensilios: () => void
-  dados: DadosConfirmacaoUtensilio
+  onVerLista: () => void
+  dados: DadosConfirmacaoCadastro
+  entidadeLabel: string
+  entidadeLabelPlural: string
 }
 
 function CheckMarkAmbar({ delay = 100 }: { delay?: number }) {
@@ -57,12 +59,12 @@ function Sparkles({ delay = 800 }: { delay?: number }) {
   )
 }
 
-export function ConfirmacaoUtensilioModal({ aberto, onFechar, onVerUtensilios, dados }: Props) {
+export function ConfirmacaoCadastroModal({ aberto, onFechar, onVerLista, dados, entidadeLabel, entidadeLabelPlural }: Props) {
   if (!aberto) return null
 
   const chips = [
     { label: 'Unidade de medida', value: dados.unidade || '—' },
-    { label: 'Status', value: dados.modo === 'criado' ? 'Novo utensílio' : 'Atualizado' },
+    { label: 'Status', value: dados.modo === 'criado' ? `Novo ${entidadeLabel.toLowerCase()}` : 'Atualizado' },
   ]
 
   return (
@@ -118,14 +120,14 @@ export function ConfirmacaoUtensilioModal({ aberto, onFechar, onVerUtensilios, d
                 textTransform: 'uppercase', letterSpacing: '0.14em', color: '#D4960C',
                 marginBottom: 4, animation: 'fadeIn 300ms 700ms ease both',
               }}>
-                Utensílio {dados.modo}
+                {entidadeLabel} {dados.modo}
               </div>
               <div style={{
                 fontFamily: 'Sora, system-ui, sans-serif', fontSize: 22, fontWeight: 700,
                 color: 'var(--ada-heading)', letterSpacing: '-0.02em',
                 animation: 'fadeUp 300ms 400ms ease both',
               }}>
-                {dados.utensilioNome}
+                {dados.nome}
               </div>
             </div>
           </div>
@@ -160,14 +162,14 @@ export function ConfirmacaoUtensilioModal({ aberto, onFechar, onVerUtensilios, d
             }}>
               Fechar
             </button>
-            <button type="button" onClick={onVerUtensilios} style={{
+            <button type="button" onClick={onVerLista} style={{
               flex: 2, padding: '11px 0', borderRadius: 10,
               fontFamily: 'Sora, system-ui, sans-serif', fontSize: 13.5, fontWeight: 600,
               color: '#fff', background: 'linear-gradient(135deg, #D4960C, #B87D0A)',
               border: 0, cursor: 'pointer',
               boxShadow: '0 4px 14px rgba(212,150,12,0.30)',
             }}>
-              Ver Utensílios →
+              {`Ver ${entidadeLabelPlural} →`}
             </button>
           </div>
         </div>

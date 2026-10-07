@@ -1,17 +1,25 @@
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { TabelaAcoesLinha } from '@/components/ui/TabelaAcoesLinha'
 import { destacar } from '@/utils/destacar'
-import type { CategoriaUtensilio } from '@/types/estoque'
 
-interface Props {
-  categorias: CategoriaUtensilio[]
-  podeEditar: boolean
-  onEditar: (cat: CategoriaUtensilio) => void
-  onDesativar: (cat: CategoriaUtensilio) => void
-  busca?: string
+interface ItemCadastroSimples {
+  id: string
+  nome: string
+  ativo: boolean
 }
 
-export function TabelaCategoriasUtensilio({ categorias, podeEditar, onEditar, onDesativar, busca }: Props) {
+interface Props<T extends ItemCadastroSimples> {
+  itens: T[]
+  podeEditar: boolean
+  onEditar: (item: T) => void
+  onDesativar: (item: T) => void
+  busca?: string
+  mensagemVazia: string
+}
+
+export function TabelaCadastroSimples<T extends ItemCadastroSimples>({
+  itens, podeEditar, onEditar, onDesativar, busca, mensagemVazia,
+}: Props<T>) {
   return (
     <div className="ada-surface-card">
       <div className="overflow-x-auto">
@@ -28,7 +36,7 @@ export function TabelaCategoriasUtensilio({ categorias, podeEditar, onEditar, on
             </tr>
           </thead>
           <tbody>
-            {categorias.length === 0 ? (
+            {itens.length === 0 ? (
               busca ? (
                 <tr>
                   <td
@@ -61,33 +69,33 @@ export function TabelaCategoriasUtensilio({ categorias, podeEditar, onEditar, on
                         Nenhuma categoria cadastrada
                       </p>
                       <p className="text-xs mt-1" style={{ color: 'var(--ada-muted)' }}>
-                        Crie uma categoria para organizar os utensílios.
+                        {mensagemVazia}
                       </p>
                     </div>
                   </td>
                 </tr>
               )
             ) : (
-              categorias.map(cat => (
-                <tr key={cat.id} className="table-row group">
+              itens.map(item => (
+                <tr key={item.id} className="table-row group">
                   <td className="table-td">
                     <div className="flex items-center gap-2.5">
                       <span className="accent-bar shrink-0" aria-hidden="true" />
                       <span className="text-sm font-semibold" style={{ color: 'var(--ada-heading)' }}>
-                        {destacar(cat.nome, busca ?? '')}
+                        {destacar(item.nome, busca ?? '')}
                       </span>
                     </div>
                   </td>
                   <td className="table-td">
-                    <StatusBadge variante={cat.ativo ? 'ativo' : 'inativo'} />
+                    <StatusBadge variante={item.ativo ? 'ativo' : 'inativo'} />
                   </td>
                   {podeEditar && (
                     <td className="table-td text-right group">
                       <TabelaAcoesLinha
-                        onEditar={() => onEditar(cat)}
-                        onDesativar={() => onDesativar(cat)}
-                        labelEditar={`Editar ${cat.nome}`}
-                        labelDesativar={`Desativar ${cat.nome}`}
+                        onEditar={() => onEditar(item)}
+                        onDesativar={() => onDesativar(item)}
+                        labelEditar={`Editar ${item.nome}`}
+                        labelDesativar={`Desativar ${item.nome}`}
                       />
                     </td>
                   )}

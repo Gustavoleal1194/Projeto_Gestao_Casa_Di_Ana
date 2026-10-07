@@ -4,8 +4,8 @@ import { PlusIcon } from '@heroicons/react/20/solid'
 import { useUtensilios } from '../hooks/useUtensilios'
 import { useCategoriasUtensilio } from '@/features/estoque/categorias-utensilio/hooks/useCategoriasUtensilio'
 import { useAuthStore } from '@/store/authStore'
-import { TabelaUtensilios } from '../components/TabelaUtensilios'
-import { FiltrosUtensilios } from '../components/FiltrosUtensilios'
+import { TabelaItemEstoque } from '@/components/ui/TabelaItemEstoque'
+import { FiltrosItemEstoque } from '@/components/ui/FiltrosItemEstoque'
 import { ModalDesativar } from '@/components/ui/ModalDesativar'
 import { Paginacao } from '@/components/ui/Paginacao'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -81,7 +81,7 @@ export function UtensiliosPage() {
         ) : undefined}
       />
 
-      <FiltrosUtensilios
+      <FiltrosItemEstoque
         busca={busca}
         onBuscaChange={handleBusca}
         categoriaId={categoriaId}
@@ -105,12 +105,14 @@ export function UtensiliosPage() {
 
       {!loading && !erro && (
         <div>
-          <TabelaUtensilios
-            utensilios={paginados}
+          <TabelaItemEstoque
+            itens={paginados}
             podeEditar={podeEditar}
             podeDesativar={podeDesativar}
             onEditar={id => navigate(`/estoque/utensilios/${id}/editar`)}
             onDesativar={setParaDesativar}
+            tituloVazio="Nenhum utensílio encontrado"
+            descricaoVazio="Ajuste os filtros ou cadastre um novo utensílio."
           />
           <Paginacao
             paginaAtual={paginaAtual}

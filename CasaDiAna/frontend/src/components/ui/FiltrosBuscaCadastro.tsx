@@ -5,7 +5,7 @@ interface Props {
   onBuscaChange: (v: string) => void
 }
 
-export function FiltrosCategoriasUtensilio({ busca, onBuscaChange }: Props) {
+export function FiltrosBuscaCadastro({ busca, onBuscaChange }: Props) {
   const [focado, setFocado] = useState(false)
 
   return (
@@ -83,11 +83,11 @@ export function FiltrosCategoriasUtensilio({ busca, onBuscaChange }: Props) {
             <circle cx="11" cy="11" r="7" />
             <path d="m20 20-3.5-3.5" />
           </svg>
-          <label htmlFor="busca-categoria-utensilio" className="sr-only">
+          <label htmlFor="busca-categoria" className="sr-only">
             Buscar categoria
           </label>
           <input
-            id="busca-categoria-utensilio"
+            id="busca-categoria"
             type="text"
             placeholder="Buscar por nome…"
             value={busca}

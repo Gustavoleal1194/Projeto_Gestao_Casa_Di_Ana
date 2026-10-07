@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { CampoTexto } from '@/components/form/CampoTexto'
 import { Spinner } from '@/components/form/Spinner'
-import type { CategoriaIngrediente } from '@/types/estoque'
 
 const schema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório.').max(100, 'Máximo 100 caracteres.'),
@@ -13,22 +12,23 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>
 
 interface Props {
-  categoria?: CategoriaIngrediente | null
+  item?: { nome: string } | null
+  placeholderNome: string
   salvando: boolean
   onSalvar: (nome: string) => void
   onFechar: () => void
 }
 
-export function ModalCategoria({ categoria, salvando, onSalvar, onFechar }: Props) {
+export function ModalCadastroSimples({ item, placeholderNome, salvando, onSalvar, onFechar }: Props) {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(schema) as any,
-    defaultValues: { nome: categoria?.nome ?? '' },
+    defaultValues: { nome: item?.nome ?? '' },
   })
 
   useEffect(() => {
-    reset({ nome: categoria?.nome ?? '' })
-  }, [categoria, reset])
+    reset({ nome: item?.nome ?? '' })
+  }, [item, reset])
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -45,18 +45,17 @@ export function ModalCategoria({ categoria, salvando, onSalvar, onFechar }: Prop
       className="modal-overlay"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="modal-categoria-titulo"
+      aria-labelledby="modal-cadastro-simples-titulo"
       onClick={e => { if (e.target === e.currentTarget && !salvando) onFechar() }}
     >
       <div className="modal-card max-w-sm">
-        {/* Header */}
         <div className="modal-header">
           <h2
-            id="modal-categoria-titulo"
+            id="modal-cadastro-simples-titulo"
             className="text-[15px] font-semibold"
             style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
           >
-            {categoria ? 'Editar Categoria' : 'Nova Categoria'}
+            {item ? 'Editar Categoria' : 'Nova Categoria'}
           </h2>
           <button
             type="button"
@@ -74,20 +73,19 @@ export function ModalCategoria({ categoria, salvando, onSalvar, onFechar }: Prop
           </button>
         </div>
 
-        {/* Body */}
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         <form onSubmit={handleSubmit(onSubmit as any)}>
           <div className="px-6 py-5">
             <CampoTexto
               label="Nome"
               obrigatorio
-              placeholder="Ex: Laticínios"
+              placeholder={placeholderNome}
               autoFocus
               {...register('nome')}
               erro={errors.nome?.message}
             />
           </div>
 
-          {/* Footer */}
           <div className="modal-footer">
             <button
               type="button"

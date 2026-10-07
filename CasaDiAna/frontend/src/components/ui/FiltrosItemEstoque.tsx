@@ -12,7 +12,7 @@ interface Props {
   categorias: CategoriaIngrediente[]
 }
 
-export function FiltrosIngredientes({
+export function FiltrosItemEstoque({
   busca,
   onBuscaChange,
   categoriaId,
@@ -142,11 +142,11 @@ export function FiltrosIngredientes({
             <circle cx="11" cy="11" r="7" />
             <path d="m20 20-3.5-3.5" />
           </svg>
-          <label htmlFor="busca-ingrediente" className="sr-only">
-            Buscar ingrediente
+          <label htmlFor="busca-item-estoque" className="sr-only">
+            Buscar por nome
           </label>
           <input
-            id="busca-ingrediente"
+            id="busca-item-estoque"
             type="text"
             placeholder="Buscar por nome…"
             value={busca}

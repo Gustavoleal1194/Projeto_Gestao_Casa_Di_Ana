@@ -10,7 +10,7 @@ import { useUnidadesMedida } from '@/features/estoque/unidades/hooks/useUnidades
 import { CampoTexto } from '@/components/form/CampoTexto'
 import { SelectCampo } from '@/components/form/SelectCampo'
 import { Toast } from '@/components/ui/Toast'
-import { ConfirmacaoIngredienteModal, type DadosConfirmacaoIngrediente } from '../components/ConfirmacaoIngredienteModal'
+import { ConfirmacaoCadastroModal, type DadosConfirmacaoCadastro } from '@/components/ui/ConfirmacaoCadastroModal'
 import { FormSection } from '@/components/form/FormSection'
 import { FormTextarea } from '@/components/form/FormTextarea'
 import { FormActions } from '@/components/form/FormActions'
@@ -46,7 +46,7 @@ export function IngredienteFormPage() {
   const [unidadeAtual, setUnidadeAtual] = useState('')
   const [salvando, setSalvando] = useState(false)
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
-  const [confirma, setConfirma] = useState<DadosConfirmacaoIngrediente | null>(null)
+  const [confirma, setConfirma] = useState<DadosConfirmacaoCadastro | null>(null)
 
   const fecharToast = useCallback(() => setToast(null), [])
 
@@ -117,7 +117,7 @@ export function IngredienteFormPage() {
     try {
       await salvar(values)
       setConfirma({
-        ingredienteNome: values.nome,
+        nome: values.nome,
         unidade: unidadeAtual,
         modo: modoEdicao ? 'atualizado' : 'criado',
       })
@@ -157,11 +157,13 @@ export function IngredienteFormPage() {
   return (
     <div className="ada-page max-w-3xl">
       {confirma && (
-        <ConfirmacaoIngredienteModal
+        <ConfirmacaoCadastroModal
           aberto
           dados={confirma}
+          entidadeLabel="Ingrediente"
+          entidadeLabelPlural="Ingredientes"
           onFechar={() => { setConfirma(null); navigate('/estoque/ingredientes') }}
-          onVerIngredientes={() => { setConfirma(null); navigate('/estoque/ingredientes') }}
+          onVerLista={() => { setConfirma(null); navigate('/estoque/ingredientes') }}
         />
       )}
       {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={fecharToast} />}

@@ -4,8 +4,8 @@ import { PlusIcon } from '@heroicons/react/20/solid'
 import { useIngredientes } from '../hooks/useIngredientes'
 import { useCategorias } from '@/features/estoque/categorias/hooks/useCategorias'
 import { useAuthStore } from '@/store/authStore'
-import { TabelaIngredientes } from '../components/TabelaIngredientes'
-import { FiltrosIngredientes } from '../components/FiltrosIngredientes'
+import { TabelaItemEstoque } from '@/components/ui/TabelaItemEstoque'
+import { FiltrosItemEstoque } from '@/components/ui/FiltrosItemEstoque'
 import { ModalDesativar } from '@/components/ui/ModalDesativar'
 import { Paginacao } from '@/components/ui/Paginacao'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -82,7 +82,7 @@ export function IngredientesPage() {
       />
 
       {/* ── Filtros ──────────────────────────────────────────────────── */}
-      <FiltrosIngredientes
+      <FiltrosItemEstoque
         busca={busca}
         onBuscaChange={handleBusca}
         categoriaId={categoriaId}
@@ -109,12 +109,14 @@ export function IngredientesPage() {
       {/* ── Tabela + paginação ───────────────────────────────────────── */}
       {!loading && !erro && (
         <div>
-          <TabelaIngredientes
-            ingredientes={paginados}
+          <TabelaItemEstoque
+            itens={paginados}
             podeEditar={podeEditar}
             podeDesativar={podeDesativar}
             onEditar={id => navigate(`/estoque/ingredientes/${id}/editar`)}
             onDesativar={setParaDesativar}
+            tituloVazio="Nenhum ingrediente encontrado"
+            descricaoVazio="Ajuste os filtros ou cadastre um novo ingrediente."
           />
           <Paginacao
             paginaAtual={paginaAtual}

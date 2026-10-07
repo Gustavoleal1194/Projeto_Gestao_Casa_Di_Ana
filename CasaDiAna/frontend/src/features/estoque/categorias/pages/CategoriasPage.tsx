@@ -3,9 +3,9 @@ import { PlusIcon } from '@heroicons/react/20/solid'
 import { useCategorias } from '../hooks/useCategorias'
 import { categoriasService } from '../services/categoriasService'
 import { useAuthStore } from '@/store/authStore'
-import { TabelaCategorias } from '../components/TabelaCategorias'
-import { FiltrosCategorias } from '../components/FiltrosCategorias'
-import { ModalCategoria } from '../components/ModalCategoria'
+import { TabelaCadastroSimples } from '@/components/ui/TabelaCadastroSimples'
+import { FiltrosBuscaCadastro } from '@/components/ui/FiltrosBuscaCadastro'
+import { ModalCadastroSimples } from '@/components/ui/ModalCadastroSimples'
 import { ModalDesativar } from '@/components/ui/ModalDesativar'
 import { Toast } from '@/components/ui/Toast'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -87,7 +87,7 @@ export function CategoriasPage() {
       />
 
       {/* ── Filtros ──────────────────────────────────────────────────────── */}
-      <FiltrosCategorias
+      <FiltrosBuscaCadastro
         busca={busca}
         onBuscaChange={setBusca}
       />
@@ -98,19 +98,21 @@ export function CategoriasPage() {
         <div className="state-error" role="alert">{erro}</div>
       )}
       {!loading && !erro && (
-        <TabelaCategorias
-          categorias={filtradas}
+        <TabelaCadastroSimples
+          itens={filtradas}
           podeEditar={podeEditar}
           onEditar={abrirEditar}
           onDesativar={setParaDesativar}
           busca={busca}
+          mensagemVazia="Crie uma categoria para organizar os ingredientes."
         />
       )}
 
       {/* ── Modais ─────────────────────────────────────────────────────── */}
       {modalAberto && (
-        <ModalCategoria
-          categoria={categoriaEditando}
+        <ModalCadastroSimples
+          item={categoriaEditando}
+          placeholderNome="Ex: Laticínios"
           salvando={salvando}
           onSalvar={handleSalvar}
           onFechar={fecharModal}

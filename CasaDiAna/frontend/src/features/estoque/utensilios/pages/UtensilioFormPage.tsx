@@ -9,7 +9,7 @@ import { useUnidadesMedida } from '@/features/estoque/unidades/hooks/useUnidades
 import { CampoTexto } from '@/components/form/CampoTexto'
 import { SelectCampo } from '@/components/form/SelectCampo'
 import { Toast } from '@/components/ui/Toast'
-import { ConfirmacaoUtensilioModal, type DadosConfirmacaoUtensilio } from '../components/ConfirmacaoUtensilioModal'
+import { ConfirmacaoCadastroModal, type DadosConfirmacaoCadastro } from '@/components/ui/ConfirmacaoCadastroModal'
 import { FormSection } from '@/components/form/FormSection'
 import { FormActions } from '@/components/form/FormActions'
 import { FormCard } from '@/components/form/FormCard'
@@ -40,7 +40,7 @@ export function UtensilioFormPage() {
   const [unidadeAtual, setUnidadeAtual] = useState('')
   const [salvando, setSalvando] = useState(false)
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
-  const [confirma, setConfirma] = useState<DadosConfirmacaoUtensilio | null>(null)
+  const [confirma, setConfirma] = useState<DadosConfirmacaoCadastro | null>(null)
 
   const fecharToast = useCallback(() => setToast(null), [])
 
@@ -64,7 +64,7 @@ export function UtensilioFormPage() {
     try {
       await salvar(values)
       setConfirma({
-        utensilioNome: values.nome,
+        nome: values.nome,
         unidade: unidadeAtual,
         modo: modoEdicao ? 'atualizado' : 'criado',
       })
@@ -104,11 +104,13 @@ export function UtensilioFormPage() {
   return (
     <div className="ada-page max-w-3xl">
       {confirma && (
-        <ConfirmacaoUtensilioModal
+        <ConfirmacaoCadastroModal
           aberto
           dados={confirma}
+          entidadeLabel="Utensílio"
+          entidadeLabelPlural="Utensílios"
           onFechar={() => { setConfirma(null); navigate('/estoque/utensilios') }}
-          onVerUtensilios={() => { setConfirma(null); navigate('/estoque/utensilios') }}
+          onVerLista={() => { setConfirma(null); navigate('/estoque/utensilios') }}
         />
       )}
       {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={fecharToast} />}

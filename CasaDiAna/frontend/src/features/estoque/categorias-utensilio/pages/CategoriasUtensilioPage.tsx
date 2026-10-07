@@ -3,9 +3,9 @@ import { PlusIcon } from '@heroicons/react/20/solid'
 import { useCategoriasUtensilio } from '../hooks/useCategoriasUtensilio'
 import { categoriasUtensilioService } from '../services/categoriasUtensilioService'
 import { useAuthStore } from '@/store/authStore'
-import { TabelaCategoriasUtensilio } from '../components/TabelaCategoriasUtensilio'
-import { FiltrosCategoriasUtensilio } from '../components/FiltrosCategoriasUtensilio'
-import { ModalCategoriaUtensilio } from '../components/ModalCategoriaUtensilio'
+import { TabelaCadastroSimples } from '@/components/ui/TabelaCadastroSimples'
+import { FiltrosBuscaCadastro } from '@/components/ui/FiltrosBuscaCadastro'
+import { ModalCadastroSimples } from '@/components/ui/ModalCadastroSimples'
 import { ModalDesativar } from '@/components/ui/ModalDesativar'
 import { Toast } from '@/components/ui/Toast'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -86,7 +86,7 @@ export function CategoriasUtensilioPage() {
         ) : undefined}
       />
 
-      <FiltrosCategoriasUtensilio
+      <FiltrosBuscaCadastro
         busca={busca}
         onBuscaChange={setBusca}
       />
@@ -96,18 +96,20 @@ export function CategoriasUtensilioPage() {
         <div className="state-error" role="alert">{erro}</div>
       )}
       {!loading && !erro && (
-        <TabelaCategoriasUtensilio
-          categorias={filtradas}
+        <TabelaCadastroSimples
+          itens={filtradas}
           podeEditar={podeEditar}
           onEditar={abrirEditar}
           onDesativar={setParaDesativar}
           busca={busca}
+          mensagemVazia="Crie uma categoria para organizar os utensílios."
         />
       )}
 
       {modalAberto && (
-        <ModalCategoriaUtensilio
-          categoria={categoriaEditando}
+        <ModalCadastroSimples
+          item={categoriaEditando}
+          placeholderNome="Ex: Limpeza"
           salvando={salvando}
           onSalvar={handleSalvar}
           onFechar={fecharModal}

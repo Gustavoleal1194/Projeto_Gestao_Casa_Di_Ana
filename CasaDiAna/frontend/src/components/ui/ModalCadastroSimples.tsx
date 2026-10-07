@@ -17,9 +17,10 @@ interface Props {
   salvando: boolean
   onSalvar: (nome: string) => void
   onFechar: () => void
+  titulo?: string
 }
 
-export function ModalCadastroSimples({ item, placeholderNome, salvando, onSalvar, onFechar }: Props) {
+export function ModalCadastroSimples({ item, placeholderNome, salvando, onSalvar, onFechar, titulo }: Props) {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(schema) as any,
@@ -55,7 +56,7 @@ export function ModalCadastroSimples({ item, placeholderNome, salvando, onSalvar
             className="text-[15px] font-semibold"
             style={{ color: 'var(--ada-heading)', fontFamily: 'Sora, system-ui, sans-serif' }}
           >
-            {item ? 'Editar Categoria' : 'Nova Categoria'}
+            {item ? `Editar ${titulo ?? 'Categoria'}` : `Nova ${titulo ?? 'Categoria'}`}
           </h2>
           <button
             type="button"

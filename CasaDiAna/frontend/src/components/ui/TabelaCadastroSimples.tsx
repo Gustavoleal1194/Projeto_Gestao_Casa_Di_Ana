@@ -15,10 +15,11 @@ interface Props<T extends ItemCadastroSimples> {
   onDesativar: (item: T) => void
   busca?: string
   mensagemVazia: string
+  tituloVazio?: string
 }
 
 export function TabelaCadastroSimples<T extends ItemCadastroSimples>({
-  itens, podeEditar, onEditar, onDesativar, busca, mensagemVazia,
+  itens, podeEditar, onEditar, onDesativar, busca, mensagemVazia, tituloVazio,
 }: Props<T>) {
   return (
     <div className="ada-surface-card">
@@ -66,7 +67,7 @@ export function TabelaCadastroSimples<T extends ItemCadastroSimples>({
                         </svg>
                       </div>
                       <p className="text-sm font-semibold" style={{ color: 'var(--ada-body)', fontFamily: 'Sora, system-ui, sans-serif' }}>
-                        Nenhuma categoria cadastrada
+                        {tituloVazio ?? 'Nenhuma categoria cadastrada'}
                       </p>
                       <p className="text-xs mt-1" style={{ color: 'var(--ada-muted)' }}>
                         {mensagemVazia}

@@ -1,6 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import type { CategoriaIngrediente } from '@/types/estoque'
+
+interface CategoriaOpcao {
+  id: string
+  nome: string
+}
 
 interface Props {
   busca: string
@@ -9,7 +13,8 @@ interface Props {
   onCategoriaChange: (v: string) => void
   apenasAbaixoMinimo: boolean
   onApenasAbaixoMinimoChange: (v: boolean) => void
-  categorias: CategoriaIngrediente[]
+  categorias: CategoriaOpcao[]
+  labelBusca?: string
 }
 
 export function FiltrosItemEstoque({
@@ -20,6 +25,7 @@ export function FiltrosItemEstoque({
   apenasAbaixoMinimo,
   onApenasAbaixoMinimoChange,
   categorias,
+  labelBusca,
 }: Props) {
   const [focado, setFocado] = useState(false)
   const [dropdownAberto, setDropdownAberto] = useState(false)
@@ -143,7 +149,7 @@ export function FiltrosItemEstoque({
             <path d="m20 20-3.5-3.5" />
           </svg>
           <label htmlFor="busca-item-estoque" className="sr-only">
-            Buscar por nome
+            {labelBusca ?? 'Buscar por nome'}
           </label>
           <input
             id="busca-item-estoque"

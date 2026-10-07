@@ -89,6 +89,7 @@ export function UtensiliosPage() {
         apenasAbaixoMinimo={apenasAbaixoMinimo}
         onApenasAbaixoMinimoChange={handleAbaixoMinimo}
         categorias={categorias}
+        labelBusca="Buscar utensílio"
       />
 
       {loading && <SkeletonTable colunas={6} linhas={5} />}

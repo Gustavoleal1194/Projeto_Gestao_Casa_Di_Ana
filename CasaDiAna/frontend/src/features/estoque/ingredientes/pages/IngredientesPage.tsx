@@ -90,6 +90,7 @@ export function IngredientesPage() {
         apenasAbaixoMinimo={apenasAbaixoMinimo}
         onApenasAbaixoMinimoChange={handleAbaixoMinimo}
         categorias={categorias}
+        labelBusca="Buscar ingrediente"
       />
 
       {/* ── Carregando ───────────────────────────────────────────────── */}

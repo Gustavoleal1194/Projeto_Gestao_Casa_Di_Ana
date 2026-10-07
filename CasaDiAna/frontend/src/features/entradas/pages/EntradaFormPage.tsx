@@ -18,6 +18,10 @@ import { Toast } from '@/components/ui/Toast'
 import { ConfirmacaoEntradaModal, type DadosConfirmacaoEntrada } from '../components/ConfirmacaoEntradaModal'
 import type { Fornecedor, IngredienteResumo, UtensilioResumo, EntradaFormValues, EntradaMercadoria } from '@/types/estoque'
 
+const boletoSchema = z.object({
+  dataVencimento: z.string().min(1, 'Informe a data de vencimento.'),
+})
+
 const entradaSchema = z.object({
   fornecedorId: z.string().min(1, 'Selecione um fornecedor.'),
   dataEntrada: z.string().min(1, 'Informe a data da entrada.'),
@@ -25,7 +29,7 @@ const entradaSchema = z.object({
   recebidoPor: z.string().min(1, 'Informe quem recebeu os produtos.').max(100),
   observacoes: z.string(),
   temBoleto: z.boolean().default(false),
-  dataVencimentoBoleto: z.string().optional(),
+  boletos: z.array(boletoSchema).default([]),
   itens: z
     .array(
       z.object({
@@ -43,8 +47,8 @@ const entradaSchema = z.object({
     )
     .min(1, 'Adicione pelo menos um item.'),
 }).refine(
-  (data) => !data.temBoleto || (!!data.dataVencimentoBoleto && data.dataVencimentoBoleto.length > 0),
-  { message: 'Informe a data de vencimento do boleto.', path: ['dataVencimentoBoleto'] }
+  (data) => !data.temBoleto || data.boletos.length > 0,
+  { message: 'Adicione pelo menos um boleto.', path: ['boletos'] }
 )
 
 export function EntradaFormPage() {
@@ -66,7 +70,7 @@ export function EntradaFormPage() {
         recebidoPor: '',
         observacoes: '',
         temBoleto: false,
-        dataVencimentoBoleto: '',
+        boletos: [],
         itens: [{ tipo: 'ingrediente', itemId: '', quantidade: undefined, custoUnitario: undefined }],
       },
     })
@@ -75,12 +79,23 @@ export function EntradaFormPage() {
   const itensAtuais = watch('itens')
 
   const { fields, append, remove } = useFieldArray({ control, name: 'itens' })
+  const { fields: boletoFields, append: appendBoleto, remove: removeBoleto } = useFieldArray({ control, name: 'boletos' })
 
   useEffect(() => {
     fornecedoresService.listar().then(setFornecedores).catch(() => {})
     ingredientesService.listar().then(setIngredientes).catch(() => {})
     utensiliosService.listar().then(setUtensilios).catch(() => {})
   }, [])
+
+  const handleToggleBoleto = (checked: boolean) => {
+    setValue('temBoleto', checked)
+    if (checked && boletoFields.length === 0) {
+      appendBoleto({ dataVencimento: '' })
+    }
+    if (!checked) {
+      for (let i = boletoFields.length - 1; i >= 0; i--) removeBoleto(i)
+    }
+  }
 
   const onSubmit = async (values: EntradaFormValues) => {
     try {
@@ -93,10 +108,9 @@ export function EntradaFormPage() {
         recebidoPor: values.recebidoPor,
         numeroNotaFiscal: values.numeroNotaFiscal || null,
         observacoes: values.observacoes || null,
-        temBoleto: values.temBoleto,
-        dataVencimentoBoleto: values.temBoleto && values.dataVencimentoBoleto
-          ? values.dataVencimentoBoleto
-          : null,
+        datasVencimentoBoleto: values.temBoleto
+          ? values.boletos.map(b => b.dataVencimento)
+          : undefined,
         itens: itensIngrediente.map(item => ({
           ingredienteId: item.itemId,
           quantidade: item.quantidade!,
@@ -193,7 +207,8 @@ export function EntradaFormPage() {
                 <input
                   id="temBoleto"
                   type="checkbox"
-                  {...register('temBoleto')}
+                  checked={temBoleto}
+                  onChange={e => handleToggleBoleto(e.target.checked)}
                   className="h-4 w-4 rounded"
                   style={{ accentColor: '#C4870A' }}
                 />
@@ -204,13 +219,52 @@ export function EntradaFormPage() {
             </div>
 
             {temBoleto && (
-              <CampoTexto
-                label="Data de Vencimento do Boleto"
-                obrigatorio
-                type="date"
-                {...register('dataVencimentoBoleto')}
-                erro={errors.dataVencimentoBoleto?.message}
-              />
+              <div className="col-span-2 flex flex-col gap-3">
+                {boletoFields.map((field, index) => (
+                  <div key={field.id} className="flex items-end gap-2">
+                    <div className="flex-1">
+                      <CampoTexto
+                        label={`Vencimento do boleto ${index + 1}`}
+                        obrigatorio
+                        type="date"
+                        {...register(`boletos.${index}.dataVencimento`)}
+                        erro={errors.boletos?.[index]?.dataVencimento?.message}
+                      />
+                    </div>
+                    {boletoFields.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeBoleto(index)}
+                        className="mt-0.5 p-2 rounded-lg transition-colors"
+                        style={{ color: 'var(--ada-muted)' }}
+                        onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#DC2626'}
+                        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--ada-muted)'}
+                        title="Remover boleto"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+
+                {errors.boletos?.message && (
+                  <p className="text-xs" style={{ color: 'var(--ada-error-text)' }} role="alert">
+                    {errors.boletos.message}
+                  </p>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => appendBoleto({ dataVencimento: '' })}
+                  className="flex items-center gap-1.5 text-xs font-semibold self-start transition-colors"
+                  style={{ color: '#C4870A' }}
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#B87D0A'}
+                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = '#C4870A'}
+                >
+                  <PlusIcon className="h-3.5 w-3.5" />
+                  Adicionar outro boleto
+                </button>
+              </div>
             )}
           </div>
 

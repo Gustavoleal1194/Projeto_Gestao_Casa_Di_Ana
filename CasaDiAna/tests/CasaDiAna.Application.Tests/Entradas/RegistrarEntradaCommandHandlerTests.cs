@@ -161,8 +161,8 @@ public class RegistrarEntradaCommandHandlerTests
 
         var entradaRetornada = EntradaMercadoria.Criar(fornecedorId, DateTime.UtcNow, _usuarioId);
         entradaRetornada.AdicionarItem(ingredienteId, 10, 5.50m);
-        entradaRetornada.AdicionarBoleto(vencimento1);
         entradaRetornada.AdicionarBoleto(vencimento2);
+        entradaRetornada.AdicionarBoleto(vencimento1);
 
         _fornecedores.Setup(r => r.ObterPorIdAsync(fornecedorId, default)).ReturnsAsync(fornecedor);
         _ingredientes.Setup(r => r.ObterPorIdAsync(ingredienteId, default)).ReturnsAsync(ingrediente);
@@ -179,12 +179,20 @@ public class RegistrarEntradaCommandHandlerTests
                 DateTime.UtcNow,
                 new List<ItemEntradaInputDto> { new(ingredienteId, 10, 5.50m) },
                 "Operador Teste",
-                DatasVencimentoBoleto: new List<DateTime> { vencimento1, vencimento2 }),
+                DatasVencimentoBoleto: new List<DateTime> { vencimento2, vencimento1 }),
             CancellationToken.None);
 
         resultado.Boletos.Should().HaveCount(2);
         resultado.Boletos.Should().Contain(b => b.DataVencimento == vencimento1);
         resultado.Boletos.Should().Contain(b => b.DataVencimento == vencimento2);
+        resultado.Boletos.First().DataVencimento.Should().Be(vencimento1);
+        resultado.Boletos.Last().DataVencimento.Should().Be(vencimento2);
+
+        _entradas.Verify(r => r.AdicionarAsync(
+            It.Is<EntradaMercadoria>(e =>
+                e.Boletos.Count == 2 &&
+                e.ProximoVencimentoBoleto == vencimento1),
+            default), Times.Once);
     }
 
     [Fact]

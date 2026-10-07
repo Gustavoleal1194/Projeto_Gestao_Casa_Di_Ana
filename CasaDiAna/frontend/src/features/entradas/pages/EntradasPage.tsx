@@ -34,11 +34,12 @@ function diasParaVencer(dataVencimento: string): number {
   return Math.ceil((venc.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24))
 }
 
-function BadgeBoleto({ dataVencimento }: { dataVencimento: string | null }) {
-  if (!dataVencimento) return <span style={{ color: 'var(--ada-muted)' }}>—</span>
+function BadgeBoleto({ proximoVencimento, totalBoletos }: { proximoVencimento: string | null; totalBoletos: number }) {
+  if (!proximoVencimento || totalBoletos === 0) return <span style={{ color: 'var(--ada-muted)' }}>—</span>
 
-  const dias = diasParaVencer(dataVencimento)
-  const label = new Date(dataVencimento).toLocaleDateString('pt-BR')
+  const dias = diasParaVencer(proximoVencimento)
+  const label = new Date(proximoVencimento).toLocaleDateString('pt-BR')
+  const contador = totalBoletos > 1 ? ` · +${totalBoletos - 1}` : ''
 
   if (dias <= 0) {
     return (
@@ -48,7 +49,7 @@ function BadgeBoleto({ dataVencimento }: { dataVencimento: string | null }) {
         background: 'rgba(220,38,38,.12)', color: '#DC2626',
         border: '1px solid rgba(220,38,38,.25)',
       }}>
-        {label} · vencido
+        {label} · vencido{contador}
       </span>
     )
   }
@@ -60,7 +61,7 @@ function BadgeBoleto({ dataVencimento }: { dataVencimento: string | null }) {
         background: 'rgba(220,38,38,.12)', color: '#DC2626',
         border: '1px solid rgba(220,38,38,.25)',
       }}>
-        {label} · {dias}d
+        {label} · {dias}d{contador}
       </span>
     )
   }
@@ -72,13 +73,13 @@ function BadgeBoleto({ dataVencimento }: { dataVencimento: string | null }) {
         background: 'rgba(240,176,48,.12)', color: '#C4870A',
         border: '1px solid rgba(240,176,48,.28)',
       }}>
-        {label} · {dias}d
+        {label} · {dias}d{contador}
       </span>
     )
   }
   return (
     <span style={{ fontSize: 12.5, color: 'var(--ada-body)' }}>
-      {label}
+      {label}{contador}
     </span>
   )
 }
@@ -94,10 +95,9 @@ export function EntradasPage() {
 
   const boletosVencendo = useMemo(() =>
     entradas.filter(e =>
-      e.temBoleto &&
-      e.dataVencimentoBoleto &&
+      e.proximoVencimentoBoleto &&
       e.status === 'Confirmada' &&
-      diasParaVencer(e.dataVencimentoBoleto) <= 3
+      diasParaVencer(e.proximoVencimentoBoleto) <= 3
     ),
     [entradas]
   )
@@ -261,7 +261,7 @@ export function EntradasPage() {
                         </span>
                       </td>
                       <td className="table-td">
-                        <BadgeBoleto dataVencimento={e.temBoleto ? e.dataVencimentoBoleto : null} />
+                        <BadgeBoleto proximoVencimento={e.proximoVencimentoBoleto} totalBoletos={e.totalBoletos} />
                       </td>
                       <td className="table-td">
                         <BadgeStatus status={e.status} />

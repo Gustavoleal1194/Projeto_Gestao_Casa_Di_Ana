@@ -137,19 +137,21 @@ export function EntradaDetalhePage() {
         </div>
       )}
 
-      {entrada.temBoleto && (
+      {entrada.boletos.length > 0 && (
         <div
           className="rounded-xl px-4 py-3 text-sm mb-4"
           style={{ background: 'var(--ada-surface)', border: '1px solid var(--ada-border)' }}
         >
-          <p>
-            <span className="font-semibold" style={{ color: 'var(--ada-muted)' }}>Boleto: </span>
-            <span style={{ color: 'var(--ada-body)' }}>
-              {entrada.dataVencimentoBoleto
-                ? `Vencimento: ${new Date(entrada.dataVencimentoBoleto).toLocaleDateString('pt-BR')}`
-                : 'Sim (sem data de vencimento)'}
-            </span>
+          <p className="font-semibold mb-1.5" style={{ color: 'var(--ada-muted)' }}>
+            {entrada.boletos.length > 1 ? `Boletos (${entrada.boletos.length})` : 'Boleto'}
           </p>
+          <ul className="flex flex-col gap-1">
+            {entrada.boletos.map(boleto => (
+              <li key={boleto.id} style={{ color: 'var(--ada-body)' }}>
+                Vencimento: {new Date(boleto.dataVencimento).toLocaleDateString('pt-BR')}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

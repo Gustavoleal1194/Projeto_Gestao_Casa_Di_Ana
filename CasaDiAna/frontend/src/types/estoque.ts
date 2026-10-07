@@ -212,8 +212,8 @@ export interface EntradaMercadoriaResumo {
   totalItens: number
   custoTotal: number
   criadoEm: string
-  temBoleto: boolean
-  dataVencimentoBoleto: string | null
+  proximoVencimentoBoleto: string | null
+  totalBoletos: number
 }
 
 export interface ItemEntrada {
@@ -236,6 +236,11 @@ export interface ItemEntradaUtensilio {
   custoTotal: number
 }
 
+export interface Boleto {
+  id: string
+  dataVencimento: string
+}
+
 export interface EntradaMercadoria {
   id: string
   fornecedorId: string
@@ -247,8 +252,7 @@ export interface EntradaMercadoria {
   observacoes: string | null
   custoTotal: number
   criadoEm: string
-  temBoleto: boolean
-  dataVencimentoBoleto: string | null
+  boletos: Boleto[]
   itens: ItemEntrada[]
   itensUtensilio: ItemEntradaUtensilio[]
 }
@@ -273,8 +277,7 @@ export interface RegistrarEntradaInput {
   recebidoPor: string
   numeroNotaFiscal?: string | null
   observacoes?: string | null
-  temBoleto: boolean
-  dataVencimentoBoleto?: string | null
+  datasVencimentoBoleto?: string[]
 }
 
 export interface EntradaFormValues {
@@ -290,7 +293,7 @@ export interface EntradaFormValues {
     custoUnitario: number | undefined
   }[]
   temBoleto: boolean
-  dataVencimentoBoleto: string
+  boletos: { dataVencimento: string }[]
 }
 
 // ─── Inventários ──────────────────────────────────────────────────────────────

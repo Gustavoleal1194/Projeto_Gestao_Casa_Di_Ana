@@ -9,8 +9,7 @@ public class RegistrarEntradaValidatorBoletoTests
     private readonly RegistrarEntradaCommandValidator _sut = new();
 
     private static RegistrarEntradaCommand ComandoValido(
-        bool temBoleto = false,
-        DateTime? dataVencimentoBoleto = null) =>
+        IReadOnlyList<DateTime>? datasVencimentoBoleto = null) =>
         new(
             FornecedorId: Guid.NewGuid(),
             DataEntrada: DateTime.UtcNow,
@@ -19,50 +18,68 @@ public class RegistrarEntradaValidatorBoletoTests
                 new(Guid.NewGuid(), 1m, 10m)
             }.AsReadOnly(),
             RecebidoPor: "João",
-            TemBoleto: temBoleto,
-            DataVencimentoBoleto: dataVencimentoBoleto);
+            DatasVencimentoBoleto: datasVencimentoBoleto);
 
     [Fact]
-    public void Deve_passar_quando_TemBoleto_false_sem_data()
+    public void Deve_passar_quando_SemBoleto()
     {
-        var result = _sut.Validate(ComandoValido(temBoleto: false));
+        var result = _sut.Validate(ComandoValido());
         result.IsValid.Should().BeTrue();
     }
 
     [Fact]
-    public void Deve_falhar_quando_TemBoleto_true_sem_data_vencimento()
+    public void Deve_falhar_quando_DataDeBoletoNoPassado()
     {
-        var result = _sut.Validate(ComandoValido(temBoleto: true, dataVencimentoBoleto: null));
+        var result = _sut.Validate(ComandoValido(
+            datasVencimentoBoleto: new List<DateTime> { DateTime.UtcNow.AddDays(-1) }));
+
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.PropertyName == "DataVencimentoBoleto");
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("hoje ou no futuro"));
     }
 
     [Fact]
-    public void Deve_falhar_quando_data_vencimento_no_passado()
+    public void Deve_passar_quando_UmaDataFutura()
     {
         var result = _sut.Validate(ComandoValido(
-            temBoleto: true,
-            dataVencimentoBoleto: DateTime.UtcNow.AddDays(-1)));
+            datasVencimentoBoleto: new List<DateTime> { DateTime.UtcNow.AddDays(10) }));
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Deve_passar_quando_DataDeHoje()
+    {
+        var result = _sut.Validate(ComandoValido(
+            datasVencimentoBoleto: new List<DateTime> { DateTime.UtcNow.Date }));
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Deve_passar_quando_MultiplasDatasFuturas()
+    {
+        var result = _sut.Validate(ComandoValido(
+            datasVencimentoBoleto: new List<DateTime>
+            {
+                DateTime.UtcNow.AddDays(10),
+                DateTime.UtcNow.AddDays(40),
+            }));
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Deve_falhar_quando_UmaDeVariasDatasNoPassado()
+    {
+        var result = _sut.Validate(ComandoValido(
+            datasVencimentoBoleto: new List<DateTime>
+            {
+                DateTime.UtcNow.AddDays(10),
+                DateTime.UtcNow.AddDays(-2),
+            }));
+
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.PropertyName == "DataVencimentoBoleto");
-    }
-
-    [Fact]
-    public void Deve_passar_quando_TemBoleto_true_com_data_futura()
-    {
-        var result = _sut.Validate(ComandoValido(
-            temBoleto: true,
-            dataVencimentoBoleto: DateTime.UtcNow.AddDays(10)));
-        result.IsValid.Should().BeTrue();
-    }
-
-    [Fact]
-    public void Deve_passar_quando_TemBoleto_true_com_data_hoje()
-    {
-        var result = _sut.Validate(ComandoValido(
-            temBoleto: true,
-            dataVencimentoBoleto: DateTime.UtcNow.Date));
-        result.IsValid.Should().BeTrue();
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("hoje ou no futuro"));
     }
 
     [Fact]

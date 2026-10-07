@@ -44,11 +44,11 @@ public class RegistrarEntradaCommandValidator : AbstractValidator<RegistrarEntra
             .NotEmpty().WithMessage("Informe quem recebeu os produtos.")
             .MaximumLength(100).WithMessage("Nome de quem recebeu deve ter no máximo 100 caracteres.");
 
-        RuleFor(x => x.DataVencimentoBoleto)
-            .NotNull()
-            .WithMessage("Informe a data de vencimento do boleto.")
-            .GreaterThanOrEqualTo(_ => DateTime.UtcNow.Date)
-            .WithMessage("A data de vencimento do boleto deve ser hoje ou no futuro.")
-            .When(x => x.TemBoleto);
+        RuleForEach(x => x.DatasVencimentoBoleto).ChildRules(data =>
+        {
+            data.RuleFor(d => d)
+                .GreaterThanOrEqualTo(_ => DateTime.UtcNow.Date)
+                .WithMessage("A data de vencimento do boleto deve ser hoje ou no futuro.");
+        });
     }
 }

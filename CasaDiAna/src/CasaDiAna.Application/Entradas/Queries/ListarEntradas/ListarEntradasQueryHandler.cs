@@ -28,7 +28,7 @@ public class ListarEntradasQueryHandler : IRequestHandler<ListarEntradasQuery, I
             e.Itens.Count + e.ItensUtensilio.Count,
             e.Itens.Sum(i => i.CustoTotal) + e.ItensUtensilio.Sum(i => i.CustoTotal),
             e.CriadoEm,
-            e.TemBoleto,
-            e.DataVencimentoBoleto)).ToList().AsReadOnly();
+            e.ProximoVencimentoBoleto,
+            e.Boletos.Count)).ToList().AsReadOnly();
     }
 }

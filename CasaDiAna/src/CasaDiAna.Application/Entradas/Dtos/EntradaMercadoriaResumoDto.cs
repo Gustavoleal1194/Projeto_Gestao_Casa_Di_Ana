@@ -10,5 +10,5 @@ public record EntradaMercadoriaResumoDto(
     int TotalItens,
     decimal CustoTotal,
     DateTime CriadoEm,
-    bool TemBoleto,
-    DateTime? DataVencimentoBoleto);
+    DateTime? ProximoVencimentoBoleto,
+    int TotalBoletos);

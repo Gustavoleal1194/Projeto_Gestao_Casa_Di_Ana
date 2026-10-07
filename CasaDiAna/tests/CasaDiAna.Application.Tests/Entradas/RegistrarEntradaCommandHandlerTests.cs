@@ -149,6 +149,76 @@ public class RegistrarEntradaCommandHandlerTests
     }
 
     [Fact]
+    public async Task DeveRegistrarEntrada_ComMultiplosBoletos()
+    {
+        var fornecedorId = Guid.NewGuid();
+        var ingredienteId = Guid.NewGuid();
+        var fornecedor = Fornecedor.Criar("Distribuidora XYZ", _usuarioId);
+        var ingrediente = CriarIngrediente();
+
+        var vencimento1 = DateTime.UtcNow.Date.AddDays(10);
+        var vencimento2 = DateTime.UtcNow.Date.AddDays(40);
+
+        var entradaRetornada = EntradaMercadoria.Criar(fornecedorId, DateTime.UtcNow, _usuarioId);
+        entradaRetornada.AdicionarItem(ingredienteId, 10, 5.50m);
+        entradaRetornada.AdicionarBoleto(vencimento1);
+        entradaRetornada.AdicionarBoleto(vencimento2);
+
+        _fornecedores.Setup(r => r.ObterPorIdAsync(fornecedorId, default)).ReturnsAsync(fornecedor);
+        _ingredientes.Setup(r => r.ObterPorIdAsync(ingredienteId, default)).ReturnsAsync(ingrediente);
+        _ingredientes.Setup(r => r.Atualizar(It.IsAny<Ingrediente>()));
+        _movimentacoes.Setup(r => r.AdicionarAsync(It.IsAny<Movimentacao>(), default)).Returns(Task.CompletedTask);
+        _entradas.Setup(r => r.AdicionarAsync(It.IsAny<EntradaMercadoria>(), default)).Returns(Task.CompletedTask);
+        _entradas.Setup(r => r.SalvarAsync(default)).ReturnsAsync(1);
+        _entradas.Setup(r => r.ObterPorIdComItensAsync(It.IsAny<Guid>(), default))
+            .ReturnsAsync(entradaRetornada);
+
+        var resultado = await _handler.Handle(
+            new RegistrarEntradaCommand(
+                fornecedorId,
+                DateTime.UtcNow,
+                new List<ItemEntradaInputDto> { new(ingredienteId, 10, 5.50m) },
+                "Operador Teste",
+                DatasVencimentoBoleto: new List<DateTime> { vencimento1, vencimento2 }),
+            CancellationToken.None);
+
+        resultado.Boletos.Should().HaveCount(2);
+        resultado.Boletos.Should().Contain(b => b.DataVencimento == vencimento1);
+        resultado.Boletos.Should().Contain(b => b.DataVencimento == vencimento2);
+    }
+
+    [Fact]
+    public async Task DeveRegistrarEntrada_SemBoleto_QuandoDatasVencimentoBoletoNaoInformado()
+    {
+        var fornecedorId = Guid.NewGuid();
+        var ingredienteId = Guid.NewGuid();
+        var fornecedor = Fornecedor.Criar("Distribuidora XYZ", _usuarioId);
+        var ingrediente = CriarIngrediente();
+
+        var entradaRetornada = EntradaMercadoria.Criar(fornecedorId, DateTime.UtcNow, _usuarioId);
+        entradaRetornada.AdicionarItem(ingredienteId, 10, 5.50m);
+
+        _fornecedores.Setup(r => r.ObterPorIdAsync(fornecedorId, default)).ReturnsAsync(fornecedor);
+        _ingredientes.Setup(r => r.ObterPorIdAsync(ingredienteId, default)).ReturnsAsync(ingrediente);
+        _ingredientes.Setup(r => r.Atualizar(It.IsAny<Ingrediente>()));
+        _movimentacoes.Setup(r => r.AdicionarAsync(It.IsAny<Movimentacao>(), default)).Returns(Task.CompletedTask);
+        _entradas.Setup(r => r.AdicionarAsync(It.IsAny<EntradaMercadoria>(), default)).Returns(Task.CompletedTask);
+        _entradas.Setup(r => r.SalvarAsync(default)).ReturnsAsync(1);
+        _entradas.Setup(r => r.ObterPorIdComItensAsync(It.IsAny<Guid>(), default))
+            .ReturnsAsync(entradaRetornada);
+
+        var resultado = await _handler.Handle(
+            new RegistrarEntradaCommand(
+                fornecedorId,
+                DateTime.UtcNow,
+                new List<ItemEntradaInputDto> { new(ingredienteId, 10, 5.50m) },
+                "Operador Teste"),
+            CancellationToken.None);
+
+        resultado.Boletos.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task DeveLancarExcecao_QuandoFornecedorNaoEncontrado()
     {
         var fornecedorId = Guid.NewGuid();

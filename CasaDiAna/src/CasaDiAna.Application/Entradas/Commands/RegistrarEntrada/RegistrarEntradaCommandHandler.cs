@@ -55,9 +55,10 @@ public class RegistrarEntradaCommandHandler : IRequestHandler<RegistrarEntradaCo
             _currentUser.UsuarioId,
             request.NumeroNotaFiscal,
             request.RecebidoPor,
-            request.Observacoes,
-            request.TemBoleto,
-            request.DataVencimentoBoleto);
+            request.Observacoes);
+
+        foreach (var dataVencimento in request.DatasVencimentoBoleto ?? Array.Empty<DateTime>())
+            entrada.AdicionarBoleto(dataVencimento);
 
         var itensIngrediente = request.Itens ?? Array.Empty<ItemEntradaInputDto>();
 
@@ -162,6 +163,12 @@ public class RegistrarEntradaCommandHandler : IRequestHandler<RegistrarEntradaCo
             i.CustoUnitario,
             i.CustoTotal)).ToList().AsReadOnly();
 
+        var boletos = e.Boletos
+            .OrderBy(b => b.DataVencimento)
+            .Select(b => new BoletoDto(b.Id, b.DataVencimento))
+            .ToList()
+            .AsReadOnly();
+
         return new EntradaMercadoriaDto(
             e.Id,
             e.FornecedorId,
@@ -174,8 +181,7 @@ public class RegistrarEntradaCommandHandler : IRequestHandler<RegistrarEntradaCo
             itens,
             itens.Sum(i => i.CustoTotal) + itensUtensilio.Sum(i => i.CustoTotal),
             e.CriadoEm,
-            e.TemBoleto,
-            e.DataVencimentoBoleto,
-            itensUtensilio);
+            itensUtensilio,
+            boletos);
     }
 }

@@ -24,7 +24,7 @@ interface Props<T extends FieldValues> {
 function normalizar(texto: string): string {
   return texto
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
 }
 
@@ -48,9 +48,9 @@ export function ComboboxCampo<T extends FieldValues>({
     ? opcoes
     : opcoes.filter(o => normalizar(o.rotulo).includes(normalizar(query)))
 
-  const opcaoSelecionada = opcoes.find(o => o.valor === field.value) ?? null
-
   const valorComoTexto = (valor: string | number) => String(valor)
+
+  const opcaoSelecionada = opcoes.find(o => valorComoTexto(o.valor) === valorComoTexto(field.value)) ?? null
 
   return (
     <div className="flex flex-col gap-1">
@@ -67,11 +67,14 @@ export function ComboboxCampo<T extends FieldValues>({
         onChange={(valorTexto: string | null) => {
           if (!valorTexto) {
             field.onChange('')
+            setQuery('')
             return
           }
           const opcaoEscolhida = opcoes.find(o => valorComoTexto(o.valor) === valorTexto)
           field.onChange(opcaoEscolhida?.valor ?? '')
+          setQuery('')
         }}
+        onClose={() => setQuery('')}
         disabled={disabled}
       >
         <div className="relative">
@@ -93,7 +96,7 @@ export function ComboboxCampo<T extends FieldValues>({
           />
 
           <div className="absolute inset-y-0 right-0 flex items-center gap-1 pr-2">
-            {!obrigatorio && field.value && (
+            {!obrigatorio && !disabled && Boolean(field.value) && (
               <button
                 type="button"
                 tabIndex={-1}
@@ -111,7 +114,8 @@ export function ComboboxCampo<T extends FieldValues>({
           </div>
 
           <Combobox.Options
-            className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg py-1 text-sm shadow-lg outline-none"
+            anchor="bottom start"
+            className="z-[60] mt-1 max-h-60 w-[var(--input-width)] overflow-auto rounded-lg py-1 text-sm shadow-lg outline-none"
             style={{ background: 'var(--ada-surface)', border: '1px solid var(--ada-border)' }}
           >
             {opcoesFiltradas.length === 0 ? (

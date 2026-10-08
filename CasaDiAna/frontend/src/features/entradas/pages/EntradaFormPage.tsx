@@ -11,6 +11,7 @@ import { ingredientesService } from '@/features/estoque/ingredientes/services/in
 import { utensiliosService } from '@/features/estoque/utensilios/services/utensiliosService'
 import { CampoTexto } from '@/components/form/CampoTexto'
 import { SelectCampo } from '@/components/form/SelectCampo'
+import { ComboboxCampo } from '@/components/form/ComboboxCampo'
 import { FormSection } from '@/components/form/FormSection'
 import { FormActions } from '@/components/form/FormActions'
 import { FormCard } from '@/components/form/FormCard'
@@ -167,11 +168,13 @@ export function EntradaFormPage() {
         <FormCard>
           <FormSection titulo="Dados da Entrada" />
           <div className="grid grid-cols-2 gap-4">
-            <SelectCampo
+            <ComboboxCampo
+              control={control}
+              name="fornecedorId"
               label="Fornecedor"
               obrigatorio
+              placeholder="Buscar fornecedor…"
               opcoes={fornecedores.map(f => ({ valor: f.id, rotulo: f.razaoSocial }))}
-              {...register('fornecedorId')}
               erro={errors.fornecedorId?.message}
             />
             <CampoTexto
@@ -310,10 +313,12 @@ export function EntradaFormPage() {
                       setValue(`itens.${index}.itemId`, '')
                     }}
                   />
-                  <SelectCampo
+                  <ComboboxCampo
+                    control={control}
+                    name={`itens.${index}.itemId`}
                     label=" "
+                    placeholder="Buscar item…"
                     opcoes={opcoesItem}
-                    {...register(`itens.${index}.itemId`)}
                     erro={errors.itens?.[index]?.itemId?.message}
                   />
                   <CampoTexto

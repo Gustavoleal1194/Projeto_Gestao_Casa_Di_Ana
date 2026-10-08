@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { CampoTexto } from '@/components/form/CampoTexto'
-import { SelectCampo } from '@/components/form/SelectCampo'
+import { ComboboxCampo } from '@/components/form/ComboboxCampo'
 import { FormCard } from '@/components/form/FormCard'
 import { FormSection } from '@/components/form/FormSection'
 import { FooterFormulario } from './FooterFormulario'
@@ -83,13 +83,15 @@ export function IngredientesForm({ itensIniciais, ingredientes, salvando, onSalv
         <div className="space-y-2">
           {fields.map((field, index) => (
             <div key={field.id} className="grid grid-cols-[1fr_160px_36px] gap-2 items-start">
-              <SelectCampo
+              <ComboboxCampo
+                control={control}
+                name={`itens.${index}.ingredienteId`}
                 label=" "
+                placeholder="Buscar ingrediente…"
                 opcoes={ingredientes.map(ing => ({
                   valor: ing.id,
                   rotulo: `${ing.nome} (${ing.unidadeMedidaCodigo})`,
                 }))}
-                {...register(`itens.${index}.ingredienteId`)}
                 erro={errors.itens?.[index]?.ingredienteId?.message}
               />
               <CampoTexto

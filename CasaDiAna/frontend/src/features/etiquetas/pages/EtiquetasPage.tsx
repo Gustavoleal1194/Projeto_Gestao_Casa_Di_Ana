@@ -3,6 +3,7 @@ import axios from 'axios'
 import { PrinterIcon } from '@heroicons/react/24/outline'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import { ingredientesService } from '@/features/estoque/ingredientes/services/ingredientesService'
+import { ComboboxCampoControlado } from '@/components/form/ComboboxCampo'
 import { etiquetasService, type TipoEtiqueta, type HistoricoImpressao, type ModeloNutricional, type ModeloNutricionalResumo } from '@/lib/etiquetasService'
 import { ModelosNutricionaisTable } from '../components/ModelosNutricionaisTable'
 import { HistoricoImpressoesTable } from '../components/HistoricoImpressoesTable'
@@ -498,45 +499,25 @@ export function EtiquetasPage() {
           {/* Seletor de produto ou ingrediente */}
           {tipoItem === 'produto' ? (
             <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-body)' }}>
-                Produto <span className="text-red-500">*</span>
-              </label>
-              <select
+              <ComboboxCampoControlado
+                label="Produto"
+                obrigatorio
+                placeholder="Buscar produto…"
                 value={produtoId}
-                onChange={e => setProdutoId(e.target.value)}
-                className="w-full rounded-lg px-3 py-2.5 text-sm border outline-none"
-                style={{
-                  background: 'var(--ada-bg)',
-                  borderColor: 'var(--ada-border)',
-                  color: 'var(--ada-body)',
-                }}
-              >
-                <option value="">Selecione um produto...</option>
-                {produtos.map(p => (
-                  <option key={p.id} value={p.id}>{p.nome}</option>
-                ))}
-              </select>
+                onChange={setProdutoId}
+                opcoes={produtos.map(p => ({ valor: p.id, rotulo: p.nome }))}
+              />
             </div>
           ) : (
             <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-body)' }}>
-                Ingrediente <span className="text-red-500">*</span>
-              </label>
-              <select
+              <ComboboxCampoControlado
+                label="Ingrediente"
+                obrigatorio
+                placeholder="Buscar ingrediente…"
                 value={ingredienteId}
-                onChange={e => setIngredienteId(e.target.value)}
-                className="w-full rounded-lg px-3 py-2.5 text-sm border outline-none"
-                style={{
-                  background: 'var(--ada-bg)',
-                  borderColor: 'var(--ada-border)',
-                  color: 'var(--ada-body)',
-                }}
-              >
-                <option value="">Selecione um ingrediente...</option>
-                {ingredientes.filter(i => i.ativo).map(i => (
-                  <option key={i.id} value={i.id}>{i.nome}</option>
-                ))}
-              </select>
+                onChange={setIngredienteId}
+                opcoes={ingredientes.filter(i => i.ativo).map(i => ({ valor: i.id, rotulo: i.nome }))}
+              />
             </div>
           )}
 

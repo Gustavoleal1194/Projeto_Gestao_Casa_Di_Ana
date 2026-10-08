@@ -9,53 +9,54 @@ interface OpcaoCombobox {
   rotulo: string
 }
 
-interface Props<T extends FieldValues> {
-  control: Control<T>
-  name: Path<T>
+function normalizar(texto: string): string {
+  return texto
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+}
+
+function valorComoTexto(valor: string | number): string {
+  return String(valor)
+}
+
+interface PropsBase {
+  id: string
+  valorTexto: string
+  onSelecionar: (valorTexto: string) => void
+  onBlur?: () => void
   label: string
   opcoes: OpcaoCombobox[]
   erro?: string
   obrigatorio?: boolean
   placeholder?: string
   disabled?: boolean
-  id?: string
 }
 
-function normalizar(texto: string): string {
-  return texto
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-}
-
-export function ComboboxCampo<T extends FieldValues>({
-  control,
-  name,
+function ComboboxCampoBase({
+  id,
+  valorTexto,
+  onSelecionar,
+  onBlur,
   label,
   opcoes,
   erro,
   obrigatorio,
   placeholder,
   disabled,
-  id,
-}: Props<T>) {
-  const { field } = useController({ control, name })
+}: PropsBase) {
   const [query, setQuery] = useState('')
-
-  const comboboxId = id ?? `combobox-${String(name).replace(/\./g, '-')}`
 
   const opcoesFiltradas = query === ''
     ? opcoes
     : opcoes.filter(o => normalizar(o.rotulo).includes(normalizar(query)))
 
-  const valorComoTexto = (valor: string | number) => String(valor)
-
-  const opcaoSelecionada = opcoes.find(o => valorComoTexto(o.valor) === valorComoTexto(field.value)) ?? null
+  const opcaoSelecionada = opcoes.find(o => valorComoTexto(o.valor) === valorTexto) ?? null
 
   return (
     <div className="flex flex-col gap-1">
       <label
-        htmlFor={comboboxId}
+        htmlFor={id}
         className="text-[11.5px] font-semibold uppercase tracking-[.06em]"
         style={{ color: 'var(--ada-muted)', fontFamily: 'Sora, system-ui, sans-serif' }}
       >
@@ -63,15 +64,9 @@ export function ComboboxCampo<T extends FieldValues>({
       </label>
 
       <Combobox
-        value={field.value != null ? valorComoTexto(field.value) : ''}
-        onChange={(valorTexto: string | null) => {
-          if (!valorTexto) {
-            field.onChange('')
-            setQuery('')
-            return
-          }
-          const opcaoEscolhida = opcoes.find(o => valorComoTexto(o.valor) === valorTexto)
-          field.onChange(opcaoEscolhida?.valor ?? '')
+        value={valorTexto}
+        onChange={(valor: string | null) => {
+          onSelecionar(valor ?? '')
           setQuery('')
         }}
         onClose={() => setQuery('')}
@@ -79,7 +74,7 @@ export function ComboboxCampo<T extends FieldValues>({
       >
         <div className="relative">
           <Combobox.Input
-            id={comboboxId}
+            id={id}
             aria-required={obrigatorio}
             aria-invalid={!!erro}
             className="w-full rounded-lg px-3 py-2 text-sm outline-none transition-all duration-150 pr-16"
@@ -91,16 +86,16 @@ export function ComboboxCampo<T extends FieldValues>({
             }}
             displayValue={() => opcaoSelecionada?.rotulo ?? ''}
             onChange={(e) => setQuery(e.target.value)}
-            onBlur={field.onBlur}
+            onBlur={onBlur}
             placeholder={placeholder ?? 'Buscar…'}
           />
 
           <div className="absolute inset-y-0 right-0 flex items-center gap-1 pr-2">
-            {!obrigatorio && !disabled && Boolean(field.value) && (
+            {!obrigatorio && !disabled && Boolean(valorTexto) && (
               <button
                 type="button"
                 tabIndex={-1}
-                onClick={() => { field.onChange(''); setQuery('') }}
+                onClick={() => { onSelecionar(''); setQuery('') }}
                 className="p-0.5 rounded transition-colors"
                 style={{ color: 'var(--ada-muted)' }}
                 aria-label="Limpar seleção"
@@ -149,5 +144,99 @@ export function ComboboxCampo<T extends FieldValues>({
         </p>
       )}
     </div>
+  )
+}
+
+interface Props<T extends FieldValues> {
+  control: Control<T>
+  name: Path<T>
+  label: string
+  opcoes: OpcaoCombobox[]
+  erro?: string
+  obrigatorio?: boolean
+  placeholder?: string
+  disabled?: boolean
+  id?: string
+}
+
+/** Select com busca integrado ao React Hook Form (via control/name). */
+export function ComboboxCampo<T extends FieldValues>({
+  control,
+  name,
+  label,
+  opcoes,
+  erro,
+  obrigatorio,
+  placeholder,
+  disabled,
+  id,
+}: Props<T>) {
+  const { field } = useController({ control, name })
+  const comboboxId = id ?? `combobox-${String(name).replace(/\./g, '-')}`
+
+  return (
+    <ComboboxCampoBase
+      id={comboboxId}
+      valorTexto={field.value != null ? valorComoTexto(field.value) : ''}
+      onSelecionar={(valorTexto) => {
+        if (!valorTexto) {
+          field.onChange('')
+          return
+        }
+        const opcaoEscolhida = opcoes.find(o => valorComoTexto(o.valor) === valorTexto)
+        field.onChange(opcaoEscolhida?.valor ?? '')
+      }}
+      onBlur={field.onBlur}
+      label={label}
+      opcoes={opcoes}
+      erro={erro}
+      obrigatorio={obrigatorio}
+      placeholder={placeholder}
+      disabled={disabled}
+    />
+  )
+}
+
+interface PropsControlado {
+  value: string
+  onChange: (valor: string) => void
+  onBlur?: () => void
+  label: string
+  opcoes: OpcaoCombobox[]
+  erro?: string
+  obrigatorio?: boolean
+  placeholder?: string
+  disabled?: boolean
+  id?: string
+}
+
+/** Select com busca controlado diretamente por value/onChange, para telas sem React Hook Form. */
+export function ComboboxCampoControlado({
+  value,
+  onChange,
+  onBlur,
+  label,
+  opcoes,
+  erro,
+  obrigatorio,
+  placeholder,
+  disabled,
+  id,
+}: PropsControlado) {
+  const comboboxId = id ?? `combobox-${label.toLowerCase().replace(/\s+/g, '-')}`
+
+  return (
+    <ComboboxCampoBase
+      id={comboboxId}
+      valorTexto={value}
+      onSelecionar={onChange}
+      onBlur={onBlur}
+      label={label}
+      opcoes={opcoes}
+      erro={erro}
+      obrigatorio={obrigatorio}
+      placeholder={placeholder}
+      disabled={disabled}
+    />
   )
 }

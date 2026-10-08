@@ -50,6 +50,8 @@ export function ComboboxCampo<T extends FieldValues>({
 
   const opcaoSelecionada = opcoes.find(o => o.valor === field.value) ?? null
 
+  const valorComoTexto = (valor: string | number) => String(valor)
+
   return (
     <div className="flex flex-col gap-1">
       <label
@@ -61,8 +63,15 @@ export function ComboboxCampo<T extends FieldValues>({
       </label>
 
       <Combobox
-        value={field.value ?? ''}
-        onChange={(valor: string | number) => field.onChange(valor ?? '')}
+        value={field.value != null ? valorComoTexto(field.value) : ''}
+        onChange={(valorTexto: string | null) => {
+          if (!valorTexto) {
+            field.onChange('')
+            return
+          }
+          const opcaoEscolhida = opcoes.find(o => valorComoTexto(o.valor) === valorTexto)
+          field.onChange(opcaoEscolhida?.valor ?? '')
+        }}
         disabled={disabled}
       >
         <div className="relative">
@@ -111,7 +120,7 @@ export function ComboboxCampo<T extends FieldValues>({
               </div>
             ) : (
               opcoesFiltradas.map(o => (
-                <Combobox.Option key={o.valor} value={o.valor}>
+                <Combobox.Option key={o.valor} value={valorComoTexto(o.valor)}>
                   {({ active, selected }) => (
                     <div
                       className={`px-3 py-2 text-sm cursor-pointer select-none ${selected ? 'font-semibold' : 'font-normal'}`}

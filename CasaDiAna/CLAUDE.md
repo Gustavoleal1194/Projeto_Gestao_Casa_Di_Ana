@@ -62,7 +62,7 @@ dotnet ef database update --project src/CasaDiAna.Infrastructure --startup-proje
 
 # Frontend (dentro de frontend/)
 npm run dev        # porta 5173
-npx tsc --noEmit   # checagem de tipos
+npx tsc -b --noEmit   # checagem de tipos (precisa de -b: tsconfig.json raiz é um "solution file" sem include; sem -b não checa nada)
 ```
 
 **Seed:** `admin@casadiana.com` / `Admin@123` criado automaticamente se banco vazio.

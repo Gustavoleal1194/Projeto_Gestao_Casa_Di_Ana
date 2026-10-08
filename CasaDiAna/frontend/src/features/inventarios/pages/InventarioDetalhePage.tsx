@@ -9,7 +9,7 @@ import { ingredientesService } from '@/features/estoque/ingredientes/services/in
 import { useAuthStore } from '@/store/authStore'
 import { Toast } from '@/components/ui/Toast'
 import { CampoTexto } from '@/components/form/CampoTexto'
-import { SelectCampo } from '@/components/form/SelectCampo'
+import { ComboboxCampo } from '@/components/form/ComboboxCampo'
 import { LoadingState } from '@/components/ui/LoadingState'
 import type { Inventario, IngredienteResumo } from '@/types/estoque'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -71,7 +71,7 @@ export function InventarioDetalhePage() {
   const podeEditar = temPapel(...PAPEIS_EDICAO)
   const emAndamento = inventario?.status === 'EmAndamento'
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<ItemFormValues>({
+  const { register, handleSubmit, reset, control, formState: { errors, isSubmitting } } = useForm<ItemFormValues>({
     resolver: zodResolver(itemSchema) as any,
     defaultValues: { ingredienteId: '', quantidadeContada: undefined, observacoes: '' },
   })
@@ -211,14 +211,16 @@ export function InventarioDetalhePage() {
           </div>
           <form onSubmit={handleSubmit(handleAdicionarItem as any)}>
             <div className="grid grid-cols-1 sm:grid-cols-[1fr_120px_180px_auto] gap-3 items-start">
-              <SelectCampo
+              <ComboboxCampo
+                control={control}
+                name="ingredienteId"
                 label="Ingrediente"
                 obrigatorio
+                placeholder="Buscar ingrediente…"
                 opcoes={ingredientes.map(ing => ({
                   valor: ing.id,
                   rotulo: `${ing.nome} (${ing.unidadeMedidaCodigo})`,
                 }))}
-                {...register('ingredienteId')}
                 erro={errors.ingredienteId?.message}
               />
               <CampoTexto

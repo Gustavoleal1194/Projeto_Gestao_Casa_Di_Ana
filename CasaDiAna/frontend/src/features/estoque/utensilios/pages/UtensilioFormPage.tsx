@@ -8,6 +8,7 @@ import { useCategoriasUtensilio } from '@/features/estoque/categorias-utensilio/
 import { useUnidadesMedida } from '@/features/estoque/unidades/hooks/useUnidadesMedida'
 import { CampoTexto } from '@/components/form/CampoTexto'
 import { SelectCampo } from '@/components/form/SelectCampo'
+import { ComboboxCampo } from '@/components/form/ComboboxCampo'
 import { Toast } from '@/components/ui/Toast'
 import { ConfirmacaoCadastroModal, type DadosConfirmacaoCadastro } from '@/components/ui/ConfirmacaoCadastroModal'
 import { FormSection } from '@/components/form/FormSection'
@@ -45,7 +46,7 @@ export function UtensilioFormPage() {
   const fecharToast = useCallback(() => setToast(null), [])
 
   const { form, salvar } = useUtensilioForm({ utensilioExistente: utensilio })
-  const { register, handleSubmit, watch, reset, formState: { errors } } = form
+  const { register, handleSubmit, watch, reset, control, formState: { errors } } = form
 
   useEffect(() => {
     if (utensilio) {
@@ -145,11 +146,12 @@ export function UtensilioFormPage() {
 
           <FormSection titulo="Classificação" />
           <div className="grid grid-cols-2 gap-4">
-            <SelectCampo
+            <ComboboxCampo
+              control={control}
+              name="categoriaUtensilioId"
               label="Categoria"
-              placeholderOpcao="Sem categoria"
+              placeholder="Buscar categoria…"
               opcoes={categorias.map(c => ({ valor: c.id, rotulo: c.nome }))}
-              {...register('categoriaUtensilioId')}
               erro={errors.categoriaUtensilioId?.message}
             />
             <SelectCampo

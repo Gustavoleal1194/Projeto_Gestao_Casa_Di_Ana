@@ -9,6 +9,7 @@ import { useCategorias } from '@/features/estoque/categorias/hooks/useCategorias
 import { useUnidadesMedida } from '@/features/estoque/unidades/hooks/useUnidadesMedida'
 import { CampoTexto } from '@/components/form/CampoTexto'
 import { SelectCampo } from '@/components/form/SelectCampo'
+import { ComboboxCampo } from '@/components/form/ComboboxCampo'
 import { Toast } from '@/components/ui/Toast'
 import { ConfirmacaoCadastroModal, type DadosConfirmacaoCadastro } from '@/components/ui/ConfirmacaoCadastroModal'
 import { FormSection } from '@/components/form/FormSection'
@@ -210,11 +211,12 @@ export function IngredienteFormPage() {
 
           <FormSection titulo="Classificação" />
           <div className="grid grid-cols-2 gap-4">
-            <SelectCampo
+            <ComboboxCampo
+              control={control}
+              name="categoriaId"
               label="Categoria"
-              placeholderOpcao="Sem categoria"
+              placeholder="Buscar categoria…"
               opcoes={categorias.map(c => ({ valor: c.id, rotulo: c.nome }))}
-              {...register('categoriaId')}
               erro={errors.categoriaId?.message}
             />
             <SelectCampo

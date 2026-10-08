@@ -7,7 +7,7 @@ import { perdasService } from '../services/perdasService'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import { Toast } from '@/components/ui/Toast'
 import { CampoTexto } from '@/components/form/CampoTexto'
-import { SelectCampo } from '@/components/form/SelectCampo'
+import { ComboboxCampo } from '@/components/form/ComboboxCampo'
 import { FormTextarea } from '@/components/form/FormTextarea'
 import { Spinner } from '@/components/form/Spinner'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -57,7 +57,7 @@ export function PerdasPage() {
   const [busca, setBusca] = useState('')
   const [confirma, setConfirma] = useState<DadosConfirmacaoPerdas | null>(null)
 
-  const { register, handleSubmit, reset: resetForm, formState: { errors: formErrors, isSubmitting } } =
+  const { register, handleSubmit, reset: resetForm, control, formState: { errors: formErrors, isSubmitting } } =
     useForm<PerdaFormValues>({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       resolver: zodResolver(perdaSchema) as any,
@@ -251,11 +251,13 @@ export function PerdasPage() {
 
             <form onSubmit={handleSubmit(onSubmitPerda as any)}>
             <div className="px-6 py-5 space-y-4">
-              <SelectCampo
+              <ComboboxCampo
+                control={control}
+                name="produtoId"
                 label="Produto"
                 obrigatorio
+                placeholder="Buscar produto…"
                 opcoes={produtos.filter(p => p.ativo).map(p => ({ valor: p.id, rotulo: p.nome }))}
-                {...register('produtoId')}
                 erro={formErrors.produtoId?.message}
               />
               <div className="grid grid-cols-2 gap-3">

@@ -8,7 +8,7 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { vendasDiariasService } from '../services/vendasDiariasService'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import { CampoTexto } from '@/components/form/CampoTexto'
-import { SelectCampo } from '@/components/form/SelectCampo'
+import { ComboboxCampo } from '@/components/form/ComboboxCampo'
 import { FormSection } from '@/components/form/FormSection'
 import { FormActions } from '@/components/form/FormActions'
 import { FormCard } from '@/components/form/FormCard'
@@ -35,7 +35,7 @@ export function RegistrarVendaPage() {
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
   const [confirma, setConfirma] = useState<DadosConfirmacaoVenda | null>(null)
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } =
+  const { register, handleSubmit, reset, control, formState: { errors, isSubmitting } } =
     useForm<VendaFormValues>({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       resolver: zodResolver(vendaSchema) as any,
@@ -90,11 +90,13 @@ export function RegistrarVendaPage() {
         <FormCard>
           <FormSection titulo="Dados da Venda" />
           <div className="grid gap-4">
-            <SelectCampo
+            <ComboboxCampo
+              control={control}
+              name="produtoId"
               label="Produto"
               obrigatorio
+              placeholder="Buscar produto…"
               opcoes={produtos.filter(p => p.ativo).map(p => ({ valor: p.id, rotulo: p.nome }))}
-              {...register('produtoId')}
               erro={errors.produtoId?.message}
             />
             <div className="grid grid-cols-2 gap-4">

@@ -9,7 +9,7 @@ import { ConfirmacaoProducaoModal, type DadosConfirmacaoProducao } from '../comp
 import { producaoDiariaService } from '../services/producaoDiariaService'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import { CampoTexto } from '@/components/form/CampoTexto'
-import { SelectCampo } from '@/components/form/SelectCampo'
+import { ComboboxCampo } from '@/components/form/ComboboxCampo'
 import { FormTextarea } from '@/components/form/FormTextarea'
 import { FormSection } from '@/components/form/FormSection'
 import { FormActions } from '@/components/form/FormActions'
@@ -35,7 +35,7 @@ export function RegistrarProducaoPage() {
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
   const [confirma, setConfirma] = useState<DadosConfirmacaoProducao | null>(null)
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } =
+  const { register, handleSubmit, reset, control, formState: { errors, isSubmitting } } =
     useForm<ProducaoFormValues>({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       resolver: zodResolver(producaoSchema) as any,
@@ -86,11 +86,13 @@ export function RegistrarProducaoPage() {
         <FormCard>
           <FormSection titulo="Dados da Produção" />
           <div className="grid gap-4">
-            <SelectCampo
+            <ComboboxCampo
+              control={control}
+              name="produtoId"
               label="Produto"
               obrigatorio
+              placeholder="Buscar produto…"
               opcoes={produtos.map(p => ({ valor: p.id, rotulo: p.nome }))}
-              {...register('produtoId')}
               erro={errors.produtoId?.message}
             />
             <div className="grid grid-cols-2 gap-4">

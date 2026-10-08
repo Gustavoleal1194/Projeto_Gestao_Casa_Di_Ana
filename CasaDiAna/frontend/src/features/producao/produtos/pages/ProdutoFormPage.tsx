@@ -6,6 +6,7 @@ import { produtosService } from '../services/produtosService'
 import { categoriasProdutoService } from '@/features/producao/categorias-produto/services/categoriasProdutoService'
 import { CampoTexto } from '@/components/form/CampoTexto'
 import { SelectCampo } from '@/components/form/SelectCampo'
+import { ComboboxCampo } from '@/components/form/ComboboxCampo'
 import { FormTextarea } from '@/components/form/FormTextarea'
 import { FormSection } from '@/components/form/FormSection'
 import { FormActions } from '@/components/form/FormActions'
@@ -25,7 +26,7 @@ export function ProdutoFormPage() {
   const { id } = useParams<{ id: string }>()
   const isEdicao = Boolean(id)
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useProdutoForm()
+  const { register, handleSubmit, reset, control, formState: { errors, isSubmitting } } = useProdutoForm()
   const [categorias, setCategorias] = useState<CategoriaProduto[]>([])
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
   const [carregando, setCarregando] = useState(isEdicao)
@@ -107,12 +108,13 @@ export function ProdutoFormPage() {
               erro={errors.precoVenda?.message}
               {...register('precoVenda')}
             />
-            <SelectCampo
+            <ComboboxCampo
+              control={control}
+              name="categoriaProdutoId"
               label="Categoria"
-              placeholderOpcao="Sem categoria"
+              placeholder="Buscar categoria…"
               opcoes={categorias.map(c => ({ valor: c.id, rotulo: c.nome }))}
               erro={errors.categoriaProdutoId?.message}
-              {...register('categoriaProdutoId')}
             />
             <SelectCampo
               label="Tipo do Produto"

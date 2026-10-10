@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { KpiCard } from '@/components/ui/KpiCard'
 import { fechamentoService, type FechamentoMensal } from '../services/fechamentoService'
+import { ReceitasRepassesCard } from '../components/ReceitasRepassesCard'
+import { ConfigRepasseEditor } from '../components/ConfigRepasseEditor'
 import {
   competenciaInicial,
   mesParaCompetencia,
@@ -56,7 +58,7 @@ export function FechamentoMensalPage() {
   return (
     <div className="ada-page space-y-6">
       <PageHeader titulo="Fechamento Mensal"
-        subtitulo="Consolidação de faturamento, custo direto e despesas fixas da competência" />
+        subtitulo="Consolidação de receitas, repasses, custo direto e despesas da competência" />
 
       <div>
         <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ada-body)' }}>Competência</label>
@@ -79,23 +81,25 @@ export function FechamentoMensalPage() {
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <KpiCard label="Faturamento usado" valor={formatarBRL(dados.faturamentoUsado)} variante="green" />
+            <KpiCard label="Receita líquida da casa" valor={formatarBRL(dados.receitaLiquida)} variante="green" />
             <KpiCard label="Custo direto total" valor={formatarBRL(dados.custoDiretoTotal)} variante="amber" />
             <KpiCard label="Total despesas fixas" valor={formatarBRL(dados.totalDespesasFixas)} variante="red" />
             <KpiCard label="Despesas variáveis" valor={formatarBRL(dados.totalDespesasVariaveis)} variante="yellow" />
             <KpiCard label="Compras (notas)" valor={formatarBRL(dados.totalCompras)} variante="blue" />
             <KpiCard label="Total de saídas (mês)" valor={formatarBRL(dados.totalSaidas)} variante="red" />
             <KpiCard label="Despesa fixa %" valor={formatarPercentual(dados.despesaFixaPercentual)} variante="yellow" />
-            <KpiCard label="Margem bruta" valor={formatarBRL(dados.margemBruta)} variante="blue" />
-            <KpiCard label="Margem operacional (s/ vendas)" valor={formatarBRL(dados.margemOperacional)} variante="green" />
+            <KpiCard label="Margem bruta (s/ receita líquida)" valor={formatarBRL(dados.margemBruta)} variante="blue" />
+            <KpiCard label="Margem operacional (s/ receita líquida)" valor={formatarBRL(dados.margemOperacional)} variante="green" />
             <KpiCard label="Prime cost" valor={formatarBRL(dados.primeCost)} variante="amber" />
             <KpiCard label="Folha de pagamento" valor={formatarBRL(dados.folhaPagamento)} variante="red" />
           </div>
 
+          <ReceitasRepassesCard dados={dados} />
+
           <div className="rounded-xl border p-6 space-y-3"
             style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)' }}>
             <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--ada-muted)' }}>
-              Faturamento
+              Faturamento de produtos
             </p>
             <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>
               Calculado das vendas: <strong style={{ color: 'var(--ada-body)' }}>{formatarBRL(dados.faturamentoCalculado)}</strong>
@@ -152,6 +156,8 @@ export function FechamentoMensalPage() {
               </div>
             </div>
           )}
+
+          <ConfigRepasseEditor onSalvo={carregar} />
         </>
       )}
     </div>

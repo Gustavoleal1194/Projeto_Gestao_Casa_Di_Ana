@@ -18,6 +18,18 @@ export interface FechamentoMensal {
   margemOperacional: number
   primeCost: number
   despesasPorCategoria: TotalCategoria[]
+  receitaTaxaServico: number
+  receitaEntregas: number
+  receitaTotal: number
+  repasseEquipe: number
+  repasseMotoboys: number
+  totalRepasses: number
+  receitaLiquida: number
+}
+
+export interface ConfiguracaoRepasse {
+  percentualRetencaoCasa: number
+  percentualTaxaCartao: number
 }
 
 export const fechamentoService = {
@@ -33,5 +45,15 @@ export const fechamentoService = {
     valorManual: number | null,
   ): Promise<void> => {
     await api.put('/fechamento-mensal/faturamento-manual', { competencia, valorManual })
+  },
+
+  obterConfigRepasse: async (): Promise<ConfiguracaoRepasse> => {
+    const resp = await api.get<ApiResponse<ConfiguracaoRepasse>>('/fechamento-mensal/configuracao-repasse')
+    return resp.data.dados
+  },
+
+  atualizarConfigRepasse: async (input: ConfiguracaoRepasse): Promise<ConfiguracaoRepasse> => {
+    const resp = await api.put<ApiResponse<ConfiguracaoRepasse>>('/fechamento-mensal/configuracao-repasse', input)
+    return resp.data.dados
   },
 }

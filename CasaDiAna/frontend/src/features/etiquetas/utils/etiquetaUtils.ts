@@ -289,7 +289,7 @@ function fmtPeso(value: number, porcaoG: number, pesoG: number): string {
 
 export function htmlEtiquetaNutricional(
   produtoNome: string,
-  _dataProducao: string,
+  dataProducao: string,
   validade: string,
   quantidade: number,
   nutri: NutriValues,
@@ -396,8 +396,12 @@ export function htmlEtiquetaNutricional(
         ${nutri.alergicoAlimentar ? `
         <div class="alergenos">ALÉRGICOS: ${nutri.alergicoAlimentar}</div>` : ''}
         <div class="gluten-lactose"><strong>${nutri.contemGluten ? 'Contém glúten' : 'Não contém glúten'}.</strong>${nutri.contemLactose ? '<br><strong>Contém lactose.</strong>' : ''}</div>
-        ${(nutri.loteFabricacao || validade) ? `
-        <div class="lote-validade">${[nutri.loteFabricacao ? `Lote/Fab: ${nutri.loteFabricacao}` : '', validade ? `Val.: ${validade}` : ''].filter(Boolean).join('  |  ')}</div>` : ''}
+        ${(nutri.loteFabricacao || dataProducao || validade) ? `
+        <div class="lote-validade">${[
+          nutri.loteFabricacao ? `Lote: ${nutri.loteFabricacao}` : '',
+          dataProducao ? `Fab.: ${dataProducao}` : '',
+          validade ? `Val.: ${validade}` : '',
+        ].filter(Boolean).join('  |  ')}</div>` : ''}
       </div>
     </div>`
 

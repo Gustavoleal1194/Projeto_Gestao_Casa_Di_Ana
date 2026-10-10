@@ -3,6 +3,7 @@ using CasaDiAna.Application.ImportacaoVendas.Dtos;
 using CasaDiAna.Domain.Exceptions;
 using CasaDiAna.Domain.Interfaces;
 using MediatR;
+using ConfiguracaoRepasse = CasaDiAna.Domain.Entities.ConfiguracaoRepasse;
 using EntidadeImportacao = CasaDiAna.Domain.Entities.ImportacaoVendas;
 using VendaDiaria = CasaDiAna.Domain.Entities.VendaDiaria;
 
@@ -72,6 +73,10 @@ public class ConfirmarImportacaoCommandHandler
             totalImportadas: novasVendas.Count,
             request.TotalIgnoradas,
             request.TotalNaoEncontradas,
+            request.DataVenda,
+            totalTaxaServico: 0m,
+            totalEntregas: 0m,
+            ConfiguracaoRepasse.Padrao(_currentUser.UsuarioId),
             _currentUser.UsuarioId);
 
         await _importacoes.AdicionarAsync(importacao, cancellationToken);

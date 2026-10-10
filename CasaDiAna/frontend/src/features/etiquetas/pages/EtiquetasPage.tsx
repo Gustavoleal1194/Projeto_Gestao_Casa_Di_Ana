@@ -102,22 +102,26 @@ function LabelPreview({ html, width, height, scale }: LabelPreviewProps) {
     )
   }
 
+  // `transform` não altera a caixa de layout; o wrapper ocupa só o tamanho
+  // escalado para não sobrar espaço em branco ao redor da prévia.
   return (
-    <iframe
-      srcDoc={html}
-      title="Prévia da etiqueta"
-      scrolling="no"
-      style={{
-        width,
-        height,
-        transform: `scale(${scale})`,
-        transformOrigin: 'center center',
-        border: '1.5px solid #aaa',
-        borderRadius: 2,
-        background: '#fff',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
-      }}
-    />
+    <div style={{ width: width * scale, height: height * scale }}>
+      <iframe
+        srcDoc={html}
+        title="Prévia da etiqueta"
+        scrolling="no"
+        style={{
+          width,
+          height,
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+          border: '1.5px solid #aaa',
+          borderRadius: 2,
+          background: '#fff',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
+        }}
+      />
+    </div>
   )
 }
 
@@ -171,13 +175,13 @@ export function EtiquetasPage() {
   const produto = produtoDetalhe
 
   const previewContainerRef = useRef<HTMLDivElement>(null)
-  const [previewBox, setPreviewBox] = useState({ width: 0, height: 0 })
+  const [previewLarguraDisponivel, setPreviewLarguraDisponivel] = useState(0)
 
   useEffect(() => {
     const el = previewContainerRef.current
     if (!el) return
     const observer = new ResizeObserver(([entry]) => {
-      setPreviewBox({ width: entry.contentRect.width, height: entry.contentRect.height })
+      setPreviewLarguraDisponivel(entry.contentRect.width)
     })
     observer.observe(el)
     return () => observer.disconnect()
@@ -427,13 +431,11 @@ export function EtiquetasPage() {
   const previewDims = LABEL_DIMS_MM[previewTipo]
   const previewWidth = previewDims.largura * MM_TO_PX
   const previewHeight = previewDims.altura * MM_TO_PX
+  // Ajusta só pela largura: a altura do card acompanha a prévia (não o
+  // contrário), então medir a altura criaria um ciclo de redimensionamento.
   const previewScale = ((): number => {
     const padding = 32 // respiro dentro do container
-    const fit = Math.min(
-      1,
-      (previewBox.width - padding) / previewWidth,
-      (previewBox.height - padding) / previewHeight,
-    )
+    const fit = Math.min(1, (previewLarguraDisponivel - padding) / previewWidth)
     return Number.isFinite(fit) && fit > 0 ? fit : 1
   })()
 
@@ -930,8 +932,10 @@ export function EtiquetasPage() {
         </div>
 
         {/* ── Prévia ── */}
+        {/* self-start: sem ele o grid estica o card até a altura do formulário
+            (enorme no tipo nutricional) e a prévia fica centralizada lá embaixo. */}
         <div
-          className="rounded-xl border p-6 flex flex-col"
+          className="rounded-xl border p-6 flex flex-col lg:self-start"
           style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)' }}
         >
           <p
@@ -940,7 +944,7 @@ export function EtiquetasPage() {
           >
             Prévia da Etiqueta
           </p>
-          <div ref={previewContainerRef} className="flex-1 flex items-center justify-center overflow-hidden py-4">
+          <div ref={previewContainerRef} className="flex justify-center py-4">
             <LabelPreview
               html={previewHtml}
               width={previewWidth}

@@ -21,6 +21,16 @@ public class ImportacaoVendasConfiguration : IEntityTypeConfiguration<Importacao
         builder.Property(i => i.TotalImportadas).HasColumnName("total_importadas").IsRequired();
         builder.Property(i => i.TotalIgnoradas).HasColumnName("total_ignoradas").IsRequired();
         builder.Property(i => i.TotalNaoEncontradas).HasColumnName("total_nao_encontradas").IsRequired();
+        // Mesmo mapeamento de VendaDiaria.Data (sem HasColumnType), para os dois
+        // filtros por data de venda se comportarem igual.
+        builder.Property(i => i.DataVenda).HasColumnName("data_venda");
+        builder.HasIndex(i => i.DataVenda);
+        builder.Property(i => i.TotalTaxaServico).HasColumnName("total_taxa_servico").HasPrecision(12, 2).IsRequired();
+        builder.Property(i => i.TotalEntregas).HasColumnName("total_entregas").HasPrecision(12, 2).IsRequired();
+        builder.Property(i => i.PercentualRetencaoCasa).HasColumnName("percentual_retencao_casa").HasPrecision(6, 4).IsRequired();
+        builder.Property(i => i.PercentualTaxaCartao).HasColumnName("percentual_taxa_cartao").HasPrecision(6, 4).IsRequired();
+        builder.Ignore(i => i.RepasseEquipe);
+        builder.Ignore(i => i.RepasseMotoboys);
         builder.Property(i => i.CriadoPor).HasColumnName("criado_por").IsRequired();
     }
 }

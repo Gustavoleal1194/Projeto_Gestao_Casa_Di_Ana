@@ -284,6 +284,36 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                     b.ToTable("configuracao_precificacao", "financeiro");
                 });
 
+            modelBuilder.Entity("CasaDiAna.Domain.Entities.ConfiguracaoRepasse", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("AtualizadoEm")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<Guid>("AtualizadoPor")
+                        .HasColumnType("uuid")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<decimal>("PercentualRetencaoCasa")
+                        .HasPrecision(6, 4)
+                        .HasColumnType("numeric(6,4)")
+                        .HasColumnName("percentual_retencao_casa");
+
+                    b.Property<decimal>("PercentualTaxaCartao")
+                        .HasPrecision(6, 4)
+                        .HasColumnType("numeric(6,4)")
+                        .HasColumnName("percentual_taxa_cartao");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("configuracao_repasse", "financeiro");
+                });
+
             modelBuilder.Entity("CasaDiAna.Domain.Entities.Despesa", b =>
                 {
                     b.Property<Guid>("Id")
@@ -589,6 +619,10 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("criado_por");
 
+                    b.Property<DateTime?>("DataVenda")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("data_venda");
+
                     b.Property<string>("HashConteudo")
                         .IsRequired()
                         .HasMaxLength(64)
@@ -601,6 +635,16 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("nome_arquivo");
 
+                    b.Property<decimal>("PercentualRetencaoCasa")
+                        .HasPrecision(6, 4)
+                        .HasColumnType("numeric(6,4)")
+                        .HasColumnName("percentual_retencao_casa");
+
+                    b.Property<decimal>("PercentualTaxaCartao")
+                        .HasPrecision(6, 4)
+                        .HasColumnType("numeric(6,4)")
+                        .HasColumnName("percentual_taxa_cartao");
+
                     b.Property<string>("PeriodoAte")
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)")
@@ -610,6 +654,11 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)")
                         .HasColumnName("periodo_de");
+
+                    b.Property<decimal>("TotalEntregas")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("total_entregas");
 
                     b.Property<int>("TotalIgnoradas")
                         .HasColumnType("integer")
@@ -627,7 +676,14 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("total_nao_encontradas");
 
+                    b.Property<decimal>("TotalTaxaServico")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("total_taxa_servico");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("DataVenda");
 
                     b.HasIndex("HashConteudo")
                         .IsUnique();

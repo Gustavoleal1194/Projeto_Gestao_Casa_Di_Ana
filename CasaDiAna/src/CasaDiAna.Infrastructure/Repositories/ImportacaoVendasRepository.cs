@@ -21,4 +21,10 @@ public class ImportacaoVendasRepository : IImportacaoVendasRepository
         await _db.ImportacoesVendas
             .OrderByDescending(i => i.CriadoEm)
             .ToListAsync(ct);
+
+    public async Task<IReadOnlyList<ImportacaoVendas>> ListarPorDataVendaAsync(
+        DateTime inicio, DateTime fimExclusivo, CancellationToken ct = default) =>
+        await _db.ImportacoesVendas
+            .Where(i => i.DataVenda >= inicio && i.DataVenda < fimExclusivo)
+            .ToListAsync(ct);
 }

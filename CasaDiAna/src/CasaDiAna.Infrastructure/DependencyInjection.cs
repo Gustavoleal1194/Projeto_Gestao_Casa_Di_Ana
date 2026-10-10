@@ -58,6 +58,7 @@ public static class DependencyInjection
         services.AddScoped<ICategoriaDespesaRepository, CategoriaDespesaRepository>();
         services.AddScoped<IFaturamentoMensalRepository, FaturamentoMensalRepository>();
         services.AddScoped<IConfiguracaoPrecificacaoRepository, ConfiguracaoPrecificacaoRepository>();
+        services.AddScoped<IConfiguracaoRepasseRepository, ConfiguracaoRepasseRepository>();
         services.AddHttpContextAccessor();
 
         return services;

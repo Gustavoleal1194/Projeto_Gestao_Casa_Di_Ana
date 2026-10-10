@@ -33,6 +33,7 @@ public class AppDbContext : DbContext
     public DbSet<CategoriaDespesa> CategoriasDespesa => Set<CategoriaDespesa>();
     public DbSet<FaturamentoMensal> FaturamentosMensais => Set<FaturamentoMensal>();
     public DbSet<ConfiguracaoPrecificacao> ConfiguracoesPrecificacao => Set<ConfiguracaoPrecificacao>();
+    public DbSet<ConfiguracaoRepasse> ConfiguracoesRepasse => Set<ConfiguracaoRepasse>();
     public DbSet<CategoriaUtensilio> CategoriasUtensilio => Set<CategoriaUtensilio>();
     public DbSet<Utensilio> Utensilios => Set<Utensilio>();
     public DbSet<MovimentacaoUtensilio> MovimentacoesUtensilio => Set<MovimentacaoUtensilio>();

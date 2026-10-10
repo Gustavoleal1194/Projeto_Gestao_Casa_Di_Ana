@@ -7,4 +7,8 @@ public interface IImportacaoVendasRepository
     Task<bool> HashExisteAsync(string hash, CancellationToken ct = default);
     Task AdicionarAsync(ImportacaoVendas importacao, CancellationToken ct = default);
     Task<IReadOnlyList<ImportacaoVendas>> ListarAsync(CancellationToken ct = default);
+
+    /// <summary>Importações com DataVenda em [inicio, fimExclusivo).</summary>
+    Task<IReadOnlyList<ImportacaoVendas>> ListarPorDataVendaAsync(
+        DateTime inicio, DateTime fimExclusivo, CancellationToken ct = default);
 }

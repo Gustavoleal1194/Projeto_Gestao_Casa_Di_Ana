@@ -1,7 +1,6 @@
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
 using CasaDiAna.Application.ImportacaoVendas.Services;
 
 namespace CasaDiAna.Infrastructure.Services;
@@ -31,7 +30,6 @@ public class CsvVendasParser : IVendasParser
 
             var nome = campos[1].Trim();
             if (string.IsNullOrWhiteSpace(nome)) continue;
-            if (IsIgnorado(nome)) continue;
 
             if (!TryParseDecimalBR(campos[4], out var qtde) || qtde <= 0) continue;
             if (!TryParseDecimalBR(campos[5], out var total)) continue;
@@ -40,28 +38,6 @@ public class CsvVendasParser : IVendasParser
         }
 
         return new VendasParseResult(null, null, hash, resultado.AsReadOnly());
-    }
-
-    public static bool IsIgnorado(string nome)
-    {
-        var norm = Normalizar(nome);
-        return norm.StartsWith("taxa") || norm.StartsWith("entrega");
-    }
-
-    public static string Normalizar(string s)
-    {
-        if (string.IsNullOrWhiteSpace(s)) return string.Empty;
-        var formD = s.Normalize(NormalizationForm.FormD);
-        var sb = new StringBuilder(formD.Length);
-        foreach (var c in formD)
-            if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-                sb.Append(c);
-        return Regex.Replace(
-            sb.ToString().Normalize(NormalizationForm.FormC)
-              .ToLowerInvariant()
-              .Replace("-", " ").Replace("/", " ")
-              .Replace("(", "").Replace(")", "").Replace(".", ""),
-            @"\s+", " ").Trim();
     }
 
     private static bool TryParseDecimalBR(string s, out decimal value)

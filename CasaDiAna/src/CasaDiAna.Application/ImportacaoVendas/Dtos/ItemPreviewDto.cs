@@ -9,6 +9,7 @@ public record ItemPreviewDto(
     StatusImportacao Status,
     Guid? ProdutoId,
     string? ProdutoNome,
-    IReadOnlyList<SugestaoMatchDto> Sugestoes);
+    IReadOnlyList<SugestaoMatchDto> Sugestoes,
+    TipoRepasse? TipoRepasse = null);
 
 public record SugestaoMatchDto(Guid ProdutoId, string ProdutoNome);

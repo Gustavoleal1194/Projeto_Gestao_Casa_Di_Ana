@@ -113,4 +113,54 @@ public class ProcessarPreviewHandlerTests
 
         return produto;
     }
+
+    [Fact]
+    public async Task Handle_LinhasDeTaxaEEntrega_RetornaRepasseComTotais()
+    {
+        _parser.Setup(p => p.Parse(It.IsAny<byte[]>()))
+               .Returns(new VendasParseResult(null, null, "hash_rep", new List<LinhaRelatorio>
+               {
+                   new("001", "Croissant", null, 10m, 100m),
+                   new("77", "TAXA DE SERVIÇO", null, 411m, 3719.4m),
+                   new("50", "Entrega longe", null, 5m, 50m),
+                   new("51", "Entrega perto", null, 3m, 15m),
+               }));
+        _importacoes.Setup(r => r.HashExisteAsync("hash_rep", default)).ReturnsAsync(false);
+        _produtos.Setup(r => r.ListarAsync(false, default))
+                 .ReturnsAsync(new List<Produto> { CriarProduto(Guid.NewGuid(), "Croissant") });
+
+        var result = await CreateHandler().Handle(
+            new ProcessarPreviewVendasCommand(Array.Empty<byte>(), "rep.csv"), default);
+
+        var taxa = result.Itens.Single(i => i.NomeRelatorio == "TAXA DE SERVIÇO");
+        taxa.Status.Should().Be(StatusImportacao.Repasse);
+        taxa.TipoRepasse.Should().Be(TipoRepasse.TaxaServico);
+        taxa.ProdutoId.Should().BeNull();
+        taxa.Sugestoes.Should().BeEmpty();
+
+        result.Itens.Single(i => i.NomeRelatorio == "Entrega longe").TipoRepasse.Should().Be(TipoRepasse.Entrega);
+        result.TotalMatched.Should().Be(1);
+        result.TotalRepasses.Should().Be(3);
+        result.TotalTaxaServico.Should().Be(3719.4m);
+        result.TotalEntregas.Should().Be(65m);
+        result.TotalIgnored.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task Handle_CsvSoComRepasses_NaoLancaExcecao()
+    {
+        _parser.Setup(p => p.Parse(It.IsAny<byte[]>()))
+               .Returns(new VendasParseResult(null, null, "hash_so_rep", new List<LinhaRelatorio>
+               {
+                   new("77", "TAXA DE SERVIÇO", null, 10m, 90m),
+               }));
+        _importacoes.Setup(r => r.HashExisteAsync("hash_so_rep", default)).ReturnsAsync(false);
+        _produtos.Setup(r => r.ListarAsync(false, default)).ReturnsAsync(new List<Produto>());
+
+        var result = await CreateHandler().Handle(
+            new ProcessarPreviewVendasCommand(Array.Empty<byte>(), "so_rep.csv"), default);
+
+        result.Itens.Should().ContainSingle(i => i.Status == StatusImportacao.Repasse);
+        result.TotalTaxaServico.Should().Be(90m);
+    }
 }

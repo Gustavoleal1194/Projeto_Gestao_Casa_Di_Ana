@@ -9,4 +9,7 @@ public record PreviewImportacaoDto(
     int TotalAmbiguous,
     int TotalUnmatched,
     int TotalIgnored,
+    int TotalRepasses,
+    decimal TotalTaxaServico,
+    decimal TotalEntregas,
     IReadOnlyList<ItemPreviewDto> Itens);

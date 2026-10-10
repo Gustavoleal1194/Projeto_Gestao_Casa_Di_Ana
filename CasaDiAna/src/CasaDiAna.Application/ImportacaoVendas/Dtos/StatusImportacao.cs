@@ -6,4 +6,5 @@ public enum StatusImportacao
     Ambiguous  = 2,
     Unmatched  = 3,
     Ignored    = 4,
+    Repasse    = 5,
 }

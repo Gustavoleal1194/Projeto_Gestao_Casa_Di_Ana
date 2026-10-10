@@ -44,23 +44,26 @@ public class CsvVendasParserTests
     }
 
     [Fact]
-    public void Parse_TaxaDeServico_Ignorada()
+    public void Parse_TaxaDeServico_Devolvida()
     {
         var bytes = MakeBytes(["77;TAXA DE SERVIÇO;Indefinido;9,04;411;3719,4"]);
 
         var result = _parser.Parse(bytes);
 
-        result.Linhas.Should().BeEmpty();
+        result.Linhas.Should().HaveCount(1);
+        result.Linhas[0].Nome.Should().Be("TAXA DE SERVIÇO");
+        result.Linhas[0].ValorTotal.Should().Be(3719.4m);
     }
 
     [Fact]
-    public void Parse_EntregaLonge_Ignorada()
+    public void Parse_EntregaLonge_Devolvida()
     {
         var bytes = MakeBytes(["50;Entrega longe;Indefinido;10,00;5;50,00"]);
 
         var result = _parser.Parse(bytes);
 
-        result.Linhas.Should().BeEmpty();
+        result.Linhas.Should().HaveCount(1);
+        result.Linhas[0].ValorTotal.Should().Be(50m);
     }
 
     [Fact]
@@ -110,7 +113,7 @@ public class CsvVendasParserTests
     }
 
     [Fact]
-    public void Parse_MultiplasLinhas_TaxaFiltrada_RestanteImportado()
+    public void Parse_MultiplasLinhas_TodasDevolvidas()
     {
         var bytes = MakeBytes([
             "164;Tortinha folhada de Pistache c/framboesa;A Vista;35;5;175",
@@ -120,11 +123,9 @@ public class CsvVendasParserTests
 
         var result = _parser.Parse(bytes);
 
-        result.Linhas.Should().HaveCount(2);
-        result.Linhas.Should().NotContain(l => l.Nome.StartsWith("TAXA"));
+        result.Linhas.Should().HaveCount(3);
         result.Linhas[0].Nome.Should().Be("Tortinha folhada de Pistache c/framboesa");
-        result.Linhas[0].Quantidade.Should().Be(5m);
-        result.Linhas[0].ValorTotal.Should().Be(175m);
+        result.Linhas[2].Nome.Should().Be("TAXA DE SERVIÇO");
     }
 
     [Fact]
@@ -160,19 +161,6 @@ public class CsvVendasParserTests
         result.Linhas.Should().HaveCount(1);
         result.Linhas[0].ValorTotal.Should().Be(2141.38m);
         result.Linhas[0].Quantidade.Should().Be(59m);
-    }
-
-    [Fact]
-    public void IsIgnorado_SoTaxaEEntrega()
-    {
-        CsvVendasParser.IsIgnorado("TAXA DE SERVIÇO").Should().BeTrue();
-        CsvVendasParser.IsIgnorado("taxa servico").Should().BeTrue();
-        CsvVendasParser.IsIgnorado("Entrega longe").Should().BeTrue();
-        CsvVendasParser.IsIgnorado("Entrega perto").Should().BeTrue();
-        CsvVendasParser.IsIgnorado("Bacon").Should().BeFalse();
-        CsvVendasParser.IsIgnorado("Bacon - Acrescimo").Should().BeFalse();
-        CsvVendasParser.IsIgnorado("Nutella - Acréscimo").Should().BeFalse();
-        CsvVendasParser.IsIgnorado("Diversos - Valor R$ 25,00").Should().BeFalse();
     }
 
     [Fact]

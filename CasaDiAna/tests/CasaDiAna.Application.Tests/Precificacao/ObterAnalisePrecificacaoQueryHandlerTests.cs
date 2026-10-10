@@ -32,7 +32,7 @@ public class ObterAnalisePrecificacaoQueryHandlerTests
         mediator.Setup(m => m.Send(It.IsAny<ObterFechamentoMensalQuery>(), default))
                 .ReturnsAsync(new FechamentoMensalDto(
                     comp, 0m, null, 0m, 0m, 0m, 0m, 0m, 0m, 0m, 0.5m, 0m, 0m, 0m,
-                    new List<TotalCategoriaDto>()));
+                    new List<TotalCategoriaDto>(), 0m, 0m, 0m, 0m, 0m, 0m, 0m));
         mediator.Setup(m => m.Send(It.IsAny<ObterConfiguracaoPrecificacaoQuery>(), default))
                 .ReturnsAsync(new ConfiguracaoPrecificacaoDto(0.30m, 0.20m, 0m));
 

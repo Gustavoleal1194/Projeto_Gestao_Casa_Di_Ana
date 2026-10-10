@@ -16,10 +16,101 @@ public class ObterFechamentoMensalQueryHandlerTests
     private readonly Mock<IFaturamentoMensalRepository> _faturamento = new();
     private readonly Mock<IProdutoRepository> _produtos = new();
     private readonly Mock<IEntradaMercadoriaRepository> _entradas = new();
+    private readonly Mock<IImportacaoVendasRepository> _importacoes = new();
     private readonly DateTime _comp = new(2026, 6, 1);
 
+    public ObterFechamentoMensalQueryHandlerTests()
+    {
+        _importacoes.Setup(r => r.ListarPorDataVendaAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), default))
+                    .ReturnsAsync(new List<CasaDiAna.Domain.Entities.ImportacaoVendas>());
+    }
+
     private ObterFechamentoMensalQueryHandler Criar() =>
-        new(_vendas.Object, _despesas.Object, _faturamento.Object, _produtos.Object, _entradas.Object);
+        new(_vendas.Object, _despesas.Object, _faturamento.Object, _produtos.Object, _entradas.Object, _importacoes.Object);
+
+    private static CasaDiAna.Domain.Entities.ImportacaoVendas Importacao(decimal taxa, decimal entregas) =>
+        CasaDiAna.Domain.Entities.ImportacaoVendas.Criar(
+            $"{Guid.NewGuid()}.csv", Guid.NewGuid().ToString("N"), null, null, 1, 0, 0, 0,
+            new DateTime(2026, 6, 15), taxa, entregas,
+            ConfiguracaoRepasse.Padrao(Guid.NewGuid()), Guid.NewGuid());
+
+    private void SemVendasDespesasECompras(decimal? faturamentoManual = null)
+    {
+        _vendas.Setup(r => r.ListarAsync(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), null, default))
+               .ReturnsAsync(new List<VendaDiaria>());
+        _produtos.Setup(r => r.ListarComFichaAsync(false, default)).ReturnsAsync(new List<Produto>());
+        _despesas.Setup(r => r.ListarPorCompetenciaAsync(_comp, default)).ReturnsAsync(new List<Despesa>());
+        _faturamento.Setup(r => r.ObterPorCompetenciaAsync(_comp, default))
+                    .ReturnsAsync(faturamentoManual is null ? null : FaturamentoMensal.Criar(_comp, faturamentoManual.Value, Guid.NewGuid()));
+        _entradas.Setup(r => r.ListarAsync(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), default))
+                 .ReturnsAsync(new List<EntradaMercadoria>());
+    }
+
+    [Fact]
+    public async Task DeveSomarTaxaEEntregasNaReceita_ELancarRepassesComoSaida()
+    {
+        SemVendasDespesasECompras(faturamentoManual: 50000m);
+        _importacoes.Setup(r => r.ListarPorDataVendaAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), default))
+                    .ReturnsAsync(new List<CasaDiAna.Domain.Entities.ImportacaoVendas>
+                    {
+                        Importacao(600m, 300m),
+                        Importacao(400m, 200m),
+                    });
+
+        var dto = await Criar().Handle(new ObterFechamentoMensalQuery(_comp), CancellationToken.None);
+
+        dto.FaturamentoUsado.Should().Be(50000m);      // receita de produtos
+        dto.ReceitaTaxaServico.Should().Be(1000m);
+        dto.ReceitaEntregas.Should().Be(500m);
+        dto.ReceitaTotal.Should().Be(51500m);
+        dto.RepasseEquipe.Should().Be(720m);
+        dto.RepasseMotoboys.Should().Be(500m);
+        dto.TotalRepasses.Should().Be(1220m);
+        dto.ReceitaLiquida.Should().Be(50280m);
+        dto.TotalSaidas.Should().Be(1220m);            // só repasses neste cenário
+        dto.MargemBruta.Should().Be(50280m);           // receita líquida − custo direto 0
+        dto.MargemOperacional.Should().Be(50280m);
+    }
+
+    [Fact]
+    public async Task SemImportacoes_NumerosIguaisAoComportamentoAnterior()
+    {
+        SemVendasDespesasECompras(faturamentoManual: 8000m);
+
+        var dto = await Criar().Handle(new ObterFechamentoMensalQuery(_comp), CancellationToken.None);
+
+        dto.ReceitaTotal.Should().Be(8000m);
+        dto.ReceitaLiquida.Should().Be(8000m);
+        dto.TotalRepasses.Should().Be(0m);
+        dto.MargemBruta.Should().Be(8000m);
+    }
+
+    [Fact]
+    public async Task DeveConsultarImportacoesComFimExclusivoNoPrimeiroDiaDoMesSeguinte()
+    {
+        SemVendasDespesasECompras();
+
+        await Criar().Handle(new ObterFechamentoMensalQuery(new DateTime(2026, 6, 20)), CancellationToken.None);
+
+        _importacoes.Verify(r => r.ListarPorDataVendaAsync(
+            new DateTime(2026, 6, 1), new DateTime(2026, 7, 1), default), Times.Once);
+    }
+
+    [Fact]
+    public async Task DespesaFixaPercentual_DeveUsarReceitaLiquida()
+    {
+        SemVendasDespesasECompras(faturamentoManual: 1000m);
+        var catFixa = CategoriaDespesa.Criar("Aluguel", TipoDespesa.Fixa, false, Guid.NewGuid());
+        _despesas.Setup(r => r.ListarPorCompetenciaAsync(_comp, default))
+                 .ReturnsAsync(new List<Despesa> { DespesaTestFactory.ComCategoria(_comp, catFixa, 640m) });
+        _importacoes.Setup(r => r.ListarPorDataVendaAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), default))
+                    .ReturnsAsync(new List<CasaDiAna.Domain.Entities.ImportacaoVendas> { Importacao(1000m, 0m) });
+
+        var dto = await Criar().Handle(new ObterFechamentoMensalQuery(_comp), CancellationToken.None);
+
+        dto.ReceitaLiquida.Should().Be(1280m);         // 1000 + 1000 − 720
+        dto.DespesaFixaPercentual.Should().Be(0.5m);   // 640 / 1280
+    }
 
     [Fact]
     public async Task DeveSepararFixasVariaveis_ComprasETotalSaidas()

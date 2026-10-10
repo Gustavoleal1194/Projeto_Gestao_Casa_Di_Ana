@@ -15,17 +15,19 @@ public class ObterFechamentoMensalQueryHandler
     private readonly IFaturamentoMensalRepository _faturamento;
     private readonly IProdutoRepository _produtos;
     private readonly IEntradaMercadoriaRepository _entradas;
+    private readonly IImportacaoVendasRepository _importacoes;
 
     public ObterFechamentoMensalQueryHandler(
         IVendaDiariaRepository vendas, IDespesaRepository despesas,
         IFaturamentoMensalRepository faturamento, IProdutoRepository produtos,
-        IEntradaMercadoriaRepository entradas)
+        IEntradaMercadoriaRepository entradas, IImportacaoVendasRepository importacoes)
     {
         _vendas = vendas;
         _despesas = despesas;
         _faturamento = faturamento;
         _produtos = produtos;
         _entradas = entradas;
+        _importacoes = importacoes;
     }
 
     public async Task<FechamentoMensalDto> Handle(
@@ -49,6 +51,18 @@ public class ObterFechamentoMensalQueryHandler
         var faturamentoManual = (await _faturamento.ObterPorCompetenciaAsync(competencia, cancellationToken))?.ValorManual;
         var faturamentoUsado = faturamentoManual ?? faturamentoCalculado;
 
+        // Taxa de serviço e entregas entram no caixa e são repassadas; o faturamento
+        // manual substitui só a receita de produtos.
+        var importacoes = await _importacoes.ListarPorDataVendaAsync(
+            competencia, competencia.AddMonths(1), cancellationToken);
+        var receitaTaxaServico = importacoes.Sum(i => i.TotalTaxaServico);
+        var receitaEntregas = importacoes.Sum(i => i.TotalEntregas);
+        var repasseEquipe = importacoes.Sum(i => i.RepasseEquipe);
+        var repasseMotoboys = importacoes.Sum(i => i.RepasseMotoboys);
+        var totalRepasses = repasseEquipe + repasseMotoboys;
+        var receitaTotal = faturamentoUsado + receitaTaxaServico + receitaEntregas;
+        var receitaLiquida = receitaTotal - totalRepasses;
+
         var despesas = await _despesas.ListarPorCompetenciaAsync(competencia, cancellationToken);
         var totalFixas = despesas.Where(d => d.Categoria!.Tipo == TipoDespesa.Fixa).Sum(d => d.Valor);
         var totalVariaveis = despesas.Where(d => d.Categoria!.Tipo == TipoDespesa.Variavel).Sum(d => d.Valor);
@@ -64,15 +78,17 @@ public class ObterFechamentoMensalQueryHandler
             .Where(e => e.Status == StatusEntrada.Confirmada)
             .Sum(e => e.CustoTotal);
 
-        var totalSaidas = totalFixas + totalVariaveis + totalCompras;
-        decimal? despesaFixaPercentual = faturamentoUsado > 0 ? totalFixas / faturamentoUsado : null;
-        var margemBruta = faturamentoUsado - custoDiretoTotal;
-        var margemOperacional = faturamentoUsado - custoDiretoTotal - totalFixas - totalVariaveis;
+        var totalSaidas = totalFixas + totalVariaveis + totalCompras + totalRepasses;
+        decimal? despesaFixaPercentual = receitaLiquida > 0 ? totalFixas / receitaLiquida : null;
+        var margemBruta = receitaLiquida - custoDiretoTotal;
+        var margemOperacional = receitaLiquida - custoDiretoTotal - totalFixas - totalVariaveis;
         var primeCost = custoDiretoTotal + folha;
 
         return new FechamentoMensalDto(
             competencia, faturamentoCalculado, faturamentoManual, faturamentoUsado, custoDiretoTotal,
             totalFixas, totalVariaveis, totalCompras, totalSaidas, folha,
-            despesaFixaPercentual, margemBruta, margemOperacional, primeCost, porCategoria);
+            despesaFixaPercentual, margemBruta, margemOperacional, primeCost, porCategoria,
+            receitaTaxaServico, receitaEntregas, receitaTotal,
+            repasseEquipe, repasseMotoboys, totalRepasses, receitaLiquida);
     }
 }

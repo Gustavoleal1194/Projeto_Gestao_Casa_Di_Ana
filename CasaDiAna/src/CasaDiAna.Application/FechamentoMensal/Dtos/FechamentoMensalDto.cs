@@ -17,4 +17,11 @@ public record FechamentoMensalDto(
     decimal MargemBruta,
     decimal MargemOperacional,
     decimal PrimeCost,
-    IReadOnlyList<TotalCategoriaDto> DespesasPorCategoria);
+    IReadOnlyList<TotalCategoriaDto> DespesasPorCategoria,
+    decimal ReceitaTaxaServico,
+    decimal ReceitaEntregas,
+    decimal ReceitaTotal,
+    decimal RepasseEquipe,
+    decimal RepasseMotoboys,
+    decimal TotalRepasses,
+    decimal ReceitaLiquida);

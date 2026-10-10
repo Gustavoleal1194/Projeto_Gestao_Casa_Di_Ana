@@ -574,39 +574,10 @@ export function EtiquetasPage() {
                   <select
                     value=""
                     onChange={e => {
+                      // O nome impresso vem do produto selecionado, então o modelo
+                      // troca o produto; o efeito de produtoId carrega os valores.
                       const m = modelosDisponiveis.find(x => x.id === e.target.value)
-                      if (!m) return
-                      setNutri({
-                        nome: m.nome ?? '',
-                        porcao: m.porcao,
-                        medidaCaseira: m.medidaCaseira ?? '',
-                        porcoesPorEmbalagem: m.porcoesPorEmbalagem != null ? String(m.porcoesPorEmbalagem) : '',
-                        valorEnergeticoKcal: String(m.valorEnergeticoKcal),
-                        valorEnergeticoKJ: String(m.valorEnergeticoKJ),
-                        carboidratos: String(m.carboidratos),
-                        acucaresTotais: String(m.acucaresTotais),
-                        acucaresAdicionados: String(m.acucaresAdicionados),
-                        proteinas: String(m.proteinas),
-                        gordurasTotais: String(m.gordurasTotais),
-                        gordurasSaturadas: String(m.gordurasSaturadas),
-                        gordurasTrans: String(m.gordurasTrans),
-                        fibraAlimentar: String(m.fibraAlimentar),
-                        sodio: String(m.sodio),
-                        vdValorEnergetico: m.vdValorEnergetico ?? '',
-                        vdCarboidratos: m.vdCarboidratos ?? '',
-                        vdAcucaresAdicionados: m.vdAcucaresAdicionados ?? '',
-                        vdProteinas: m.vdProteinas ?? '',
-                        vdGordurasTotais: m.vdGordurasTotais ?? '',
-                        vdGordurasSaturadas: m.vdGordurasSaturadas ?? '',
-                        vdGordurasTrans: m.vdGordurasTrans ?? '',
-                        vdFibraAlimentar: m.vdFibraAlimentar ?? '',
-                        vdSodio: m.vdSodio ?? '',
-                        alergicoAlimentar: m.alergicoAlimentar ?? '',
-                        contemGluten: m.contemGluten,
-                        contemLactose: m.contemLactose,
-                        loteFabricacao: m.loteFabricacao ?? '',
-                        ingredientes: m.ingredientes ?? '',
-                      })
+                      if (m) setProdutoId(m.produtoId)
                     }}
                     className="w-full rounded-lg px-3 py-2 text-sm border outline-none"
                     style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)', color: 'var(--ada-body)' }}

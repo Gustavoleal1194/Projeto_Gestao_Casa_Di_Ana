@@ -15,17 +15,20 @@ public class ConfirmarImportacaoCommandHandler
     private readonly IVendaDiariaRepository _vendas;
     private readonly IProdutoRepository _produtos;
     private readonly IImportacaoVendasRepository _importacoes;
+    private readonly IConfiguracaoRepasseRepository _configuracaoRepasse;
     private readonly ICurrentUserService _currentUser;
 
     public ConfirmarImportacaoCommandHandler(
         IVendaDiariaRepository vendas,
         IProdutoRepository produtos,
         IImportacaoVendasRepository importacoes,
+        IConfiguracaoRepasseRepository configuracaoRepasse,
         ICurrentUserService currentUser)
     {
         _vendas = vendas;
         _produtos = produtos;
         _importacoes = importacoes;
+        _configuracaoRepasse = configuracaoRepasse;
         _currentUser = currentUser;
     }
 
@@ -36,7 +39,9 @@ public class ConfirmarImportacaoCommandHandler
         if (await _importacoes.HashExisteAsync(request.Hash, cancellationToken))
             throw new DomainException("Este arquivo já foi importado anteriormente.");
 
-        var produtoIds = request.Itens.Select(i => i.ProdutoId).Distinct().ToList();
+        var itens = request.Itens ?? Array.Empty<ItemConfirmarDto>();
+
+        var produtoIds = itens.Select(i => i.ProdutoId).Distinct().ToList();
         var todosProdutos = await _produtos.ListarAsync(apenasAtivos: false, cancellationToken);
         var produtosDict = todosProdutos
             .Where(p => produtoIds.Contains(p.Id))
@@ -54,7 +59,7 @@ public class ConfirmarImportacaoCommandHandler
         if (erros.Count > 0)
             throw new DomainException(string.Join(" | ", erros));
 
-        var novasVendas = request.Itens
+        var novasVendas = itens
             .Select(item => VendaDiaria.Criar(
                 item.ProdutoId,
                 request.DataVenda,
@@ -63,6 +68,11 @@ public class ConfirmarImportacaoCommandHandler
             .ToList();
 
         await _vendas.AdicionarRangeAsync(novasVendas, cancellationToken);
+
+        // Snapshot dos percentuais vigentes: mudar a configuração depois não
+        // recalcula importações antigas. Sem configuração salva, vale o padrão.
+        var configuracaoRepasse = await _configuracaoRepasse.ObterAsync(cancellationToken)
+            ?? ConfiguracaoRepasse.Padrao(_currentUser.UsuarioId);
 
         var importacao = EntidadeImportacao.Criar(
             request.NomeArquivo,
@@ -74,9 +84,9 @@ public class ConfirmarImportacaoCommandHandler
             request.TotalIgnoradas,
             request.TotalNaoEncontradas,
             request.DataVenda,
-            totalTaxaServico: 0m,
-            totalEntregas: 0m,
-            ConfiguracaoRepasse.Padrao(_currentUser.UsuarioId),
+            request.TotalTaxaServico,
+            request.TotalEntregas,
+            configuracaoRepasse,
             _currentUser.UsuarioId);
 
         await _importacoes.AdicionarAsync(importacao, cancellationToken);
@@ -86,6 +96,8 @@ public class ConfirmarImportacaoCommandHandler
         return new ResultadoImportacaoDto(
             novasVendas.Count,
             request.TotalIgnoradas,
-            request.TotalNaoEncontradas);
+            request.TotalNaoEncontradas,
+            request.TotalTaxaServico,
+            request.TotalEntregas);
     }
 }

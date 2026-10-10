@@ -12,5 +12,7 @@ public record ConfirmarImportacaoCommand(
     int TotalLinhasParseadas,
     int TotalIgnoradas,
     int TotalNaoEncontradas,
-    IReadOnlyList<ItemConfirmarDto> Itens
+    IReadOnlyList<ItemConfirmarDto> Itens,
+    decimal TotalTaxaServico = 0,
+    decimal TotalEntregas = 0
 ) : IRequest<ResultadoImportacaoDto>;

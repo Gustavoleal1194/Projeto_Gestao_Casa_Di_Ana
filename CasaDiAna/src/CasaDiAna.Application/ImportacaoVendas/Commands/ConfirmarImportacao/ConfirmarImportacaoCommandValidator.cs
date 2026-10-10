@@ -18,8 +18,15 @@ public class ConfirmarImportacaoCommandValidator
             .LessThanOrEqualTo(DateTime.Today.AddDays(1))
             .WithMessage("Data de venda não pode ser no futuro.");
 
-        RuleFor(x => x.Itens)
-            .NotEmpty().WithMessage("Nenhum item confirmado para importação.");
+        RuleFor(x => x)
+            .Must(x => x.Itens is { Count: > 0 } || x.TotalTaxaServico > 0 || x.TotalEntregas > 0)
+            .WithMessage("Nenhum item ou repasse confirmado para importação.");
+
+        RuleFor(x => x.TotalTaxaServico)
+            .GreaterThanOrEqualTo(0).WithMessage("Total de taxa de serviço não pode ser negativo.");
+
+        RuleFor(x => x.TotalEntregas)
+            .GreaterThanOrEqualTo(0).WithMessage("Total de entregas não pode ser negativo.");
 
         RuleForEach(x => x.Itens).ChildRules(item =>
         {

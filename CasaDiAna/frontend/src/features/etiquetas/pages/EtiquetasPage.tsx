@@ -168,7 +168,6 @@ export function EtiquetasPage() {
     alergicoAlimentar: '',
     contemGluten: false,
     contemLactose: false,
-    loteFabricacao: '',
     ingredientes: '',
   })
 
@@ -250,11 +249,10 @@ export function EtiquetasPage() {
             alergicoAlimentar: modelo.alergicoAlimentar ?? '',
             contemGluten: modelo.contemGluten,
             contemLactose: modelo.contemLactose,
-            loteFabricacao: modelo.loteFabricacao ?? '',
             ingredientes: modelo.ingredientes ?? '',
           })
         } else {
-          setNutri({ nome: '', porcao: '100g', medidaCaseira: '', porcoesPorEmbalagem: '', valorEnergeticoKcal: '', valorEnergeticoKJ: '', carboidratos: '', acucaresTotais: '', acucaresAdicionados: '', proteinas: '', gordurasTotais: '', gordurasSaturadas: '', gordurasTrans: '', fibraAlimentar: '', sodio: '', ...CAMPOS_VD_VAZIOS, alergicoAlimentar: '', contemGluten: false, contemLactose: false, loteFabricacao: '', ingredientes: '' })
+          setNutri({ nome: '', porcao: '100g', medidaCaseira: '', porcoesPorEmbalagem: '', valorEnergeticoKcal: '', valorEnergeticoKJ: '', carboidratos: '', acucaresTotais: '', acucaresAdicionados: '', proteinas: '', gordurasTotais: '', gordurasSaturadas: '', gordurasTrans: '', fibraAlimentar: '', sodio: '', ...CAMPOS_VD_VAZIOS, alergicoAlimentar: '', contemGluten: false, contemLactose: false, ingredientes: '' })
         }
       })
       .catch(() => {})
@@ -381,7 +379,6 @@ export function EtiquetasPage() {
         alergicoAlimentar: nutri.alergicoAlimentar || null,
         contemGluten: nutri.contemGluten,
         contemLactose: nutri.contemLactose,
-        loteFabricacao: nutri.loteFabricacao || null,
         ingredientes: nutri.ingredientes || null,
       })
       setModeloNutricional(modeloAtualizado)
@@ -775,21 +772,6 @@ export function EtiquetasPage() {
                     {nutri.contemLactose ? 'Contém lactose (será impresso)' : 'Não contém lactose (não será impresso)'}
                   </span>
                 </label>
-              </div>
-
-              {/* Lote de fabricação */}
-              <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: 'var(--ada-body)' }}>
-                  Lote de fabricação
-                </label>
-                <input
-                  type="text"
-                  placeholder="Ex: 2026-001"
-                  value={nutri.loteFabricacao}
-                  onChange={e => setNutri(n => ({ ...n, loteFabricacao: e.target.value }))}
-                  className="w-full rounded-lg px-3 py-2 text-sm border outline-none"
-                  style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)', color: 'var(--ada-body)' }}
-                />
               </div>
 
               <button

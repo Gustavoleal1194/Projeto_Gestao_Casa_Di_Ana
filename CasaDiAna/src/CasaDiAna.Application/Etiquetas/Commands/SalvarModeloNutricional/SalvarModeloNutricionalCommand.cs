@@ -32,5 +32,4 @@ public record SalvarModeloNutricionalCommand(
     string? AlergicoAlimentar,
     bool ContemGluten,
     bool ContemLactose,
-    string? LoteFabricacao,
     string? Ingredientes) : IRequest<ModeloEtiquetaNutricionalDto>;

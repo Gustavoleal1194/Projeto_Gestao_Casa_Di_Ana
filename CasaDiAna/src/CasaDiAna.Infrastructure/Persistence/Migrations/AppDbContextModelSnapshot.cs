@@ -1017,11 +1017,6 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(2000)")
                         .HasColumnName("ingredientes");
 
-                    b.Property<string>("LoteFabricacao")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("lote_fabricacao");
-
                     b.Property<string>("MedidaCaseira")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")

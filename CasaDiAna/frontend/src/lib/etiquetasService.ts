@@ -52,7 +52,6 @@ export interface ModeloNutricional extends VdCampos {
   alergicoAlimentar: string | null
   contemGluten: boolean
   contemLactose: boolean
-  loteFabricacao: string | null
   ingredientes: string | null
 }
 
@@ -77,7 +76,6 @@ export interface ModeloNutricionalResumo extends VdCampos {
   alergicoAlimentar: string | null
   contemGluten: boolean
   contemLactose: boolean
-  loteFabricacao: string | null
   ingredientes: string | null
 }
 
@@ -99,7 +97,6 @@ export interface SalvarModeloNutricionalInput extends VdCampos {
   alergicoAlimentar: string | null
   contemGluten: boolean
   contemLactose: boolean
-  loteFabricacao: string | null
   ingredientes: string | null
 }
 

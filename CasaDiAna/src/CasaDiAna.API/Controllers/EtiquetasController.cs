@@ -121,7 +121,6 @@ public class EtiquetasController : ControllerBase
             body.AlergicoAlimentar,
             body.ContemGluten,
             body.ContemLactose,
-            body.LoteFabricacao,
             body.Ingredientes);
 
         var resultado = await _mediator.Send(command, ct);
@@ -163,7 +162,6 @@ public record SalvarModeloNutricionalRequest(
     string? AlergicoAlimentar,
     bool ContemGluten,
     bool ContemLactose,
-    string? LoteFabricacao,
     string? Ingredientes);
 
 public record RenomearModeloNutricionalRequest(string? Nome);

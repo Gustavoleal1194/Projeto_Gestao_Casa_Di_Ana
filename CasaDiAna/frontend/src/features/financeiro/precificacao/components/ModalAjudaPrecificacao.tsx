@@ -73,7 +73,7 @@ export function ModalAjudaPrecificacao({ onFechar }: Props) {
             </Calc>
             <Calc nome="Rateio de despesas" formula="preço × % despesa fixa do mês">
               A fatia das despesas fixas que esse produto precisa cobrir. O <em>% despesa fixa</em> vem do Fechamento
-              (despesas fixas ÷ faturamento do mês). Sem faturamento definido, esse rateio fica em 0.
+              (despesas fixas ÷ receita líquida do mês). Sem faturamento definido, esse rateio fica em 0.
             </Calc>
             <Calc nome="Lucro estimado por unidade" formula="preço − custo − rateio de despesas">
               O que de fato sobra a cada unidade vendida, já descontando a parte das despesas fixas.

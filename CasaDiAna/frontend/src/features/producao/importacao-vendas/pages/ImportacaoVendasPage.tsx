@@ -429,12 +429,11 @@ export function ImportacaoVendasPage() {
       {(etapa === 'preview' || etapa === 'confirmando') && preview && (
         <div className="space-y-6">
           {/* Sumário de contagens */}
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { label: 'Encontrados',     value: contagens.matched,   cor: '#15803D', bg: 'var(--ada-success-bg)', border: 'var(--ada-success-border)' },
               { label: 'Ambíguos',        value: contagens.ambiguous, cor: '#B45309', bg: 'var(--ada-warning-bg)', border: 'var(--ada-warning-border)' },
               { label: 'Não encontrados', value: contagens.unmatched, cor: '#DC2626', bg: 'var(--ada-error-bg)',   border: 'var(--ada-error-border)'   },
-              { label: 'Ignorados',       value: contagens.ignored,   cor: 'var(--ada-muted)', bg: 'var(--ada-surface-2)', border: 'var(--ada-border)' },
               { label: 'Repasses',        value: contagens.repasse,   cor: 'var(--sb-accent)', bg: 'var(--ada-surface-2)', border: 'var(--ada-border)' },
             ].map(c => (
               <div key={c.label} className="rounded-xl p-4 flex flex-col gap-1" style={{ background: c.bg, border: `1px solid ${c.border}` }}>

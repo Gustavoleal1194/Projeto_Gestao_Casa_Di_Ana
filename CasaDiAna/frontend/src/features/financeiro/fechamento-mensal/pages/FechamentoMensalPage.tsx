@@ -52,7 +52,7 @@ export function FechamentoMensalPage() {
     }
   }
 
-  const semFaturamento = !!dados && dados.faturamentoUsado <= 0
+  const semReceitaLiquida = !!dados && dados.despesaFixaPercentual == null
   const usandoManual = !!dados && dados.faturamentoManual != null
 
   return (
@@ -73,10 +73,10 @@ export function FechamentoMensalPage() {
         <p className="text-sm" style={{ color: 'var(--ada-error-text)' }}>{erro}</p>
       ) : dados && (
         <>
-          {semFaturamento && (
+          {semReceitaLiquida && (
             <p className="text-sm rounded-lg px-3 py-2"
               style={{ background: 'var(--ada-error-bg)', color: 'var(--ada-error-text)' }}>
-              Informe o faturamento para calcular os percentuais.
+              Sem receita líquida no mês: informe o faturamento ou importe as vendas para calcular os percentuais.
             </p>
           )}
 
@@ -87,7 +87,7 @@ export function FechamentoMensalPage() {
             <KpiCard label="Despesas variáveis" valor={formatarBRL(dados.totalDespesasVariaveis)} variante="yellow" />
             <KpiCard label="Compras (notas)" valor={formatarBRL(dados.totalCompras)} variante="blue" />
             <KpiCard label="Total de saídas (mês)" valor={formatarBRL(dados.totalSaidas)} variante="red" />
-            <KpiCard label="Despesa fixa %" valor={formatarPercentual(dados.despesaFixaPercentual)} variante="yellow" />
+            <KpiCard label="Despesa fixa % (s/ receita líquida)" valor={formatarPercentual(dados.despesaFixaPercentual)} variante="yellow" />
             <KpiCard label="Margem bruta (s/ receita líquida)" valor={formatarBRL(dados.margemBruta)} variante="blue" />
             <KpiCard label="Margem operacional (s/ receita líquida)" valor={formatarBRL(dados.margemOperacional)} variante="green" />
             <KpiCard label="Prime cost" valor={formatarBRL(dados.primeCost)} variante="amber" />

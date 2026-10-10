@@ -12,15 +12,19 @@ export function ConfigRepasseEditor({ onSalvo }: Props) {
   const [aberto, setAberto] = useState(false)
   const [retencao, setRetencao] = useState('')
   const [cartao, setCartao] = useState('')
+  const [carregado, setCarregado] = useState(false)
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
 
   useEffect(() => {
     if (!aberto) return
+    setErro(null)
+    setCarregado(false)
     fechamentoService.obterConfigRepasse()
       .then(c => {
         setRetencao(percentualParaTexto(c.percentualRetencaoCasa))
         setCartao(percentualParaTexto(c.percentualTaxaCartao))
+        setCarregado(true)
       })
       .catch(() => setErro('Erro ao carregar a configuração de repasses.'))
   }, [aberto])
@@ -69,7 +73,7 @@ export function ConfigRepasseEditor({ onSalvo }: Props) {
             <CampoPercentual label="Taxa do cartão sobre a taxa de serviço" value={cartao} onChange={setCartao} />
           </div>
           {erro && <p className="text-sm" style={{ color: 'var(--ada-error-text)' }}>{erro}</p>}
-          <button type="button" onClick={salvar} disabled={salvando}
+          <button type="button" onClick={salvar} disabled={salvando || !carregado}
             className="rounded-lg px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
             style={{ background: 'var(--sb-accent)' }}>
             {salvando ? 'Salvando...' : 'Salvar'}

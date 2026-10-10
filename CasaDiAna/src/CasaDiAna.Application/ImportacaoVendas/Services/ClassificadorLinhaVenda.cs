@@ -15,7 +15,8 @@ public static class ClassificadorLinhaVenda
         // Entrega primeiro: "Taxa de entrega" começa com "taxa" mas é entrega.
         if (norm.StartsWith("entrega") || norm.StartsWith("taxa de entrega") || norm.StartsWith("taxa entrega"))
             return TipoRepasse.Entrega;
-        if (norm.StartsWith("taxa"))
+        // Só a taxa de serviço: outras "taxa ..." (embalagem, rolha) são produto.
+        if (norm.StartsWith("taxa de servico") || norm.StartsWith("taxa servico"))
             return TipoRepasse.TaxaServico;
         return null;
     }

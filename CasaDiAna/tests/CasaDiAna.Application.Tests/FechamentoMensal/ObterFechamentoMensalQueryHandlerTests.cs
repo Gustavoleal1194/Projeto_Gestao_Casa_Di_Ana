@@ -86,6 +86,41 @@ public class ObterFechamentoMensalQueryHandlerTests
     }
 
     [Fact]
+    public async Task ReceitaLiquidaZero_DespesaFixaPercentualDeveSerNull()
+    {
+        SemVendasDespesasECompras();
+        var catFixa = CategoriaDespesa.Criar("Aluguel", TipoDespesa.Fixa, false, Guid.NewGuid());
+        _despesas.Setup(r => r.ListarPorCompetenciaAsync(_comp, default))
+                 .ReturnsAsync(new List<Despesa> { DespesaTestFactory.ComCategoria(_comp, catFixa, 640m) });
+
+        var dto = await Criar().Handle(new ObterFechamentoMensalQuery(_comp), CancellationToken.None);
+
+        dto.ReceitaLiquida.Should().Be(0m);
+        dto.DespesaFixaPercentual.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task FaturamentoCalculadoPorVendas_SemManual_SomaTaxaEEntregasDasImportacoes()
+    {
+        var produto = Produto.Criar("Café", 10m, Guid.NewGuid());
+        var venda = VendaDiaria.Criar(produto.Id, new DateTime(2026, 6, 10), 100m, Guid.NewGuid());
+        SemVendasDespesasECompras();
+        _vendas.Setup(r => r.ListarAsync(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), null, default))
+               .ReturnsAsync(new List<VendaDiaria> { venda });
+        _produtos.Setup(r => r.ListarComFichaAsync(false, default)).ReturnsAsync(new List<Produto> { produto });
+        _importacoes.Setup(r => r.ListarPorDataVendaAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), default))
+                    .ReturnsAsync(new List<CasaDiAna.Domain.Entities.ImportacaoVendas> { Importacao(1000m, 500m) });
+
+        var dto = await Criar().Handle(new ObterFechamentoMensalQuery(_comp), CancellationToken.None);
+
+        dto.FaturamentoManual.Should().BeNull();
+        dto.FaturamentoUsado.Should().Be(1000m);       // 100 × R$ 10
+        dto.ReceitaTotal.Should().Be(2500m);           // 1000 + 1000 + 500
+        dto.TotalRepasses.Should().Be(1220m);          // 720 equipe + 500 motoboys
+        dto.ReceitaLiquida.Should().Be(1280m);
+    }
+
+    [Fact]
     public async Task DeveConsultarImportacoesComFimExclusivoNoPrimeiroDiaDoMesSeguinte()
     {
         SemVendasDespesasECompras();

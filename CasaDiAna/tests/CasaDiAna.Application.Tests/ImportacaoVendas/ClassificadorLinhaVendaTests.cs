@@ -10,6 +10,8 @@ public class ClassificadorLinhaVendaTests
     [InlineData("TAXA DE SERVIÇO")]
     [InlineData("taxa servico")]
     [InlineData("Taxa de Serviço 10%")]
+    [InlineData("  Taxa  Serviço")]
+    [InlineData("taxa de servico")]
     public void TaxaDeServico_ClassificadaComoTaxaServico(string nome) =>
         ClassificadorLinhaVenda.ClassificarRepasse(nome).Should().Be(TipoRepasse.TaxaServico);
 
@@ -28,6 +30,8 @@ public class ClassificadorLinhaVendaTests
     [InlineData("Nutella - Acréscimo")]
     [InlineData("Diversos - Valor R$ 25,00")]
     [InlineData("Torta de entrega especial")] // "entrega" no meio não conta
+    [InlineData("Taxa de embalagem")]
+    [InlineData("Taxa de rolha")]
     public void Produto_NaoEhRepasse(string nome) =>
         ClassificadorLinhaVenda.ClassificarRepasse(nome).Should().BeNull();
 }

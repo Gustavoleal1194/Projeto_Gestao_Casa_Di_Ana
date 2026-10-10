@@ -64,8 +64,8 @@ public class ImportacaoVendas
             TotalIgnoradas = totalIgnoradas,
             TotalNaoEncontradas = totalNaoEncontradas,
             DataVenda = dataVenda,
-            TotalTaxaServico = totalTaxaServico,
-            TotalEntregas = totalEntregas,
+            TotalTaxaServico = Math.Round(totalTaxaServico, 2, MidpointRounding.AwayFromZero),
+            TotalEntregas = Math.Round(totalEntregas, 2, MidpointRounding.AwayFromZero),
             PercentualRetencaoCasa = configuracaoRepasse.PercentualRetencaoCasa,
             PercentualTaxaCartao = configuracaoRepasse.PercentualTaxaCartao,
             CriadoPor = criadoPor

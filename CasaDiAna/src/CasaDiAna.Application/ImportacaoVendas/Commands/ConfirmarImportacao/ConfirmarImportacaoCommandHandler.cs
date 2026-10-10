@@ -97,7 +97,7 @@ public class ConfirmarImportacaoCommandHandler
             novasVendas.Count,
             request.TotalIgnoradas,
             request.TotalNaoEncontradas,
-            request.TotalTaxaServico,
-            request.TotalEntregas);
+            importacao.TotalTaxaServico,
+            importacao.TotalEntregas);
     }
 }

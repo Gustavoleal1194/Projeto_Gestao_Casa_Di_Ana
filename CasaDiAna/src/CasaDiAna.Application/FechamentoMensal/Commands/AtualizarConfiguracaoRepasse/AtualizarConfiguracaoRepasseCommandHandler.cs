@@ -23,18 +23,15 @@ public class AtualizarConfiguracaoRepasseCommandHandler
     public async Task<ConfiguracaoRepasseDto> Handle(
         AtualizarConfiguracaoRepasseCommand request, CancellationToken cancellationToken)
     {
-        var config = await _repo.ObterAsync(cancellationToken);
-        if (config is null)
-        {
-            config = ConfiguracaoRepasse.Padrao(_currentUser.UsuarioId);
-            config.Atualizar(request.PercentualRetencaoCasa, request.PercentualTaxaCartao, _currentUser.UsuarioId);
+        var existente = await _repo.ObterAsync(cancellationToken);
+        var config = existente ?? ConfiguracaoRepasse.Padrao(_currentUser.UsuarioId);
+        config.Atualizar(request.PercentualRetencaoCasa, request.PercentualTaxaCartao, _currentUser.UsuarioId);
+
+        if (existente is null)
             await _repo.AdicionarAsync(config, cancellationToken);
-        }
         else
-        {
-            config.Atualizar(request.PercentualRetencaoCasa, request.PercentualTaxaCartao, _currentUser.UsuarioId);
             _repo.Atualizar(config);
-        }
+
         await _repo.SalvarAsync(cancellationToken);
         return ObterConfiguracaoRepasseQueryHandler.ToDto(config);
     }

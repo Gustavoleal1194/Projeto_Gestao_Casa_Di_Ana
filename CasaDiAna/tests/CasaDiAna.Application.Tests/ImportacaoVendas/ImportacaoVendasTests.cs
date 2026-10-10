@@ -17,6 +17,15 @@ public class ImportacaoVendasTests
             criadoPor: Guid.NewGuid());
 
     [Fact]
+    public void Criar_DeveArredondarTotaisEmDuasCasas()
+    {
+        var imp = Criar(10.005m, 3.333m);
+
+        imp.TotalTaxaServico.Should().Be(10.01m);
+        imp.TotalEntregas.Should().Be(3.33m);
+    }
+
+    [Fact]
     public void Criar_DeveGravarTotaisDataESnapshotDosPercentuais()
     {
         var imp = Criar(1000m, 500m);

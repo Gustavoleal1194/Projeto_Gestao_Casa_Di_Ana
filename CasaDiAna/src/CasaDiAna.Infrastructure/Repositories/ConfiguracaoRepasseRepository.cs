@@ -12,7 +12,7 @@ public class ConfiguracaoRepasseRepository : IConfiguracaoRepasseRepository
     public ConfiguracaoRepasseRepository(AppDbContext db) => _db = db;
 
     public Task<ConfiguracaoRepasse?> ObterAsync(CancellationToken ct = default) =>
-        _db.ConfiguracoesRepasse.FirstOrDefaultAsync(ct);
+        _db.ConfiguracoesRepasse.OrderByDescending(c => c.AtualizadoEm).FirstOrDefaultAsync(ct);
 
     public async Task AdicionarAsync(ConfiguracaoRepasse config, CancellationToken ct = default) =>
         await _db.ConfiguracoesRepasse.AddAsync(config, ct);

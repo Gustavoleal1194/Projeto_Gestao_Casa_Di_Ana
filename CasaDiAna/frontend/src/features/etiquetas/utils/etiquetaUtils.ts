@@ -86,7 +86,6 @@ export interface NutriValues {
   alergicoAlimentar: string
   contemGluten: boolean
   contemLactose: boolean
-  loteFabricacao: string
   ingredientes: string
 }
 
@@ -396,9 +395,8 @@ export function htmlEtiquetaNutricional(
         ${nutri.alergicoAlimentar ? `
         <div class="alergenos">ALÉRGICOS: ${nutri.alergicoAlimentar}</div>` : ''}
         <div class="gluten-lactose"><strong>${nutri.contemGluten ? 'Contém glúten' : 'Não contém glúten'}.</strong>${nutri.contemLactose ? '<br><strong>Contém lactose.</strong>' : ''}</div>
-        ${(nutri.loteFabricacao || dataProducao || validade) ? `
-        <div class="lote-validade">${[
-          nutri.loteFabricacao ? `Lote: ${nutri.loteFabricacao}` : '',
+        ${(dataProducao || validade) ? `
+        <div class="fab-validade">${[
           dataProducao ? `Fab.: ${dataProducao}` : '',
           validade ? `Val.: ${validade}` : '',
         ].filter(Boolean).join('  |  ')}</div>` : ''}
@@ -642,7 +640,7 @@ export function htmlEtiquetaNutricional(
       margin-top: 0.5mm;
       text-transform: uppercase;
     }
-    .lote-validade {
+    .fab-validade {
       font-size: 10px;
       font-weight: 600;
       line-height: 1.3;

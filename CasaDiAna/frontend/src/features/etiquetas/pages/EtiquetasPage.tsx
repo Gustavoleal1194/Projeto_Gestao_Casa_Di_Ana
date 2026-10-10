@@ -287,7 +287,6 @@ export function EtiquetasPage() {
     alergicoAlimentar: nutri.alergicoAlimentar,
     contemGluten: nutri.contemGluten,
     contemLactose: nutri.contemLactose,
-    loteFabricacao: nutri.loteFabricacao,
     ingredientes: nutri.ingredientes,
   })
 

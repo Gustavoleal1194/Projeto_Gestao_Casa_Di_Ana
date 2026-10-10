@@ -1,6 +1,8 @@
 using CasaDiAna.Application.Common;
+using CasaDiAna.Application.FechamentoMensal.Commands.AtualizarConfiguracaoRepasse;
 using CasaDiAna.Application.FechamentoMensal.Commands.DefinirFaturamentoManual;
 using CasaDiAna.Application.FechamentoMensal.Dtos;
+using CasaDiAna.Application.FechamentoMensal.Queries.ObterConfiguracaoRepasse;
 using CasaDiAna.Application.FechamentoMensal.Queries.ObterFechamentoMensal;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -33,5 +35,23 @@ public class FechamentoMensalController : ControllerBase
     {
         var resultado = await _mediator.Send(command, ct);
         return Ok(ApiResponse<FaturamentoMensalDto>.Ok(resultado));
+    }
+
+    [HttpGet("configuracao-repasse")]
+    [ProducesResponseType(typeof(ApiResponse<ConfiguracaoRepasseDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ObterConfiguracaoRepasse(CancellationToken ct)
+    {
+        var resultado = await _mediator.Send(new ObterConfiguracaoRepasseQuery(), ct);
+        return Ok(ApiResponse<ConfiguracaoRepasseDto>.Ok(resultado));
+    }
+
+    [HttpPut("configuracao-repasse")]
+    [ProducesResponseType(typeof(ApiResponse<ConfiguracaoRepasseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> AtualizarConfiguracaoRepasse(
+        [FromBody] AtualizarConfiguracaoRepasseCommand command, CancellationToken ct)
+    {
+        var resultado = await _mediator.Send(command, ct);
+        return Ok(ApiResponse<ConfiguracaoRepasseDto>.Ok(resultado));
     }
 }

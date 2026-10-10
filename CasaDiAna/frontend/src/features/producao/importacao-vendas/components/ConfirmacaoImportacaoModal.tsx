@@ -12,6 +12,8 @@ export interface DadosConfirmacaoImportacao {
   totalImportadas: number
   totalIgnoradas: number
   totalNaoEncontradas: number
+  totalTaxaServico: number
+  totalEntregas: number
   valorTotal: number
   dataVenda: string
   operador: string
@@ -98,6 +100,18 @@ function Sparkles({ delay = 800 }: { delay?: number }) {
 
 function fmt(v: number) {
   return v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
+function LinhaResumo({ label, valor, delay }: { label: string; valor: string; delay: number }) {
+  return (
+    <div style={{
+      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      padding: '7px 0', animation: `fadeUp 350ms ${delay}ms ease both`,
+    }}>
+      <span style={{ fontSize: 13, color: 'var(--ada-muted)', fontWeight: 400 }}>{label}</span>
+      <span style={{ fontFamily: 'Sora, system-ui, sans-serif', fontSize: 13.5, fontWeight: 600, color: 'var(--ada-heading)', fontVariantNumeric: 'tabular-nums' }}>{valor}</span>
+    </div>
+  )
 }
 
 function formatarData(data: string) {
@@ -225,17 +239,15 @@ export function ConfirmacaoImportacaoModal({ aberto, onFechar, onVerRelatorio, d
             borderRadius: 12, padding: '6px 16px', marginBottom: 20,
           }}>
             {[
-              { label: 'Total importado', value: `R$ ${fmt(dados.valorTotal)}`, delay: 900 },
-              { label: 'Data dos lançamentos', value: formatarData(dados.dataVenda), delay: 960 },
-              { label: 'Operador', value: dados.operador, delay: 1000 },
-            ].map(row => (
-              <div key={row.label} style={{
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                padding: '7px 0', animation: `fadeUp 350ms ${row.delay}ms ease both`,
-              }}>
-                <span style={{ fontSize: 13, color: 'var(--ada-muted)', fontWeight: 400 }}>{row.label}</span>
-                <span style={{ fontFamily: 'Sora, system-ui, sans-serif', fontSize: 13.5, fontWeight: 600, color: 'var(--ada-heading)', fontVariantNumeric: 'tabular-nums' }}>{row.value}</span>
-              </div>
+              { label: 'Total importado', valor: `R$ ${fmt(dados.valorTotal)}`, delay: 900 },
+              { label: 'Data dos lançamentos', valor: formatarData(dados.dataVenda), delay: 960 },
+              { label: 'Operador', valor: dados.operador, delay: 1000 },
+            ].map(row => <LinhaResumo key={row.label} {...row} />)}
+            {[
+              { label: 'Taxa de serviço (repasse)', total: dados.totalTaxaServico, delay: 1020 },
+              { label: 'Entregas (repasse)', total: dados.totalEntregas, delay: 1035 },
+            ].filter(r => r.total > 0).map(r => (
+              <LinhaResumo key={r.label} label={r.label} valor={`R$ ${fmt(r.total)}`} delay={r.delay} />
             ))}
             <div style={{ borderTop: '1px solid var(--ada-border-sub)', marginTop: 4, paddingTop: 4 }}>
               {dados.totalIgnoradas > 0 && (

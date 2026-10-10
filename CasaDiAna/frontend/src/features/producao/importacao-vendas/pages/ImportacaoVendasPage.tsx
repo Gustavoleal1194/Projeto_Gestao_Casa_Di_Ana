@@ -9,7 +9,9 @@ import {
   EyeSlashIcon,
   PlusCircleIcon,
   TrashIcon,
+  BanknotesIcon,
 } from '@heroicons/react/24/outline'
+import { somarRepasses, TIPO_REPASSE_LABELS } from '../utils/repasses'
 import { importacaoVendasService } from '../services/importacaoVendasService'
 import { QuickCreateProductModal } from '../components/QuickCreateProductModal'
 import { ConfirmRemoveDialog } from '../components/ConfirmRemoveDialog'
@@ -37,6 +39,7 @@ const STATUS_CFG: Record<StatusImportacao, {
   ambiguous: { label: 'Ambíguo',        cor: '#B45309', bg: 'var(--ada-warning-bg)',  border: 'var(--ada-warning-border)', Icon: QuestionMarkCircleIcon },
   unmatched: { label: 'Não encontrado', cor: '#DC2626', bg: 'var(--ada-error-bg)',    border: 'var(--ada-error-border)',   Icon: XCircleIcon },
   ignored:   { label: 'Ignorado',       cor: 'var(--ada-muted)', bg: 'var(--ada-surface-2)', border: 'var(--ada-border)', Icon: EyeSlashIcon },
+  repasse:   { label: 'Repasse',        cor: 'var(--sb-accent)', bg: 'var(--ada-surface-2)', border: 'var(--ada-border)', Icon: BanknotesIcon },
 }
 
 // Suppress unused import warning — ExclamationTriangleIcon reserved for future use
@@ -73,14 +76,18 @@ export function ImportacaoVendasPage() {
 
   // Contagens calculadas dinamicamente a partir dos itens atuais (refletem remoções locais)
   const contagens = useMemo(() => {
-    if (!preview) return { matched: 0, ambiguous: 0, unmatched: 0, ignored: 0 }
+    if (!preview) return { matched: 0, ambiguous: 0, unmatched: 0, ignored: 0, repasse: 0 }
     return {
       matched:   preview.itens.filter(i => i.status === 'matched').length,
       ambiguous: preview.itens.filter(i => i.status === 'ambiguous').length,
       unmatched: preview.itens.filter(i => i.status === 'unmatched').length,
       ignored:   preview.itens.filter(i => i.status === 'ignored').length,
+      repasse:   preview.itens.filter(i => i.status === 'repasse').length,
     }
   }, [preview])
+
+  const totaisRepasse = useMemo(() => somarRepasses(preview?.itens ?? []), [preview])
+  const temRepasse = totaisRepasse.taxaServico > 0 || totaisRepasse.entregas > 0
 
   // Estado indeterminado do checkbox "selecionar todos"
   useEffect(() => {
@@ -153,6 +160,8 @@ export function ImportacaoVendasPage() {
         totalIgnoradas: contagens.ignored,
         totalNaoEncontradas: contagens.unmatched,
         itens,
+        totalTaxaServico: totaisRepasse.taxaServico,
+        totalEntregas: totaisRepasse.entregas,
       })
 
       const itensModal: ItemConfirmacaoImportacao[] = [
@@ -172,6 +181,8 @@ export function ImportacaoVendasPage() {
         totalImportadas: res.totalImportadas,
         totalIgnoradas: res.totalIgnoradas,
         totalNaoEncontradas: res.totalNaoEncontradas,
+        totalTaxaServico: res.totalTaxaServico,
+        totalEntregas: res.totalEntregas,
         valorTotal: itensModal.reduce((sum, i) => sum + i.valorTotal, 0),
         dataVenda,
         operador: usuario?.nome ?? '—',
@@ -418,12 +429,13 @@ export function ImportacaoVendasPage() {
       {(etapa === 'preview' || etapa === 'confirmando') && preview && (
         <div className="space-y-6">
           {/* Sumário de contagens */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
             {[
               { label: 'Encontrados',     value: contagens.matched,   cor: '#15803D', bg: 'var(--ada-success-bg)', border: 'var(--ada-success-border)' },
               { label: 'Ambíguos',        value: contagens.ambiguous, cor: '#B45309', bg: 'var(--ada-warning-bg)', border: 'var(--ada-warning-border)' },
               { label: 'Não encontrados', value: contagens.unmatched, cor: '#DC2626', bg: 'var(--ada-error-bg)',   border: 'var(--ada-error-border)'   },
               { label: 'Ignorados',       value: contagens.ignored,   cor: 'var(--ada-muted)', bg: 'var(--ada-surface-2)', border: 'var(--ada-border)' },
+              { label: 'Repasses',        value: contagens.repasse,   cor: 'var(--sb-accent)', bg: 'var(--ada-surface-2)', border: 'var(--ada-border)' },
             ].map(c => (
               <div key={c.label} className="rounded-xl p-4 flex flex-col gap-1" style={{ background: c.bg, border: `1px solid ${c.border}` }}>
                 <span className="text-2xl font-bold" style={{ color: c.cor }}>{c.value}</span>
@@ -563,11 +575,15 @@ export function ImportacaoVendasPage() {
               </button>
               <button
                 onClick={confirmar}
-                disabled={etapa === 'confirmando' || totalConfirmados === 0}
+                disabled={etapa === 'confirmando' || (totalConfirmados === 0 && !temRepasse)}
                 className="px-5 py-2 rounded-lg text-sm font-semibold text-white transition-opacity disabled:opacity-40"
                 style={{ background: 'var(--sb-accent)' }}
               >
-                {etapa === 'confirmando' ? 'Importando…' : `Confirmar ${totalConfirmados} venda${totalConfirmados !== 1 ? 's' : ''}`}
+                {etapa === 'confirmando'
+                  ? 'Importando…'
+                  : totalConfirmados === 0
+                    ? 'Confirmar repasses'
+                    : `Confirmar ${totalConfirmados} venda${totalConfirmados !== 1 ? 's' : ''}`}
               </button>
             </div>
           </div>
@@ -689,6 +705,11 @@ function PreviewRow({
         )}
         {item.status === 'unmatched' && <span style={{ color: 'var(--ada-muted)' }}>—</span>}
         {item.status === 'ignored' && <span style={{ color: 'var(--ada-muted)', fontStyle: 'italic' }}>item ignorado</span>}
+        {item.status === 'repasse' && item.tipoRepasse && (
+          <span style={{ color: 'var(--ada-muted)', fontStyle: 'italic' }}>
+            {TIPO_REPASSE_LABELS[item.tipoRepasse]} · repassado
+          </span>
+        )}
       </td>
 
       {/* Qtd. */}
@@ -704,22 +725,24 @@ function PreviewRow({
       {/* Ações */}
       <td className="px-4 py-2.5">
         <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={onAdicionar}
-            title="Adicionar produto"
-            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium border transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-[#C4870A]/40"
-            style={{
-              background: 'var(--ada-surface-2)',
-              borderColor: 'var(--ada-border)',
-              color: 'var(--ada-body)',
-            }}
-            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--ada-bg)'}
-            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'var(--ada-surface-2)'}
-          >
-            <PlusCircleIcon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-            <span>Adicionar</span>
-          </button>
+          {item.status !== 'repasse' && (
+            <button
+              type="button"
+              onClick={onAdicionar}
+              title="Adicionar produto"
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium border transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-[#C4870A]/40"
+              style={{
+                background: 'var(--ada-surface-2)',
+                borderColor: 'var(--ada-border)',
+                color: 'var(--ada-body)',
+              }}
+              onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--ada-bg)'}
+              onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'var(--ada-surface-2)'}
+            >
+              <PlusCircleIcon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              <span>Adicionar</span>
+            </button>
+          )}
 
           <button
             type="button"

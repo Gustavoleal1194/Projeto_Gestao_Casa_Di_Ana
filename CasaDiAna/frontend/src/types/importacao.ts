@@ -1,4 +1,6 @@
-export type StatusImportacao = 'matched' | 'unmatched' | 'ambiguous' | 'ignored'
+export type StatusImportacao = 'matched' | 'unmatched' | 'ambiguous' | 'ignored' | 'repasse'
+
+export type TipoRepasse = 'taxaServico' | 'entrega'
 
 export interface SugestaoMatch {
   produtoId: string
@@ -15,6 +17,7 @@ export interface ItemPreview {
   produtoId: string | null
   produtoNome: string | null
   sugestoes: SugestaoMatch[]
+  tipoRepasse: TipoRepasse | null
 }
 
 export interface PreviewImportacao {
@@ -26,6 +29,9 @@ export interface PreviewImportacao {
   totalAmbiguous: number
   totalUnmatched: number
   totalIgnored: number
+  totalRepasses: number
+  totalTaxaServico: number
+  totalEntregas: number
   itens: ItemPreview[]
 }
 
@@ -44,10 +50,14 @@ export interface ConfirmarImportacaoInput {
   totalIgnoradas: number
   totalNaoEncontradas: number
   itens: ItemConfirmar[]
+  totalTaxaServico: number
+  totalEntregas: number
 }
 
 export interface ResultadoImportacao {
   totalImportadas: number
   totalIgnoradas: number
   totalNaoEncontradas: number
+  totalTaxaServico: number
+  totalEntregas: number
 }

@@ -15,7 +15,7 @@ public class ProcessarPreviewHandlerTests
     private readonly Mock<IImportacaoVendasRepository> _importacoes = new();
 
     private ProcessarPreviewVendasCommandHandler CreateHandler() =>
-        new(_parser.Object, _produtos.Object, _importacoes.Object);
+        new(new LeitorRelatorioVendas(_parser.Object), _produtos.Object, _importacoes.Object);
 
     [Fact]
     public async Task Handle_ProdutoNomeExato_RetornaMatched()

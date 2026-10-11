@@ -9,16 +9,16 @@ namespace CasaDiAna.Application.ImportacaoVendas.Commands.ProcessarPreview;
 public class ProcessarPreviewVendasCommandHandler
     : IRequestHandler<ProcessarPreviewVendasCommand, PreviewImportacaoDto>
 {
-    private readonly IVendasParser _parser;
+    private readonly LeitorRelatorioVendas _leitor;
     private readonly IProdutoRepository _produtos;
     private readonly IImportacaoVendasRepository _importacoes;
 
     public ProcessarPreviewVendasCommandHandler(
-        IVendasParser parser,
+        LeitorRelatorioVendas leitor,
         IProdutoRepository produtos,
         IImportacaoVendasRepository importacoes)
     {
-        _parser = parser;
+        _leitor = leitor;
         _produtos = produtos;
         _importacoes = importacoes;
     }
@@ -27,37 +27,28 @@ public class ProcessarPreviewVendasCommandHandler
         ProcessarPreviewVendasCommand request,
         CancellationToken cancellationToken)
     {
-        VendasParseResult parseResult;
-        try
-        {
-            parseResult = _parser.Parse(request.CsvBytes);
-        }
-        catch (Exception ex)
-        {
-            throw new DomainException($"Falha ao processar o arquivo CSV: {ex.Message}");
-        }
+        var relatorio = _leitor.Ler(request.CsvBytes);
 
-        if (parseResult.Linhas.Count == 0)
-            throw new DomainException("Nenhuma linha foi encontrada no CSV. Verifique se o arquivo é um relatório válido.");
-
-        if (await _importacoes.HashExisteAsync(parseResult.Hash, cancellationToken))
+        if (await _importacoes.HashExisteAsync(relatorio.Hash, cancellationToken))
             throw new DomainException("Este arquivo já foi importado anteriormente.");
 
         var todosProdutos = await _produtos.ListarAsync(apenasAtivos: false, cancellationToken);
         var produtosAtivos = todosProdutos.Where(p => p.Ativo).ToList();
 
-        var itens = parseResult.Linhas
-            .Select(linha => Match(linha, produtosAtivos))
+        var itens = relatorio.Linhas
+            .Select(l => l.TipoRepasse is { } tipo
+                ? Repasse(l.Linha, tipo)
+                : Match(l.Linha, produtosAtivos))
             .ToList();
 
         decimal SomarRepasse(TipoRepasse tipo) =>
             itens.Where(i => i.TipoRepasse == tipo).Sum(i => i.ValorTotal);
 
         return new PreviewImportacaoDto(
-            parseResult.Hash,
-            parseResult.PeriodoDe,
-            parseResult.PeriodoAte,
-            TotalLinhasParseadas: parseResult.Linhas.Count,
+            relatorio.Hash,
+            relatorio.PeriodoDe,
+            relatorio.PeriodoAte,
+            TotalLinhasParseadas: relatorio.Linhas.Count,
             TotalMatched:   itens.Count(i => i.Status == StatusImportacao.Matched),
             TotalAmbiguous: itens.Count(i => i.Status == StatusImportacao.Ambiguous),
             TotalUnmatched: itens.Count(i => i.Status == StatusImportacao.Unmatched),
@@ -72,10 +63,6 @@ public class ProcessarPreviewVendasCommandHandler
         LinhaRelatorio linha,
         IReadOnlyList<CasaDiAna.Domain.Entities.Produto> produtos)
     {
-        var tipoRepasse = ClassificadorLinhaVenda.ClassificarRepasse(linha.Nome);
-        if (tipoRepasse is not null)
-            return Repasse(linha, tipoRepasse.Value);
-
         var nomeNorm = NormalizadorNome.Normalizar(linha.Nome);
 
         var exatos = produtos

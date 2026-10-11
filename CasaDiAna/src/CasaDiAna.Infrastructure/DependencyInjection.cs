@@ -45,6 +45,7 @@ public static class DependencyInjection
         services.AddScoped<IVendaDiariaRepository, VendaDiariaRepository>();
         services.AddScoped<IImportacaoVendasRepository, ImportacaoVendasRepository>();
         services.AddScoped<IVendasParser, CsvVendasParser>();
+        services.AddScoped<LeitorRelatorioVendas>();
         services.AddScoped<IPerdaProdutoRepository, PerdaProdutoRepository>();
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<ITotpService, TotpService>();

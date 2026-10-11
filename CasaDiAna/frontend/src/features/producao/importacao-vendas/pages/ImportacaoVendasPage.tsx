@@ -23,6 +23,7 @@ import type {
   ItemPreview,
   ResultadoImportacao,
   StatusImportacao,
+  VinculoLinha,
 } from '@/types/importacao'
 import type { Produto } from '@/types/producao'
 
@@ -65,6 +66,7 @@ export function ImportacaoVendasPage() {
 
   // Seleção em lote
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set())
+  const [linhasRemovidas, setLinhasRemovidas] = useState<Set<string>>(new Set())
   const [criandoEmLote, setCriandoEmLote] = useState(false)
   const checkboxTodosRef = useRef<HTMLInputElement>(null)
 
@@ -127,6 +129,7 @@ export function ImportacaoVendasPage() {
       const data = await importacaoVendasService.preview(arquivoSelecionado)
       setPreview(data)
       setSelecionados(new Set())
+      setLinhasRemovidas(new Set())
       setEtapa('preview')
     } catch (e: unknown) {
       const err = e as { response?: { data?: { erros?: string[] } } }
@@ -144,24 +147,17 @@ export function ImportacaoVendasPage() {
     const matched = preview.itens.filter(i => i.status === 'matched')
     const resolvidos = preview.itens.filter(i => i.status === 'ambiguous' && !!resolucoes[i.nomeRelatorio])
 
-    const itens = [
-      ...matched.map(i => ({ produtoId: i.produtoId!, quantidade: i.quantidade })),
-      ...resolvidos.map(i => ({ produtoId: resolucoes[i.nomeRelatorio], quantidade: i.quantidade })),
+    const vinculos: VinculoLinha[] = [
+      ...matched.map(i => ({ nomeRelatorio: i.nomeRelatorio, produtoId: i.produtoId! })),
+      ...resolvidos.map(i => ({ nomeRelatorio: i.nomeRelatorio, produtoId: resolucoes[i.nomeRelatorio] })),
     ]
 
     try {
       const res = await importacaoVendasService.confirmar({
-        hash: preview.hash,
-        nomeArquivo: arquivoSelecionado.name,
+        arquivo: arquivoSelecionado,
         dataVenda,
-        periodoDe: preview.periodoDe,
-        periodoAte: preview.periodoAte,
-        totalLinhasParseadas: preview.totalLinhasParseadas,
-        totalIgnoradas: contagens.ignored,
-        totalNaoEncontradas: contagens.unmatched,
-        itens,
-        totalTaxaServico: totaisRepasse.taxaServico,
-        totalEntregas: totaisRepasse.entregas,
+        vinculos,
+        linhasRemovidas: [...linhasRemovidas],
       })
 
       const itensModal: ItemConfirmacaoImportacao[] = [
@@ -206,6 +202,7 @@ export function ImportacaoVendasPage() {
     setResultado(null)
     setResolucoes({})
     setSelecionados(new Set())
+    setLinhasRemovidas(new Set())
     setErro(null)
     setDadosConfirmacao(null)
   }
@@ -240,6 +237,7 @@ export function ImportacaoVendasPage() {
       ...preview,
       itens: preview.itens.filter(i => !nomesRemover.has(i.nomeRelatorio)),
     })
+    setLinhasRemovidas(prev => new Set([...prev, ...nomesRemover]))
     setResolucoes(prev => {
       const next = { ...prev }
       nomesRemover.forEach(nome => delete next[nome])
@@ -308,6 +306,7 @@ export function ImportacaoVendasPage() {
       ...preview,
       itens: preview.itens.filter(i => i !== itemParaRemover),
     })
+    setLinhasRemovidas(prev => new Set(prev).add(itemParaRemover.nomeRelatorio))
     if (resolucoes[itemParaRemover.nomeRelatorio]) {
       setResolucoes(prev => {
         const next = { ...prev }

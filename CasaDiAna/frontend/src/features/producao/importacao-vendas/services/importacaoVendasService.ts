@@ -19,9 +19,18 @@ export const importacaoVendasService = {
   },
 
   confirmar: async (input: ConfirmarImportacaoInput): Promise<ResultadoImportacao> => {
+    const form = new FormData()
+    form.append('arquivo', input.arquivo)
+    form.append('dataVenda', input.dataVenda)
+    input.vinculos.forEach((v, i) => {
+      form.append(`vinculos[${i}].nomeRelatorio`, v.nomeRelatorio)
+      form.append(`vinculos[${i}].produtoId`, v.produtoId)
+    })
+    input.linhasRemovidas.forEach((nome, i) => form.append(`linhasRemovidas[${i}]`, nome))
     const resp = await api.post<ApiResponse<ResultadoImportacao>>(
       '/importacao-vendas/confirmar',
-      input
+      form,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
     )
     return resp.data.dados!
   },

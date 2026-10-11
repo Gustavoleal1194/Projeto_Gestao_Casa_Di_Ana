@@ -35,23 +35,16 @@ export interface PreviewImportacao {
   itens: ItemPreview[]
 }
 
-export interface ItemConfirmar {
+export interface VinculoLinha {
+  nomeRelatorio: string
   produtoId: string
-  quantidade: number
 }
 
 export interface ConfirmarImportacaoInput {
-  hash: string
-  nomeArquivo: string
+  arquivo: File
   dataVenda: string
-  periodoDe: string | null
-  periodoAte: string | null
-  totalLinhasParseadas: number
-  totalIgnoradas: number
-  totalNaoEncontradas: number
-  itens: ItemConfirmar[]
-  totalTaxaServico: number
-  totalEntregas: number
+  vinculos: VinculoLinha[]
+  linhasRemovidas: string[]
 }
 
 export interface ResultadoImportacao {

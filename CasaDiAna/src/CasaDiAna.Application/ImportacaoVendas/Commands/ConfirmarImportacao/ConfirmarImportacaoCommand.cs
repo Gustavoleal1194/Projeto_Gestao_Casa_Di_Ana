@@ -3,16 +3,14 @@ using MediatR;
 
 namespace CasaDiAna.Application.ImportacaoVendas.Commands.ConfirmarImportacao;
 
+/// <summary>
+/// A tela envia o CSV e as decisões do usuário; quantidades, valores, repasses,
+/// hash, período e contagens são recalculados do próprio arquivo.
+/// </summary>
 public record ConfirmarImportacaoCommand(
-    string Hash,
+    byte[] CsvBytes,
     string NomeArquivo,
     DateTime DataVenda,
-    string? PeriodoDe,
-    string? PeriodoAte,
-    int TotalLinhasParseadas,
-    int TotalIgnoradas,
-    int TotalNaoEncontradas,
-    IReadOnlyList<ItemConfirmarDto> Itens,
-    decimal TotalTaxaServico = 0,
-    decimal TotalEntregas = 0
+    IReadOnlyList<VinculoLinhaDto> Vinculos,
+    IReadOnlyList<string> LinhasRemovidas
 ) : IRequest<ResultadoImportacaoDto>;

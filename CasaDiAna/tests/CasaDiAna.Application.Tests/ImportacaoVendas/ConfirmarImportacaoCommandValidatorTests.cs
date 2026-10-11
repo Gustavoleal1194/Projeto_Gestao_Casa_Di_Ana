@@ -9,25 +9,31 @@ public class ConfirmarImportacaoCommandValidatorTests
     private readonly ConfirmarImportacaoCommandValidator _validator = new();
 
     private static ConfirmarImportacaoCommand Command(
-        IReadOnlyList<ItemConfirmarDto> itens, decimal taxa = 0m, decimal entregas = 0m) =>
-        new("hash", "vendas.csv", DateTime.Today, null, null, 1, 0, 0, itens, taxa, entregas);
+        byte[]? csv = null, string nome = "vendas.csv", DateTime? data = null,
+        IReadOnlyList<VinculoLinhaDto>? vinculos = null) =>
+        new(csv ?? [1], nome, data ?? DateTime.Today, vinculos ?? [], []);
 
     [Fact]
-    public void SemItensESemRepasse_Invalido() =>
-        _validator.Validate(Command([])).IsValid.Should().BeFalse();
+    public void ComandoMinimo_Valido() =>
+        _validator.Validate(Command()).IsValid.Should().BeTrue();
 
     [Fact]
-    public void SemItensComTaxa_Valido() =>
-        _validator.Validate(Command([], taxa: 10m)).IsValid.Should().BeTrue();
+    public void CsvVazio_Invalido() =>
+        _validator.Validate(Command(csv: [])).IsValid.Should().BeFalse();
 
     [Fact]
-    public void SemItensComEntregas_Valido() =>
-        _validator.Validate(Command([], entregas: 10m)).IsValid.Should().BeTrue();
+    public void NomeArquivoVazio_Invalido() =>
+        _validator.Validate(Command(nome: "")).IsValid.Should().BeFalse();
 
-    [Theory]
-    [InlineData(-1, 0)]
-    [InlineData(0, -1)]
-    public void TotaisNegativos_Invalido(double taxa, double entregas) =>
-        _validator.Validate(Command([new ItemConfirmarDto(Guid.NewGuid(), 1m)], (decimal)taxa, (decimal)entregas))
-            .IsValid.Should().BeFalse();
+    [Fact]
+    public void DataFutura_Invalido() =>
+        _validator.Validate(Command(data: DateTime.Today.AddDays(3))).IsValid.Should().BeFalse();
+
+    [Fact]
+    public void VinculoSemNome_Invalido() =>
+        _validator.Validate(Command(vinculos: [new VinculoLinhaDto("", Guid.NewGuid())])).IsValid.Should().BeFalse();
+
+    [Fact]
+    public void VinculoSemProduto_Invalido() =>
+        _validator.Validate(Command(vinculos: [new VinculoLinhaDto("Croissant", Guid.Empty)])).IsValid.Should().BeFalse();
 }

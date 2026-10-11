@@ -59,7 +59,7 @@ export function ImportacaoVendasPage() {
   const [arquivoSelecionado, setArquivoSelecionado] = useState<File | null>(null)
   const [erro, setErro] = useState<string | null>(null)
   const [preview, setPreview] = useState<PreviewImportacao | null>(null)
-  const [dataVenda, setDataVenda] = useState(new Date().toISOString().split('T')[0])
+  const [dataVenda, setDataVenda] = useState(new Date().toLocaleDateString('sv-SE'))
   const [resultado, setResultado] = useState<ResultadoImportacao | null>(null)
   const [resolucoes, setResolucoes] = useState<Record<string, string>>({})
   const [dadosConfirmacao, setDadosConfirmacao] = useState<DadosConfirmacaoImportacao | null>(null)

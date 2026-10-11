@@ -37,10 +37,14 @@ public class ImportacaoVendasController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<ResultadoImportacaoDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status422UnprocessableEntity)]
+    [RequestFormLimits(ValueCountLimit = LimiteCamposConfirmacao)]
     public async Task<IActionResult> Confirmar(
-        [FromForm] ConfirmarImportacaoForm form,
+        [FromForm] ConfirmarImportacaoForm? form,
         CancellationToken ct)
     {
+        if (form is null || !ModelState.IsValid)
+            return BadRequest(ApiResponse<object>.Erro("Requisição inválida."));
+
         var (erro, bytes) = await LerCsvAsync(form.Arquivo, ct);
         if (erro != null) return erro;
 
@@ -52,6 +56,9 @@ public class ImportacaoVendasController : ControllerBase
     }
 
     private const long TamanhoMaximoArquivo = 10 * 1024 * 1024;
+
+    // Cada vínculo ocupa 2 campos do form; o padrão do ASP.NET (1024) cortaria ~500 vínculos.
+    private const int LimiteCamposConfirmacao = 10_000;
 
     /// <summary>Valida e lê o CSV enviado; devolve o erro 400 ou os bytes.</summary>
     private static async Task<(IActionResult? Erro, byte[] Bytes)> LerCsvAsync(

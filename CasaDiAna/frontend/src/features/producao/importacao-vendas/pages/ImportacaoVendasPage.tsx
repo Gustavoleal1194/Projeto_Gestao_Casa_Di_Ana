@@ -304,7 +304,7 @@ export function ImportacaoVendasPage() {
     if (!itemParaRemover || !preview) return
     setPreview({
       ...preview,
-      itens: preview.itens.filter(i => i !== itemParaRemover),
+      itens: preview.itens.filter(i => i.nomeRelatorio !== itemParaRemover.nomeRelatorio),
     })
     setLinhasRemovidas(prev => new Set(prev).add(itemParaRemover.nomeRelatorio))
     if (resolucoes[itemParaRemover.nomeRelatorio]) {
@@ -327,7 +327,7 @@ export function ImportacaoVendasPage() {
       setPreview({
         ...preview,
         itens: preview.itens.map(item =>
-          item === itemParaAdicionar
+          item.nomeRelatorio === itemParaAdicionar.nomeRelatorio
             ? { ...item, status: 'matched' as const, produtoId: produto.id, produtoNome: produto.nome }
             : item
         ),

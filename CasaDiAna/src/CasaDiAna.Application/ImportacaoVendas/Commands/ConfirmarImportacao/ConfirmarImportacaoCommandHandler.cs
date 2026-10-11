@@ -48,12 +48,14 @@ public class ConfirmarImportacaoCommandHandler
 
         var produtos = (await _produtos.ListarAsync(apenasAtivos: false, cancellationToken))
             .ToDictionary(p => p.Id);
-        var vinculos = request.Vinculos
+        var vinculosPorNome = request.Vinculos
             .GroupBy(v => v.NomeRelatorio, StringComparer.Ordinal)
-            .ToDictionary(g => g.Key, g => g.Last().ProdutoId, StringComparer.Ordinal);
+            .ToDictionary(g => g.Key, g => g.Select(v => v.ProdutoId).Distinct().ToList(), StringComparer.Ordinal);
         var removidas = request.LinhasRemovidas.ToHashSet(StringComparer.Ordinal);
 
-        ValidarDecisoes(relatorio, vinculos, removidas, produtos);
+        ValidarDecisoes(relatorio, vinculosPorNome, removidas, produtos);
+
+        var vinculos = vinculosPorNome.ToDictionary(v => v.Key, v => v.Value[0], StringComparer.Ordinal);
 
         var novasVendas = new List<VendaDiaria>();
         decimal totalTaxaServico = 0, totalEntregas = 0;
@@ -113,7 +115,7 @@ public class ConfirmarImportacaoCommandHandler
 
     private static void ValidarDecisoes(
         RelatorioVendas relatorio,
-        IReadOnlyDictionary<string, Guid> vinculos,
+        IReadOnlyDictionary<string, List<Guid>> vinculos,
         IReadOnlySet<string> removidas,
         IReadOnlyDictionary<Guid, Produto> produtos)
     {
@@ -127,16 +129,22 @@ public class ConfirmarImportacaoCommandHandler
             if (!tipoPorNome.ContainsKey(nome))
                 erros.Add($"Linha '{nome}' não existe no arquivo.");
 
-        foreach (var (nome, produtoId) in vinculos)
+        foreach (var (nome, produtoIds) in vinculos)
         {
+            if (produtoIds.Count > 1)
+                erros.Add($"Linha '{nome}' vinculada a produtos diferentes.");
             if (removidas.Contains(nome))
                 erros.Add($"Linha '{nome}' foi vinculada e removida ao mesmo tempo.");
             if (tipoPorNome.TryGetValue(nome, out var tipo) && tipo is not null)
                 erros.Add($"Linha '{nome}' é um repasse e não pode virar venda de produto.");
-            if (!produtos.TryGetValue(produtoId, out var produto))
-                erros.Add($"Produto {produtoId} não encontrado.");
-            else if (!produto.Ativo)
-                erros.Add($"Produto '{produto.Nome}' está inativo.");
+
+            foreach (var produtoId in produtoIds)
+            {
+                if (!produtos.TryGetValue(produtoId, out var produto))
+                    erros.Add($"Produto {produtoId} não encontrado.");
+                else if (!produto.Ativo)
+                    erros.Add($"Produto '{produto.Nome}' está inativo.");
+            }
         }
 
         if (erros.Count > 0)

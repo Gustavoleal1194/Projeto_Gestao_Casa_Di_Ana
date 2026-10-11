@@ -191,8 +191,31 @@ public class ConfirmarImportacaoCommandHandlerTests
             .And.Contain("Também não existe")
             .And.Contain("TAXA DE SERVIÇO")
             .And.Contain("Antigo")
+            .And.Contain("não encontrado")
             .And.Contain("vinculada e removida");
         _importacoes.Verify(r => r.AdicionarAsync(It.IsAny<EntidadeImportacao>(), default), Times.Never);
+    }
+
+    [Fact]
+    public async Task VinculosConflitantesParaOMesmoNome_LancamDomainException()
+    {
+        var act = () => Criar().Handle(
+            Command([Vinculo("Croissant", _croissant), Vinculo("Croissant", _bolo)]),
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<DomainException>()
+                 .WithMessage("*Linha 'Croissant' vinculada a produtos diferentes.*");
+        _importacoes.Verify(r => r.AdicionarAsync(It.IsAny<EntidadeImportacao>(), default), Times.Never);
+    }
+
+    [Fact]
+    public async Task VinculosRepetidosParaOMesmoProduto_SaoAceitos()
+    {
+        await Criar().Handle(
+            Command([Vinculo("Croissant", _croissant), Vinculo("Croissant", _croissant)]),
+            CancellationToken.None);
+
+        _vendasGravadas.Should().ContainSingle(v => v.ProdutoId == _croissant.Id);
     }
 
     private static Produto CriarProduto(string nome, bool ativo = true)

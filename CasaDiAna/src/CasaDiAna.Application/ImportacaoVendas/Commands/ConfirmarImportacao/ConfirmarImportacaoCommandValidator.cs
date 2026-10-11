@@ -18,6 +18,9 @@ public class ConfirmarImportacaoCommandValidator
             .LessThanOrEqualTo(DateTime.Today.AddDays(1))
             .WithMessage("Data de venda não pode ser no futuro.");
 
+        RuleForEach(x => x.LinhasRemovidas)
+            .NotEmpty().WithMessage("Nome da linha removida é obrigatório.");
+
         RuleForEach(x => x.Vinculos).ChildRules(v =>
         {
             v.RuleFor(i => i.NomeRelatorio)

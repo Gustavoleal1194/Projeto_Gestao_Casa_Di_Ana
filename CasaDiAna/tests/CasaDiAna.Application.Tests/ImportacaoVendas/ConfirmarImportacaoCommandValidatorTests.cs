@@ -10,8 +10,9 @@ public class ConfirmarImportacaoCommandValidatorTests
 
     private static ConfirmarImportacaoCommand Command(
         byte[]? csv = null, string nome = "vendas.csv", DateTime? data = null,
-        IReadOnlyList<VinculoLinhaDto>? vinculos = null) =>
-        new(csv ?? [1], nome, data ?? DateTime.Today, vinculos ?? [], []);
+        IReadOnlyList<VinculoLinhaDto>? vinculos = null,
+        IReadOnlyList<string>? removidas = null) =>
+        new(csv ?? [1], nome, data ?? DateTime.Today, vinculos ?? [], removidas ?? []);
 
     [Fact]
     public void ComandoMinimo_Valido() =>
@@ -32,6 +33,12 @@ public class ConfirmarImportacaoCommandValidatorTests
     [Fact]
     public void VinculoSemNome_Invalido() =>
         _validator.Validate(Command(vinculos: [new VinculoLinhaDto("", Guid.NewGuid())])).IsValid.Should().BeFalse();
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public void LinhaRemovidaSemNome_Invalido(string? nome) =>
+        _validator.Validate(Command(removidas: [nome!])).IsValid.Should().BeFalse();
 
     [Fact]
     public void VinculoSemProduto_Invalido() =>

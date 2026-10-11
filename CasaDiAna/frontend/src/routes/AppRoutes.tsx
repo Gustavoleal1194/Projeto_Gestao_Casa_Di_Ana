@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { useAtualizacaoVersao } from '@/hooks/useAtualizacaoVersao'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { DashboardPage } from '@/features/dashboard/pages/DashboardPage'
@@ -41,9 +42,16 @@ import { DespesasPage } from '@/features/financeiro/despesas/pages/DespesasPage'
 import { FechamentoMensalPage } from '@/features/financeiro/fechamento-mensal/pages/FechamentoMensalPage'
 import { PrecificacaoPage } from '@/features/financeiro/precificacao/pages/PrecificacaoPage'
 
+/** Precisa ficar dentro do BrowserRouter para observar as trocas de tela. */
+function AtualizacaoVersao() {
+  useAtualizacaoVersao()
+  return null
+}
+
 export function AppRoutes() {
   return (
     <BrowserRouter>
+      <AtualizacaoVersao />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
 

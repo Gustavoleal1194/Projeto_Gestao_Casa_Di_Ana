@@ -30,6 +30,9 @@ public class EntradaMercadoria
     public bool TemBoleto => _boletos.Count > 0;
     public DateTime? ProximoVencimentoBoleto => _boletos.Count > 0 ? _boletos.Min(b => b.DataVencimento) : null;
 
+    private const string MensagemEdicaoCancelada = "Não é possível editar uma entrada cancelada.";
+    private const string MensagemItemInexistente = "Item não pertence a esta entrada.";
+
     private EntradaMercadoria() { }
 
     public static EntradaMercadoria Criar(
@@ -58,12 +61,8 @@ public class EntradaMercadoria
 
     public void AdicionarItem(Guid ingredienteId, decimal quantidade, decimal custoUnitario)
     {
-        if (Status != StatusEntrada.Confirmada)
-            throw new DomainException("Não é possível adicionar itens a uma entrada cancelada.");
-        if (quantidade <= 0)
-            throw new DomainException("Quantidade deve ser maior que zero.");
-        if (custoUnitario < 0)
-            throw new DomainException("Custo unitário não pode ser negativo.");
+        GarantirConfirmada("Não é possível adicionar itens a uma entrada cancelada.");
+        ValidarQuantidadeECusto(quantidade, custoUnitario);
         if (_itens.Any(i => i.IngredienteId == ingredienteId))
             throw new DomainException("Ingrediente já adicionado nesta entrada.");
 
@@ -72,12 +71,8 @@ public class EntradaMercadoria
 
     public void AdicionarItemUtensilio(Guid utensilioId, decimal quantidade, decimal custoUnitario)
     {
-        if (Status != StatusEntrada.Confirmada)
-            throw new DomainException("Não é possível adicionar itens a uma entrada cancelada.");
-        if (quantidade <= 0)
-            throw new DomainException("Quantidade deve ser maior que zero.");
-        if (custoUnitario < 0)
-            throw new DomainException("Custo unitário não pode ser negativo.");
+        GarantirConfirmada("Não é possível adicionar itens a uma entrada cancelada.");
+        ValidarQuantidadeECusto(quantidade, custoUnitario);
         if (_itensUtensilio.Any(i => i.UtensilioId == utensilioId))
             throw new DomainException("Utensílio já adicionado nesta entrada.");
 
@@ -86,10 +81,81 @@ public class EntradaMercadoria
 
     public void AdicionarBoleto(DateTime dataVencimento)
     {
-        if (Status != StatusEntrada.Confirmada)
-            throw new DomainException("Não é possível adicionar boleto a uma entrada cancelada.");
+        GarantirConfirmada("Não é possível adicionar boleto a uma entrada cancelada.");
 
         _boletos.Add(BoletoEntrada.Criar(Id, dataVencimento));
+    }
+
+    public void AtualizarCabecalho(
+        Guid fornecedorId,
+        DateTime dataEntrada,
+        string? numeroNotaFiscal,
+        string? recebidoPor,
+        string? observacoes,
+        Guid atualizadoPor)
+    {
+        GarantirConfirmada(MensagemEdicaoCancelada);
+
+        FornecedorId = fornecedorId;
+        DataEntrada = dataEntrada;
+        NumeroNotaFiscal = numeroNotaFiscal;
+        RecebidoPor = recebidoPor;
+        Observacoes = observacoes;
+        RegistrarAlteracao(atualizadoPor);
+    }
+
+    /// <summary>
+    /// Substitui os boletos pela lista informada. Boletos cuja data já existia são mantidos
+    /// (mesmo vencidos); datas novas precisam ser hoje ou no futuro.
+    /// </summary>
+    public AlteracaoBoletos SubstituirBoletos(IEnumerable<DateTime> datasVencimento, DateTime hoje, Guid atualizadoPor)
+    {
+        GarantirConfirmada(MensagemEdicaoCancelada);
+
+        var semCorrespondencia = _boletos.ToList();
+        var datasNovas = new List<DateTime>();
+        foreach (var data in datasVencimento)
+        {
+            var existente = semCorrespondencia.FirstOrDefault(b => b.DataVencimento.Date == data.Date);
+            if (existente is null)
+                datasNovas.Add(data);
+            else
+                semCorrespondencia.Remove(existente);
+        }
+
+        if (datasNovas.Any(d => d.Date < hoje.Date))
+            throw new DomainException("A data de vencimento do boleto deve ser hoje ou no futuro.");
+
+        foreach (var removido in semCorrespondencia)
+            _boletos.Remove(removido);
+
+        var adicionados = datasNovas.Select(d => BoletoEntrada.Criar(Id, d)).ToList();
+        _boletos.AddRange(adicionados);
+        RegistrarAlteracao(atualizadoPor);
+
+        return new AlteracaoBoletos(semCorrespondencia, adicionados);
+    }
+
+    public void AlterarCustoItem(Guid itemId, decimal custoUnitario, Guid atualizadoPor)
+    {
+        GarantirConfirmada(MensagemEdicaoCancelada);
+        ValidarCusto(custoUnitario);
+        var item = _itens.FirstOrDefault(i => i.Id == itemId)
+            ?? throw new DomainException(MensagemItemInexistente);
+
+        item.AlterarCustoUnitario(custoUnitario);
+        RegistrarAlteracao(atualizadoPor);
+    }
+
+    public void AlterarCustoItemUtensilio(Guid itemId, decimal custoUnitario, Guid atualizadoPor)
+    {
+        GarantirConfirmada(MensagemEdicaoCancelada);
+        ValidarCusto(custoUnitario);
+        var item = _itensUtensilio.FirstOrDefault(i => i.Id == itemId)
+            ?? throw new DomainException(MensagemItemInexistente);
+
+        item.AlterarCustoUnitario(custoUnitario);
+        RegistrarAlteracao(atualizadoPor);
     }
 
     public void Cancelar(Guid atualizadoPor)
@@ -98,6 +164,30 @@ public class EntradaMercadoria
             throw new DomainException("Entrada já está cancelada.");
 
         Status = StatusEntrada.Cancelada;
+        RegistrarAlteracao(atualizadoPor);
+    }
+
+    private void GarantirConfirmada(string mensagem)
+    {
+        if (Status != StatusEntrada.Confirmada)
+            throw new DomainException(mensagem);
+    }
+
+    private static void ValidarQuantidadeECusto(decimal quantidade, decimal custoUnitario)
+    {
+        if (quantidade <= 0)
+            throw new DomainException("Quantidade deve ser maior que zero.");
+        ValidarCusto(custoUnitario);
+    }
+
+    private static void ValidarCusto(decimal custoUnitario)
+    {
+        if (custoUnitario < 0)
+            throw new DomainException("Custo unitário não pode ser negativo.");
+    }
+
+    private void RegistrarAlteracao(Guid atualizadoPor)
+    {
         AtualizadoEm = DateTime.UtcNow;
         AtualizadoPor = atualizadoPor;
     }

@@ -28,4 +28,6 @@ public class ItemEntradaUtensilio
             CustoUnitario = custoUnitario
         };
     }
+
+    internal void AlterarCustoUnitario(decimal custoUnitario) => CustoUnitario = custoUnitario;
 }

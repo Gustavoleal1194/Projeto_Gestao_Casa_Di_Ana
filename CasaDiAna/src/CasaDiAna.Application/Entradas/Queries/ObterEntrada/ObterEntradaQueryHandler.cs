@@ -1,5 +1,6 @@
 using CasaDiAna.Application.Common;
 using CasaDiAna.Application.Entradas.Commands.RegistrarEntrada;
+using CasaDiAna.Application.Entradas.Common;
 using CasaDiAna.Application.Entradas.Dtos;
 using CasaDiAna.Domain.Exceptions;
 using CasaDiAna.Domain.Interfaces;
@@ -24,8 +25,7 @@ public class ObterEntradaQueryHandler : IRequestHandler<ObterEntradaQuery, Entra
         var entrada = await _entradas.ObterPorIdComItensAsync(request.Id, cancellationToken)
             ?? throw new DomainException("Entrada não encontrada.");
 
-        if (entrada.CriadoPor != _currentUser.UsuarioId && _currentUser.Papel != "Admin")
-            throw new UnauthorizedAccessException("Acesso negado.");
+        EntradaPermissao.GarantirAcesso(entrada, _currentUser);
 
         return RegistrarEntradaCommandHandler.ToDto(entrada);
     }

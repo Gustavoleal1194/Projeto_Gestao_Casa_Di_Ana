@@ -1,10 +1,16 @@
 import { z } from 'zod'
 
 /** Campo numérico de input HTML: '' vira undefined antes de validar. */
-const campoNumerico = <T extends z.ZodNumber>(schema: T) =>
-  z.preprocess((v) => (v === '' || v == null ? undefined : Number(v)), schema)
+const campoNumerico = (
+  configurar: (numero: z.ZodNumber) => z.ZodNumber,
+  mensagemVazio = 'Informe um valor.',
+) =>
+  z.preprocess(
+    (v) => (v === '' || v == null ? undefined : Number(v)),
+    configurar(z.number({ error: mensagemVazio })),
+  )
 
-const custoUnitario = campoNumerico(z.number().min(0, 'Custo deve ser ≥ 0.'))
+const custoUnitario = campoNumerico((n) => n.min(0, 'Custo deve ser ≥ 0.'))
 const tipoItem = z.enum(['ingrediente', 'utensilio'])
 
 const cabecalhoEntradaShape = {
@@ -28,7 +34,7 @@ export const entradaRegistroSchema = z.object({
   itens: z.array(z.object({
     tipo: tipoItem,
     itemId: z.string().min(1, 'Selecione um item.'),
-    quantidade: campoNumerico(z.number().positive('Quantidade deve ser maior que 0.')),
+    quantidade: campoNumerico((n) => n.positive('Quantidade deve ser maior que 0.')),
     custoUnitario,
   })).min(1, 'Adicione pelo menos um item.'),
 }).refine(boletoObrigatorio, boletoObrigatorioErro)

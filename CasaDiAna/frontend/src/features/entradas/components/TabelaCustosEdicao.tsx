@@ -34,9 +34,11 @@ export function TabelaCustosEdicao({ itens }: Props) {
               {item.quantidade} {item.unidadeMedidaCodigo}
             </span>
             <CampoTexto
-              label=" "
+              id={`custo-${item.itemId}`}
+              label={`Custo unitário de ${item.nome}`}
+              labelOculto
               type="number"
-              step="0.01"
+              step="0.0001"
               min="0"
               {...register(`custos.${index}.custoUnitario`)}
               erro={errors.custos?.[index]?.custoUnitario?.message}

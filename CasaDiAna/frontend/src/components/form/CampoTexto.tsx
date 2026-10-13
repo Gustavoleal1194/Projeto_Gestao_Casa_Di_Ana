@@ -6,15 +6,17 @@ interface Props extends InputHTMLAttributes<HTMLInputElement> {
   erro?: string
   obrigatorio?: boolean
   sufixo?: string
+  /** Esconde o rótulo visualmente, mantendo-o para leitores de tela. */
+  labelOculto?: boolean
 }
 
-export function CampoTexto({ label, erro, obrigatorio, sufixo, className, id, ...props }: Props) {
+export function CampoTexto({ label, erro, obrigatorio, sufixo, labelOculto, className, id, ...props }: Props) {
   const inputId = id ?? `campo-${label.toLowerCase().replace(/\s+/g, '-')}`
   return (
     <div className="flex flex-col gap-1">
       <label
         htmlFor={inputId}
-        className="text-[11.5px] font-semibold uppercase tracking-[.06em]"
+        className={`text-[11.5px] font-semibold uppercase tracking-[.06em] ${labelOculto ? 'sr-only' : ''}`}
         style={{ color: 'var(--ada-muted)', fontFamily: 'Sora, system-ui, sans-serif' }}
       >
         {label}{obrigatorio && <span className="ml-0.5" style={{ color: '#F87171' }} aria-hidden="true">*</span>}

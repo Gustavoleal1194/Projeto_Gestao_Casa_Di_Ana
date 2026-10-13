@@ -24,7 +24,7 @@ export function SecaoBoletos() {
             checked={temBoleto}
             onChange={e => alternarBoleto(e.target.checked)}
             className="h-4 w-4 rounded"
-            style={{ accentColor: '#C4870A' }}
+            style={{ accentColor: 'var(--color-ada-accent)' }}
           />
           <span className="text-sm font-medium" style={{ color: 'var(--ada-body)' }}>
             Pagamento via boleto
@@ -51,7 +51,7 @@ export function SecaoBoletos() {
                   onClick={() => remove(index)}
                   className="mt-0.5 p-2 rounded-lg transition-colors"
                   style={{ color: 'var(--ada-muted)' }}
-                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#DC2626'}
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = 'var(--ada-error-text)'}
                   onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--ada-muted)'}
                   title="Remover boleto"
                 >
@@ -70,10 +70,8 @@ export function SecaoBoletos() {
           <button
             type="button"
             onClick={() => append({ dataVencimento: '' })}
-            className="flex items-center gap-1.5 text-xs font-semibold self-start transition-colors"
-            style={{ color: '#C4870A' }}
-            onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#B87D0A'}
-            onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = '#C4870A'}
+            className="flex items-center gap-1.5 text-xs font-semibold self-start transition-opacity hover:opacity-80"
+            style={{ color: 'var(--color-ada-accent)' }}
           >
             <PlusIcon className="h-3.5 w-3.5" />
             Adicionar outro boleto

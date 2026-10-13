@@ -37,7 +37,7 @@ public class EditarEntradaCommandHandler : IRequestHandler<EditarEntradaCommand,
         var entrada = await _entradas.ObterPorIdComItensAsync(request.EntradaId, cancellationToken)
             ?? throw new DomainException("Entrada não encontrada.");
 
-        EntradaPermissao.GarantirPodeAlterar(entrada, _currentUser);
+        EntradaPermissao.GarantirAcesso(entrada, _currentUser);
 
         // Só valida quando muda: uma entrada de fornecedor desativado depois continua editável.
         if (request.FornecedorId != entrada.FornecedorId)
@@ -55,7 +55,9 @@ public class EditarEntradaCommandHandler : IRequestHandler<EditarEntradaCommand,
 
         var boletos = entrada.SubstituirBoletos(
             request.DatasVencimentoBoleto ?? Array.Empty<DateTime>(), DateTime.UtcNow.Date, usuarioId);
-        // Filhos de coleção readonly entram/saem pelo repositório (erro E1).
+        // Boletos ficam numa coleção readonly com chaves geradas no cliente: precisam entrar/sair
+        // pelo repositório. Com Update no agregado, os novos seriam marcados como Modified e o
+        // SaveChanges falharia com DbUpdateConcurrencyException.
         _entradas.RemoverBoletos(boletos.Removidos);
         await _entradas.AdicionarBoletosAsync(boletos.Adicionados, cancellationToken);
 
@@ -68,6 +70,8 @@ public class EditarEntradaCommandHandler : IRequestHandler<EditarEntradaCommand,
         await SincronizarCustoIngredientesAsync(entrada, cancellationToken);
         await SincronizarCustoUtensiliosAsync(entrada, cancellationToken);
 
+        // Sem _entradas.Atualizar(entrada) de propósito: a entrada já está rastreada e Update
+        // marcaria os boletos novos como Modified (ver comentário acima).
         await _entradas.SalvarAsync(cancellationToken);
 
         var salva = await _entradas.ObterPorIdComItensAsync(entrada.Id, cancellationToken);

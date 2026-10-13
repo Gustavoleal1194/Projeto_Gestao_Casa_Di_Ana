@@ -9,8 +9,8 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { SkeletonTable } from '@/components/ui/SkeletonTable'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { StatusBadge } from '@/components/ui/StatusBadge'
+import { PAPEIS_EDICAO_ENTRADA } from '../permissoes'
 
-const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
 
 function BadgeStatus({ status }: { status: string }) {
   if (status === 'Confirmada') return <StatusBadge variante="ativo" label={status} />
@@ -88,7 +88,7 @@ export function EntradasPage() {
   const navigate = useNavigate()
   const { temPapel } = useAuthStore()
   const { entradas, loading, erro, de, ate, atualizarDe, atualizarAte, carregar } = useEntradas()
-  const podeCriar = temPapel(...PAPEIS_EDICAO)
+  const podeCriar = temPapel(...PAPEIS_EDICAO_ENTRADA)
 
   const [busca, setBusca] = useState('')
   const [status, setStatus] = useState('')

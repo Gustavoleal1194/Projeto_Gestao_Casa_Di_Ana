@@ -280,20 +280,49 @@ export interface RegistrarEntradaInput {
   datasVencimentoBoleto?: string[]
 }
 
-export interface EntradaFormValues {
+export interface CabecalhoEntradaValues {
   fornecedorId: string
   dataEntrada: string
   numeroNotaFiscal: string
   recebidoPor: string
   observacoes: string
+  temBoleto: boolean
+  boletos: { dataVencimento: string }[]
+}
+
+export type TipoItemEntrada = 'ingrediente' | 'utensilio'
+
+export interface EntradaFormValues extends CabecalhoEntradaValues {
   itens: {
-    tipo: 'ingrediente' | 'utensilio'
+    tipo: TipoItemEntrada
     itemId: string
     quantidade: number | undefined
     custoUnitario: number | undefined
   }[]
-  temBoleto: boolean
-  boletos: { dataVencimento: string }[]
+}
+
+export interface EntradaEdicaoFormValues extends CabecalhoEntradaValues {
+  custos: {
+    itemId: string
+    tipo: TipoItemEntrada
+    custoUnitario: number | undefined
+  }[]
+}
+
+export interface CustoItemInput {
+  itemId: string
+  custoUnitario: number
+}
+
+export interface EditarEntradaInput {
+  fornecedorId: string
+  dataEntrada: string
+  recebidoPor: string
+  numeroNotaFiscal: string | null
+  observacoes: string | null
+  datasVencimentoBoleto: string[]
+  custosItens: CustoItemInput[]
+  custosItensUtensilio: CustoItemInput[]
 }
 
 // ─── Inventários ──────────────────────────────────────────────────────────────

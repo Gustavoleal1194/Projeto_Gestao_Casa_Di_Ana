@@ -7,8 +7,7 @@ import { Toast } from '@/components/ui/Toast'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import type { EntradaMercadoria } from '@/types/estoque'
-
-const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
+import { PAPEIS_EDICAO_ENTRADA } from '../permissoes'
 
 function formatarData(iso: string): string {
   return new Date(iso).toLocaleDateString('pt-BR')
@@ -30,7 +29,7 @@ export function EntradaDetalhePage() {
   const [cancelando, setCancelando] = useState(false)
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
 
-  const podeCancelar = temPapel(...PAPEIS_EDICAO)
+  const podeCancelar = temPapel(...PAPEIS_EDICAO_ENTRADA)
 
   useEffect(() => {
     if (!id) return

@@ -1,8 +1,7 @@
 // frontend/src/features/entradas/pages/EntradaFormPage.tsx
 import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { useForm, useFieldArray } from 'react-hook-form'
-import { z } from 'zod'
+import { useForm, useFieldArray, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ChevronLeftIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { entradasService } from '../services/entradasService'
@@ -16,41 +15,10 @@ import { FormSection } from '@/components/form/FormSection'
 import { FormActions } from '@/components/form/FormActions'
 import { FormCard } from '@/components/form/FormCard'
 import { Toast } from '@/components/ui/Toast'
+import { CamposCabecalhoEntrada } from '../components/CamposCabecalhoEntrada'
+import { entradaRegistroSchema } from '../schemas/entradaSchemas'
 import { ConfirmacaoEntradaModal, type DadosConfirmacaoEntrada } from '../components/ConfirmacaoEntradaModal'
 import type { Fornecedor, IngredienteResumo, UtensilioResumo, EntradaFormValues, EntradaMercadoria } from '@/types/estoque'
-
-const boletoSchema = z.object({
-  dataVencimento: z.string().min(1, 'Informe a data de vencimento.'),
-})
-
-const entradaSchema = z.object({
-  fornecedorId: z.string().min(1, 'Selecione um fornecedor.'),
-  dataEntrada: z.string().min(1, 'Informe a data da entrada.'),
-  numeroNotaFiscal: z.string().max(60),
-  recebidoPor: z.string().min(1, 'Informe quem recebeu os produtos.').max(100),
-  observacoes: z.string(),
-  temBoleto: z.boolean().default(false),
-  boletos: z.array(boletoSchema).default([]),
-  itens: z
-    .array(
-      z.object({
-        tipo: z.enum(['ingrediente', 'utensilio']),
-        itemId: z.string().min(1, 'Selecione um item.'),
-        quantidade: z.preprocess(
-          (v) => (v === '' || v == null ? undefined : Number(v)),
-          z.number().positive('Quantidade deve ser maior que 0.')
-        ),
-        custoUnitario: z.preprocess(
-          (v) => (v === '' || v == null ? undefined : Number(v)),
-          z.number().min(0, 'Custo deve ser ≥ 0.')
-        ),
-      })
-    )
-    .min(1, 'Adicione pelo menos um item.'),
-}).refine(
-  (data) => !data.temBoleto || data.boletos.length > 0,
-  { message: 'Adicione pelo menos um boleto.', path: ['boletos'] }
-)
 
 export function EntradaFormPage() {
   const navigate = useNavigate()
@@ -60,43 +28,31 @@ export function EntradaFormPage() {
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
   const [confirma, setConfirma] = useState<DadosConfirmacaoEntrada | null>(null)
 
-  const { register, control, handleSubmit, reset, watch, setValue, formState: { errors, isSubmitting } } =
-    useForm<EntradaFormValues>({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      resolver: zodResolver(entradaSchema) as any,
-      defaultValues: {
-        fornecedorId: '',
-        dataEntrada: new Date().toISOString().split('T')[0],
-        numeroNotaFiscal: '',
-        recebidoPor: '',
-        observacoes: '',
-        temBoleto: false,
-        boletos: [],
-        itens: [{ tipo: 'ingrediente', itemId: '', quantidade: undefined, custoUnitario: undefined }],
-      },
-    })
+  const form = useForm<EntradaFormValues>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(entradaRegistroSchema) as any,
+    defaultValues: {
+      fornecedorId: '',
+      dataEntrada: new Date().toISOString().split('T')[0],
+      numeroNotaFiscal: '',
+      recebidoPor: '',
+      observacoes: '',
+      temBoleto: false,
+      boletos: [],
+      itens: [{ tipo: 'ingrediente', itemId: '', quantidade: undefined, custoUnitario: undefined }],
+    },
+  })
+  const { register, control, handleSubmit, reset, watch, setValue, formState: { errors, isSubmitting } } = form
 
-  const temBoleto = watch('temBoleto')
   const itensAtuais = watch('itens')
 
   const { fields, append, remove } = useFieldArray({ control, name: 'itens' })
-  const { fields: boletoFields, append: appendBoleto, remove: removeBoleto } = useFieldArray({ control, name: 'boletos' })
 
   useEffect(() => {
     fornecedoresService.listar().then(setFornecedores).catch(() => {})
     ingredientesService.listar().then(setIngredientes).catch(() => {})
     utensiliosService.listar().then(setUtensilios).catch(() => {})
   }, [])
-
-  const handleToggleBoleto = (checked: boolean) => {
-    setValue('temBoleto', checked)
-    if (checked && boletoFields.length === 0) {
-      appendBoleto({ dataVencimento: '' })
-    }
-    if (!checked) {
-      for (let i = boletoFields.length - 1; i >= 0; i--) removeBoleto(i)
-    }
-  }
 
   const onSubmit = async (values: EntradaFormValues) => {
     try {
@@ -164,112 +120,11 @@ export function EntradaFormPage() {
         Nova Entrada de Mercadoria
       </h1>
 
+      <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit as any)}>
         <FormCard>
           <FormSection titulo="Dados da Entrada" />
-          <div className="grid grid-cols-2 gap-4">
-            <ComboboxCampo
-              control={control}
-              name="fornecedorId"
-              label="Fornecedor"
-              obrigatorio
-              placeholder="Buscar fornecedor…"
-              opcoes={fornecedores.map(f => ({ valor: f.id, rotulo: f.razaoSocial }))}
-              erro={errors.fornecedorId?.message}
-            />
-            <CampoTexto
-              label="Data da Entrada"
-              obrigatorio
-              type="date"
-              {...register('dataEntrada')}
-              erro={errors.dataEntrada?.message}
-            />
-            <CampoTexto
-              label="Nota Fiscal"
-              placeholder="Número da NF (opcional)"
-              {...register('numeroNotaFiscal')}
-            />
-            <CampoTexto
-              label="Recebido por"
-              obrigatorio
-              placeholder="Nome do funcionário que recebeu"
-              {...register('recebidoPor')}
-              erro={errors.recebidoPor?.message}
-            />
-            <CampoTexto
-              label="Observações"
-              placeholder="Observações (opcional)"
-              {...register('observacoes')}
-            />
-
-            <div className="col-span-2">
-              <label
-                className="flex items-center gap-3 cursor-pointer select-none"
-                htmlFor="temBoleto"
-              >
-                <input
-                  id="temBoleto"
-                  type="checkbox"
-                  checked={temBoleto}
-                  onChange={e => handleToggleBoleto(e.target.checked)}
-                  className="h-4 w-4 rounded"
-                  style={{ accentColor: '#C4870A' }}
-                />
-                <span className="text-sm font-medium" style={{ color: 'var(--ada-body)' }}>
-                  Pagamento via boleto
-                </span>
-              </label>
-            </div>
-
-            {temBoleto && (
-              <div className="col-span-2 flex flex-col gap-3">
-                {boletoFields.map((field, index) => (
-                  <div key={field.id} className="flex items-end gap-2">
-                    <div className="flex-1">
-                      <CampoTexto
-                        label={`Vencimento do boleto ${index + 1}`}
-                        obrigatorio
-                        type="date"
-                        {...register(`boletos.${index}.dataVencimento`)}
-                        erro={errors.boletos?.[index]?.dataVencimento?.message}
-                      />
-                    </div>
-                    {boletoFields.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeBoleto(index)}
-                        className="mt-0.5 p-2 rounded-lg transition-colors"
-                        style={{ color: 'var(--ada-muted)' }}
-                        onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#DC2626'}
-                        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--ada-muted)'}
-                        title="Remover boleto"
-                      >
-                        <TrashIcon className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
-                ))}
-
-                {errors.boletos?.message && (
-                  <p className="text-xs" style={{ color: 'var(--ada-error-text)' }} role="alert">
-                    {errors.boletos.message}
-                  </p>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => appendBoleto({ dataVencimento: '' })}
-                  className="flex items-center gap-1.5 text-xs font-semibold self-start transition-colors"
-                  style={{ color: '#C4870A' }}
-                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#B87D0A'}
-                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = '#C4870A'}
-                >
-                  <PlusIcon className="h-3.5 w-3.5" />
-                  Adicionar outro boleto
-                </button>
-              </div>
-            )}
-          </div>
+          <CamposCabecalhoEntrada fornecedores={fornecedores} />
 
           <FormSection titulo="Itens da Entrada" />
 
@@ -375,6 +230,7 @@ export function EntradaFormPage() {
           />
         </FormCard>
       </form>
+      </FormProvider>
 
       {confirma && (
         <ConfirmacaoEntradaModal

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { ChevronLeftIcon, XCircleIcon } from '@heroicons/react/24/outline'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { ChevronLeftIcon, PencilSquareIcon, XCircleIcon } from '@heroicons/react/24/outline'
 import { entradasService } from '../services/entradasService'
 import { useAuthStore } from '@/store/authStore'
 import { Toast } from '@/components/ui/Toast'
@@ -27,9 +27,17 @@ export function EntradaDetalhePage() {
   const [erro, setErro] = useState<string | null>(null)
   const [confirmando, setConfirmando] = useState(false)
   const [cancelando, setCancelando] = useState(false)
-  const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
+  const location = useLocation()
+  const mensagemNavegacao = (location.state as { mensagem?: string } | null)?.mensagem
+  const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(
+    mensagemNavegacao ? { tipo: 'sucesso', mensagem: mensagemNavegacao } : null
+  )
 
-  const podeCancelar = temPapel(...PAPEIS_EDICAO_ENTRADA)
+  const podeAlterar = temPapel(...PAPEIS_EDICAO_ENTRADA)
+
+  useEffect(() => {
+    if (mensagemNavegacao) navigate(location.pathname, { replace: true, state: null })
+  }, [mensagemNavegacao, navigate, location.pathname])
 
   useEffect(() => {
     if (!id) return
@@ -104,19 +112,25 @@ export function EntradaDetalhePage() {
             variante={entrada.status === 'Confirmada' ? 'ativo' : 'critico'}
             label={entrada.status}
           />
-          {podeCancelar && entrada.status === 'Confirmada' && (
-            <button
-              onClick={() => setConfirmando(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-150"
-              style={{
-                border: '1px solid var(--ada-error-border)',
-                color: 'var(--ada-error-text)',
-                background: 'var(--ada-error-bg)',
-              }}
-            >
-              <XCircleIcon className="h-4 w-4" />
-              Cancelar Entrada
-            </button>
+          {podeAlterar && entrada.status === 'Confirmada' && (
+            <>
+              <Link to={`/entradas/${entrada.id}/editar`} className="btn-secondary flex items-center gap-2">
+                <PencilSquareIcon className="h-4 w-4" />
+                Editar
+              </Link>
+              <button
+                onClick={() => setConfirmando(true)}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-150"
+                style={{
+                  border: '1px solid var(--ada-error-border)',
+                  color: 'var(--ada-error-text)',
+                  background: 'var(--ada-error-bg)',
+                }}
+              >
+                <XCircleIcon className="h-4 w-4" />
+                Cancelar Entrada
+              </button>
+            </>
           )}
         </div>
       </div>

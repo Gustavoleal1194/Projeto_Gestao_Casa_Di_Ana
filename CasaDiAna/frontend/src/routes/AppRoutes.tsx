@@ -14,6 +14,7 @@ import { FornecedorFormPage } from '@/features/fornecedores/pages/FornecedorForm
 import { EntradasPage } from '@/features/entradas/pages/EntradasPage'
 import { EntradaFormPage } from '@/features/entradas/pages/EntradaFormPage'
 import { EntradaDetalhePage } from '@/features/entradas/pages/EntradaDetalhePage'
+import { EntradaEdicaoPage } from '@/features/entradas/pages/EntradaEdicaoPage'
 import { InventariosPage } from '@/features/inventarios/pages/InventariosPage'
 import { InventarioFormPage } from '@/features/inventarios/pages/InventarioFormPage'
 import { InventarioDetalhePage } from '@/features/inventarios/pages/InventarioDetalhePage'
@@ -76,6 +77,7 @@ export function AppRoutes() {
           {/* Entradas */}
           <Route path="/entradas" element={<EntradasPage />} />
           <Route path="/entradas/nova" element={<EntradaFormPage />} />
+          <Route path="/entradas/:id/editar" element={<EntradaEdicaoPage />} />
           <Route path="/entradas/:id" element={<EntradaDetalhePage />} />
 
           {/* Inventários */}

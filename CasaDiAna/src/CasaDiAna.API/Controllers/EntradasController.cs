@@ -1,5 +1,6 @@
 using CasaDiAna.Application.Common;
 using CasaDiAna.Application.Entradas.Commands.CancelarEntrada;
+using CasaDiAna.Application.Entradas.Commands.EditarEntrada;
 using CasaDiAna.Application.Entradas.Commands.RegistrarEntrada;
 using CasaDiAna.Application.Entradas.Dtos;
 using CasaDiAna.Application.Entradas.Queries.ListarEntradas;
@@ -49,6 +50,17 @@ public class EntradasController : ControllerBase
         var resultado = await _mediator.Send(command, ct);
         return CreatedAtAction(nameof(ObterPorId), new { id = resultado.Id },
             ApiResponse<EntradaMercadoriaDto>.Ok(resultado));
+    }
+
+    [HttpPut("{id:guid}")]
+    [ProducesResponseType(typeof(ApiResponse<EntradaMercadoriaDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> Editar(
+        Guid id, [FromBody] EditarEntradaCommand command, CancellationToken ct)
+    {
+        var resultado = await _mediator.Send(command with { EntradaId = id }, ct);
+        return Ok(ApiResponse<EntradaMercadoriaDto>.Ok(resultado));
     }
 
     [HttpPost("{id:guid}/cancelar")]

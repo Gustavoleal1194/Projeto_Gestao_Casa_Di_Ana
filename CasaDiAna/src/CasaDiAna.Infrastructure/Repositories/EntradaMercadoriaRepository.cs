@@ -66,6 +66,59 @@ public class EntradaMercadoriaRepository : IEntradaMercadoriaRepository
     public void Atualizar(EntradaMercadoria entrada) =>
         _db.EntradasMercadoria.Update(entrada);
 
+    public async Task<IReadOnlySet<Guid>> ObterIngredientesComEntradaPosteriorAsync(
+        EntradaMercadoria entrada, CancellationToken ct = default)
+    {
+        var ids = entrada.Itens.Select(i => i.IngredienteId).ToList();
+        if (ids.Count == 0)
+            return new HashSet<Guid>();
+
+        var encontrados = await EntradasConfirmadasPosteriores(entrada)
+            .SelectMany(e => e.Itens)
+            .Where(i => ids.Contains(i.IngredienteId))
+            .Select(i => i.IngredienteId)
+            .Distinct()
+            .ToListAsync(ct);
+
+        return encontrados.ToHashSet();
+    }
+
+    public async Task<IReadOnlySet<Guid>> ObterUtensiliosComEntradaPosteriorAsync(
+        EntradaMercadoria entrada, CancellationToken ct = default)
+    {
+        var ids = entrada.ItensUtensilio.Select(i => i.UtensilioId).ToList();
+        if (ids.Count == 0)
+            return new HashSet<Guid>();
+
+        var encontrados = await EntradasConfirmadasPosteriores(entrada)
+            .SelectMany(e => e.ItensUtensilio)
+            .Where(i => ids.Contains(i.UtensilioId))
+            .Select(i => i.UtensilioId)
+            .Distinct()
+            .ToListAsync(ct);
+
+        return encontrados.ToHashSet();
+    }
+
+    public async Task AdicionarBoletosAsync(IEnumerable<BoletoEntrada> boletos, CancellationToken ct = default) =>
+        await _db.BoletosEntrada.AddRangeAsync(boletos, ct);
+
+    public void RemoverBoletos(IEnumerable<BoletoEntrada> boletos) =>
+        _db.BoletosEntrada.RemoveRange(boletos);
+
+    // Usa os valores em memória da entrada (data possivelmente editada e ainda não salva).
+    private IQueryable<EntradaMercadoria> EntradasConfirmadasPosteriores(EntradaMercadoria entrada)
+    {
+        var id = entrada.Id;
+        var dataEntrada = entrada.DataEntrada;
+        var criadoEm = entrada.CriadoEm;
+
+        return _db.EntradasMercadoria.Where(e =>
+            e.Id != id
+            && e.Status == StatusEntrada.Confirmada
+            && (e.DataEntrada > dataEntrada || (e.DataEntrada == dataEntrada && e.CriadoEm > criadoEm)));
+    }
+
     public Task<int> SalvarAsync(CancellationToken ct = default) =>
         _db.SaveChangesAsync(ct);
 }

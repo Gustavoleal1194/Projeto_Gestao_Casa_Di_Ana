@@ -2,6 +2,7 @@ import api from '@/lib/api'
 import type {
   ApiResponse,
   EntradaMercadoria,
+  EditarEntradaInput,
   EntradaMercadoriaResumo,
   RegistrarEntradaInput,
 } from '@/types/estoque'
@@ -24,6 +25,11 @@ export const entradasService = {
 
   registrar: async (input: RegistrarEntradaInput): Promise<EntradaMercadoria> => {
     const resp = await api.post<ApiResponse<EntradaMercadoria>>('/entradas', input)
+    return resp.data.dados
+  },
+
+  editar: async (id: string, input: EditarEntradaInput): Promise<EntradaMercadoria> => {
+    const resp = await api.put<ApiResponse<EntradaMercadoria>>(`/entradas/${id}`, input)
     return resp.data.dados
   },
 

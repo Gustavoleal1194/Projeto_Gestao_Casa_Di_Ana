@@ -34,6 +34,9 @@ function primeiroDoMes() {
 function hoje() { return new Date().toISOString().split('T')[0] }
 function brl(v: number) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }
 function pct(v: number) { return `${v.toFixed(1)}%` }
+const LIMITE_PROD_VENDAS = 12
+const ALTURA_LINHA_RANKING = 44
+
 function nomeCurto(s: string) { return s.length > 16 ? s.slice(0, 14) + '…' : s }
 function formatarDataBr(iso: string) {
   const [, m, d] = iso.split('-').map(Number)
@@ -246,14 +249,19 @@ export function DashboardPage() {
   const sellThrough = totalProduzidoGeral > 0 ? (totalVendidoGeral / totalProduzidoGeral) * 100 : 0
 
   // ── Chart: Produção vs Vendas (stacked: Vendido + Perda + Restante = Produzido) ──
-  const chartProdVendas = data?.prodVendas.map(i => ({
-    nome:            nomeCurto(i.produtoNome),
-    Vendido:         i.totalVendido,
-    Perda:           i.perda,
-    Restante:        Math.max(0, i.totalProduzido - i.totalVendido - i.perda),
-    totalProduzido:  i.totalProduzido,
-    receitaEstimada: i.receitaEstimada,
-  })) ?? []
+  // Ranking horizontal dos mais produzidos: com 100+ produtos, barras verticais ficam ilegíveis.
+  const totalProdutosProdVendas = data?.prodVendas.length ?? 0
+  const chartProdVendas = [...(data?.prodVendas ?? [])]
+    .sort((a, b) => b.totalProduzido - a.totalProduzido)
+    .slice(0, LIMITE_PROD_VENDAS)
+    .map(i => ({
+      nome:            nomeCurto(i.produtoNome),
+      Vendido:         i.totalVendido,
+      Perda:           i.perda,
+      Restante:        Math.max(0, i.totalProduzido - i.totalVendido - i.perda),
+      totalProduzido:  i.totalProduzido,
+      receitaEstimada: i.receitaEstimada,
+    }))
 
   // ── Chart: Margem (horizontal ranking) ─────────────────────────────────
   const chartMargem = data?.prodVendas
@@ -314,7 +322,8 @@ export function DashboardPage() {
       axisPointer: { type: 'shadow', shadowStyle: { color: isDark ? 'rgba(255,255,255,0.025)' : 'rgba(0,0,0,0.025)' } },
       formatter: (params: any) => {
         const linhas = Array.isArray(params) ? params : [params]
-        const row = linhas[0]?.data ?? {}
+        // Total e receita viajam no ponto da série "Restante" (as outras séries guardam só o número).
+        const row = linhas.find((p: { seriesName?: string }) => p.seriesName === 'Restante')?.data ?? {}
         return `
           <div style="min-width:210px;font-family:DM Sans,system-ui,sans-serif;">
             <div style="font-weight:600;font-size:12.5px;margin-bottom:9px;color:${chartTooltip.textColor};">${linhas[0]?.axisValue ?? ''}</div>
@@ -338,50 +347,33 @@ export function DashboardPage() {
       },
     },
     legend: { show: false },
-    grid: { left: 16, right: 8, top: 12, bottom: 40, containLabel: true },
+    grid: { left: 12, right: 16, top: 6, bottom: 6, containLabel: true },
     xAxis: {
-      type: 'category',
-      data: chartProdVendas.map(i => i.nome),
-      axisLabel: { rotate: 28, color: chartAxis.axisColor, fontSize: 11, margin: 8 },
-      axisLine: { show: false },
-      axisTick: { show: false },
-    },
-    yAxis: {
       type: 'value',
       axisLabel: { color: chartAxis.axisColor, fontSize: 11 },
       splitLine: { lineStyle: { color: chartAxis.gridColor } },
       splitNumber: 4,
     },
-    series: [
-      {
-        name: 'Vendido',
-        type: 'bar',
-        stack: 'total',
-        data: chartProdVendas.map(i => i.Vendido),
-        barMaxWidth: 36,
-        barMinWidth: 8,
-        emphasis: { focus: 'series', itemStyle: { opacity: 0.9 } },
-      },
-      {
-        name: 'Perda',
-        type: 'bar',
-        stack: 'total',
-        data: chartProdVendas.map(i => i.Perda),
-        barMaxWidth: 36,
-        barMinWidth: 8,
-        emphasis: { focus: 'series', itemStyle: { opacity: 0.9 } },
-      },
-      {
-        name: 'Restante',
-        type: 'bar',
-        stack: 'total',
-        data: chartProdVendas.map(i => ({ value: i.Restante, totalProduzido: i.totalProduzido, receitaEstimada: i.receitaEstimada })),
-        barMaxWidth: 36,
-        barMinWidth: 8,
-        itemStyle: { borderRadius: [3, 3, 0, 0] },
-        emphasis: { focus: 'series', itemStyle: { opacity: 0.9 } },
-      },
-    ],
+    yAxis: {
+      type: 'category',
+      inverse: true,
+      data: chartProdVendas.map(i => i.nome),
+      axisLabel: { color: chartAxis.bodyColor, fontSize: 11, fontFamily: 'DM Sans, system-ui, sans-serif' },
+      axisLine: { show: false },
+      axisTick: { show: false },
+    },
+    series: (['Vendido', 'Perda', 'Restante'] as const).map(serie => ({
+      name: serie,
+      type: 'bar' as const,
+      stack: 'total',
+      barMaxWidth: 20,
+      emphasis: { focus: 'series' as const, itemStyle: { opacity: 0.9 } },
+      // Último segmento da pilha leva o arredondamento e os dados do tooltip.
+      ...(serie === 'Restante' && { itemStyle: { borderRadius: [0, 4, 4, 0] } }),
+      data: chartProdVendas.map(i => serie === 'Restante'
+        ? { value: i.Restante, totalProduzido: i.totalProduzido, receitaEstimada: i.receitaEstimada }
+        : i[serie]),
+    })),
   }
 
   const optionMargem: EChartsOption = {
@@ -813,7 +805,11 @@ export function DashboardPage() {
             {/* Produção vs Vendas — stacked bar */}
             <ChartContainer
               titulo="Produção vs Vendas por Produto"
-              subtitulo="Cada barra = total produzido · Vendido + Perda + Restante"
+              subtitulo={
+                totalProdutosProdVendas > LIMITE_PROD_VENDAS
+                  ? `Top ${LIMITE_PROD_VENDAS} de ${totalProdutosProdVendas} mais produzidos · Vendido + Perda + Restante`
+                  : 'Cada barra = total produzido · Vendido + Perda + Restante'
+              }
               vazio={chartProdVendas.length === 0}
               rodape={
                 <div className="flex items-center gap-5 flex-wrap">
@@ -830,7 +826,12 @@ export function DashboardPage() {
                 </div>
               }
             >
-              <ReactECharts option={optionProdVendas} style={{ height: 300 }} notMerge lazyUpdate />
+              <ReactECharts
+                option={optionProdVendas}
+                style={{ height: Math.max(200, chartProdVendas.length * ALTURA_LINHA_RANKING) }}
+                notMerge
+                lazyUpdate
+              />
             </ChartContainer>
 
             {/* Margem de lucro */}
@@ -934,7 +935,7 @@ export function DashboardPage() {
                 ) : (
                   <ReactECharts
                     option={optionMargem}
-                    style={{ height: Math.max(200, chartMargemFiltrado.length * 44) }}
+                    style={{ height: Math.max(200, chartMargemFiltrado.length * ALTURA_LINHA_RANKING) }}
                     notMerge
                     lazyUpdate
                   />

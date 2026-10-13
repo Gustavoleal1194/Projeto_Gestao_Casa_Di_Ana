@@ -249,10 +249,13 @@ export function DashboardPage() {
   const sellThrough = totalProduzidoGeral > 0 ? (totalVendidoGeral / totalProduzidoGeral) * 100 : 0
 
   // ── Chart: Produção vs Vendas (stacked: Vendido + Perda + Restante = Produzido) ──
-  // Ranking horizontal dos mais produzidos: com 100+ produtos, barras verticais ficam ilegíveis.
+  // Ranking horizontal por volume: com 100+ produtos, barras verticais ficam ilegíveis.
+  // Volume = maior entre produzido e vendido+perda, para ordenar certo mesmo sem produção registrada.
+  const volume = (i: { totalProduzido: number; totalVendido: number; perda: number }) =>
+    Math.max(i.totalProduzido, i.totalVendido + i.perda)
   const totalProdutosProdVendas = data?.prodVendas.length ?? 0
   const chartProdVendas = [...(data?.prodVendas ?? [])]
-    .sort((a, b) => b.totalProduzido - a.totalProduzido)
+    .sort((a, b) => volume(b) - volume(a))
     .slice(0, LIMITE_PROD_VENDAS)
     .map(i => ({
       nome:            nomeCurto(i.produtoNome),
@@ -807,7 +810,7 @@ export function DashboardPage() {
               titulo="Produção vs Vendas por Produto"
               subtitulo={
                 totalProdutosProdVendas > LIMITE_PROD_VENDAS
-                  ? `Top ${LIMITE_PROD_VENDAS} de ${totalProdutosProdVendas} mais produzidos · Vendido + Perda + Restante`
+                  ? `Top ${LIMITE_PROD_VENDAS} de ${totalProdutosProdVendas} de maior volume · Vendido + Perda + Restante`
                   : 'Cada barra = total produzido · Vendido + Perda + Restante'
               }
               vazio={chartProdVendas.length === 0}

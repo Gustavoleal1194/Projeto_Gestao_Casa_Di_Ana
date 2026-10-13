@@ -1,4 +1,5 @@
 using CasaDiAna.Application.Common;
+using CasaDiAna.Application.Entradas.Common;
 using CasaDiAna.Application.Entradas.Commands.RegistrarEntrada;
 using CasaDiAna.Application.Entradas.Dtos;
 using CasaDiAna.Domain.Entities;
@@ -40,8 +41,7 @@ public class CancelarEntradaCommandHandler : IRequestHandler<CancelarEntradaComm
         var entrada = await _entradas.ObterPorIdComItensAsync(request.EntradaId, cancellationToken)
             ?? throw new DomainException("Entrada não encontrada.");
 
-        if (entrada.CriadoPor != _currentUser.UsuarioId && _currentUser.Papel != "Admin")
-            throw new UnauthorizedAccessException("Acesso negado.");
+        EntradaPermissao.GarantirPodeAlterar(entrada, _currentUser);
 
         entrada.Cancelar(_currentUser.UsuarioId);
 

@@ -1,3 +1,4 @@
+using CasaDiAna.Application.Entradas.Common;
 using CasaDiAna.Application.Entradas.Dtos;
 using MediatR;
 
@@ -11,4 +12,4 @@ public record RegistrarEntradaCommand(
     string? NumeroNotaFiscal = null,
     string? Observacoes = null,
     IReadOnlyList<DateTime>? DatasVencimentoBoleto = null,
-    IReadOnlyList<ItemEntradaUtensilioInputDto>? ItensUtensilio = null) : IRequest<EntradaMercadoriaDto>;
+    IReadOnlyList<ItemEntradaUtensilioInputDto>? ItensUtensilio = null) : IRequest<EntradaMercadoriaDto>, ICabecalhoEntrada;

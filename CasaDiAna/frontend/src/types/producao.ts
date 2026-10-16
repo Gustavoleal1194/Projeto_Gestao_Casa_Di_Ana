@@ -175,8 +175,21 @@ export interface RelatorioProducaoVendasItem {
   margemPerda: number | null
 }
 
+/** Lucro e margem consideram só os produtos vendidos com custo conhecido (ficha técnica). */
+export interface ResumoProducaoVendas {
+  receitaTotal: number
+  receitaComCusto: number
+  custoVendas: number
+  custoPerda: number
+  lucroEstimado: number
+  margemGeral: number | null
+  produtosVendidos: number
+  produtosVendidosComCusto: number
+}
+
 export interface RelatorioProducaoVendas {
   de: string
   ate: string
   itens: RelatorioProducaoVendasItem[]
+  resumo: ResumoProducaoVendas
 }

@@ -10,7 +10,7 @@ import {
 } from '@heroicons/react/24/outline'
 import { relatoriosService } from '@/features/relatorios/services/relatoriosService'
 import type { EstoqueAtualItem } from '@/types/estoque'
-import type { RelatorioProducaoVendasItem } from '@/types/producao'
+import type { RelatorioProducaoVendasItem, ResumoProducaoVendas } from '@/types/producao'
 import { useTheme } from '@/hooks/useTheme'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { FiltroPeriodo } from '@/components/ui/FiltroPeriodo'
@@ -176,6 +176,7 @@ function ChartContainer({ titulo, subtitulo, children, rodape, vazio }: ChartCon
 // ─── Tipos ──────────────────────────────────────────────────────────────────
 interface DashboardData {
   prodVendas: RelatorioProducaoVendasItem[]
+  resumo: ResumoProducaoVendas
   estoqueAlerta: EstoqueAtualItem[]
   tendenciaDiaria: Array<{ data: string; receita: number; custo: number; lucro: number }>
 }
@@ -213,14 +214,17 @@ export function DashboardPage() {
         relatoriosService.estoqueAtual(true),
         Promise.all(
           dias.map(async dia => {
-            const r = await relatoriosService.producaoVendas(dia, dia)
-            const receita = r.itens.reduce((acc, i) => acc + i.receitaEstimada, 0)
-            const custo = r.itens.reduce((acc, i) => acc + i.custoTotalProducao + i.custoPerda, 0)
-            return { data: dia, receita, custo, lucro: receita - custo }
+            const { resumo } = await relatoriosService.producaoVendas(dia, dia)
+            return {
+              data: dia,
+              receita: resumo.receitaTotal,
+              custo: resumo.custoVendas + resumo.custoPerda,
+              lucro: resumo.lucroEstimado,
+            }
           })
         ),
       ])
-      setData({ prodVendas: pvResp.itens, estoqueAlerta: estoqueResp, tendenciaDiaria: tendenciaResp })
+      setData({ prodVendas: pvResp.itens, resumo: pvResp.resumo, estoqueAlerta: estoqueResp, tendenciaDiaria: tendenciaResp })
     } catch {
       setErro('Erro ao carregar dados do dashboard.')
     } finally {
@@ -232,18 +236,13 @@ export function DashboardPage() {
   const handleFiltrar = () => carregar(de, ate)
 
   // ── Totais ──────────────────────────────────────────────────────────────
-  const totais = data?.prodVendas.reduce(
-    (acc, i) => ({
-      receita:       acc.receita       + i.receitaEstimada,
-      custoProducao: acc.custoProducao + i.custoTotalProducao,
-      custoPerda:    acc.custoPerda    + i.custoPerda,
-      perda:         acc.perda         + i.perda,
-    }),
-    { receita: 0, custoProducao: 0, custoPerda: 0, perda: 0 }
-  )
-
-  const lucroEstimado = (totais?.receita ?? 0) - (totais?.custoProducao ?? 0) - (totais?.custoPerda ?? 0)
-  const margemGeral   = totais?.receita ? (lucroEstimado / totais.receita) * 100 : 0
+  // Lucro e margem vêm do resumo do backend: só contam produtos vendidos com custo conhecido.
+  const resumo = data?.resumo
+  const lucroEstimado = resumo?.lucroEstimado ?? 0
+  const perdaUnidades = data?.prodVendas.reduce((acc, i) => acc + i.perda, 0) ?? 0
+  const legendaMargemGeral = !resumo || resumo.margemGeral == null
+    ? 'Margem geral: sem custo cadastrado'
+    : `Margem geral: ${pct(resumo.margemGeral)} · ${resumo.produtosVendidosComCusto} de ${resumo.produtosVendidos} produtos com custo`
   const totalProduzidoGeral = data?.prodVendas.reduce((acc, i) => acc + i.totalProduzido, 0) ?? 0
   const totalVendidoGeral = data?.prodVendas.reduce((acc, i) => acc + i.totalVendido, 0) ?? 0
   const sellThrough = totalProduzidoGeral > 0 ? (totalVendidoGeral / totalProduzidoGeral) * 100 : 0
@@ -762,8 +761,8 @@ export function DashboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
             <KpiCard
               label="Receita Estimada"
-              valor={brl(totais?.receita ?? 0)}
-              raw={totais?.receita ?? 0}
+              valor={brl(resumo?.receitaTotal ?? 0)}
+              raw={resumo?.receitaTotal ?? 0}
               formatarValor={brl}
               tendencia="total no período"
               variante="green"
@@ -773,16 +772,16 @@ export function DashboardPage() {
               valor={brl(lucroEstimado)}
               raw={lucroEstimado}
               formatarValor={brl}
-              tendencia={`Margem geral: ${pct(margemGeral)}`}
+              tendencia={legendaMargemGeral}
               variante={lucroEstimado >= 0 ? 'green' : 'red'}
             />
             <KpiCard
               label="Custo de Perdas"
-              valor={brl(totais?.custoPerda ?? 0)}
-              raw={totais?.custoPerda ?? 0}
+              valor={brl(resumo?.custoPerda ?? 0)}
+              raw={resumo?.custoPerda ?? 0}
               formatarValor={brl}
-              tendencia={`${totais?.perda.toFixed(0) ?? 0} unidades perdidas`}
-              variante={(totais?.custoPerda ?? 0) > 0 ? 'red' : 'amber'}
+              tendencia={`${perdaUnidades.toFixed(0)} unidades perdidas`}
+              variante={(resumo?.custoPerda ?? 0) > 0 ? 'red' : 'amber'}
             />
             <KpiCard
               label="Estoque Baixo"

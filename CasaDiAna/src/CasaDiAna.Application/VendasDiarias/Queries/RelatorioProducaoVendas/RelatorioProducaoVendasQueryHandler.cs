@@ -108,6 +108,33 @@ public class RelatorioProducaoVendasQueryHandler
         return new RelatorioProducaoVendasDto(
             request.De,
             request.Ate,
-            itens.OrderBy(i => i.ProdutoNome).ToList().AsReadOnly());
+            itens.OrderBy(i => i.ProdutoNome).ToList().AsReadOnly(),
+            Resumir(itens));
+    }
+
+    /// <summary>
+    /// Lucro = receita − custo das vendas (vendido × custo unitário) − custo da perda.
+    /// Usa o custo das unidades vendidas, não o da produção inteira: o custo de produção
+    /// já inclui as unidades perdidas, e subtraí-lo junto com a perda contaria a perda duas vezes.
+    /// </summary>
+    private static ResumoProducaoVendasDto Resumir(IReadOnlyCollection<RelatorioProducaoVendasItemDto> itens)
+    {
+        var vendidos = itens.Where(i => i.TotalVendido > 0).ToList();
+        var comCusto = vendidos.Where(i => i.CustoMedioUnitario > 0).ToList();
+
+        var receitaComCusto = comCusto.Sum(i => i.ReceitaEstimada);
+        var custoVendas = comCusto.Sum(i => i.TotalVendido * i.CustoMedioUnitario);
+        var custoPerda = itens.Sum(i => i.CustoPerda);
+        var lucro = receitaComCusto - custoVendas - custoPerda;
+
+        return new ResumoProducaoVendasDto(
+            ReceitaTotal: itens.Sum(i => i.ReceitaEstimada),
+            ReceitaComCusto: receitaComCusto,
+            CustoVendas: custoVendas,
+            CustoPerda: custoPerda,
+            LucroEstimado: lucro,
+            MargemGeral: receitaComCusto > 0 ? lucro / receitaComCusto * 100 : null,
+            ProdutosVendidos: vendidos.Count,
+            ProdutosVendidosComCusto: comCusto.Count);
     }
 }

@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\CasaDiAna.API\CasaDiAna.API.csproj" />
     <ProjectReference Include="..\..\src\CasaDiAna.Application\CasaDiAna.Application.csproj" />
     <ProjectReference Include="..\..\src\CasaDiAna.Domain\CasaDiAna.Domain.csproj" />
     <ProjectReference Include="..\..\src\CasaDiAna.Infrastructure\CasaDiAna.Infrastructure.csproj" />

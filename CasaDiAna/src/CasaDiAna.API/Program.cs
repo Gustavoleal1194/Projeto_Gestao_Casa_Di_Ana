@@ -1,5 +1,6 @@
 using System.Text;
 using System.Threading.RateLimiting;
+using CasaDiAna.API.Filters;
 using CasaDiAna.API.Middleware;
 using CasaDiAna.Domain.Entities;
 using CasaDiAna.Domain.Enums;
@@ -64,7 +65,7 @@ builder.Services.AddAuthorization(opt =>
         policy.RequireAuthenticatedUser()
               .RequireClaim("tipo", "pre2fa"));
 });
-builder.Services.AddControllers()
+builder.Services.AddControllers(opts => opts.Filters.Add<CorpoRequisicaoInvalidoFilter>())
     .AddJsonOptions(opts =>
         opts.JsonSerializerOptions.Converters.Add(
             new System.Text.Json.Serialization.JsonStringEnumConverter(

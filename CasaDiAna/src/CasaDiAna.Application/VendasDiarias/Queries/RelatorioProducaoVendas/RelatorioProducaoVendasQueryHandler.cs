@@ -36,8 +36,8 @@ public class RelatorioProducaoVendasQueryHandler
             .Distinct()
             .ToList();
 
-        // Carrega detalhes dos produtos (preço de venda)
-        var todosProdutos = (await _produtos.ListarAsync(apenasAtivos: false, cancellationToken))
+        // Carrega os produtos com a ficha: preço de venda e custo de referência para quem não foi produzido
+        var todosProdutos = (await _produtos.ListarComFichaAsync(apenasAtivos: false, cancellationToken))
             .Where(p => todosProdutoIds.Contains(p.Id))
             .ToDictionary(p => p.Id);
 
@@ -69,21 +69,20 @@ public class RelatorioProducaoVendasQueryHandler
             // Perda: produzido - vendido (mínimo 0, pois venda pode ser maior por estoque anterior)
             var perda = Math.Max(0, totalProduzido - totalVendido);
 
-            // Custo médio por unidade produzida no período
+            // Custo médio por unidade produzida no período. Sem produção (bebida de revenda,
+            // ou item que só foi vendido), vale o custo atual da ficha técnica do produto.
             var custoMedioUnitario = totalProduzido > 0
                 ? custoTotalProducao / totalProduzido
-                : 0m;
+                : produto?.CalcularCustoFicha() ?? 0m;
 
             var custoPerda = perda * custoMedioUnitario;
             var receitaEstimada = totalVendido * precoVenda;
 
-            // Margem de lucro por unidade: (preço - custo médio) / preço × 100
-            // Quando não há custo (sem produção ou sem ficha técnica), mas há vendas,
-            // toda a receita é lucro → margem 100%. null só quando não há venda ou preço.
-            decimal? margemLucro = precoVenda > 0 && totalVendido > 0
-                ? custoMedioUnitario > 0
-                    ? ((precoVenda - custoMedioUnitario) / precoVenda) * 100
-                    : 100m
+            // Margem de lucro por unidade: (preço - custo médio) / preço × 100.
+            // null quando não há venda, preço ou custo: sem custo a margem é desconhecida,
+            // e exibir 100% esconderia o produto sem ficha técnica.
+            decimal? margemLucro = precoVenda > 0 && totalVendido > 0 && custoMedioUnitario > 0
+                ? ((precoVenda - custoMedioUnitario) / precoVenda) * 100
                 : null;
 
             // Margem de perda: custo da perda / custo total de produção × 100

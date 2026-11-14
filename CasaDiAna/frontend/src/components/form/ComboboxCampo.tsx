@@ -3,17 +3,11 @@ import { Combobox } from '@headlessui/react'
 import { useController } from 'react-hook-form'
 import type { Control, FieldValues, Path } from 'react-hook-form'
 import { ChevronUpDownIcon, XMarkIcon } from '@heroicons/react/20/solid'
+import { contemTexto } from '@/utils/texto'
 
 interface OpcaoCombobox {
   valor: string | number
   rotulo: string
-}
-
-function normalizar(texto: string): string {
-  return texto
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
 }
 
 function valorComoTexto(valor: string | number): string {
@@ -49,7 +43,7 @@ function ComboboxCampoBase({
 
   const opcoesFiltradas = query === ''
     ? opcoes
-    : opcoes.filter(o => normalizar(o.rotulo).includes(normalizar(query)))
+    : opcoes.filter(o => contemTexto(o.rotulo, query))
 
   const opcaoSelecionada = opcoes.find(o => valorComoTexto(o.valor) === valorTexto) ?? null
 

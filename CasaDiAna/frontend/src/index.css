@@ -1213,3 +1213,11 @@ input:-webkit-autofill:active {
 @keyframes lrDpFloat{ 0%,100%{transform:translateY(0); opacity:0} 10%{opacity:1} 50%{transform:translateY(-22px)} 90%{opacity:1} }
 @keyframes lrRayPulse{ 0%,90%,100%{opacity:0} 10%,18%{opacity:.7} }
 @keyframes lrRise{ 0%{transform:translateY(0); opacity:0} 10%{opacity:.4} 100%{transform:translateY(-90vh); opacity:0} }
+
+/* Linha de tabela alvo de navegação (ex.: clique em destaque leva à linha) */
+@keyframes rowFoco {
+  0%, 40% { background: rgba(240,176,48,.16); box-shadow: inset 3px 0 0 #F0B030; }
+  100%    { background: transparent; box-shadow: inset 3px 0 0 transparent; }
+}
+.table-row-foco { animation: rowFoco 2.4s ease-out; scroll-margin-top: 96px; }
+@media (prefers-reduced-motion: reduce) { .table-row-foco { animation: none; box-shadow: inset 3px 0 0 #F0B030; } }

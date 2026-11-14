@@ -3,9 +3,18 @@ import { useState } from 'react'
 interface Props {
   busca: string
   onBuscaChange: (v: string) => void
+  id?: string
+  rotulo?: string
+  placeholder?: string
 }
 
-export function FiltrosBuscaCadastro({ busca, onBuscaChange }: Props) {
+export function FiltrosBuscaCadastro({
+  busca,
+  onBuscaChange,
+  id = 'busca-categoria',
+  rotulo = 'Buscar categoria',
+  placeholder = 'Buscar por nome…',
+}: Props) {
   const [focado, setFocado] = useState(false)
 
   return (
@@ -83,13 +92,13 @@ export function FiltrosBuscaCadastro({ busca, onBuscaChange }: Props) {
             <circle cx="11" cy="11" r="7" />
             <path d="m20 20-3.5-3.5" />
           </svg>
-          <label htmlFor="busca-categoria" className="sr-only">
-            Buscar categoria
+          <label htmlFor={id} className="sr-only">
+            {rotulo}
           </label>
           <input
-            id="busca-categoria"
+            id={id}
             type="text"
-            placeholder="Buscar por nome…"
+            placeholder={placeholder}
             value={busca}
             onChange={e => onBuscaChange(e.target.value)}
             autoComplete="off"

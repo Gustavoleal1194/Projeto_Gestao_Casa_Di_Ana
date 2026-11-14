@@ -2,6 +2,8 @@ using CasaDiAna.Application.Common;
 using CasaDiAna.Application.ImportacaoVendas.Commands.ConfirmarImportacao;
 using CasaDiAna.Application.ImportacaoVendas.Dtos;
 using CasaDiAna.Application.ImportacaoVendas.Services;
+using CasaDiAna.Application.Tests.Estoque;
+using CasaDiAna.Domain.Enums;
 using CasaDiAna.Domain.Entities;
 using CasaDiAna.Domain.Exceptions;
 using CasaDiAna.Domain.Interfaces;
@@ -15,6 +17,7 @@ public class ConfirmarImportacaoCommandHandlerTests
 {
     private static readonly DateTime DataVenda = new(2026, 6, 10);
 
+    private readonly BaixaFichaTecnicaFixture _estoque = new();
     private readonly Mock<IVendasParser> _parser = new();
     private readonly Mock<IVendaDiariaRepository> _vendas = new();
     private readonly Mock<IProdutoRepository> _produtos = new();
@@ -43,7 +46,9 @@ public class ConfirmarImportacaoCommandHandlerTests
                .Callback<IEnumerable<VendaDiaria>, CancellationToken>((v, _) => _vendasGravadas = v.ToList())
                .Returns(Task.CompletedTask);
         _vendas.Setup(r => r.SalvarAsync(default)).ReturnsAsync(1);
-        _produtos.Setup(r => r.ListarAsync(false, default)).ReturnsAsync(_catalogo);
+        _produtos.Setup(r => r.ListarComFichaAsync(false, default)).ReturnsAsync(_catalogo);
+        _importacoes.Setup(r => r.ListarPorDataVendaAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), default))
+                    .ReturnsAsync(new List<EntidadeImportacao>());
         _configRepasse.Setup(r => r.ObterAsync(default)).ReturnsAsync((ConfiguracaoRepasse?)null);
 
         CsvCom(
@@ -59,12 +64,13 @@ public class ConfirmarImportacaoCommandHandlerTests
 
     private ConfirmarImportacaoCommandHandler Criar() =>
         new(new LeitorRelatorioVendas(_parser.Object), _vendas.Object, _produtos.Object,
-            _importacoes.Object, _configRepasse.Object, _user.Object);
+            _importacoes.Object, _configRepasse.Object, _estoque.Servico(), _user.Object);
 
     private static ConfirmarImportacaoCommand Command(
         IReadOnlyList<VinculoLinhaDto>? vinculos = null,
-        IReadOnlyList<string>? removidas = null) =>
-        new([1, 2, 3], "vendas.csv", DataVenda, vinculos ?? [], removidas ?? []);
+        IReadOnlyList<string>? removidas = null,
+        bool permitirDataJaImportada = false) =>
+        new([1, 2, 3], "vendas.csv", DataVenda, vinculos ?? [], removidas ?? [], permitirDataJaImportada);
 
     private VinculoLinhaDto Vinculo(string nome, Produto produto) => new(nome, produto.Id);
 
@@ -226,5 +232,82 @@ public class ConfirmarImportacaoCommandHandlerTests
         typeof(Produto).GetProperty(nameof(Produto.Nome))!.SetValue(produto, nome);
         typeof(Produto).GetProperty(nameof(Produto.Ativo))!.SetValue(produto, ativo);
         return produto;
+    }
+
+    // ── Baixa de insumos pela venda (produtos feitos na hora) ──────────────────
+
+    [Fact]
+    public async Task ProdutoFeitoNaHora_BaixaInsumosNaImportacao()
+    {
+        var massa = _estoque.Ingrediente("Massa folhada", estoque: 100m, custoUnitario: 2m);
+        var croissant = _estoque.Produto("Croissant quente", TipoProduto.FeitoNaHora, (massa, 1m));
+        _catalogo.Add(croissant);
+
+        var resultado = await Criar().Handle(
+            Command([Vinculo("Croissant", croissant)]), CancellationToken.None);
+
+        massa.EstoqueAtual.Should().Be(90m);
+        _vendasGravadas.Single().CustoTotal.Should().Be(20m);
+        resultado.TotalVendasComBaixaInsumos.Should().Be(1);
+        resultado.ProdutosSemFicha.Should().BeEmpty();
+        _estoque.MovimentacoesGravadas.Should().ContainSingle(m =>
+            m.Tipo == TipoMovimentacao.SaidaVenda && m.ReferenciaId == _vendasGravadas[0].Id);
+    }
+
+    [Fact]
+    public async Task ProdutoFeitoNaHoraSemFicha_ImportaVendaEAvisa()
+    {
+        var suco = _estoque.Produto("Suco natural", TipoProduto.FeitoNaHora);
+        _catalogo.Add(suco);
+
+        var resultado = await Criar().Handle(
+            Command([Vinculo("Croissant", suco)]), CancellationToken.None);
+
+        _vendasGravadas.Should().ContainSingle(v => v.ProdutoId == suco.Id && v.CustoTotal == null);
+        resultado.TotalVendasComBaixaInsumos.Should().Be(0);
+        resultado.ProdutosSemFicha.Should().Equal("Suco natural");
+    }
+
+    [Fact]
+    public async Task ProdutoProduzidoEmLote_NaoBaixaNaImportacao()
+    {
+        var resultado = await Criar().Handle(
+            Command([Vinculo("Croissant", _croissant)]), CancellationToken.None);
+
+        resultado.TotalVendasComBaixaInsumos.Should().Be(0);
+        resultado.ProdutosSemFicha.Should().BeEmpty();
+        _estoque.MovimentacoesGravadas.Should().BeEmpty();
+    }
+
+    // ── Data de venda já importada ─────────────────────────────────────────────
+
+    private void JaExisteImportacaoNaData() =>
+        _importacoes.Setup(r => r.ListarPorDataVendaAsync(DataVenda, DataVenda.AddDays(1), default))
+                    .ReturnsAsync(new List<EntidadeImportacao>
+                    {
+                        (EntidadeImportacao)System.Runtime.CompilerServices.RuntimeHelpers
+                            .GetUninitializedObject(typeof(EntidadeImportacao)),
+                    });
+
+    [Fact]
+    public async Task DataJaImportada_SemConfirmacao_LancaDomainException()
+    {
+        JaExisteImportacaoNaData();
+
+        var act = () => Criar().Handle(Command([Vinculo("Croissant", _croissant)]), CancellationToken.None);
+
+        await act.Should().ThrowAsync<DomainException>().WithMessage("Já existe importação de vendas para 10/06/2026*");
+        _vendasGravadas.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task DataJaImportada_ComConfirmacao_Importa()
+    {
+        JaExisteImportacaoNaData();
+
+        await Criar().Handle(
+            Command([Vinculo("Croissant", _croissant)], permitirDataJaImportada: true), CancellationToken.None);
+
+        _vendasGravadas.Should().ContainSingle();
     }
 }

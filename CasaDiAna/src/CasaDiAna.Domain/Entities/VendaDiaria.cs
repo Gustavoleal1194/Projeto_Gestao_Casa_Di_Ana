@@ -8,6 +8,11 @@ public class VendaDiaria
     public Guid ProdutoId { get; private set; }
     public DateTime Data { get; private set; }
     public decimal QuantidadeVendida { get; private set; }
+    /// <summary>
+    /// Custo dos insumos baixados na venda (snapshot da época). Só existe para
+    /// produtos feitos na hora com ficha técnica; nulo nos demais casos.
+    /// </summary>
+    public decimal? CustoTotal { get; private set; }
     public DateTime CriadoEm { get; private set; }
     public Guid CriadoPor { get; private set; }
 
@@ -33,5 +38,12 @@ public class VendaDiaria
             CriadoEm = DateTime.UtcNow,
             CriadoPor = criadoPor
         };
+    }
+
+    public void RegistrarCustoInsumos(decimal custoTotal)
+    {
+        if (custoTotal < 0)
+            throw new DomainException("Custo dos insumos não pode ser negativo.");
+        CustoTotal = custoTotal;
     }
 }

@@ -2,6 +2,7 @@ using CasaDiAna.Application.Common;
 using CasaDiAna.Application.ImportacaoVendas.Commands.ConfirmarImportacao;
 using CasaDiAna.Application.ImportacaoVendas.Commands.ProcessarPreview;
 using CasaDiAna.Application.ImportacaoVendas.Dtos;
+using CasaDiAna.Application.ImportacaoVendas.Queries.ExisteImportacaoNaData;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -32,6 +33,14 @@ public class ImportacaoVendasController : ControllerBase
         return Ok(ApiResponse<PreviewImportacaoDto>.Ok(resultado));
     }
 
+    [HttpGet("existe-na-data")]
+    [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ExisteNaData([FromQuery] DateTime data, CancellationToken ct)
+    {
+        var existe = await _mediator.Send(new ExisteImportacaoNaDataQuery(data), ct);
+        return Ok(ApiResponse<bool>.Ok(existe));
+    }
+
     [HttpPost("confirmar")]
     [Consumes("multipart/form-data")]
     [ProducesResponseType(typeof(ApiResponse<ResultadoImportacaoDto>), StatusCodes.Status201Created)]
@@ -49,7 +58,8 @@ public class ImportacaoVendasController : ControllerBase
         if (erro != null) return erro;
 
         var command = new ConfirmarImportacaoCommand(
-            bytes, form.Arquivo!.FileName, form.DataVenda, form.Vinculos, form.LinhasRemovidas);
+            bytes, form.Arquivo!.FileName, form.DataVenda, form.Vinculos, form.LinhasRemovidas,
+            form.PermitirDataJaImportada);
         var resultado = await _mediator.Send(command, ct);
         return StatusCode(StatusCodes.Status201Created,
             ApiResponse<ResultadoImportacaoDto>.Ok(resultado));

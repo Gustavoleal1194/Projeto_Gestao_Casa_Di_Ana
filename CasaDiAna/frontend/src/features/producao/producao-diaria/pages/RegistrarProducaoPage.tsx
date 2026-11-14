@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { ConfirmacaoProducaoModal, type DadosConfirmacaoProducao } from '../components/ConfirmacaoProducaoModal'
 import { producaoDiariaService } from '../services/producaoDiariaService'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
+import { temProducaoManual } from '@/features/producao/produtos/tipoProduto'
 import { CampoTexto } from '@/components/form/CampoTexto'
 import { ComboboxCampo } from '@/components/form/ComboboxCampo'
 import { FormTextarea } from '@/components/form/FormTextarea'
@@ -48,7 +49,10 @@ export function RegistrarProducaoPage() {
     })
 
   useEffect(() => {
-    produtosService.listar().then(setProdutos).catch(() => {})
+    produtosService.listar()
+      // Feitos na hora e revenda não têm produção lançada.
+      .then(lista => setProdutos(lista.filter(p => temProducaoManual(p.tipo))))
+      .catch(() => {})
   }, [])
 
   const onSubmit = async (values: ProducaoFormValues) => {

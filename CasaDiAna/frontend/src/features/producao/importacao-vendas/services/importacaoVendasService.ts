@@ -18,6 +18,13 @@ export const importacaoVendasService = {
     return resp.data.dados!
   },
 
+  existeNaData: async (dataVenda: string): Promise<boolean> => {
+    const resp = await api.get<ApiResponse<boolean>>('/importacao-vendas/existe-na-data', {
+      params: { data: dataVenda },
+    })
+    return resp.data.dados ?? false
+  },
+
   confirmar: async (input: ConfirmarImportacaoInput): Promise<ResultadoImportacao> => {
     const form = new FormData()
     form.append('arquivo', input.arquivo)
@@ -27,6 +34,7 @@ export const importacaoVendasService = {
       form.append(`vinculos[${i}].produtoId`, v.produtoId)
     })
     input.linhasRemovidas.forEach((nome, i) => form.append(`linhasRemovidas[${i}]`, nome))
+    form.append('permitirDataJaImportada', String(input.permitirDataJaImportada))
     const resp = await api.post<ApiResponse<ResultadoImportacao>>(
       '/importacao-vendas/confirmar',
       form,

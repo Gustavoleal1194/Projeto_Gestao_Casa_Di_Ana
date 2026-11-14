@@ -82,7 +82,7 @@ public class RelatorioProducaoVendasQueryHandlerTests
         var produto = Produto.Criar("Croissant", 10m, Usuario);
 
         var item = await GerarItemAsync(produto,
-            new[] { Producao.Criar(produto.Id, Dia, 4, custoTotal: 20m, Usuario) },
+            new[] { ProducaoComCusto(produto.Id, 4, 20m) },
             new[] { Venda.Criar(produto.Id, Dia, 4, Usuario) });
 
         item.CustoMedioUnitario.Should().Be(5m);
@@ -100,7 +100,7 @@ public class RelatorioProducaoVendasQueryHandlerTests
         var relatorio = await GerarRelatorioAsync(
             new[] { coca, croissant, semFicha },
             // 5 croissants a R$ 4 cada: 4 vendidos, 1 perdido.
-            new[] { Producao.Criar(croissant.Id, Dia, 5, custoTotal: 20m, Usuario) },
+            new[] { ProducaoComCusto(croissant.Id, 5, 20m) },
             new[]
             {
                 Venda.Criar(coca.Id, Dia, 10, Usuario),
@@ -130,5 +130,12 @@ public class RelatorioProducaoVendasQueryHandlerTests
         relatorio.Resumo.ReceitaTotal.Should().Be(30m);
         relatorio.Resumo.LucroEstimado.Should().Be(0m);
         relatorio.Resumo.MargemGeral.Should().BeNull();
+    }
+
+    private static Producao ProducaoComCusto(Guid produtoId, decimal quantidade, decimal custoTotal)
+    {
+        var producao = Producao.Criar(produtoId, Dia, quantidade, Usuario);
+        producao.RegistrarCustoInsumos(custoTotal);
+        return producao;
     }
 }

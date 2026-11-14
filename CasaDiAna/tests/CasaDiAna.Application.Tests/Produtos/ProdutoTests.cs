@@ -82,4 +82,30 @@ public class ProdutoTests
 
         p.ItensFicha.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Atualizar_DeProduzidoParaFeitoNaHora_MantemFichaTecnica()
+    {
+        var usuario = Guid.NewGuid();
+        var p = Produto.Criar("Cappuccino", 12m, usuario);
+        p.DefinirFichaTecnica([(Guid.NewGuid(), 15m)]);
+
+        p.Atualizar("Cappuccino", 12m, usuario, tipo: TipoProduto.FeitoNaHora);
+
+        p.Tipo.Should().Be(TipoProduto.FeitoNaHora);
+        p.TemFichaTecnica.Should().BeTrue();
+        p.BaixaInsumosNaVenda.Should().BeTrue();
+        p.CustoUnitario.Should().BeNull();
+    }
+
+    [Fact]
+    public void GarantirPodeSerProduzido_FeitoNaHora_LancaDomainException()
+    {
+        var p = Produto.Criar("Espresso", 6m, Guid.NewGuid(), tipo: TipoProduto.FeitoNaHora);
+        p.DefinirFichaTecnica([(Guid.NewGuid(), 10m)]);
+
+        var act = p.GarantirPodeSerProduzido;
+
+        act.Should().Throw<DomainException>().WithMessage("*feito na hora*");
+    }
 }

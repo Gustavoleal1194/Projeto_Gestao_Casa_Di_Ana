@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import type { MovimentacaoRelatorio } from '@/types/estoque'
+import { ehAjuste, ehConsumo, ehEntrada } from '../utils/tipoMovimentacao'
 
 function useCountUp(target: number) {
   const ref = useRef<HTMLSpanElement>(null)
@@ -88,14 +89,14 @@ function KpiCard({ label, value, delta, variante }: CardProps) {
 
 export function KpiMovimentacoes({ movimentacoes }: { movimentacoes: MovimentacaoRelatorio[] }) {
   const total    = movimentacoes.length
-  const entradas = movimentacoes.filter(m => m.tipo === 'Entrada').length
-  const saidas   = movimentacoes.filter(m => m.tipo === 'SaidaProducao').length
-  const ajustes  = movimentacoes.filter(m => m.tipo === 'AjustePositivo' || m.tipo === 'AjusteNegativo').length
+  const entradas = movimentacoes.filter(m => ehEntrada(m.tipo)).length
+  const saidas   = movimentacoes.filter(m => ehConsumo(m.tipo)).length
+  const ajustes  = movimentacoes.filter(m => ehAjuste(m.tipo)).length
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10 }}>
       <KpiCard label="Total"           value={total}    delta="no período"           variante="amber" />
       <KpiCard label="Entradas"        value={entradas} delta="ingredientes"          variante="green" />
-      <KpiCard label="Saídas Produção" value={saidas}   delta="itens baixados"        variante="blue"  />
+      <KpiCard label="Consumo"         value={saidas}   delta="produção + vendas"     variante="blue"  />
       <KpiCard label="Ajustes"         value={ajustes}  delta="positivos + negativos" variante="red"   />
     </div>
   )

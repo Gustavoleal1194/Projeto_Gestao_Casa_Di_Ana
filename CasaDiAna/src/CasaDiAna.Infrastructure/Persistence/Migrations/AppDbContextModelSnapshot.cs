@@ -1766,6 +1766,11 @@ namespace CasaDiAna.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("criado_por");
 
+                    b.Property<decimal?>("CustoTotal")
+                        .HasPrecision(15, 2)
+                        .HasColumnType("numeric(15,2)")
+                        .HasColumnName("custo_total");
+
                     b.Property<DateTime>("Data")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("data");

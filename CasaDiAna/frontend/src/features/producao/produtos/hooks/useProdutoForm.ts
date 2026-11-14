@@ -11,7 +11,7 @@ export const produtoSchema = z.object({
   ),
   categoriaProdutoId: z.string(),
   descricao: z.string(),
-  tipo: z.enum(['produzido', 'revenda']),
+  tipo: z.enum(['produzido', 'feitoNaHora', 'revenda']),
 })
 
 export function produtoParaForm(p: Produto): ProdutoFormValues {

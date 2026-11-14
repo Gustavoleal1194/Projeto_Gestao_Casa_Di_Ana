@@ -14,6 +14,8 @@ export interface DadosConfirmacaoImportacao {
   totalNaoEncontradas: number
   totalTaxaServico: number
   totalEntregas: number
+  totalVendasComBaixaInsumos: number
+  produtosSemFicha: string[]
   valorTotal: number
   dataVenda: string
   operador: string
@@ -243,6 +245,13 @@ export function ConfirmacaoImportacaoModal({ aberto, onFechar, onVerRelatorio, d
               { label: 'Data dos lançamentos', valor: formatarData(dados.dataVenda), delay: 960 },
               { label: 'Operador', valor: dados.operador, delay: 1000 },
             ].map(row => <LinhaResumo key={row.label} {...row} />)}
+            {dados.totalVendasComBaixaInsumos > 0 && (
+              <LinhaResumo
+                label="Insumos baixados (feitos na hora)"
+                valor={`${dados.totalVendasComBaixaInsumos} ${dados.totalVendasComBaixaInsumos === 1 ? 'venda' : 'vendas'}`}
+                delay={1010}
+              />
+            )}
             {[
               { label: 'Taxa de serviço (repasse)', total: dados.totalTaxaServico, delay: 1020 },
               { label: 'Entregas (repasse)', total: dados.totalEntregas, delay: 1035 },
@@ -281,6 +290,16 @@ export function ConfirmacaoImportacaoModal({ aberto, onFechar, onVerRelatorio, d
               </div>
             </div>
           </div>
+
+          {dados.produtosSemFicha.length > 0 && (
+            <div className="state-warning" role="alert" style={{ marginBottom: 20, fontSize: 12.5 }}>
+              <span>
+                Feitos na hora sem ficha técnica (vendidos sem baixa de insumos):{' '}
+                <strong>{dados.produtosSemFicha.join(', ')}</strong>. Cadastre a ficha para que as
+                próximas vendas baixem o estoque.
+              </span>
+            </div>
+          )}
 
           {/* CTAs */}
           <div style={{ display: 'flex', gap: 10, animation: 'fadeUp 300ms 1150ms ease both' }}>

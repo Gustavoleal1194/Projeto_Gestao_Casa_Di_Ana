@@ -17,6 +17,9 @@ public class VendaDiariaConfiguration : IEntityTypeConfiguration<VendaDiaria>
             .HasColumnName("quantidade_vendida")
             .HasPrecision(15, 4)
             .IsRequired();
+        builder.Property(v => v.CustoTotal)
+            .HasColumnName("custo_total")
+            .HasPrecision(15, 2);
         builder.Property(v => v.CriadoEm).HasColumnName("criado_em").IsRequired();
         builder.Property(v => v.CriadoPor).HasColumnName("criado_por").IsRequired();
 

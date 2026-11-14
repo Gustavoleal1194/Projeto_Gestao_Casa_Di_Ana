@@ -9,4 +9,5 @@ public class ConfirmarImportacaoForm
     public DateTime DataVenda { get; set; }
     public List<VinculoLinhaDto> Vinculos { get; set; } = [];
     public List<string> LinhasRemovidas { get; set; } = [];
+    public bool PermitirDataJaImportada { get; set; }
 }

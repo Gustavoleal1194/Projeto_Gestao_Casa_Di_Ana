@@ -139,13 +139,21 @@ export function FichaTecnicaPage() {
           onErro={msg => setToast({ tipo: 'erro', mensagem: msg })}
         />
       ) : (
-        <IngredientesForm
-          itensIniciais={itensIniciais}
-          ingredientes={ingredientes}
-          salvando={salvando}
-          onSalvar={salvarFicha}
-          onVoltar={voltarParaProdutos}
-        />
+        <>
+          {ficha?.tipo === 'feitoNaHora' && (
+            <div className="state-info mb-4" role="note">
+              Produto feito na hora: os ingredientes desta ficha são baixados do estoque
+              automaticamente a cada venda. Não é preciso lançar produção.
+            </div>
+          )}
+          <IngredientesForm
+            itensIniciais={itensIniciais}
+            ingredientes={ingredientes}
+            salvando={salvando}
+            onSalvar={salvarFicha}
+            onVoltar={voltarParaProdutos}
+          />
+        </>
       )}
     </div>
   )

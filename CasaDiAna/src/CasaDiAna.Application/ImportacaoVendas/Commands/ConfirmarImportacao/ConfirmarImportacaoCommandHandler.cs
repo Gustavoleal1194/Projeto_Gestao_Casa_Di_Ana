@@ -1,4 +1,5 @@
 using CasaDiAna.Application.Common;
+using CasaDiAna.Application.Estoque.Services;
 using CasaDiAna.Application.ImportacaoVendas.Dtos;
 using CasaDiAna.Application.ImportacaoVendas.Services;
 using CasaDiAna.Domain.Exceptions;
@@ -19,6 +20,7 @@ public class ConfirmarImportacaoCommandHandler
     private readonly IProdutoRepository _produtos;
     private readonly IImportacaoVendasRepository _importacoes;
     private readonly IConfiguracaoRepasseRepository _configuracaoRepasse;
+    private readonly BaixaFichaTecnicaService _baixaFicha;
     private readonly ICurrentUserService _currentUser;
 
     public ConfirmarImportacaoCommandHandler(
@@ -27,6 +29,7 @@ public class ConfirmarImportacaoCommandHandler
         IProdutoRepository produtos,
         IImportacaoVendasRepository importacoes,
         IConfiguracaoRepasseRepository configuracaoRepasse,
+        BaixaFichaTecnicaService baixaFicha,
         ICurrentUserService currentUser)
     {
         _leitor = leitor;
@@ -34,6 +37,7 @@ public class ConfirmarImportacaoCommandHandler
         _produtos = produtos;
         _importacoes = importacoes;
         _configuracaoRepasse = configuracaoRepasse;
+        _baixaFicha = baixaFicha;
         _currentUser = currentUser;
     }
 
@@ -46,7 +50,10 @@ public class ConfirmarImportacaoCommandHandler
         if (await _importacoes.HashExisteAsync(relatorio.Hash, cancellationToken))
             throw new DomainException("Este arquivo já foi importado anteriormente.");
 
-        var produtos = (await _produtos.ListarAsync(apenasAtivos: false, cancellationToken))
+        if (!request.PermitirDataJaImportada)
+            await GarantirDataNaoImportadaAsync(request.DataVenda, cancellationToken);
+
+        var produtos = (await _produtos.ListarComFichaAsync(apenasAtivos: false, cancellationToken))
             .ToDictionary(p => p.Id);
         var vinculosPorNome = request.Vinculos
             .GroupBy(v => v.NomeRelatorio, StringComparer.Ordinal)
@@ -80,6 +87,7 @@ public class ConfirmarImportacaoCommandHandler
         if (novasVendas.Count == 0 && totalTaxaServico == 0 && totalEntregas == 0)
             throw new DomainException("Nenhum item ou repasse confirmado para importação.");
 
+        var (comBaixa, semFicha) = await BaixarInsumosAsync(novasVendas, produtos, cancellationToken);
         await _vendas.AdicionarRangeAsync(novasVendas, cancellationToken);
 
         // Snapshot dos percentuais vigentes: mudar a configuração depois não
@@ -103,14 +111,50 @@ public class ConfirmarImportacaoCommandHandler
             _currentUser.UsuarioId);
 
         await _importacoes.AdicionarAsync(importacao, cancellationToken);
+        // Vendas, baixas de insumos, movimentações e importação num único SaveChanges.
         await _vendas.SalvarAsync(cancellationToken);
+        await _baixaFicha.NotificarEstoqueBaixoAsync(cancellationToken);
 
         return new ResultadoImportacaoDto(
             novasVendas.Count,
             totalIgnoradas,
             totalNaoEncontradas,
             importacao.TotalTaxaServico,
-            importacao.TotalEntregas);
+            importacao.TotalEntregas,
+            comBaixa,
+            semFicha);
+    }
+
+    private async Task GarantirDataNaoImportadaAsync(DateTime dataVenda, CancellationToken ct)
+    {
+        var existentes = await _importacoes.ListarPorDataVendaAsync(
+            dataVenda.Date, dataVenda.Date.AddDays(1), ct);
+        if (existentes.Count > 0)
+            throw new DomainException(
+                $"Já existe importação de vendas para {dataVenda:dd/MM/yyyy}. " +
+                "Confirme que deseja somar estas vendas às já lançadas.");
+    }
+
+    /// <summary>
+    /// Produtos feitos na hora consomem os insumos da ficha na própria venda.
+    /// Sem ficha, a venda é registrada mesmo assim (é fato do PDV) e o produto é avisado.
+    /// </summary>
+    private async Task<(int ComBaixa, IReadOnlyList<string> SemFicha)> BaixarInsumosAsync(
+        IReadOnlyList<VendaDiaria> vendas,
+        IReadOnlyDictionary<Guid, Produto> produtos,
+        CancellationToken ct)
+    {
+        var comBaixa = 0;
+        var semFicha = new SortedSet<string>(StringComparer.CurrentCulture);
+        foreach (var venda in vendas)
+        {
+            var produto = produtos[venda.ProdutoId];
+            if (await _baixaFicha.BaixarVendaAsync(produto, venda, ct))
+                comBaixa++;
+            else if (produto.BaixaInsumosNaVenda)
+                semFicha.Add(produto.Nome);
+        }
+        return (comBaixa, semFicha.ToList());
     }
 
     private static void ValidarDecisoes(

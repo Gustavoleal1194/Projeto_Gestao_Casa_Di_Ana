@@ -625,6 +625,25 @@ input:-webkit-autofill:active {
   align-items: center;
   gap: 0.625rem;
 }
+.state-warning,
+.state-info {
+  border-radius: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+}
+.state-warning {
+  background: var(--ada-warning-bg);
+  border: 1px solid var(--ada-warning-border);
+  color: var(--ada-warning-text);
+}
+.state-info {
+  background: var(--ada-surface-2);
+  border: 1px solid var(--ada-border);
+  color: var(--ada-body);
+}
 .state-empty {
   padding: 4rem 1rem;
   text-align: center;

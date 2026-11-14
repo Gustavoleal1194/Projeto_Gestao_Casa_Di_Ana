@@ -5,5 +5,6 @@ public enum TipoMovimentacao
     Entrada = 1,
     AjustePositivo = 2,
     AjusteNegativo = 3,
-    SaidaProducao = 4
+    SaidaProducao = 4,
+    SaidaVenda = 5
 }

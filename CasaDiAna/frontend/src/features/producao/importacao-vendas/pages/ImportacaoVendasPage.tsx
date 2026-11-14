@@ -15,6 +15,8 @@ import { somarRepasses, TIPO_REPASSE_LABELS } from '../utils/repasses'
 import { importacaoVendasService } from '../services/importacaoVendasService'
 import { QuickCreateProductModal } from '../components/QuickCreateProductModal'
 import { ConfirmRemoveDialog } from '../components/ConfirmRemoveDialog'
+import { AvisoDataJaImportada } from '../components/AvisoDataJaImportada'
+import { useDataJaImportada } from '../hooks/useDataJaImportada'
 import { ConfirmacaoImportacaoModal, type DadosConfirmacaoImportacao, type ItemConfirmacaoImportacao } from '../components/ConfirmacaoImportacaoModal'
 import { produtosService } from '@/features/producao/produtos/services/produtosService'
 import { useAuthStore } from '@/store/authStore'
@@ -61,6 +63,7 @@ export function ImportacaoVendasPage() {
   const [preview, setPreview] = useState<PreviewImportacao | null>(null)
   const [dataVenda, setDataVenda] = useState(new Date().toLocaleDateString('sv-SE'))
   const [resultado, setResultado] = useState<ResultadoImportacao | null>(null)
+  const dataJaImportada = useDataJaImportada(dataVenda, etapa === 'preview')
   const [resolucoes, setResolucoes] = useState<Record<string, string>>({})
   const [dadosConfirmacao, setDadosConfirmacao] = useState<DadosConfirmacaoImportacao | null>(null)
 
@@ -158,6 +161,7 @@ export function ImportacaoVendasPage() {
         dataVenda,
         vinculos,
         linhasRemovidas: [...linhasRemovidas],
+        permitirDataJaImportada: dataJaImportada.confirmada,
       })
 
       const itensModal: ItemConfirmacaoImportacao[] = [
@@ -179,6 +183,8 @@ export function ImportacaoVendasPage() {
         totalNaoEncontradas: res.totalNaoEncontradas,
         totalTaxaServico: res.totalTaxaServico,
         totalEntregas: res.totalEntregas,
+        totalVendasComBaixaInsumos: res.totalVendasComBaixaInsumos,
+        produtosSemFicha: res.produtosSemFicha,
         valorTotal: itensModal.reduce((sum, i) => sum + i.valorTotal, 0),
         dataVenda,
         operador: usuario?.nome ?? '—',
@@ -562,6 +568,13 @@ export function ImportacaoVendasPage() {
               <p className="text-xs mt-1" style={{ color: 'var(--ada-muted)' }}>
                 Todos os itens importados usarão esta data.
               </p>
+              {dataJaImportada.jaImportada && (
+                <AvisoDataJaImportada
+                  dataVenda={dataVenda}
+                  confirmada={dataJaImportada.confirmada}
+                  onConfirmadaChange={dataJaImportada.setConfirmada}
+                />
+              )}
             </div>
             <div className="flex gap-2">
               <button
@@ -573,7 +586,7 @@ export function ImportacaoVendasPage() {
               </button>
               <button
                 onClick={confirmar}
-                disabled={etapa === 'confirmando' || (totalConfirmados === 0 && !temRepasse)}
+                disabled={etapa === 'confirmando' || dataJaImportada.bloqueada || (totalConfirmados === 0 && !temRepasse)}
                 className="px-5 py-2 rounded-lg text-sm font-semibold text-white transition-opacity disabled:opacity-40"
                 style={{ background: 'var(--sb-accent)' }}
               >

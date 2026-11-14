@@ -12,6 +12,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge'
 import type { ProdutoResumo } from '@/types/producao'
 import { useCategoriasProduto } from '@/features/producao/categorias-produto/hooks/useCategoriasProduto'
 import { FiltrosProdutos } from '../components/FiltrosProdutos'
+import { TIPO_PRODUTO_ROTULO } from '../tipoProduto'
 import { destacar } from '@/utils/destacar'
 
 const PAPEIS_EDICAO = ['Admin', 'Coordenador', 'Compras']
@@ -110,6 +111,7 @@ export function ProdutosPage() {
                   <tr className="table-head-row">
                     <th className="table-th" scope="col">Nome</th>
                     <th className="table-th" scope="col">Categoria</th>
+                    <th className="table-th" scope="col">Tipo</th>
                     <th className="table-th table-th-right" scope="col">Preço de Venda</th>
                     <th className="table-th" scope="col">Status</th>
                     {podeEditar && (
@@ -123,7 +125,7 @@ export function ProdutosPage() {
                   {filtrados.length === 0 ? (
                     <tr>
                       <td
-                        colSpan={podeEditar ? 5 : 4}
+                        colSpan={podeEditar ? 6 : 5}
                         className="table-td text-center py-10 text-sm"
                         style={{ color: 'var(--ada-muted)' }}
                       >
@@ -147,6 +149,11 @@ export function ProdutosPage() {
                       <td className="table-td">
                         <span className="text-sm" style={{ color: p.categoriaNome ? 'var(--ada-muted-dim)' : 'var(--ada-placeholder)' }}>
                           {p.categoriaNome ?? '—'}
+                        </span>
+                      </td>
+                      <td className="table-td">
+                        <span className="text-sm" style={{ color: 'var(--ada-muted-dim)' }}>
+                          {TIPO_PRODUTO_ROTULO[p.tipo]}
                         </span>
                       </td>
                       <td className="table-td" style={{ textAlign: 'right' }}>

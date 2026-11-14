@@ -13,20 +13,16 @@ import { FormActions } from '@/components/form/FormActions'
 import { FormCard } from '@/components/form/FormCard'
 import { Toast } from '@/components/ui/Toast'
 import { LoadingState } from '@/components/ui/LoadingState'
-import type { CategoriaProduto, ProdutoFormValues, TipoProduto } from '@/types/producao'
+import type { CategoriaProduto, ProdutoFormValues } from '@/types/producao'
 import { ConfirmacaoProdutoModal, type DadosConfirmacaoProduto } from '../components/ConfirmacaoProdutoModal'
-
-const TIPO_OPCOES: { valor: TipoProduto; rotulo: string }[] = [
-  { valor: 'produzido', rotulo: 'Produzido (ficha de ingredientes)' },
-  { valor: 'revenda', rotulo: 'Bebida pronta (revenda)' },
-]
+import { TIPO_PRODUTO_DESCRICAO, TIPO_PRODUTO_OPCOES } from '../tipoProduto'
 
 export function ProdutoFormPage() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const isEdicao = Boolean(id)
 
-  const { register, handleSubmit, reset, control, formState: { errors, isSubmitting } } = useProdutoForm()
+  const { register, handleSubmit, reset, control, watch, formState: { errors, isSubmitting } } = useProdutoForm()
   const [categorias, setCategorias] = useState<CategoriaProduto[]>([])
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
   const [carregando, setCarregando] = useState(isEdicao)
@@ -118,7 +114,8 @@ export function ProdutoFormPage() {
             />
             <SelectCampo
               label="Tipo do Produto"
-              opcoes={TIPO_OPCOES}
+              opcoes={TIPO_PRODUTO_OPCOES}
+              dica={TIPO_PRODUTO_DESCRICAO[watch('tipo')]}
               erro={errors.tipo?.message}
               {...register('tipo')}
             />

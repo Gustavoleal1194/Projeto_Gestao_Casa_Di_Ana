@@ -6,4 +6,6 @@ public record VendaDiariaDto(
     string ProdutoNome,
     DateTime Data,
     decimal QuantidadeVendida,
+    /// <summary>Custo dos insumos baixados na venda (só produtos feitos na hora).</summary>
+    decimal? CustoTotal,
     DateTime CriadoEm);

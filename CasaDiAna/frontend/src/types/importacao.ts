@@ -45,6 +45,8 @@ export interface ConfirmarImportacaoInput {
   dataVenda: string
   vinculos: VinculoLinha[]
   linhasRemovidas: string[]
+  /** Confirmação explícita para somar vendas a uma data que já tem importação. */
+  permitirDataJaImportada: boolean
 }
 
 export interface ResultadoImportacao {
@@ -53,4 +55,8 @@ export interface ResultadoImportacao {
   totalNaoEncontradas: number
   totalTaxaServico: number
   totalEntregas: number
+  /** Vendas de produtos feitos na hora que baixaram os insumos da ficha. */
+  totalVendasComBaixaInsumos: number
+  /** Produtos feitos na hora sem ficha: vendidos sem baixa de insumos. */
+  produtosSemFicha: string[]
 }

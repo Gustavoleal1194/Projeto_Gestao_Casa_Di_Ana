@@ -16,7 +16,7 @@ public class ListarProdutosQueryHandler
     {
         var lista = await _produtos.ListarAsync(request.ApenasAtivos, cancellationToken);
         return lista
-            .Select(p => new ProdutoResumoDto(p.Id, p.Nome, p.Categoria?.Nome, p.PrecoVenda, p.Ativo))
+            .Select(p => new ProdutoResumoDto(p.Id, p.Nome, p.Categoria?.Nome, p.PrecoVenda, p.Ativo, p.Tipo))
             .ToList()
             .AsReadOnly();
     }

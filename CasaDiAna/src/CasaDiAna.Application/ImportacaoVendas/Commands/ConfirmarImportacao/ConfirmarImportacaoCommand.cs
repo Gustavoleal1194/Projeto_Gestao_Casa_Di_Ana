@@ -12,5 +12,10 @@ public record ConfirmarImportacaoCommand(
     string NomeArquivo,
     DateTime DataVenda,
     IReadOnlyList<VinculoLinhaDto> Vinculos,
-    IReadOnlyList<string> LinhasRemovidas
+    IReadOnlyList<string> LinhasRemovidas,
+    /// <summary>
+    /// Confirmação explícita para importar uma data de venda que já tem importação:
+    /// as vendas (e a baixa de insumos) seriam somadas às existentes.
+    /// </summary>
+    bool PermitirDataJaImportada = false
 ) : IRequest<ResultadoImportacaoDto>;

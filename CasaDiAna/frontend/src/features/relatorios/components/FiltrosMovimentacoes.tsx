@@ -8,6 +8,7 @@ const TIPOS = [
   { valor: 'AjustePositivo', rotulo: 'Ajuste Positivo' },
   { valor: 'AjusteNegativo', rotulo: 'Ajuste Negativo' },
   { valor: 'SaidaProducao', rotulo: 'Saída — Produção' },
+  { valor: 'SaidaVenda', rotulo: 'Saída — Venda' },
 ]
 
 interface Props {

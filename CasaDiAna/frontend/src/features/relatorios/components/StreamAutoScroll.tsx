@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react'
 import { ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/outline'
 import type { MovimentacaoRelatorio } from '@/types/estoque'
+import { ehAjuste, ehConsumo, ehEntrada } from '../utils/tipoMovimentacao'
 
 type Tab = 'todas' | 'entradas' | 'saidas' | 'ajustes'
 
@@ -25,6 +26,7 @@ const ROW_VIS: Record<string, RowVis> = {
   AjustePositivo: { Icon: ArrowUpIcon,   iconColor: '#D4960C', iconBg: 'rgba(212,150,12,.14)',  sinal: '+', valorColor: '#D4960C', badgeLabel: 'Ajuste +'       },
   AjusteNegativo: { Icon: ArrowDownIcon, iconColor: '#D4960C', iconBg: 'rgba(212,150,12,.14)',  sinal: '-', valorColor: '#F87171', badgeLabel: 'Ajuste −'       },
   SaidaProducao:  { Icon: ArrowDownIcon, iconColor: '#F87171', iconBg: 'rgba(248,113,113,.14)', sinal: '-', valorColor: '#F87171', badgeLabel: 'Saída Produção' },
+  SaidaVenda:     { Icon: ArrowDownIcon, iconColor: '#F87171', iconBg: 'rgba(248,113,113,.14)', sinal: '-', valorColor: '#F87171', badgeLabel: 'Saída Venda'    },
 }
 
 const FALLBACK_ROW: RowVis = {
@@ -104,9 +106,9 @@ export function StreamAutoScroll({ movimentacoes }: { movimentacoes: Movimentaca
   const filtered = useMemo(() => {
     const sorted = [...movimentacoes].sort((a, b) => b.criadoEm.localeCompare(a.criadoEm))
     if (tab === 'todas')    return sorted
-    if (tab === 'entradas') return sorted.filter(m => m.tipo === 'Entrada')
-    if (tab === 'saidas')   return sorted.filter(m => m.tipo === 'SaidaProducao')
-    return sorted.filter(m => m.tipo === 'AjustePositivo' || m.tipo === 'AjusteNegativo')
+    if (tab === 'entradas') return sorted.filter(m => ehEntrada(m.tipo))
+    if (tab === 'saidas')   return sorted.filter(m => ehConsumo(m.tipo))
+    return sorted.filter(m => ehAjuste(m.tipo))
   }, [movimentacoes, tab])
 
   const shouldScroll = filtered.length > 5

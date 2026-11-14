@@ -21,25 +21,28 @@ public class ProducaoDiaria
         Guid produtoId,
         DateTime data,
         decimal quantidadeProduzida,
-        decimal custoTotal,
         Guid criadoPor,
         string? observacoes = null)
     {
         if (quantidadeProduzida <= 0)
             throw new DomainException("Quantidade produzida deve ser maior que zero.");
-        if (custoTotal < 0)
-            throw new DomainException("Custo total não pode ser negativo.");
-
         return new ProducaoDiaria
         {
             Id = Guid.NewGuid(),
             ProdutoId = produtoId,
             Data = data,
             QuantidadeProduzida = quantidadeProduzida,
-            CustoTotal = custoTotal,
             Observacoes = observacoes,
             CriadoEm = DateTime.UtcNow,
             CriadoPor = criadoPor
         };
+    }
+
+    /// <summary>Custo dos insumos efetivamente baixados para esta produção.</summary>
+    public void RegistrarCustoInsumos(decimal custoTotal)
+    {
+        if (custoTotal < 0)
+            throw new DomainException("Custo total não pode ser negativo.");
+        CustoTotal = custoTotal;
     }
 }

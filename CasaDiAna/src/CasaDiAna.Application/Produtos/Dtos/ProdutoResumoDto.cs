@@ -1,3 +1,5 @@
+using CasaDiAna.Domain.Enums;
+
 namespace CasaDiAna.Application.Produtos.Dtos;
 
 public record ProdutoResumoDto(
@@ -5,4 +7,5 @@ public record ProdutoResumoDto(
     string Nome,
     string? CategoriaNome,
     decimal PrecoVenda,
-    bool Ativo);
+    bool Ativo,
+    TipoProduto Tipo);

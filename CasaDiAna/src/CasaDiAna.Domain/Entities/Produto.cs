@@ -68,10 +68,10 @@ public class Produto
         Descricao = descricao;
         PrecoVenda = precoVenda;
         Tipo = tipo;
-        if (tipo == TipoProduto.Produzido)
-            CustoUnitario = null;
-        else if (tipo == TipoProduto.Revenda)
+        if (tipo == TipoProduto.Revenda)
             _itensFicha.Clear();
+        else
+            CustoUnitario = null;
         AtualizadoEm = DateTime.UtcNow;
         AtualizadoPor = atualizadoPor;
     }
@@ -115,6 +115,27 @@ public class Produto
             _itensFicha.Add(ItemFichaTecnica.Criar(Id, ingredienteId, quantidade));
 
         AtualizadoEm = DateTime.UtcNow;
+    }
+
+    public bool TemFichaTecnica => _itensFicha.Count > 0;
+
+    /// <summary>Venda deste produto consome os insumos da ficha (não há produção).</summary>
+    public bool BaixaInsumosNaVenda => Tipo == TipoProduto.FeitoNaHora;
+
+    public void GarantirPodeSerProduzido()
+    {
+        if (!Ativo)
+            throw new DomainException("Produto está inativo.");
+        if (Tipo == TipoProduto.Revenda)
+            throw new DomainException(
+                $"O produto '{Nome}' é uma bebida pronta (revenda) e não é produzido.");
+        if (Tipo == TipoProduto.FeitoNaHora)
+            throw new DomainException(
+                $"O produto '{Nome}' é feito na hora: os insumos são baixados automaticamente na venda.");
+        if (!TemFichaTecnica)
+            throw new DomainException(
+                $"O produto '{Nome}' não possui ficha técnica cadastrada. " +
+                "Cadastre a ficha técnica antes de registrar a produção.");
     }
 
     public decimal CalcularCustoFicha()

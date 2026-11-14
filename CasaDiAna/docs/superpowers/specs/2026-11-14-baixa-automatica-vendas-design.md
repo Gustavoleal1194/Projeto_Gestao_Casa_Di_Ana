@@ -1,7 +1,7 @@
 # Baixa automática de insumos pela venda — Design
 
 **Data:** 2026-11-14
-**Status:** Proposta — aguardando revisão do Gustavo
+**Status:** Fase 1 implementada (2026-11-14) — decisões D1–D4 aprovadas conforme recomendação
 **Módulos afetados:** Produtos, Produção Diária, Vendas Diárias, Importação de Vendas, Perdas, Relatórios, Dashboard
 
 ---

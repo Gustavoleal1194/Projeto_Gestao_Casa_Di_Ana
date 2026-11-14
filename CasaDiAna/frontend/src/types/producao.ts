@@ -16,7 +16,8 @@ export interface AtualizarCategoriaProdutoInput {
 }
 
 // ─── Produto ──────────────────────────────────────────────────────────────────
-export type TipoProduto = 'produzido' | 'revenda'
+/** Modo de controle de estoque: onde os insumos da ficha são baixados. */
+export type TipoProduto = 'produzido' | 'feitoNaHora' | 'revenda'
 
 export interface ProdutoResumo {
   id: string
@@ -24,6 +25,7 @@ export interface ProdutoResumo {
   categoriaNome: string | null
   precoVenda: number
   ativo: boolean
+  tipo: TipoProduto
 }
 
 export interface Produto {

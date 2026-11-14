@@ -1,4 +1,5 @@
 import type { MovimentacaoRelatorio } from '@/types/estoque'
+import { somaAoEstoque, subtraiDoEstoque } from '../utils/tipoMovimentacao'
 
 interface HourBucket { hour: number; entradas: number; saidas: number }
 
@@ -7,7 +8,7 @@ function agruparPorHora(movs: MovimentacaoRelatorio[]): HourBucket[] {
   for (const m of movs) {
     const h = new Date(m.criadoEm).getHours()
     if (!map[h]) map[h] = { hour: h, entradas: 0, saidas: 0 }
-    if (m.tipo === 'Entrada' || m.tipo === 'AjustePositivo') map[h].entradas++
+    if (somaAoEstoque(m.tipo)) map[h].entradas++
     else map[h].saidas++
   }
   return Object.values(map).sort((a, b) => a.hour - b.hour).slice(-12)
@@ -15,8 +16,8 @@ function agruparPorHora(movs: MovimentacaoRelatorio[]): HourBucket[] {
 
 export function ChartMovimentacoes({ movimentacoes }: { movimentacoes: MovimentacaoRelatorio[] }) {
   const dados = agruparPorHora(movimentacoes)
-  const totalEntradas = movimentacoes.filter(m => m.tipo === 'Entrada' || m.tipo === 'AjustePositivo').length
-  const totalSaidas   = movimentacoes.filter(m => m.tipo === 'SaidaProducao' || m.tipo === 'AjusteNegativo').length
+  const totalEntradas = movimentacoes.filter(m => somaAoEstoque(m.tipo)).length
+  const totalSaidas   = movimentacoes.filter(m => subtraiDoEstoque(m.tipo)).length
 
   const W = 600, H = 140, PAD = 10
   const barW   = dados.length > 0 ? (W - PAD * 2) / dados.length : 40

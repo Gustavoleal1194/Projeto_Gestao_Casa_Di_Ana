@@ -12,9 +12,11 @@ interface Props extends SelectHTMLAttributes<HTMLSelectElement> {
   obrigatorio?: boolean
   opcoes: Opcao[]
   placeholderOpcao?: string
+  /** Texto de apoio exibido abaixo do campo quando não há erro. */
+  dica?: string
 }
 
-export function SelectCampo({ label, erro, obrigatorio, opcoes, placeholderOpcao, className, id, ...props }: Props) {
+export function SelectCampo({ label, erro, obrigatorio, opcoes, placeholderOpcao, dica, className, id, ...props }: Props) {
   const selectId = id ?? `select-${label.toLowerCase().replace(/\s+/g, '-')}`
   return (
     <div className="flex flex-col gap-1">
@@ -43,10 +45,12 @@ export function SelectCampo({ label, erro, obrigatorio, opcoes, placeholderOpcao
           <option key={o.valor} value={o.valor}>{o.rotulo}</option>
         ))}
       </select>
-      {erro && (
+      {erro ? (
         <p className="text-xs" style={{ color: 'var(--ada-error-text)' }} role="alert">
           {erro}
         </p>
+      ) : dica && (
+        <p className="text-xs" style={{ color: 'var(--ada-muted)' }}>{dica}</p>
       )}
     </div>
   )

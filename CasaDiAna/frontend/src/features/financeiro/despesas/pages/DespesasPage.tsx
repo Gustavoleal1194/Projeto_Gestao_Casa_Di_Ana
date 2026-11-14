@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { PlusIcon, BanknotesIcon, Cog6ToothIcon } from '@heroicons/react/24/outline'
-import { Link } from 'react-router-dom'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { KpiCard } from '@/components/ui/KpiCard'
 import { SkeletonTable } from '@/components/ui/SkeletonTable'
@@ -10,6 +9,9 @@ import { useDespesas } from '../hooks/useDespesas'
 import { TabelaDespesas } from '../components/TabelaDespesas'
 import { ModalDespesa } from '../components/ModalDespesa'
 import { ModalGerenciarCategorias } from '../components/ModalGerenciarCategorias'
+import { BotaoCopiarFixas } from '../components/BotaoCopiarFixas'
+import { CardComprasMes } from '../components/CardComprasMes'
+import { Toast } from '@/components/ui/Toast'
 import { despesasService, type Despesa, type DespesaInput } from '../services/despesasService'
 import { competenciaInicial, formatarBRL, TIPO_DESPESA_LABELS, type TipoDespesa } from '../../shared/competencia'
 
@@ -22,6 +24,7 @@ export function DespesasPage() {
   const [removendo, setRemovendo] = useState<Despesa | null>(null)
   const [removendoLoading, setRemovendoLoading] = useState(false)
   const [gerenciar, setGerenciar] = useState(false)
+  const [toast, setToast] = useState<{ tipo: 'sucesso' | 'aviso' | 'erro'; mensagem: string } | null>(null)
 
   const salvar = async (input: DespesaInput) => {
     if (editando) await despesasService.atualizar(editando.id, input)
@@ -54,7 +57,8 @@ export function DespesasPage() {
             ))}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {tipo === 'fixa' && <BotaoCopiarFixas mes={mes} onConcluido={r => { setToast(r); recarregar() }} />}
           <button type="button" onClick={() => setGerenciar(true)} className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium border" style={{ background: 'var(--ada-bg)', borderColor: 'var(--ada-border)', color: 'var(--ada-body)' }}>
             <Cog6ToothIcon className="h-4 w-4" /> Gerenciar categorias
           </button>
@@ -74,38 +78,16 @@ export function DespesasPage() {
         {loading ? <SkeletonTable colunas={5} />
           : erro ? <p className="text-sm" style={{ color: 'var(--ada-error-text)' }}>{erro}</p>
           : !dados || dados.itens.length === 0
-            ? <EmptyState icon={<BanknotesIcon />} titulo={`Nenhuma despesa ${TIPO_DESPESA_LABELS[tipo].toLowerCase()} nesta competência`} descricao="Adicione a primeira despesa deste tipo e mês." />
+            ? <EmptyState icon={<BanknotesIcon />} titulo={`Nenhuma despesa ${TIPO_DESPESA_LABELS[tipo].toLowerCase()} nesta competência`} descricao={tipo === 'fixa' ? 'Use "Copiar do mês anterior" para repetir as fixas do último mês, ou adicione uma nova.' : 'Adicione a primeira despesa deste tipo e mês.'} />
             : <TabelaDespesas itens={dados.itens} onEditar={d => { setEditando(d); setModalAberto(true) }} onRemover={setRemovendo} />}
       </div>
 
-      <div className="rounded-xl border p-6 space-y-3" style={{ background: 'var(--ada-surface)', borderColor: 'var(--ada-border)' }}>
-        <div className="flex items-center justify-between">
-          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--ada-muted)' }}>Compras do mês (notas)</p>
-          <Link to="/entradas" className="text-xs" style={{ color: 'var(--sb-accent)', textDecoration: 'underline' }}>Ver entradas</Link>
-        </div>
-        {!compras || compras.itens.length === 0 ? (
-          <p className="text-sm" style={{ color: 'var(--ada-muted)' }}>Nenhuma compra registrada neste mês.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <tbody>
-                {compras.itens.map(c => (
-                  <tr key={c.entradaId} style={{ borderTop: '1px solid var(--ada-border)' }}>
-                    <td className="py-2 pr-4" style={{ color: 'var(--ada-body)' }}>{c.fornecedor}</td>
-                    <td className="py-2 pr-4" style={{ color: 'var(--ada-muted)' }}>{c.numeroNotaFiscal ?? '—'}</td>
-                    <td className="py-2 pr-4" style={{ color: 'var(--ada-muted)' }}>{new Date(c.data).toLocaleDateString('pt-BR')}</td>
-                    <td className="py-2 text-right tabular-nums" style={{ color: 'var(--ada-body)' }}>{formatarBRL(c.total)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      <CardComprasMes compras={compras} />
 
       {modalAberto && <ModalDespesa mes={mes} tipo={tipo} despesa={editando} onFechar={() => setModalAberto(false)} onSalvar={salvar} />}
       {removendo && <ModalDesativar nome={removendo.descricao ?? removendo.categoriaNome} entidade="despesa" loading={removendoLoading} onConfirmar={confirmarRemocao} onCancelar={() => setRemovendo(null)} />}
       {gerenciar && <ModalGerenciarCategorias tipo={tipo} onFechar={() => setGerenciar(false)} onMudou={recarregar} />}
+      {toast && <Toast tipo={toast.tipo} mensagem={toast.mensagem} onFechar={() => setToast(null)} />}
     </div>
   )
 }

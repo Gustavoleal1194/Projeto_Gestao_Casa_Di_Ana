@@ -42,6 +42,13 @@ export interface CompraNota {
   total: number
 }
 
+export interface ReplicacaoDespesas {
+  competenciaOrigem: string
+  competenciaDestino: string
+  copiadas: number
+  jaExistentes: number
+}
+
 export interface ComprasMes { competencia: string; totalCompras: number; itens: CompraNota[] }
 
 export const despesasService = {
@@ -56,6 +63,10 @@ export const despesasService = {
   },
   atualizar: async (id: string, input: DespesaInput): Promise<Despesa> => {
     const resp = await api.put<ApiResponse<Despesa>>(`/despesas/${id}`, input)
+    return resp.data.dados
+  },
+  replicarFixas: async (competenciaDestino: string): Promise<ReplicacaoDespesas> => {
+    const resp = await api.post<ApiResponse<ReplicacaoDespesas>>('/despesas/replicar-fixas', { competenciaDestino })
     return resp.data.dados
   },
   cancelar: async (id: string): Promise<void> => { await api.delete(`/despesas/${id}`) },

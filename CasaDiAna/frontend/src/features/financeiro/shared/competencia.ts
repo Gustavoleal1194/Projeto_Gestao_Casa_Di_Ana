@@ -11,6 +11,12 @@ export function mesParaCompetencia(mes: string): string {
   return `${mes}-01`
 }
 
+/** "2026-11" → "outubro de 2026" (nome do mês anterior, para mensagens). */
+export function nomeMesAnterior(mes: string): string {
+  const [ano, m] = mes.split('-').map(Number)
+  return new Date(ano, m - 2, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+}
+
 export function formatarBRL(valor: number): string {
   return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }

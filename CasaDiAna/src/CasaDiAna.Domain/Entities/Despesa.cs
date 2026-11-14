@@ -48,6 +48,23 @@ public class Despesa
         };
     }
 
+    /// <summary>
+    /// Repete esta despesa em outra competência (mesma categoria, descrição, valor e
+    /// observação). O dia do lançamento é mantido, limitado ao último dia do mês destino.
+    /// </summary>
+    public Despesa CopiarPara(DateTime competencia, Guid criadoPor)
+    {
+        var destino = NormalizarCompetencia(competencia);
+        var dia = Math.Min(DataLancamento.Day, DateTime.DaysInMonth(destino.Year, destino.Month));
+        var dataLancamento = new DateTime(destino.Year, destino.Month, dia, 0, 0, 0, DateTimeKind.Utc);
+        return Criar(destino, CategoriaDespesaId, Descricao, Valor, Observacao, dataLancamento, criadoPor);
+    }
+
+    /// <summary>Mesma despesa recorrente: mesma categoria e mesma descrição (sem diferenciar caixa).</summary>
+    public bool EhMesmoLancamentoQue(Despesa outra) =>
+        CategoriaDespesaId == outra.CategoriaDespesaId &&
+        string.Equals(Descricao, outra.Descricao, StringComparison.OrdinalIgnoreCase);
+
     public void Atualizar(
         DateTime competencia, Guid categoriaDespesaId,
         string? descricao, decimal valor, string? observacao, DateTime dataLancamento, Guid atualizadoPor)

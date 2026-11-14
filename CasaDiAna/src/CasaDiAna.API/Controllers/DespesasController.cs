@@ -2,6 +2,7 @@ using CasaDiAna.Application.Common;
 using CasaDiAna.Application.Despesas.Commands.AtualizarDespesa;
 using CasaDiAna.Application.Despesas.Commands.CancelarDespesa;
 using CasaDiAna.Application.Despesas.Commands.CriarDespesa;
+using CasaDiAna.Application.Despesas.Commands.ReplicarDespesasFixas;
 using CasaDiAna.Application.Despesas.Dtos;
 using CasaDiAna.Application.Despesas.Queries.ListarDespesas;
 using CasaDiAna.Application.Despesas.Queries.ObterComprasMes;
@@ -45,6 +46,16 @@ public class DespesasController : ControllerBase
     {
         var resultado = await _mediator.Send(command, ct);
         return StatusCode(StatusCodes.Status201Created, ApiResponse<DespesaDto>.Ok(resultado));
+    }
+
+    [HttpPost("replicar-fixas")]
+    [ProducesResponseType(typeof(ApiResponse<ReplicacaoDespesasDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ReplicarFixas(
+        [FromBody] ReplicarDespesasFixasCommand command, CancellationToken ct)
+    {
+        var resultado = await _mediator.Send(command, ct);
+        return Ok(ApiResponse<ReplicacaoDespesasDto>.Ok(resultado));
     }
 
     [HttpPut("{id:guid}")]

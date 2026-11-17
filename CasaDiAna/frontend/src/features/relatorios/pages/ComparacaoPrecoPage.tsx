@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ScaleIcon } from '@heroicons/react/24/outline'
 import { relatoriosService } from '../services/relatoriosService'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -18,13 +18,12 @@ function primeiroDiaMes(): string {
 export function ComparacaoPrecoPage() {
   const [dados, setDados] = useState<ComparacaoPreco | null>(null)
   const [consulta, setConsulta] = useState(0)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
   const [de, setDe] = useState(primeiroDiaMes)
   const [ate, setAte] = useState(hoje)
 
-  const handleFiltrar = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const carregar = async () => {
     setLoading(true)
     setErro(null)
     try {
@@ -36,6 +35,11 @@ export function ComparacaoPrecoPage() {
       setLoading(false)
     }
   }
+
+  // Abre já com o mês corrente, como os demais relatórios do módulo
+  useEffect(() => { carregar() }, [])
+
+  const handleFiltrar = (e: React.FormEvent) => { e.preventDefault(); carregar() }
 
   return (
     <div className="ada-page">

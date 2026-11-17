@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import { relatoriosService } from '../services/relatoriosService'
 import { gerarPdfEntradas } from '@/lib/pdf'
@@ -23,7 +23,7 @@ function formatarMoeda(valor: number): string {
 
 export function EntradasRelatorioPage() {
   const [resumo, setResumo] = useState<EntradaRelatorioResumo | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
   const [de, setDe] = useState(primeiroDiaMes)
   const [ate, setAte] = useState(hoje)
@@ -40,6 +40,9 @@ export function EntradasRelatorioPage() {
       setLoading(false)
     }
   }
+
+  // Abre já com o mês corrente, como os demais relatórios do módulo
+  useEffect(() => { carregar() }, [])
 
   const handleFiltrar = (e: React.FormEvent) => { e.preventDefault(); carregar() }
 

@@ -54,7 +54,7 @@ const grupos: NavGroup[] = [
     titulo: 'Cadastros',
     itens: [
       { label: 'Ingredientes',  href: '/estoque/ingredientes', icon: BeakerIcon,  iconColor: '#60A5FA' },
-      { label: 'Categorias de Ingredientes', href: '/estoque/categorias', icon: TagIcon, iconColor: '#60A5FA' },
+      { label: 'Categorias de Ingrediente', href: '/estoque/categorias', icon: TagIcon, iconColor: '#60A5FA' },
       { label: 'Utensílios',          href: '/estoque/utensilios',          icon: WrenchScrewdriverIcon, iconColor: '#60A5FA' },
       { label: 'Categorias de Utensílio', href: '/estoque/categorias-utensilio', icon: TagIcon,          iconColor: '#60A5FA' },
       { label: 'Fornecedores',  href: '/fornecedores',         icon: TruckIcon,   iconColor: '#60A5FA' },

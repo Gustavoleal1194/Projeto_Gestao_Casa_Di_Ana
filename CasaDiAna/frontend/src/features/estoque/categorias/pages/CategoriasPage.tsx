@@ -75,8 +75,8 @@ export function CategoriasPage() {
     <div className="ada-page">
 
       <PageHeader
-        titulo="Categorias de Ingredientes"
-        breadcrumb={['Cadastros', 'Categorias de Ingredientes']}
+        titulo="Categorias de Ingrediente"
+        breadcrumb={['Cadastros', 'Categorias de Ingrediente']}
         subtitulo={loading ? 'Carregando…' : `${categorias.length} categoria${categorias.length !== 1 ? 's' : ''} cadastrada${categorias.length !== 1 ? 's' : ''}`}
         actions={podeEditar ? (
           <button type="button" onClick={abrirCriar} className="btn-primary">

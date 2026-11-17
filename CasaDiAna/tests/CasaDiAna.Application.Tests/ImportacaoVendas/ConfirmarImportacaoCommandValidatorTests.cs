@@ -1,18 +1,20 @@
 using CasaDiAna.Application.ImportacaoVendas.Commands.ConfirmarImportacao;
 using CasaDiAna.Application.ImportacaoVendas.Dtos;
+using CasaDiAna.Application.Tests.Common;
 using FluentAssertions;
 
 namespace CasaDiAna.Application.Tests.ImportacaoVendas;
 
 public class ConfirmarImportacaoCommandValidatorTests
 {
-    private readonly ConfirmarImportacaoCommandValidator _validator = new();
+    private static readonly DateTime Hoje = RelogioFixo.HojeNaLoja;
+    private readonly ConfirmarImportacaoCommandValidator _validator = new(RelogioFixo.ANoite());
 
     private static ConfirmarImportacaoCommand Command(
         byte[]? csv = null, string nome = "vendas.csv", DateTime? data = null,
         IReadOnlyList<VinculoLinhaDto>? vinculos = null,
         IReadOnlyList<string>? removidas = null) =>
-        new(csv ?? [1], nome, data ?? DateTime.Today, vinculos ?? [], removidas ?? []);
+        new(csv ?? [1], nome, data ?? Hoje, vinculos ?? [], removidas ?? []);
 
     [Fact]
     public void ComandoMinimo_Valido() =>
@@ -28,7 +30,15 @@ public class ConfirmarImportacaoCommandValidatorTests
 
     [Fact]
     public void DataFutura_Invalido() =>
-        _validator.Validate(Command(data: DateTime.Today.AddDays(3))).IsValid.Should().BeFalse();
+        _validator.Validate(Command(data: Hoje.AddDays(3))).IsValid.Should().BeFalse();
+
+    [Fact]
+    public void Amanha_Invalido() =>
+        _validator.Validate(Command(data: Hoje.AddDays(1))).IsValid.Should().BeFalse();
+
+    [Fact]
+    public void Hoje_aNoite_JaAmanhaEmUtc_Valido() =>
+        _validator.Validate(Command(data: Hoje)).IsValid.Should().BeTrue();
 
     [Fact]
     public void VinculoSemNome_Invalido() =>

@@ -1,18 +1,20 @@
 using CasaDiAna.Application.Entradas.Commands.RegistrarEntrada;
 using CasaDiAna.Application.Entradas.Dtos;
+using CasaDiAna.Application.Tests.Common;
 using FluentAssertions;
 
 namespace CasaDiAna.Application.Tests.Entradas;
 
 public class RegistrarEntradaValidatorBoletoTests
 {
-    private readonly RegistrarEntradaCommandValidator _sut = new();
+    private static readonly DateTime Hoje = RelogioFixo.HojeNaLoja;
+    private readonly RegistrarEntradaCommandValidator _sut = new(RelogioFixo.ANoite());
 
     private static RegistrarEntradaCommand ComandoValido(
         IReadOnlyList<DateTime>? datasVencimentoBoleto = null) =>
         new(
             FornecedorId: Guid.NewGuid(),
-            DataEntrada: DateTime.UtcNow,
+            DataEntrada: Hoje,
             Itens: new List<ItemEntradaInputDto>
             {
                 new(Guid.NewGuid(), 1m, 10m)
@@ -31,7 +33,7 @@ public class RegistrarEntradaValidatorBoletoTests
     public void Deve_falhar_quando_DataDeBoletoNoPassado()
     {
         var result = _sut.Validate(ComandoValido(
-            datasVencimentoBoleto: new List<DateTime> { DateTime.UtcNow.AddDays(-1) }));
+            datasVencimentoBoleto: new List<DateTime> { Hoje.AddDays(-1) }));
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.ErrorMessage.Contains("hoje ou no futuro"));
@@ -41,7 +43,7 @@ public class RegistrarEntradaValidatorBoletoTests
     public void Deve_passar_quando_UmaDataFutura()
     {
         var result = _sut.Validate(ComandoValido(
-            datasVencimentoBoleto: new List<DateTime> { DateTime.UtcNow.AddDays(10) }));
+            datasVencimentoBoleto: new List<DateTime> { Hoje.AddDays(10) }));
 
         result.IsValid.Should().BeTrue();
     }
@@ -50,7 +52,17 @@ public class RegistrarEntradaValidatorBoletoTests
     public void Deve_passar_quando_DataDeHoje()
     {
         var result = _sut.Validate(ComandoValido(
-            datasVencimentoBoleto: new List<DateTime> { DateTime.UtcNow.Date }));
+            datasVencimentoBoleto: new List<DateTime> { Hoje }));
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Deve_passar_quando_DataDeHoje_aNoite_JaAmanhaEmUtc()
+    {
+        // 22h30 em Brasília = 01h30 do dia seguinte em UTC: boleto vencendo hoje é válido
+        var result = _sut.Validate(ComandoValido(
+            datasVencimentoBoleto: new List<DateTime> { new(2026, 11, 30) }));
 
         result.IsValid.Should().BeTrue();
     }
@@ -61,8 +73,8 @@ public class RegistrarEntradaValidatorBoletoTests
         var result = _sut.Validate(ComandoValido(
             datasVencimentoBoleto: new List<DateTime>
             {
-                DateTime.UtcNow.AddDays(10),
-                DateTime.UtcNow.AddDays(40),
+                Hoje.AddDays(10),
+                Hoje.AddDays(40),
             }));
 
         result.IsValid.Should().BeTrue();
@@ -74,8 +86,8 @@ public class RegistrarEntradaValidatorBoletoTests
         var result = _sut.Validate(ComandoValido(
             datasVencimentoBoleto: new List<DateTime>
             {
-                DateTime.UtcNow.AddDays(10),
-                DateTime.UtcNow.AddDays(-2),
+                Hoje.AddDays(10),
+                Hoje.AddDays(-2),
             }));
 
         result.IsValid.Should().BeFalse();
@@ -87,7 +99,7 @@ public class RegistrarEntradaValidatorBoletoTests
     {
         var comando = new RegistrarEntradaCommand(
             FornecedorId: Guid.NewGuid(),
-            DataEntrada: DateTime.UtcNow,
+            DataEntrada: Hoje,
             Itens: null!,
             RecebidoPor: "João",
             ItensUtensilio: new List<ItemEntradaUtensilioInputDto> { new(Guid.NewGuid(), 1m, 10m) }.AsReadOnly());
@@ -102,7 +114,7 @@ public class RegistrarEntradaValidatorBoletoTests
     {
         var comando = new RegistrarEntradaCommand(
             FornecedorId: Guid.NewGuid(),
-            DataEntrada: DateTime.UtcNow,
+            DataEntrada: Hoje,
             Itens: null!,
             RecebidoPor: "João");
 

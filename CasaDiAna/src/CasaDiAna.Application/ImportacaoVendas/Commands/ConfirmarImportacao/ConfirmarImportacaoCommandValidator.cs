@@ -1,3 +1,4 @@
+using CasaDiAna.Domain.Common;
 using FluentValidation;
 
 namespace CasaDiAna.Application.ImportacaoVendas.Commands.ConfirmarImportacao;
@@ -5,7 +6,7 @@ namespace CasaDiAna.Application.ImportacaoVendas.Commands.ConfirmarImportacao;
 public class ConfirmarImportacaoCommandValidator
     : AbstractValidator<ConfirmarImportacaoCommand>
 {
-    public ConfirmarImportacaoCommandValidator()
+    public ConfirmarImportacaoCommandValidator(TimeProvider relogio)
     {
         RuleFor(x => x.CsvBytes)
             .NotEmpty().WithMessage("Arquivo CSV é obrigatório.");
@@ -15,7 +16,7 @@ public class ConfirmarImportacaoCommandValidator
 
         RuleFor(x => x.DataVenda)
             .NotEmpty().WithMessage("Data de venda é obrigatória.")
-            .LessThanOrEqualTo(DateTime.Today.AddDays(1))
+            .Must(d => d.Date <= relogio.Hoje())
             .WithMessage("Data de venda não pode ser no futuro.");
 
         RuleForEach(x => x.LinhasRemovidas)

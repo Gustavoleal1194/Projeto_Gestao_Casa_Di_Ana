@@ -29,6 +29,8 @@ public static class DependencyInjection
                     typeof(AppDbContext).Assembly.FullName))
         );
 
+        services.AddSingleton(TimeProvider.System);
+
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         services.AddScoped<ICategoriaIngredienteRepository, CategoriaIngredienteRepository>();
         services.AddScoped<IUnidadeMedidaRepository, UnidadeMedidaRepository>();

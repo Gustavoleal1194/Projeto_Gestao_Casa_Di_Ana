@@ -2,6 +2,7 @@ using CasaDiAna.Application.Common;
 using CasaDiAna.Application.Entradas.Commands.RegistrarEntrada;
 using CasaDiAna.Application.Entradas.Common;
 using CasaDiAna.Application.Entradas.Dtos;
+using CasaDiAna.Domain.Common;
 using CasaDiAna.Domain.Entities;
 using CasaDiAna.Domain.Exceptions;
 using CasaDiAna.Domain.Interfaces;
@@ -16,19 +17,22 @@ public class EditarEntradaCommandHandler : IRequestHandler<EditarEntradaCommand,
     private readonly IIngredienteRepository _ingredientes;
     private readonly IUtensilioRepository _utensilios;
     private readonly ICurrentUserService _currentUser;
+    private readonly TimeProvider _relogio;
 
     public EditarEntradaCommandHandler(
         IEntradaMercadoriaRepository entradas,
         IFornecedorRepository fornecedores,
         IIngredienteRepository ingredientes,
         IUtensilioRepository utensilios,
-        ICurrentUserService currentUser)
+        ICurrentUserService currentUser,
+        TimeProvider relogio)
     {
         _entradas = entradas;
         _fornecedores = fornecedores;
         _ingredientes = ingredientes;
         _utensilios = utensilios;
         _currentUser = currentUser;
+        _relogio = relogio;
     }
 
     public async Task<EntradaMercadoriaDto> Handle(
@@ -54,7 +58,7 @@ public class EditarEntradaCommandHandler : IRequestHandler<EditarEntradaCommand,
             usuarioId);
 
         var boletos = entrada.SubstituirBoletos(
-            request.DatasVencimentoBoleto ?? Array.Empty<DateTime>(), DateTime.UtcNow.Date, usuarioId);
+            request.DatasVencimentoBoleto ?? Array.Empty<DateTime>(), _relogio.Hoje(), usuarioId);
         // Boletos ficam numa coleção readonly com chaves geradas no cliente: precisam entrar/sair
         // pelo repositório. Com Update no agregado, os novos seriam marcados como Modified e o
         // SaveChanges falharia com DbUpdateConcurrencyException.

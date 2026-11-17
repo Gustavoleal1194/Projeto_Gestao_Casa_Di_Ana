@@ -1,5 +1,6 @@
 using CasaDiAna.Application.Common;
 using CasaDiAna.Application.Entradas.Commands.EditarEntrada;
+using CasaDiAna.Application.Tests.Common;
 using CasaDiAna.Domain.Entities;
 using CasaDiAna.Domain.Exceptions;
 using CasaDiAna.Domain.Interfaces;
@@ -17,6 +18,7 @@ public class EditarEntradaCommandHandlerTests
     private readonly Mock<ICurrentUserService> _currentUser = new();
     private readonly EditarEntradaCommandHandler _handler;
 
+    private static readonly DateTime Hoje = RelogioFixo.HojeNaLoja;
     private readonly Guid _usuarioId = Guid.NewGuid();
     private readonly Guid _fornecedorId = Guid.NewGuid();
     private readonly Guid _ingredienteId = Guid.NewGuid();
@@ -45,12 +47,12 @@ public class EditarEntradaCommandHandlerTests
         _entradas.Setup(r => r.SalvarAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
         _handler = new EditarEntradaCommandHandler(
-            _entradas.Object, _fornecedores.Object, _ingredientes.Object, _utensilios.Object, _currentUser.Object);
+            _entradas.Object, _fornecedores.Object, _ingredientes.Object, _utensilios.Object, _currentUser.Object, RelogioFixo.ANoite());
     }
 
     private EntradaMercadoria EntradaSalva(Guid? criadoPor = null)
     {
-        var entrada = EntradaMercadoria.Criar(_fornecedorId, DateTime.UtcNow.Date, criadoPor ?? _usuarioId, "NF-1", "Ana");
+        var entrada = EntradaMercadoria.Criar(_fornecedorId, Hoje, criadoPor ?? _usuarioId, "NF-1", "Ana");
         entrada.AdicionarItem(_ingredienteId, 10m, 5m);
         entrada.AdicionarItemUtensilio(_utensilioId, 4m, 3m);
         _entradas.Setup(r => r.ObterPorIdComItensAsync(entrada.Id, It.IsAny<CancellationToken>())).ReturnsAsync(entrada);
@@ -107,7 +109,7 @@ public class EditarEntradaCommandHandlerTests
         var entrada = EntradaSalva();
         _ingrediente.AtualizarCusto(99m, _usuarioId);
 
-        await _handler.Handle(Comando(entrada) with { DataEntrada = DateTime.UtcNow.Date.AddDays(1) }, CancellationToken.None);
+        await _handler.Handle(Comando(entrada) with { DataEntrada = Hoje.AddDays(1) }, CancellationToken.None);
 
         _ingrediente.CustoUnitario.Should().Be(5m);
     }
@@ -153,7 +155,7 @@ public class EditarEntradaCommandHandlerTests
     public async Task DeveLancar_QuandoEntradaNaoEncontrada()
     {
         var acao = () => _handler.Handle(
-            new EditarEntradaCommand(Guid.NewGuid(), _fornecedorId, DateTime.UtcNow, "Ana"),
+            new EditarEntradaCommand(Guid.NewGuid(), _fornecedorId, Hoje, "Ana"),
             CancellationToken.None);
 
         await acao.Should().ThrowAsync<DomainException>().WithMessage("Entrada não encontrada.");
@@ -186,9 +188,9 @@ public class EditarEntradaCommandHandlerTests
     public async Task DeveManterBoletoVencido_EInserirApenasOsNovosPeloRepositorio()
     {
         var entrada = EntradaSalva();
-        var vencido = DateTime.UtcNow.Date.AddDays(-3);
+        var vencido = Hoje.AddDays(-3);
         entrada.AdicionarBoleto(vencido);
-        var novo = DateTime.UtcNow.Date.AddDays(15);
+        var novo = Hoje.AddDays(15);
 
         await _handler.Handle(
             Comando(entrada) with { DatasVencimentoBoleto = new[] { vencido, novo } },
@@ -205,12 +207,24 @@ public class EditarEntradaCommandHandlerTests
     public async Task DeveRemoverBoletos_QuandoListaVazia()
     {
         var entrada = EntradaSalva();
-        entrada.AdicionarBoleto(DateTime.UtcNow.Date.AddDays(5));
+        entrada.AdicionarBoleto(Hoje.AddDays(5));
 
         await _handler.Handle(Comando(entrada) with { DatasVencimentoBoleto = Array.Empty<DateTime>() }, CancellationToken.None);
 
         _entradas.Verify(r => r.RemoverBoletos(
             It.Is<IEnumerable<BoletoEntrada>>(b => b.Count() == 1)), Times.Once);
         entrada.Boletos.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task DeveAceitarBoletoVencendoHoje_aNoite_JaAmanhaEmUtc()
+    {
+        var entrada = EntradaSalva();
+
+        await _handler.Handle(
+            Comando(entrada) with { DatasVencimentoBoleto = new[] { Hoje } },
+            CancellationToken.None);
+
+        entrada.Boletos.Should().ContainSingle(b => b.DataVencimento == Hoje);
     }
 }

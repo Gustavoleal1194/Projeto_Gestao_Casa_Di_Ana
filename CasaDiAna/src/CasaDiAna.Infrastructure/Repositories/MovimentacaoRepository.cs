@@ -1,3 +1,4 @@
+using CasaDiAna.Domain.Common;
 using CasaDiAna.Domain.Entities;
 using CasaDiAna.Domain.Enums;
 using CasaDiAna.Domain.Interfaces;
@@ -19,10 +20,17 @@ public class MovimentacaoRepository : IMovimentacaoRepository
             .Where(m => m.IngredienteId == ingredienteId)
             .AsQueryable();
 
+        // CriadoEm é instante UTC; de/ate são dias do calendário da loja
         if (de.HasValue)
-            query = query.Where(m => m.CriadoEm >= de.Value);
+        {
+            var inicio = FusoHorarioLoja.InicioDoDiaEmUtc(de.Value);
+            query = query.Where(m => m.CriadoEm >= inicio);
+        }
         if (ate.HasValue)
-            query = query.Where(m => m.CriadoEm <= ate.Value);
+        {
+            var fim = FusoHorarioLoja.InicioDoDiaEmUtc(ate.Value.Date.AddDays(1));
+            query = query.Where(m => m.CriadoEm < fim);
+        }
 
         return await query.OrderByDescending(m => m.CriadoEm).ToListAsync(ct);
     }
@@ -30,9 +38,10 @@ public class MovimentacaoRepository : IMovimentacaoRepository
     public async Task<IReadOnlyList<Movimentacao>> ListarAsync(
         DateTime de, DateTime ate, TipoMovimentacao? tipo = null, CancellationToken ct = default)
     {
-        var ateFimDoDia = ate.Date.AddDays(1);
+        // CriadoEm é instante UTC; de/ate são dias do calendário da loja
+        var (inicio, fim) = FusoHorarioLoja.PeriodoEmUtc(de, ate);
         var query = _db.Movimentacoes
-            .Where(m => m.CriadoEm >= de && m.CriadoEm < ateFimDoDia)
+            .Where(m => m.CriadoEm >= inicio && m.CriadoEm < fim)
             .AsQueryable();
 
         if (tipo.HasValue)

@@ -1,11 +1,12 @@
 using CasaDiAna.Application.Entradas.Common;
+using CasaDiAna.Domain.Common;
 using FluentValidation;
 
 namespace CasaDiAna.Application.Entradas.Commands.RegistrarEntrada;
 
 public class RegistrarEntradaCommandValidator : AbstractValidator<RegistrarEntradaCommand>
 {
-    public RegistrarEntradaCommandValidator()
+    public RegistrarEntradaCommandValidator(TimeProvider relogio)
     {
         Include(new CabecalhoEntradaValidator());
 
@@ -36,7 +37,7 @@ public class RegistrarEntradaCommandValidator : AbstractValidator<RegistrarEntra
         RuleForEach(x => x.DatasVencimentoBoleto).ChildRules(data =>
         {
             data.RuleFor(d => d)
-                .GreaterThanOrEqualTo(_ => DateTime.UtcNow.Date)
+                .Must(d => d.Date >= relogio.Hoje())
                 .WithMessage("A data de vencimento do boleto deve ser hoje ou no futuro.");
         });
     }

@@ -5,6 +5,10 @@ using MediatR;
 
 namespace CasaDiAna.Application.Relatorios.Queries.InsumosProducao;
 
+/// <summary>
+/// Insumos consumidos por produção, filtrados pela DATA DA PRODUÇÃO — não por quando
+/// ela foi lançada. Uma produção de ontem registrada hoje de manhã conta em ontem.
+/// </summary>
 public class InsumosProducaoQueryHandler
     : IRequestHandler<InsumosProducaoQuery, IReadOnlyList<InsumoProducaoDiaDto>>
 {
@@ -25,68 +29,56 @@ public class InsumosProducaoQueryHandler
     public async Task<IReadOnlyList<InsumoProducaoDiaDto>> Handle(
         InsumosProducaoQuery request, CancellationToken cancellationToken)
     {
-        var movs = (await _movimentacoes.ListarAsync(
-            request.De, request.Ate, TipoMovimentacao.SaidaProducao, cancellationToken)).ToList();
+        var producoes = (await _producoesDiarias.ListarAsync(
+                request.De, request.Ate, NuloSeVazio(request.ProdutoIds), cancellationToken))
+            .ToDictionary(p => p.Id);
+
+        var movs = (await _movimentacoes.ListarPorReferenciasAsync(
+                TipoMovimentacao.SaidaProducao, producoes.Keys, cancellationToken))
+            .AsEnumerable();
 
         if (request.IngredienteIds?.Count > 0)
-            movs = movs.Where(m => request.IngredienteIds.Contains(m.IngredienteId)).ToList();
+            movs = movs.Where(m => request.IngredienteIds.Contains(m.IngredienteId));
 
-        // Carregar ProducoesDiarias referenciadas
-        var producaoDiariaIds = movs
-            .Where(m => m.ReferenciaId.HasValue)
-            .Select(m => m.ReferenciaId!.Value)
-            .Distinct()
-            .ToList();
+        var movsDoPeriodo = movs.ToList();
+        var ingredientes = await CarregarIngredientesAsync(
+            movsDoPeriodo.Select(m => m.IngredienteId).Distinct(), cancellationToken);
 
-        var producoes = await _producoesDiarias.ListarPorIdsAsync(producaoDiariaIds, cancellationToken);
-        var producoesMap = producoes.ToDictionary(p => p.Id);
-
-        if (request.ProdutoIds?.Count > 0)
-        {
-            var prodIds = request.ProdutoIds;
-            movs = movs
-                .Where(m => m.ReferenciaId.HasValue
-                    && producoesMap.TryGetValue(m.ReferenciaId.Value, out var pd)
-                    && prodIds.Contains(pd.ProdutoId))
-                .ToList();
-        }
-
-        // Carregar nomes dos ingredientes
-        var ingredienteIds = movs.Select(m => m.IngredienteId).Distinct().ToList();
-        var ingredientesMap = new Dictionary<Guid, (string Nome, string Unidade)>();
-        foreach (var id in ingredienteIds)
-        {
-            var ing = await _ingredientes.ObterPorIdAsync(id, cancellationToken);
-            if (ing != null)
-                ingredientesMap[id] = (ing.Nome, ing.UnidadeMedida?.Codigo ?? string.Empty);
-        }
-
-        var resultado = new List<InsumoProducaoDiaDto>();
-        foreach (var m in movs)
-        {
-            if (!m.ReferenciaId.HasValue || !producoesMap.TryGetValue(m.ReferenciaId.Value, out var producao))
-                continue;
-
-            var (ingNome, ingUnidade) = ingredientesMap.TryGetValue(m.IngredienteId, out var ing)
-                ? ing
-                : (string.Empty, string.Empty);
-
-            resultado.Add(new InsumoProducaoDiaDto(
-                DateOnly.FromDateTime(producao.Data),
-                producao.Id,
-                producao.ProdutoId,
-                producao.Produto?.Nome ?? string.Empty,
-                m.IngredienteId,
-                ingNome,
-                ingUnidade,
-                m.Quantidade));
-        }
-
-        return resultado
+        return movsDoPeriodo
+            .Select(m =>
+            {
+                var producao = producoes[m.ReferenciaId!.Value];
+                var (ingNome, ingUnidade) = ingredientes.GetValueOrDefault(m.IngredienteId, (string.Empty, string.Empty));
+                return new InsumoProducaoDiaDto(
+                    DateOnly.FromDateTime(producao.Data),
+                    producao.Id,
+                    producao.ProdutoId,
+                    producao.Produto?.Nome ?? string.Empty,
+                    m.IngredienteId,
+                    ingNome,
+                    ingUnidade,
+                    m.Quantidade);
+            })
             .OrderBy(r => r.Data)
             .ThenBy(r => r.ProdutoNome)
             .ThenBy(r => r.IngredienteNome)
             .ToList()
             .AsReadOnly();
     }
+
+    private async Task<Dictionary<Guid, (string Nome, string Unidade)>> CarregarIngredientesAsync(
+        IEnumerable<Guid> ids, CancellationToken ct)
+    {
+        var mapa = new Dictionary<Guid, (string Nome, string Unidade)>();
+        foreach (var id in ids)
+        {
+            var ing = await _ingredientes.ObterPorIdAsync(id, ct);
+            if (ing != null)
+                mapa[id] = (ing.Nome, ing.UnidadeMedida?.Codigo ?? string.Empty);
+        }
+        return mapa;
+    }
+
+    private static IReadOnlyList<Guid>? NuloSeVazio(IReadOnlyList<Guid>? ids) =>
+        ids is { Count: > 0 } ? ids : null;
 }

@@ -50,6 +50,17 @@ public class MovimentacaoRepository : IMovimentacaoRepository
         return await query.OrderByDescending(m => m.CriadoEm).ToListAsync(ct);
     }
 
+    public async Task<IReadOnlyList<Movimentacao>> ListarPorReferenciasAsync(
+        TipoMovimentacao tipo, IReadOnlyCollection<Guid> referenciaIds, CancellationToken ct = default)
+    {
+        if (referenciaIds.Count == 0)
+            return Array.Empty<Movimentacao>();
+
+        return await _db.Movimentacoes
+            .Where(m => m.Tipo == tipo && m.ReferenciaId.HasValue && referenciaIds.Contains(m.ReferenciaId.Value))
+            .ToListAsync(ct);
+    }
+
     public async Task AdicionarAsync(Movimentacao movimentacao, CancellationToken ct = default) =>
         await _db.Movimentacoes.AddAsync(movimentacao, ct);
 

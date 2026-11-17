@@ -8,15 +8,7 @@ import { LoadingState } from '@/components/ui/LoadingState'
 import { FiltrosRelatorio } from '../components/FiltrosRelatorio'
 import { EntityChipDropdown } from '../components/EntityChipDropdown'
 import type { RelatorioProducaoVendas, RelatorioProducaoVendasItem, ProdutoResumo } from '@/types/producao'
-
-function primeiroDoMes(): string {
-  const hoje = new Date()
-  return new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().split('T')[0]
-}
-
-function hoje(): string {
-  return new Date().toISOString().split('T')[0]
-}
+import { hojeIso, inicioDoMesIso } from '@/lib/datas'
 
 function brl(v: number): string {
   return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -32,8 +24,8 @@ export function ProducaoVendasRelatorioPage() {
   const [produtos, setProdutos] = useState<ProdutoResumo[]>([])
   const [loading, setLoading] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
-  const [de, setDe] = useState(primeiroDoMes())
-  const [ate, setAte] = useState(hoje())
+  const [de, setDe] = useState(inicioDoMesIso())
+  const [ate, setAte] = useState(hojeIso())
   const [produtoFiltros, setProdutoFiltros] = useState<string[]>([])
 
   const carregar = useCallback(async (filtroDe: string, filtroAte: string, produtoIds?: string[]) => {
@@ -54,7 +46,7 @@ export function ProducaoVendasRelatorioPage() {
 
   useEffect(() => {
     produtosService.listar().then(setProdutos).catch(() => {})
-    carregar(primeiroDoMes(), hoje())
+    carregar(inicioDoMesIso(), hojeIso())
   }, [carregar])
 
   const handleFiltrar = (e?: React.FormEvent) => {

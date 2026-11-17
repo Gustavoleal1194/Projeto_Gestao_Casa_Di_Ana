@@ -1,5 +1,6 @@
 // CasaDiAna/frontend/src/components/ui/FiltroPeriodo.tsx
 import type { FilterChipDef } from '@/components/ui/FilterBar'
+import { hojeIso } from '@/lib/datas'
 
 interface FiltroPeriodoProps {
   de: string
@@ -24,7 +25,7 @@ export function FiltroPeriodo({
   idDe = 'filtro-de',
   idAte = 'filtro-ate',
 }: FiltroPeriodoProps) {
-  const hoje = new Date().toISOString().split('T')[0]
+  const hoje = hojeIso()
 
   return (
     <>

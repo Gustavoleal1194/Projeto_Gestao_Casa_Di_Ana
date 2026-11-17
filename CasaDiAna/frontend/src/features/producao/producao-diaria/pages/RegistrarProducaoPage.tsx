@@ -17,6 +17,7 @@ import { FormActions } from '@/components/form/FormActions'
 import { FormCard } from '@/components/form/FormCard'
 import { Toast } from '@/components/ui/Toast'
 import type { ProdutoResumo, ProducaoFormValues } from '@/types/producao'
+import { hojeIso } from '@/lib/datas'
 
 const producaoSchema = z.object({
   produtoId: z.string().min(1, 'Selecione um produto.'),
@@ -42,7 +43,7 @@ export function RegistrarProducaoPage() {
       resolver: zodResolver(producaoSchema) as any,
       defaultValues: {
         produtoId: '',
-        data: new Date().toISOString().split('T')[0],
+        data: hojeIso(),
         quantidadeProduzida: undefined,
         observacoes: '',
       },

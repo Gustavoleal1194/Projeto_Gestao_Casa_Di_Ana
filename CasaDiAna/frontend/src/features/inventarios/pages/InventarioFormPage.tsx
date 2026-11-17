@@ -12,6 +12,7 @@ import { FormActions } from '@/components/form/FormActions'
 import { FormCard } from '@/components/form/FormCard'
 import { Toast } from '@/components/ui/Toast'
 import { ConfirmacaoInicioInventarioModal, type DadosConfirmacaoInicioInventario } from '../components/ConfirmacaoInicioInventarioModal'
+import { hojeIso } from '@/lib/datas'
 
 interface IniciarFormValues {
   dataRealizacao: string
@@ -35,7 +36,7 @@ export function InventarioFormPage() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       resolver: zodResolver(schema) as any,
       defaultValues: {
-        dataRealizacao: new Date().toISOString().split('T')[0],
+        dataRealizacao: hojeIso(),
         descricao: '',
         observacoes: '',
       },

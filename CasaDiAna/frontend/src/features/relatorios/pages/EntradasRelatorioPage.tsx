@@ -7,11 +7,7 @@ import { LoadingState } from '@/components/ui/LoadingState'
 import { FiltrosRelatorio } from '../components/FiltrosRelatorio'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import type { EntradaRelatorioResumo } from '@/types/estoque'
-
-function hoje(): string { return new Date().toISOString().split('T')[0] }
-function primeiroDiaMes(): string {
-  const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0]
-}
+import { hojeIso, inicioDoMesIso } from '@/lib/datas'
 
 function formatarData(iso: string): string {
   return new Date(iso).toLocaleDateString('pt-BR')
@@ -25,8 +21,8 @@ export function EntradasRelatorioPage() {
   const [resumo, setResumo] = useState<EntradaRelatorioResumo | null>(null)
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
-  const [de, setDe] = useState(primeiroDiaMes)
-  const [ate, setAte] = useState(hoje)
+  const [de, setDe] = useState(inicioDoMesIso)
+  const [ate, setAte] = useState(hojeIso)
 
   const carregar = async () => {
     setLoading(true)

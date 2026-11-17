@@ -8,20 +8,15 @@ import { FiltrosRelatorio } from '../components/FiltrosRelatorio'
 import { ResultadoComparacao } from '../components/comparacao-preco/ResultadoComparacao'
 import { fmtData } from '../components/comparacao-preco/formatadores'
 import type { ComparacaoPreco } from '@/types/estoque'
-
-function hoje(): string { return new Date().toISOString().split('T')[0] }
-function primeiroDiaMes(): string {
-  const d = new Date()
-  return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0]
-}
+import { hojeIso, inicioDoMesIso } from '@/lib/datas'
 
 export function ComparacaoPrecoPage() {
   const [dados, setDados] = useState<ComparacaoPreco | null>(null)
   const [consulta, setConsulta] = useState(0)
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
-  const [de, setDe] = useState(primeiroDiaMes)
-  const [ate, setAte] = useState(hoje)
+  const [de, setDe] = useState(inicioDoMesIso)
+  const [ate, setAte] = useState(hojeIso)
 
   const carregar = async () => {
     setLoading(true)

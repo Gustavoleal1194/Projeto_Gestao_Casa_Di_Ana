@@ -15,6 +15,7 @@ import { useTheme } from '@/hooks/useTheme'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { FiltroPeriodo } from '@/components/ui/FiltroPeriodo'
 import { KpiCard } from '@/components/ui/KpiCard'
+import { hojeIso, inicioDoMesIso } from '@/lib/datas'
 
 // ─── Paleta de cores ────────────────────────────────────────────────────────
 const COR = {
@@ -27,11 +28,6 @@ const COR = {
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
-function primeiroDoMes() {
-  const h = new Date()
-  return new Date(h.getFullYear(), h.getMonth(), 1).toISOString().split('T')[0]
-}
-function hoje() { return new Date().toISOString().split('T')[0] }
 function brl(v: number) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }
 function pct(v: number) { return `${v.toFixed(1)}%` }
 const LIMITE_PROD_VENDAS = 12
@@ -197,8 +193,8 @@ export function DashboardPage() {
     gridColor:  isDark ? '#1F2937' : '#f1f5f9',
   }), [isDark])
 
-  const [de, setDe] = useState(primeiroDoMes())
-  const [ate, setAte] = useState(hoje())
+  const [de, setDe] = useState(inicioDoMesIso())
+  const [ate, setAte] = useState(hojeIso())
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
@@ -232,7 +228,7 @@ export function DashboardPage() {
     }
   }, [])
 
-  useEffect(() => { carregar(primeiroDoMes(), hoje()) }, [carregar])
+  useEffect(() => { carregar(inicioDoMesIso(), hojeIso()) }, [carregar])
   const handleFiltrar = () => carregar(de, ate)
 
   // ── Totais ──────────────────────────────────────────────────────────────

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { Despesa, DespesaInput } from '../services/despesasService'
 import { categoriasDespesaService, type CategoriaDespesa } from '../services/categoriasDespesaService'
 import { mesParaCompetencia, type TipoDespesa } from '../../shared/competencia'
+import { hojeIso } from '@/lib/datas'
 
 interface Props {
   mes: string
@@ -18,7 +19,7 @@ export function ModalDespesa({ mes, tipo, despesa, onFechar, onSalvar }: Props) 
   const [valor, setValor] = useState(despesa ? String(despesa.valor) : '')
   const [observacao, setObservacao] = useState(despesa?.observacao ?? '')
   const [dataLancamento, setDataLancamento] = useState(
-    despesa ? despesa.dataLancamento.split('T')[0] : new Date().toISOString().split('T')[0])
+    despesa ? despesa.dataLancamento.split('T')[0] : hojeIso())
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
 

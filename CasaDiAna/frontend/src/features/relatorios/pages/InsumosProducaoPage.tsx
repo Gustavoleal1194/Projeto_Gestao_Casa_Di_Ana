@@ -10,15 +10,7 @@ import { FiltrosRelatorio } from '../components/FiltrosRelatorio'
 import { EntityChipDropdown } from '../components/EntityChipDropdown'
 import type { InsumoProducaoDia, IngredienteResumo } from '@/types/estoque'
 import type { ProdutoResumo } from '@/types/producao'
-
-function primeiroDoMes(): string {
-  const hoje = new Date()
-  return new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().split('T')[0]
-}
-
-function hoje(): string {
-  return new Date().toISOString().split('T')[0]
-}
+import { hojeIso, inicioDoMesIso } from '@/lib/datas'
 
 export function InsumosProducaoPage() {
   const [itens, setItens] = useState<InsumoProducaoDia[]>([])
@@ -26,8 +18,8 @@ export function InsumosProducaoPage() {
   const [produtos, setProdutos] = useState<ProdutoResumo[]>([])
   const [loading, setLoading] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
-  const [de, setDe] = useState(primeiroDoMes())
-  const [ate, setAte] = useState(hoje())
+  const [de, setDe] = useState(inicioDoMesIso())
+  const [ate, setAte] = useState(hojeIso())
   const [ingredienteFiltros, setIngredienteFiltros] = useState<string[]>([])
   const [produtoFiltros, setProdutoFiltros] = useState<string[]>([])
 
@@ -56,7 +48,7 @@ export function InsumosProducaoPage() {
   useEffect(() => {
     ingredientesService.listar().then(setIngredientes).catch(() => {})
     produtosService.listar().then(setProdutos).catch(() => {})
-    carregar(primeiroDoMes(), hoje())
+    carregar(inicioDoMesIso(), hojeIso())
   }, [carregar])
 
   const handleFiltrar = (e?: React.FormEvent) => {

@@ -19,6 +19,7 @@ import { CamposCabecalhoEntrada } from '../components/CamposCabecalhoEntrada'
 import { entradaRegistroSchema } from '../schemas/entradaSchemas'
 import { ConfirmacaoEntradaModal, type DadosConfirmacaoEntrada } from '../components/ConfirmacaoEntradaModal'
 import type { Fornecedor, IngredienteResumo, UtensilioResumo, EntradaFormValues, EntradaMercadoria } from '@/types/estoque'
+import { hojeIso } from '@/lib/datas'
 
 export function EntradaFormPage() {
   const navigate = useNavigate()
@@ -33,7 +34,7 @@ export function EntradaFormPage() {
     resolver: zodResolver(entradaRegistroSchema) as any,
     defaultValues: {
       fornecedorId: '',
-      dataEntrada: new Date().toISOString().split('T')[0],
+      dataEntrada: hojeIso(),
       numeroNotaFiscal: '',
       recebidoPor: '',
       observacoes: '',

@@ -10,11 +10,7 @@ import { KpiMovimentacoes } from '../components/KpiMovimentacoes'
 import { ChartMovimentacoes } from '../components/ChartMovimentacoes'
 import { StreamAutoScroll } from '../components/StreamAutoScroll'
 import type { MovimentacaoRelatorio, IngredienteResumo } from '@/types/estoque'
-
-function hoje(): string { return new Date().toISOString().split('T')[0] }
-function ha30Dias(): string {
-  const d = new Date(); d.setDate(d.getDate() - 30); return d.toISOString().split('T')[0]
-}
+import { hojeIso, diasAtrasIso } from '@/lib/datas'
 
 function useLiveClock() {
   const [hora, setHora] = useState('')
@@ -39,8 +35,8 @@ export function MovimentacoesPage() {
   const [ingredientes, setIngredientes]          = useState<IngredienteResumo[]>([])
   const [loading, setLoading]                   = useState(false)
   const [erro, setErro]                         = useState<string | null>(null)
-  const [de, setDe]                             = useState(ha30Dias)
-  const [ate, setAte]                           = useState(hoje)
+  const [de, setDe]                             = useState(() => diasAtrasIso(30))
+  const [ate, setAte]                           = useState(hojeIso)
   const [tipos, setTipos]                       = useState<string[]>([])
   const [ingredienteIds, setIngredienteIds]     = useState<string[]>([])
   const [busca, setBusca]                       = useState('')

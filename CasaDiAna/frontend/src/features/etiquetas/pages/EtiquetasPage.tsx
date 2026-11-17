@@ -16,6 +16,7 @@ import {
   htmlEtiquetaNutricional,
   type NutriValues,
 } from '../utils/etiquetaUtils'
+import { hojeIso } from '@/lib/datas'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -136,7 +137,7 @@ export function EtiquetasPage() {
   const [ingredienteId, setIngredienteId] = useState('')
   const [tipo, setTipo] = useState<TipoEtiqueta>(1)
   const [dataProducao, setDataProducao] = useState(
-    new Date().toISOString().split('T')[0]
+    hojeIso()
   )
   const [dataValidade, setDataValidade] = useState('')
   const [quantidade, setQuantidade] = useState(1)

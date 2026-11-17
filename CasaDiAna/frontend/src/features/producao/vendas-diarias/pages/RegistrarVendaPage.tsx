@@ -16,6 +16,7 @@ import { Toast } from '@/components/ui/Toast'
 import type { ProdutoResumo, VendaFormValues } from '@/types/producao'
 import { useAuthStore } from '@/store/authStore'
 import { ConfirmacaoVendaModal, type DadosConfirmacaoVenda } from '../components/ConfirmacaoVendaModal'
+import { hojeIso } from '@/lib/datas'
 
 const vendaSchema = z.object({
   produtoId: z.string().min(1, 'Selecione um produto.'),
@@ -41,7 +42,7 @@ export function RegistrarVendaPage() {
       resolver: zodResolver(vendaSchema) as any,
       defaultValues: {
         produtoId: '',
-        data: new Date().toISOString().split('T')[0],
+        data: hojeIso(),
         quantidadeVendida: undefined,
       },
     })

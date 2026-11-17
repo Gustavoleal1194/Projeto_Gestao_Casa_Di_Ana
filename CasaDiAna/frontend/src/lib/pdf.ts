@@ -2,6 +2,7 @@ import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import type { EstoqueAtualItem, MovimentacaoRelatorio, EntradaRelatorioResumo, InsumoProducaoDia } from '@/types/estoque'
 import type { RelatorioProducaoVendasItem } from '@/types/producao'
+import { hojeIso } from '@/lib/datas'
 
 const BRAND = 'Casa di Ana'
 const PRIMARY = [146, 64, 14] as [number, number, number]   // amber-800
@@ -96,7 +97,7 @@ export function gerarPdfEstoqueAtual(itens: EstoqueAtualItem[], apenasAbaixo: bo
   })
 
   rodape(doc)
-  doc.save(`estoque-atual-${new Date().toISOString().split('T')[0]}.pdf`)
+  doc.save(`estoque-atual-${hojeIso()}.pdf`)
 }
 
 // ─── Movimentações ────────────────────────────────────────────────────────────

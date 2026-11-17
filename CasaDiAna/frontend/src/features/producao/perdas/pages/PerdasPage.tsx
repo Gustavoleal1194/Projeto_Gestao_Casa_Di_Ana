@@ -17,6 +17,7 @@ import { FiltrosPerdas } from '../components/FiltrosPerdas'
 import type { PerdaProduto } from '@/types/producao'
 import type { ProdutoResumo } from '@/types/producao'
 import { ConfirmacaoPerdasModal, type DadosConfirmacaoPerdas } from '../components/ConfirmacaoPerdasModal'
+import { hojeIso, inicioDoMesIso } from '@/lib/datas'
 
 const perdaSchema = z.object({
   produtoId: z.string().min(1, 'Produto obrigatório.'),
@@ -35,15 +36,6 @@ const perdaSchema = z.object({
 
 type PerdaFormValues = z.infer<typeof perdaSchema>
 
-function hoje() {
-  return new Date().toISOString().split('T')[0]
-}
-
-function primeiroDoMes() {
-  const d = new Date()
-  return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0]
-}
-
 
 export function PerdasPage() {
   const [perdas, setPerdas] = useState<PerdaProduto[]>([])
@@ -52,8 +44,8 @@ export function PerdasPage() {
   const [erro, setErro] = useState<string | null>(null)
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
   const [modalAberto, setModalAberto] = useState(false)
-  const [de, setDe] = useState(primeiroDoMes())
-  const [ate, setAte] = useState(hoje())
+  const [de, setDe] = useState(inicioDoMesIso())
+  const [ate, setAte] = useState(hojeIso())
   const [busca, setBusca] = useState('')
   const [confirma, setConfirma] = useState<DadosConfirmacaoPerdas | null>(null)
 
@@ -61,7 +53,7 @@ export function PerdasPage() {
     useForm<PerdaFormValues>({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       resolver: zodResolver(perdaSchema) as any,
-      defaultValues: { produtoId: '', data: hoje(), quantidade: undefined, justificativa: '' },
+      defaultValues: { produtoId: '', data: hojeIso(), quantidade: undefined, justificativa: '' },
     })
 
   const carregar = useCallback(async (filtroDe: string, filtroAte: string) => {
@@ -79,7 +71,7 @@ export function PerdasPage() {
 
   useEffect(() => {
     produtosService.listar().then(setProdutos).catch(() => {})
-    carregar(primeiroDoMes(), hoje())
+    carregar(inicioDoMesIso(), hojeIso())
   }, [carregar])
 
   const handleDeChange = (v: string) => { setDe(v); carregar(v, ate) }
@@ -104,7 +96,7 @@ export function PerdasPage() {
       })
       const produtoNome = produtos.find(p => p.id === values.produtoId)?.nome ?? '—'
       setModalAberto(false)
-      resetForm({ produtoId: '', data: hoje(), quantidade: undefined, justificativa: '' })
+      resetForm({ produtoId: '', data: hojeIso(), quantidade: undefined, justificativa: '' })
       carregar(de, ate)
       setConfirma({
         produtoNome,
@@ -130,7 +122,7 @@ export function PerdasPage() {
         subtitulo={loading ? 'Carregando…' : `${perdas.length} registro${perdas.length !== 1 ? 's' : ''} no período`}
         actions={
           <button
-            onClick={() => { resetForm({ produtoId: '', data: hoje(), quantidade: undefined, justificativa: '' }); setModalAberto(true) }}
+            onClick={() => { resetForm({ produtoId: '', data: hojeIso(), quantidade: undefined, justificativa: '' }); setModalAberto(true) }}
             className="btn-primary"
           >
             <PlusIcon className="h-4 w-4" aria-hidden="true" />
